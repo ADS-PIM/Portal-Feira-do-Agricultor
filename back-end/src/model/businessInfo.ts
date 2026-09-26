@@ -1,0 +1,55 @@
+import { BusinessInfoCreateDTO } from '../dto/businessInfo.dto';
+
+export type propsBusinessInfo = {
+    id: string;
+    instagramAccount: string;
+    whatsappNumber: string;
+    businessEmail: string;
+    businessHours: string;
+    updatedAt: Date;
+}
+
+export class BusinessInfo {
+    constructor(private props: propsBusinessInfo) {}
+
+    public static construct(BusinessInfoCreateDTO: BusinessInfoCreateDTO){
+        const props: propsBusinessInfo = {
+            id: crypto.randomUUID(),
+            instagramAccount: BusinessInfoCreateDTO.instagramAccount,
+            whatsappNumber: BusinessInfoCreateDTO.whatsappNumber,
+            businessEmail: BusinessInfoCreateDTO.businessEmail,
+            businessHours: BusinessInfoCreateDTO.businessHours,
+            updatedAt: new Date()
+        }
+        return new BusinessInfo(props)
+    }
+
+    public static reconstruct(props: propsBusinessInfo) {
+        return new BusinessInfo(props)
+    }
+
+    public get id () {
+        return this.props.id;
+    }
+ 
+    public get instagramAccount () {
+        return this.props.instagramAccount;
+    }
+ 
+    public get whatsappNumber () {
+        return this.props.whatsappNumber;
+    }
+ 
+    public get businessEmail () {
+        return this.props.businessEmail;
+    }
+ 
+    public get businessHours () {
+        return this.props.businessHours;
+    }
+ 
+    public get updatedAt () {
+        return this.props.updatedAt;
+    }
+}
+
