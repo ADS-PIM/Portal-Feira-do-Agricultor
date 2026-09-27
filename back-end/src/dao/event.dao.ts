@@ -39,16 +39,12 @@ export class EventDAO {
 
     public async searchById(id: string): Promise<Event | null> {
         try {
-            const [rows]: any = await connection.query('SELECT * FROM events WHERE id = ?', [id]);
-            if (rows.length === 0) {
+            const [events]: any = await connection.query('SELECT * FROM events WHERE id = ?', [id]);
+            if (events.length === 0) {
                 return null
             }
-            
-            if (!rows || rows.length === 0) {
-                return null;
-            }
 
-            return Event.reconstruct(rows[0]);
+            return events[0];
         } catch (error: any) {
             throw new Error('Error searching event by id: ' + error.message);
         }

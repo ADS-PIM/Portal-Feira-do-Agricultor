@@ -21,10 +21,7 @@ export class BusinessInfoController {
             await this.businessInfoService.register(businessInfoCreateDTO);
             return res.status(201).json({ message: 'Business info registered successfully' })
         } catch (error: any) {
-            if (error.message.includes === 'Event not found') {
-                return res.status(404).json({ error: 'Event not found' });
-            }
-            return res.status(500).json({ error: 'Error registering business info' });
+            return res.status(500).json({ error: error.message });
         }
     }
 
@@ -41,9 +38,9 @@ export class BusinessInfoController {
                 businessEmail: businessInfo.businessEmail,
                 businessHours: businessInfo.businessHours,
                 updatedAt: businessInfo.updatedAt
-             })
+            })
         } catch (error: any) {
-            return res.status(500).json({ error: 'Error fetching business info ' });
+            return res.status(500).json({ error: error.message });
         }
     }
 
@@ -58,10 +55,10 @@ export class BusinessInfoController {
             await this.businessInfoService.update(businessInfoUpdateDTO);
             return res.status(200).json({ message: 'Business info updated successfully' })
         } catch (error: any) {
-            if (error.message.includes === ' not found') {
+            if (error.message.includes === 'Business info not found') {
                 return res.status(404).json({ error: error.message });
             }
-            return res.status(500).json({ error: 'Error updating business info' });
+            return res.status(500).json({ error: error.message });
         }
     }
 
@@ -73,7 +70,7 @@ export class BusinessInfoController {
             if (error.message.includes('not found')) {
                 return res.status(404).json({ error: error.message });
             }
-            return res.status(500).json({ error: 'Error deleting business info' });
+            return res.status(500).json({ error: error.message });
         }
     }
 }

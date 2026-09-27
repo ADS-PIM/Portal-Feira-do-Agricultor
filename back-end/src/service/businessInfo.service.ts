@@ -21,7 +21,8 @@ export class BusinessInfoService {
     }
 
     public async getInfo(): Promise<BusinessInfo | null> {
-        return this.businessInfoDAO.searchFirst();
+        const businessInfo = await this.businessInfoDAO.searchFirst();
+        return businessInfo ? BusinessInfo.reconstruct(businessInfo) : null;
     }
 
     public async update(businessInfoUpdateDTO: BusinessInfoUpdateDTO): Promise <void> {
@@ -39,7 +40,7 @@ export class BusinessInfoService {
         if (!businessInfo) {
             throw new Error('Business info not found');
         }
- 
+
         await this.businessInfoDAO.delete(businessInfo.id);
     }
 }

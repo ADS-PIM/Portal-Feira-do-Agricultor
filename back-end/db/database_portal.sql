@@ -58,7 +58,6 @@ create table `messages` (
     `subject` enum('doubt', 'suggestion', 'complaint', 'partnership', 'other') not null,
     `message` varchar(1500) not null,
     `submitDate` timestamp not null,
-    `submitTime` timestamp not null,
     primary key (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
 

@@ -36,7 +36,7 @@ export class AdminController {
             await this.adminService.register(adminCreateDTO);
             return res.status(201).json({ message: 'Admin registred succesfully' })
         } catch (error: any) {
-            return res.status(500).json({error: 'Error registering admin'});
+            return res.status(500).json({error: error.message});
         }
     }
 

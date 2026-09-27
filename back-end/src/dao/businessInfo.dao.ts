@@ -38,15 +38,15 @@ export class BusinessInfoDAO {
 
     public async searchFirst(): Promise<BusinessInfo | null> {
         try {
-            const [rows]: any = await connection.query(
-                'SELECT * FROM businessInfo LIMIT 1'
+            const [businessInfo]: any = await connection.query(
+                'SELECT id, instagramAccount, whatsappNumber, businessEmail, businessHours, updatedAt FROM businessInfo LIMIT 1'
             );
- 
-            if (!rows || rows.length === 0) {
+            
+            if (!businessInfo || businessInfo.length === 0) {
                 return null;
             }
- 
-            return BusinessInfo.reconstruct(rows[0]);
+
+            return businessInfo[0];
         } catch (error: any) {
             throw new Error('Error searching business info: ' + error.message);
         }

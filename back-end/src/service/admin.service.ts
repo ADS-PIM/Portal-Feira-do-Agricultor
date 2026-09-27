@@ -40,10 +40,7 @@ export class AdminService {
 
     public async searchByEmail(email: string): Promise <Admin | null> {
         const admin: Admin | null = await this.adminDAO.searchByEmail(email);
-        if (admin) {
-            return Admin.reconstruct(admin);
-        }
-        return null;
+        return admin ? Admin.reconstruct(admin) : null;
     }
 
     public async searchById(id: string): Promise<Admin | null> {

@@ -44,6 +44,7 @@ export class EventService {
     }
 
     public async searchById(id: string): Promise<Event | null> {
-        return this.eventDAO.searchById(id);
+        const event = await this.eventDAO.searchById(id);
+        return event ? Event.reconstruct(event) : null
     }
 }

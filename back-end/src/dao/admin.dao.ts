@@ -30,7 +30,7 @@ export class AdminDAO {
             if (admin.length == 0) {
                 return null;
             }
-            return Admin.reconstruct(admin[0]);
+            return admin[0];
         } catch (error: any) {
             throw new Error('Error searching admin by email: ' + error.message);
         }
@@ -45,7 +45,7 @@ export class AdminDAO {
             if (admin.length === 0) {
                 return null;
             }
-            return Admin.reconstruct(admin[0]);
+            return admin[0];
         } catch (error: any) {
             throw new Error('Error searching admin by id: ' + error.message);
         }

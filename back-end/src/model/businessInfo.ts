@@ -12,13 +12,13 @@ export type propsBusinessInfo = {
 export class BusinessInfo {
     constructor(private props: propsBusinessInfo) {}
 
-    public static construct(BusinessInfoCreateDTO: BusinessInfoCreateDTO){
+    public static construct(businessInfoCreateDTO: BusinessInfoCreateDTO){
         const props: propsBusinessInfo = {
             id: crypto.randomUUID(),
-            instagramAccount: BusinessInfoCreateDTO.instagramAccount,
-            whatsappNumber: BusinessInfoCreateDTO.whatsappNumber,
-            businessEmail: BusinessInfoCreateDTO.businessEmail,
-            businessHours: BusinessInfoCreateDTO.businessHours,
+            instagramAccount: businessInfoCreateDTO.instagramAccount,
+            whatsappNumber: businessInfoCreateDTO.whatsappNumber,
+            businessEmail: businessInfoCreateDTO.businessEmail,
+            businessHours: businessInfoCreateDTO.businessHours,
             updatedAt: new Date()
         }
         return new BusinessInfo(props)
@@ -31,23 +31,23 @@ export class BusinessInfo {
     public get id () {
         return this.props.id;
     }
- 
+
     public get instagramAccount () {
         return this.props.instagramAccount;
     }
- 
+
     public get whatsappNumber () {
         return this.props.whatsappNumber;
     }
- 
+
     public get businessEmail () {
         return this.props.businessEmail;
     }
- 
+
     public get businessHours () {
         return this.props.businessHours;
     }
- 
+
     public get updatedAt () {
         return this.props.updatedAt;
     }
