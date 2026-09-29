@@ -8,6 +8,19 @@ import { EventImageCreateDTO, EventImageUpdateDTO } from '../dto/eventImage.dto'
 export class EventImageController {
     public constructor(private eventImageService: EventImageService) {}
 
+    public async searchByEventId(req: AuthRequest, res: Response) {
+        try {
+            const eventId = Array.isArray(req.params.eventId) ? req.params.eventId[0] : req.params.eventId;
+            const images = await this.eventImageService.searchByEventId(eventId);
+            return res.status(200).json(images);
+        } catch (error: any) {
+            if (error.message === 'Event not found') {
+                return res.status(404).json({ error: error.message });
+            }
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
     public async create(req: AuthRequest, res: Response) {
         try{
             const eventImageCreateDTO = plainToInstance(EventImageCreateDTO, req.body)

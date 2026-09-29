@@ -32,13 +32,7 @@ export class BusinessInfoController {
                 return res.status(404).json({ error: 'Business info not found' });
             }
 
-            return res.status(200).json({ 
-                instagramAccount: businessInfo.instagramAccount,
-                whatsappNumber: businessInfo.whatsappNumber,
-                businessEmail: businessInfo.businessEmail,
-                businessHours: businessInfo.businessHours,
-                updatedAt: businessInfo.updatedAt
-            })
+            return res.status(200).json({ businessInfo })
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
         }

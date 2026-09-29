@@ -19,6 +19,7 @@ eventRoutes
 
 eventRoutes
     .route('/:id')
+    .get(async (req, res) => eventController.searchById(req, res))
     .patch(authToken, async (req, res) => eventController.update(req, res))
     .delete(authToken, async (req, res) => eventController.delete(req, res));
 

@@ -1,6 +1,7 @@
 import { EventDAO, EventUpdateData } from '../dao/event.dao';
-import { EventCreateDTO, EventSearchDTO, EventUpdateDTO } from '../dto/event.dto';
+import { EventCreateDTO, EventSearchByIdDTO, EventSearchDTO, EventUpdateDTO } from '../dto/event.dto';
 import { Event } from '../model/event'
+import { EventImageDAO } from '../dao/eventImage.dao';
 
 export class EventService {
     public constructor(private eventDAO: EventDAO) {}
@@ -43,9 +44,16 @@ export class EventService {
         await this.eventDAO.delete(id)
     }
 
-    public async searchById(id: string): Promise<Event | null> {
+    public async searchById(id: string): Promise<EventSearchByIdDTO | null> {
+        const eventImageDAO = new EventImageDAO()
         const event = await this.eventDAO.searchById(id);
-        return event ? Event.reconstruct(event) : null
+        if (!event) {
+            return null;
+        }
+
+        const eventImagesList = await eventImageDAO.searchByEventId(id);
+        event.eventImages = eventImagesList
+        return event;
     }
 
     public async searchAll(): Promise<EventSearchDTO[] | null> {

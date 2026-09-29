@@ -50,7 +50,7 @@ create table `businessInfo` (
     primary key (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
 
-create table `messages` (
+create table `message` (
     `id` char(36) not null,
     `name` varchar(255) not null,
     `email` varchar(320) not null,
@@ -58,6 +58,7 @@ create table `messages` (
     `subject` enum('doubt', 'suggestion', 'complaint', 'partnership', 'other') not null,
     `message` varchar(1500) not null,
     `submitDate` timestamp not null,
+    `title` varchar(255) not null,
     primary key (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
 

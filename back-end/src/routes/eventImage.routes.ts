@@ -9,6 +9,9 @@ const eventImageDAO = new EventImageDAO();
 const eventImageService = new EventImageService(eventImageDAO)
 const eventImageController = new EventImageController(eventImageService)
 
+eventImageRoutes
+    .route('/:eventId')
+    .get(authToken, async (req, res) => eventImageController.searchByEventId(req, res));
 
 eventImageRoutes
     .route('/create')

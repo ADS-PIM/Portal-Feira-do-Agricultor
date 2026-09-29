@@ -21,4 +21,15 @@ export class MessageCreateDTO {// phone, subject, message
     @IsNotEmpty()
     @IsString()
     message: string;
+
+    @IsNotEmpty()
+    @IsString()
+    title: string;
+}
+
+export class MessageSearchDTO {
+    id: string;
+    title: string;
+    subject: string;
+    name: string;
 }

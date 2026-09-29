@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsString, IsEnum, IsOptional, IsDateString, IsMilitaryTime, IsNumber } from 'class-validator';
 import { EventState } from '../model/event';
+import type { EventImageSearchByEventId } from './eventImage.dto';
 
 export class EventCreateDTO {
     @IsNotEmpty()
@@ -99,5 +100,22 @@ export class EventSearchDTO {
     endAt: string;
     state: EventState;
     bannerImage: string | null;
+}
+
+export class EventSearchByIdDTO {
+    id: string;
+    title: string;
+    date: Date;
+    description: string | null;
+    startAt: string;
+    endAt: string;
+    localAddress: string;
+    localLatitude: number | string;
+    localLongitude: number | string;
+    state: EventState;
+    bannerImage: string | null;
+    createdAt: Date;
+    administratorId: string;
+    eventImages: EventImageSearchByEventId[] | null;
 }
 

@@ -12,16 +12,17 @@ export type propsMessage = {
     id: string;
     name: string;
     email: string;
-    phone: string;
+    phone: string | null;
     subject: MessageSubject;
     message: string;
     submitDate: Date;// Date já pega o dia e o horario
+    title: string;
 }
 
 export class Message {
     constructor(private props: propsMessage) {}
 
-    public static construct({name, email, phone, subject, message}: MessageCreateDTO) {
+    public static construct({name, email, phone, subject, message, title}: MessageCreateDTO) {
         const props: propsMessage = {
             id: crypto.randomUUID(),
             name,
@@ -30,6 +31,7 @@ export class Message {
             subject: subject as MessageSubject,
             message,
             submitDate: new Date(),
+            title
         }
         return new Message(props);
     }
@@ -64,5 +66,13 @@ export class Message {
 
     public get submitDate () {
         return this.props.submitDate;
+    }
+
+    public get title () {
+        return this.props.title;
+    }
+
+    public toJSON(): propsMessage {
+        return { ...this.props };
     }
 }

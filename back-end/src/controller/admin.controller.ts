@@ -225,4 +225,19 @@ export class AdminController {
             return res.status(500).json({ error: error.message || 'Error searching admin' });
         }
     }
+
+    public async searchById(req: Request, res: Response) {
+        try {
+            const adminId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+            const admin = await this.adminService.searchPublicById(adminId);
+            if (!admin) {
+                return res.status(404).json({ error: 'Admin not found' });
+            }
+
+            return res.status(200).json(admin);
+        } catch (error: any) {
+            console.error('Error searching admin by id:', error);
+            return res.status(500).json({ error: error.message || 'Error searching admin' });
+        }
+    }
 }

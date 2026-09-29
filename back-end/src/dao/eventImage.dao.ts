@@ -1,4 +1,5 @@
 import { connection } from '../util/connection'
+import { EventImageSearchByEventId } from '../dto/eventImage.dto'
 import { EventImage } from '../model/eventImage'
 
 export type EventImageUpdateData = {
@@ -63,6 +64,18 @@ export class EventImageDAO {
             await connection.query('DELETE FROM images WHERE id = ?', [id]);
         } catch (error: any) {
             throw new Error('Error deleting image: ' + error.message);
+        }
+    }
+
+    public async searchByEventId(eventId: string): Promise<EventImageSearchByEventId[] | null> {
+        try {
+            const [rows]: any = await connection.query(
+                'SELECT id, imageUrl AS imageURL, description FROM images WHERE eventId = ?',
+                [eventId]
+            );
+            return rows.length === 0 ? null : rows;
+        } catch (error: any) {
+            throw new Error('Error searching images by event id: ' + error.message);
         }
     }
 }

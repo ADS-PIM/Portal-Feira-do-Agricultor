@@ -24,3 +24,9 @@ export class EventImageUpdateDTO {
     @IsString()
     description?: string;
 }
+
+export class EventImageSearchByEventId {
+    id: string;
+    imageURL: string;
+    description: string;
+}

@@ -1,6 +1,6 @@
 import { connection } from '../util/connection';
 import { Admin } from '../model/admin';
-import { AdminSearchDTO } from '../dto/admin.dto';
+import { AdminSearchByIdDTO, AdminSearchDTO } from '../dto/admin.dto';
 
 export type AdminUpdateData = {
     name?: string;
@@ -40,14 +40,23 @@ export class AdminDAO {
 
     async searchById(id: string): Promise<Admin | null> {
         try {
-            const [admin]: any = await connection.query(
+            const [admins]: any = await connection.query(
                 'SELECT id, name, email, hashPassword AS password, role, active, createdAt, profile_picture FROM administrators WHERE id = ?',
                 [id]
             );
-            if (admin.length === 0) {
-                return null;
-            }
-            return admin[0];
+            return admins.length === 0 ? null : admins[0];
+        } catch (error: any) {
+            throw new Error('Error searching admin by id: ' + error.message);
+        }
+    }
+
+    async searchPublicById(id: string): Promise<AdminSearchByIdDTO | null> {
+        try {
+            const [admins]: any = await connection.query(
+                'SELECT id, name, email, role, active, createdAt, profile_picture FROM administrators WHERE id = ?',
+                [id]
+            );
+            return admins.length === 0 ? null : admins[0];
         } catch (error: any) {
             throw new Error('Error searching admin by id: ' + error.message);
         }
@@ -56,12 +65,9 @@ export class AdminDAO {
     async searchAll(): Promise<AdminSearchDTO[] | null> {
         try {
             const [admins]: any = await connection.query(
-                'SELECT id, name, email, role, active, createdAt, profile_picture FROM administrators'
+                'SELECT id, name, email, role, active, profile_picture FROM administrators'
             );
-            if (admins.length === 0) {
-                return null;
-            }
-            return admins;
+            return admins.length === 0 ? null : admins[0];
         } catch (error: any) {
             throw new Error('Error searching admins: ' + error.message);
         }

@@ -1,10 +1,18 @@
-import { EventImageCreateDTO, EventImageUpdateDTO } from '../dto/eventImage.dto';
+import { EventImageCreateDTO, EventImageSearchByEventId, EventImageUpdateDTO } from '../dto/eventImage.dto';
 import { EventImageDAO, EventImageUpdateData } from '../dao/eventImage.dao'
 import { EventDAO } from '../dao/event.dao';
 import { EventImage } from '../model/eventImage';
 
 export class EventImageService {
     public constructor(private eventImageDAO: EventImageDAO) {}
+
+    public async searchByEventId(eventId: string): Promise<EventImageSearchByEventId[] | null> {
+        const eventDAO = new EventDAO()
+        if (!await eventDAO.searchById(eventId)) {
+            throw new Error('Event not found');
+        }
+        return this.eventImageDAO.searchByEventId(eventId);
+    }
 
     public async create(eventImageCreateDTO: EventImageCreateDTO): Promise<void> {
         const eventDAO = new EventDAO()

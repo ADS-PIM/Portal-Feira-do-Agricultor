@@ -1,6 +1,6 @@
 import { connection } from '../util/connection'
 import { Event, EventState } from '../model/event'
-import { EventSearchDTO } from '../dto/event.dto'
+import { EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
 
 export type EventUpdateData = {
     title?: string;
@@ -38,7 +38,7 @@ export class EventDAO {
         }
     }
 
-    public async searchById(id: string): Promise<Event | null> {
+    public async searchById(id: string): Promise<EventSearchByIdDTO | null> {
         try {
             const [events]: any = await connection.query('SELECT * FROM events WHERE id = ?', [id]);
             if (events.length === 0) {

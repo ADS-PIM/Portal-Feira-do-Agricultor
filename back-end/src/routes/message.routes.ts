@@ -15,11 +15,14 @@ messageRoutes
 
 messageRoutes
     .route('/:id')
-    .delete(authToken, async (req, res) => messageController.delete(req, res));
+    .delete(authToken, async (req, res) => messageController.delete(req, res))
+    .get(authToken, async (req, res) => messageController.searchById(req, res));
+
+messageRoutes
+    .route('/')
+    .get(authToken, async (req, res) => messageController.search(req, res));
 
 //Não fiz rota de edição pq n vai ser necessario atualmente, o usuarios vai mandar a menssagem e depois disso ele não vai mais ter acesso a ela,
 // o admin vai poder deletar depois de ler.
-
-//----CRIAR CAMPO DE TITULO PARA MENSSAGE----
 
 export default messageRoutes;
