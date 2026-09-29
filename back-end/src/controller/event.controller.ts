@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { EventCreateDTO, EventUpdateDTO } from '../dto/event.dto';
@@ -52,6 +52,15 @@ export class EventController {
             if (error.message.includes === 'Event not found') {
                 return res.status(404).json({ error: 'Event not found' });
             }
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    public async searchAll(_req: Request, res: Response) {
+        try {
+            const events = await this.eventService.searchAll();
+            return res.status(200).json(events);
+        } catch (error: any) {
             return res.status(500).json({ error: error.message });
         }
     }

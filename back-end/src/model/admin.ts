@@ -13,6 +13,7 @@ export type propsAdmin = {
     role: AdminRole;
     active: boolean;
     createdAt: Date;
+    profile_picture: string | null;
 }
 
 export class Admin {
@@ -26,7 +27,8 @@ export class Admin {
             password,
             role: role as AdminRole,
             active: true,
-            createdAt: new Date()
+            createdAt: new Date(),
+            profile_picture: null
         }
         return new Admin(props);
     }
@@ -61,5 +63,9 @@ export class Admin {
 
     public get createdAt () {
         return this.props.createdAt;
+    }
+
+    public get profile_picture () {
+        return this.props.profile_picture;
     }
 }

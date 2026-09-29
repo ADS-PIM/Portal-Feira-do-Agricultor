@@ -11,10 +11,14 @@ const adminService = new AdminService(adminDAO);
 const adminController = new AdminController(adminService);
 
 adminRoutes
+    .route('/')
+    .get(authToken, async (req, res) => adminController.searchAll(req, res))
+
+adminRoutes
     .route('/register')
     .post(authToken, isSuperAdmin, async (req, res) => adminController.register(req,res))
 
-    adminRoutes//rota para forcar o registro de um admin, somente para fins de desenvolvimento
+adminRoutes//rota para forcar o registro de um admin, somente para fins de desenvolvimento
     .route('/register/force')
     .post(async (req, res) => adminController.register(req,res))
 

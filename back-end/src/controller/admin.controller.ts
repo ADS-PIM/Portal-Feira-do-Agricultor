@@ -163,8 +163,8 @@ export class AdminController {
                 return res.status(400).json({ errors });
             }
 
-            const selfAllowedFields = ['name', 'password'];
-            const superAdminAllowedFields = ['name', 'email', 'role', 'active'];
+            const selfAllowedFields = ['name', 'password', 'profile_picture'];
+            const superAdminAllowedFields = ['name', 'email', 'role', 'active', 'profile_picture'];
             if (isSelfUpdate && isSuperAdmin) {
                 superAdminAllowedFields.push('password');
             }
@@ -214,5 +214,15 @@ export class AdminController {
     public async searchByEmail(email: string) {
         const admin = await this.adminService.searchByEmail(email);
         return admin;
+    }
+
+    public async searchAll(req: AuthRequest, res: Response) {
+        try {
+            const admins = await this.adminService.searchAll()
+            return res.status(200).json(admins);
+        } catch (error: any) {
+            console.error('Error searching admin:', error);
+            return res.status(500).json({ error: error.message || 'Error searching admin' });
+        }
     }
 }

@@ -1,5 +1,6 @@
 import { connection } from '../util/connection'
 import { Event, EventState } from '../model/event'
+import { EventSearchDTO } from '../dto/event.dto'
 
 export type EventUpdateData = {
     title?: string;
@@ -47,6 +48,17 @@ export class EventDAO {
             return events[0];
         } catch (error: any) {
             throw new Error('Error searching event by id: ' + error.message);
+        }
+    }
+
+    public async searchAll(): Promise<EventSearchDTO[] | null> {
+        try {
+            const [events]: any = await connection.query(
+                'SELECT id, title, date, startAt, endAt, state, bannerImage FROM events'
+            );
+            return events.length === 0 ? null : events;
+        } catch (error: any) {
+            throw new Error('Error searching events: ' + error.message);
         }
     }
 

@@ -1,5 +1,5 @@
 import { AdminDAO } from "../dao/admin.dao";
-import { AdminCreateDTO } from "../dto/admin.dto";
+import { AdminCreateDTO, AdminSearchDTO } from "../dto/admin.dto";
 import { Admin } from "../model/admin";
 import { PasswordCrypto } from './passwordCrypto';
 import { AdminUpdateData } from '../dao/admin.dao';
@@ -46,6 +46,11 @@ export class AdminService {
     public async searchById(id: string): Promise<Admin | null> {
         const admin = await this.adminDAO.searchById(id);
         return admin ? Admin.reconstruct(admin) : null;
+    }
+
+    public async searchAll(): Promise<AdminSearchDTO[] | null> {
+        const admins = await this.adminDAO.searchAll();
+        return admins;
     }
 
     public async update(id: string, data: AdminUpdateData): Promise<void> {

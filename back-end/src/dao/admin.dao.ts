@@ -1,5 +1,6 @@
 import { connection } from '../util/connection';
 import { Admin } from '../model/admin';
+import { AdminSearchDTO } from '../dto/admin.dto';
 
 export type AdminUpdateData = {
     name?: string;
@@ -7,6 +8,7 @@ export type AdminUpdateData = {
     password?: string;
     role?: Admin['role'];
     active?: boolean;
+    profile_picture?: string | null;
 };
 
 export class AdminDAO {
@@ -24,7 +26,7 @@ export class AdminDAO {
     async searchByEmail(email: string): Promise<Admin | null> {
         try {
             const [admin]: any = await connection.query(
-                'SELECT id, name, email, hashPassword AS password, role, active, createdAt FROM administrators WHERE email = ?',
+                'SELECT id, name, email, hashPassword AS password, role, active, createdAt, profile_picture FROM administrators WHERE email = ?',
                 [email]
             );
             if (admin.length == 0) {
@@ -39,7 +41,7 @@ export class AdminDAO {
     async searchById(id: string): Promise<Admin | null> {
         try {
             const [admin]: any = await connection.query(
-                'SELECT id, name, email, hashPassword AS password, role, active, createdAt FROM administrators WHERE id = ?',
+                'SELECT id, name, email, hashPassword AS password, role, active, createdAt, profile_picture FROM administrators WHERE id = ?',
                 [id]
             );
             if (admin.length === 0) {
@@ -51,9 +53,23 @@ export class AdminDAO {
         }
     }
 
+    async searchAll(): Promise<AdminSearchDTO[] | null> {
+        try {
+            const [admins]: any = await connection.query(
+                'SELECT id, name, email, role, active, createdAt, profile_picture FROM administrators'
+            );
+            if (admins.length === 0) {
+                return null;
+            }
+            return admins;
+        } catch (error: any) {
+            throw new Error('Error searching admins: ' + error.message);
+        }
+    }
+
     async update(id: string, data: AdminUpdateData): Promise<void> {
         const fields: string[] = [];
-        const values: (string | boolean)[] = [];
+        const values: (string | boolean | null)[] = [];
 
         if (data.name !== undefined) {
             fields.push('name = ?');
@@ -74,6 +90,10 @@ export class AdminDAO {
         if (data.active !== undefined) {
             fields.push('active = ?');
             values.push(data.active);
+        }
+        if (data.profile_picture !== undefined) {
+            fields.push('profile_picture = ?');
+            values.push(data.profile_picture);
         }
 
         if (fields.length === 0) {

@@ -50,4 +50,17 @@ export class AdminUpdateDTO {
     @IsOptional()
     @IsBoolean()
     active?: boolean;
+
+    @IsOptional()
+    @IsString()
+    profile_picture?: string | null;
+}
+
+export class AdminSearchDTO {//Não tem necessidade de validação pq vai ser usado so para pesquisa
+    name: string;
+    email: string;
+    role: AdminRole;
+    active: boolean;
+    createdAt: Date;
+    profile_picture: string | null;
 }

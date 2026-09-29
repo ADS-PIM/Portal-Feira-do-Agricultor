@@ -91,3 +91,13 @@ export class EventUpdateDTO {
     bannerImage?: string;
 }
 
+export class EventSearchDTO {
+    id: string;
+    title: string;
+    date: Date;
+    startAt: string;
+    endAt: string;
+    state: EventState;
+    bannerImage: string | null;
+}
+

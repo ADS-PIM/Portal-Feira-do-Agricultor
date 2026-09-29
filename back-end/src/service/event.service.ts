@@ -1,5 +1,5 @@
 import { EventDAO, EventUpdateData } from '../dao/event.dao';
-import { EventCreateDTO, EventUpdateDTO } from '../dto/event.dto';
+import { EventCreateDTO, EventSearchDTO, EventUpdateDTO } from '../dto/event.dto';
 import { Event } from '../model/event'
 
 export class EventService {
@@ -46,5 +46,9 @@ export class EventService {
     public async searchById(id: string): Promise<Event | null> {
         const event = await this.eventDAO.searchById(id);
         return event ? Event.reconstruct(event) : null
+    }
+
+    public async searchAll(): Promise<EventSearchDTO[] | null> {
+        return this.eventDAO.searchAll();
     }
 }

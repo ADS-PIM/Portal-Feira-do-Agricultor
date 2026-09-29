@@ -14,6 +14,10 @@ eventRoutes
     .post(authToken, async (req, res) => eventController.create(req, res));
 
 eventRoutes
+    .route('/')
+    .get(async (req, res) => eventController.searchAll(req, res));
+
+eventRoutes
     .route('/:id')
     .patch(authToken, async (req, res) => eventController.update(req, res))
     .delete(authToken, async (req, res) => eventController.delete(req, res));
