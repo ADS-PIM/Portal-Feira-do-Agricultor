@@ -1,5 +1,5 @@
 import { EventDAO, EventUpdateData } from '../dao/event.dao';
-import { EventCreateDTO, EventSearchByIdDTO, EventSearchDTO, EventUpdateDTO } from '../dto/event.dto';
+import { EventCreateDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO, EventUpdateDTO } from '../dto/event.dto';
 import { Event } from '../model/event'
 import { EventImageDAO } from '../dao/eventImage.dao';
 
@@ -58,5 +58,9 @@ export class EventService {
 
     public async searchAll(): Promise<EventSearchDTO[] | null> {
         return this.eventDAO.searchAll();
+    }
+
+    public async searchNearest(date: string): Promise<EventNearestSearchDTO | null> {
+        return this.eventDAO.searchNearest(date);
     }
 }

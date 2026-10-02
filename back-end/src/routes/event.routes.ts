@@ -18,6 +18,10 @@ eventRoutes
     .get(async (req, res) => eventController.searchAll(req, res));
 
 eventRoutes
+    .route('/nearest')
+    .get(async (req, res) => eventController.searchNearest(req, res));
+
+eventRoutes
     .route('/:id')
     .get(async (req, res) => eventController.searchById(req, res))
     .patch(authToken, async (req, res) => eventController.update(req, res))

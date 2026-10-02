@@ -102,6 +102,17 @@ export class EventSearchDTO {
     bannerImage: string | null;
 }
 
+export class EventNearestSearchDTO {
+    id: string;
+    title: string;
+    description: string | null;
+    localAddress: string;
+    date: Date;
+    startAt: string;
+    endAt: string;
+    bannerImage: string | null;
+}
+
 export class EventSearchByIdDTO {
     id: string;
     title: string;
