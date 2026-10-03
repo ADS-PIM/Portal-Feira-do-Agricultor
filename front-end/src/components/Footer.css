@@ -1,0 +1,203 @@
+.site-footer {
+    box-sizing: border-box;
+    padding: 64px 5.6% 36px;
+    background: #292c26;
+    color: #c5c8bf;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.site-footer *,
+.site-footer *::before,
+.site-footer *::after {
+    box-sizing: border-box;
+}
+
+.site-footer-main {
+    display: flex;
+    justify-content: space-between;
+    gap: 64px;
+    padding-bottom: 52px;
+}
+
+.site-footer-brand {
+    max-width: 350px;
+}
+
+.site-footer-brand-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    color: #fff;
+    font-size: 21px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.site-footer-mark {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 50%;
+    background: #e77932;
+    color: #fff;
+}
+
+.site-footer-mark svg {
+    width: 19px;
+    height: 19px;
+}
+
+.site-footer-mark path {
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
+.site-footer-brand > p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.site-footer-socials {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.site-footer-socials a {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid #55594f;
+    border-radius: 50%;
+    color: #c5c8bf;
+    transition: color 150ms ease, border-color 150ms ease;
+}
+
+.site-footer-socials a:hover {
+    border-color: #e77932;
+    color: #e77932;
+}
+
+.site-footer-socials svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
+.site-footer-socials a[aria-label="WhatsApp"] svg {
+    fill: currentColor;
+    stroke: none;
+}
+
+.site-footer-socials a:focus-visible,
+.site-footer a:focus-visible {
+    outline: 2px solid #f19a5d;
+    outline-offset: 3px;
+}
+
+.site-footer-error {
+    margin-top: 12px;
+    color: #ffb49d;
+    font-size: 13px;
+}
+
+.site-footer-links {
+    display: flex;
+    gap: 64px;
+}
+
+.site-footer-links > div {
+    display: flex;
+    min-width: 136px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.site-footer-links h2 {
+    margin-bottom: 1px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.site-footer-links a,
+.site-footer-links span,
+.site-footer-bottom {
+    color: #c5c8bf;
+    font-size: 13px;
+}
+
+.site-footer-links a,
+.site-footer-bottom a {
+    text-decoration: none;
+}
+
+.site-footer-links a:hover,
+.site-footer-bottom a:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.site-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    padding-top: 52px;
+    border-top: 1px solid #45493f;
+}
+
+.site-footer-bottom nav {
+    display: flex;
+    gap: 24px;
+}
+
+@media (max-width: 760px) {
+    .site-footer {
+        padding: 48px 24px 28px;
+    }
+
+    .site-footer-main {
+        flex-direction: column;
+        gap: 36px;
+        padding-bottom: 36px;
+    }
+
+    .site-footer-links {
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .site-footer-bottom {
+        flex-direction: column;
+        gap: 18px;
+        padding-top: 28px;
+    }
+
+    .site-footer-bottom nav {
+        flex-wrap: wrap;
+        gap: 12px 24px;
+    }
+}
+
+@media (max-width: 420px) {
+    .site-footer {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    .site-footer-links {
+        flex-direction: column;
+        gap: 28px;
+    }
+}

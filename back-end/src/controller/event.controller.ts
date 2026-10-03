@@ -84,6 +84,25 @@ export class EventController {
         }
     }
 
+    public async searchAgenda(req: Request, res: Response) {
+        const date = req.query.date;
+        if (
+            typeof date !== 'string' ||
+            !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+            Number.isNaN(Date.parse(`${date}T00:00:00.000Z`)) ||
+            new Date(`${date}T00:00:00.000Z`).toISOString().slice(0, 10) !== date
+        ) {
+            return res.status(400).json({ error: 'A valid date query parameter (YYYY-MM-DD) is required' });
+        }
+
+        try {
+            const events = await this.eventService.searchAgenda(date);
+            return res.status(200).json(events);
+        } catch (error: any) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
     public async searchById(req: Request, res: Response) {
         try {
             const eventId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

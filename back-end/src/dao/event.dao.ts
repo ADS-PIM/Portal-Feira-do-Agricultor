@@ -1,6 +1,6 @@
 import { connection } from '../util/connection'
 import { Event, EventState } from '../model/event'
-import { EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
+import { EventAgendaSearchDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
 
 export type EventUpdateData = {
     title?: string;
@@ -75,6 +75,21 @@ export class EventDAO {
             return events.length === 0 ? null : events[0];
         } catch (error: any) {
             throw new Error('Error searching nearest event: ' + error.message);
+        }
+    }
+
+    public async searchAgenda(date: string): Promise<EventAgendaSearchDTO[]> {
+        try {
+            const [events]: any = await connection.query(
+                `SELECT id, title, DATE_FORMAT(date, '%Y-%m-%d') AS date, startAt, endAt, localAddress
+                FROM events
+                WHERE date >= ? AND state IN (?, ?)
+                ORDER BY date ASC, startAt ASC`,
+                [date, EventState.HAPPENING, EventState.PENDING]
+            );
+            return events;
+        } catch (error: any) {
+            throw new Error('Error searching event agenda: ' + error.message);
         }
     }
 

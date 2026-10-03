@@ -1,0 +1,197 @@
+.contact-section {
+    box-sizing: border-box;
+    padding: 48px 5.6% 96px;
+    background: #fcfaf6;
+    color: #62645d;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.contact-section *,
+.contact-section *::before,
+.contact-section *::after {
+    box-sizing: border-box;
+}
+
+.contact-section-header {
+    max-width: 700px;
+    margin: 0 auto 54px;
+    text-align: center;
+}
+
+.contact-section-eyebrow {
+    margin: 0 0 12px;
+    color: #e96b29;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.contact-section-header h2 {
+    margin: 0 0 12px;
+    color: #315f47;
+    font-size: clamp(30px, 3vw, 40px);
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.contact-section-header > p:last-child {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+.contact-section-error {
+    margin: -30px auto 24px;
+    color: #a23825;
+    text-align: center;
+}
+
+.contact-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.contact-card {
+    display: flex;
+    min-height: 228px;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    border: 1px solid #e1e3db;
+    border-radius: 24px;
+    text-align: center;
+}
+
+.contact-card-icon {
+    display: grid;
+    width: 55px;
+    height: 55px;
+    place-items: center;
+    margin-bottom: 23px;
+    border: 1px solid #e1e3db;
+    border-radius: 50%;
+    background: #fff;
+    color: #315f47;
+}
+
+.contact-card-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.contact-card h3 {
+    margin: 0 0 4px;
+    color: #315f47;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.contact-card p {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.contact-card a,
+.contact-card-unavailable {
+    margin-top: 21px;
+    color: #e96b29;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.contact-card a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.contact-card a:focus-visible {
+    border-radius: 2px;
+    outline: 2px solid #315f47;
+    outline-offset: 3px;
+}
+
+.contact-card-unavailable {
+    color: #777970;
+    font-weight: 500;
+}
+
+.contact-section-action {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+}
+
+.contact-section-action button {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 26px;
+    border: 0;
+    border-radius: 999px;
+    background: #315f47;
+    color: #fff;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+}
+
+.contact-section-action button svg {
+    width: 19px;
+    height: 19px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.4;
+}
+
+.contact-section-action button:hover {
+    background: #244a37;
+}
+
+.contact-section-action button:focus-visible {
+    outline: 2px solid #315f47;
+    outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+    .contact-section {
+        padding: 48px 24px 64px;
+    }
+
+    .contact-section-header {
+        margin-bottom: 34px;
+    }
+
+    .contact-section-header > p:last-child {
+        font-size: 15px;
+    }
+
+    .contact-cards {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+        max-width: 480px;
+    }
+
+    .contact-card {
+        min-height: 210px;
+    }
+}
+
+@media (max-width: 420px) {
+    .contact-section {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+}

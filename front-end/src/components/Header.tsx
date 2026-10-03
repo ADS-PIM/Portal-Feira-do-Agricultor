@@ -1,5 +1,5 @@
 import './Header.css'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const navigationLinks = [
     { href: '#inicio', label: 'Início' },
@@ -11,9 +11,35 @@ const navigationLinks = [
 
 const Header = () => {
     const [activeLink, setActiveLink] = useState('#inicio')
+    const [isVisible, setIsVisible] = useState(true)
+    const lastVisibilityChangeY = useRef(0)
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = Math.max(0, window.scrollY)
+            const scrollDelta = currentScrollY - lastVisibilityChangeY.current
+
+            if (currentScrollY <= 80) {
+                setIsVisible(true)
+                lastVisibilityChangeY.current = currentScrollY
+                return
+            }
+
+            if (scrollDelta >= 12) {
+                setIsVisible(false)
+                lastVisibilityChangeY.current = currentScrollY
+            } else if (scrollDelta <= -12) {
+                setIsVisible(true)
+                lastVisibilityChangeY.current = currentScrollY
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll, { passive: true })
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     return (
-        <header className="site-header">
+        <header className={`site-header${isVisible ? '' : ' is-hidden'}`}>
             <a className="site-header-brand" href="#inicio" aria-label="Brotando Feiras - início">
                 <span className="site-header-mark" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none">

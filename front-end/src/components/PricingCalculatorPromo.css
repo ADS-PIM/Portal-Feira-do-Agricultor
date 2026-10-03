@@ -1,0 +1,236 @@
+.pricing-calculator-promo {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 80px 5.6%;
+    background: #faf9f6;
+    color: #fff;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.pricing-calculator-promo *,
+.pricing-calculator-promo *::before,
+.pricing-calculator-promo *::after {
+    box-sizing: border-box;
+}
+
+.pricing-calculator-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 351px;
+    align-items: center;
+    gap: 48px;
+    max-width: 1248px;
+    min-height: 328px;
+    margin: 0 auto;
+    padding: 46px;
+    border-radius: 32px;
+    background: #2e5d47;
+}
+
+.pricing-calculator-content {
+    min-width: 0;
+}
+
+.pricing-calculator-content h2 {
+    margin: 0 0 24px;
+    color: #fff;
+    font-size: clamp(32px, 3vw, 40px);
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.pricing-calculator-content > p {
+    max-width: 710px;
+    margin: 0 0 24px;
+    color: rgb(255 255 255 / 88%);
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+.pricing-calculator-button {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 27px;
+    border: 0;
+    border-radius: 999px;
+    background: #e9782e;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.pricing-calculator-button:hover {
+    transform: translateY(-2px);
+    background: #d96724;
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
+}
+
+.pricing-calculator-button:active {
+    transform: translateY(0);
+}
+
+.pricing-calculator-button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 4px;
+}
+
+.pricing-calculator-button svg {
+    width: 17px;
+    height: 17px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.pricing-calculator-preview {
+    min-height: 234px;
+    padding: 30px;
+    border: 1px solid rgb(255 255 255 / 12%);
+    border-radius: 24px;
+    background: rgb(255 255 255 / 7%);
+}
+
+.pricing-calculator-preview-heading {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.pricing-calculator-icon {
+    display: grid;
+    width: 70px;
+    height: 70px;
+    flex: 0 0 70px;
+    place-items: center;
+    border-radius: 20px;
+    background: #e9782e;
+}
+
+.pricing-calculator-icon svg {
+    width: 36px;
+    height: 36px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+}
+
+.pricing-calculator-kicker {
+    margin: 0 0 4px;
+    color: #f27b35;
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: 1px;
+}
+
+.pricing-calculator-preview h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.pricing-calculator-preview ul {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pricing-calculator-preview li {
+    position: relative;
+    padding-left: 20px;
+    color: rgb(255 255 255 / 82%);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.pricing-calculator-preview li::before {
+    position: absolute;
+    top: 5px;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f27b35;
+    content: "";
+}
+
+@media (max-width: 850px) {
+    .pricing-calculator-card {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 32px;
+        padding: 36px;
+    }
+
+    .pricing-calculator-preview {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 680px) {
+    .pricing-calculator-promo {
+        padding: 56px 22px;
+    }
+
+    .pricing-calculator-card {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 32px;
+        min-height: 0;
+        padding: 32px 26px;
+        border-radius: 26px;
+    }
+
+    .pricing-calculator-content h2 {
+        margin-bottom: 16px;
+    }
+
+    .pricing-calculator-content > p {
+        margin-bottom: 22px;
+        font-size: 15px;
+    }
+
+    .pricing-calculator-preview {
+        min-height: 0;
+    }
+}
+
+@media (max-width: 420px) {
+    .pricing-calculator-promo {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+
+    .pricing-calculator-card {
+        padding: 26px 20px;
+    }
+
+    .pricing-calculator-button {
+        width: 100%;
+    }
+
+    .pricing-calculator-preview {
+        padding: 22px 18px;
+    }
+
+    .pricing-calculator-icon {
+        width: 58px;
+        height: 58px;
+        flex-basis: 58px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pricing-calculator-button {
+        transition: none;
+    }
+}

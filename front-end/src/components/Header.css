@@ -1,6 +1,9 @@
 .site-header {
     box-sizing: border-box;
     display: grid;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     grid-template-columns: max-content minmax(0, 1fr) max-content;
     align-items: center;
     gap: 24px;
@@ -11,6 +14,13 @@
     background: #fff;
     color: #4d514a;
     font-family: "Segoe UI", Arial, sans-serif;
+    transform: translateY(0);
+    transition: transform 180ms ease;
+}
+
+.site-header.is-hidden {
+    transform: translateY(-100%);
+    pointer-events: none;
 }
 
 .site-header-brand {
@@ -99,6 +109,12 @@
 .site-header button:focus-visible {
     outline: 2px solid #78a77b;
     outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-header {
+        transition: none;
+    }
 }
 
 @media (max-width: 1000px) {

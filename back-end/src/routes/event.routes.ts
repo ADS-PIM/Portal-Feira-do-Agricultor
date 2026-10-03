@@ -22,6 +22,10 @@ eventRoutes
     .get(async (req, res) => eventController.searchNearest(req, res));
 
 eventRoutes
+    .route('/agenda')
+    .get(async (req, res) => eventController.searchAgenda(req, res));
+
+eventRoutes
     .route('/:id')
     .get(async (req, res) => eventController.searchById(req, res))
     .patch(authToken, async (req, res) => eventController.update(req, res))

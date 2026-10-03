@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
 import Header from '../../components/Header';
 import MainBanner from '../../components/MainBanner';
+import AboutSection from '../../components/AboutSection';
+import EventPainel from '../../components/EventPainel';
+import PricingCalculatorPromo from '../../components/PricingCalculatorPromo';
 import NearestEventPainel from '../../components/NearestEventPainel';
+import ContactSection from '../../components/ContactSection';
+import Footer from '../../components/Footer';
 import { getNearestEvent, type NearestEvent } from '../../services/eventService';
+import './MainPage.css';
 
 const MainPage = () => {
     const [nearestEvent, setNearestEvent] = useState<NearestEvent | null>(null);
@@ -40,9 +46,16 @@ const MainPage = () => {
         <>
             <Header/>
             <MainBanner/>
-            {loading && <p role="status">Carregando próximo evento...</p>}
-            {error && <p role="alert">Erro ao carregar o próximo evento: {error}</p>}
-            {!loading && !error && <NearestEventPainel event={nearestEvent}/>}
+            <AboutSection />
+            <div className="main-page-sections">
+                {loading && <p role="status">Carregando próximo evento...</p>}
+                {error && <p role="alert">Erro ao carregar o próximo evento: {error}</p>}
+                {!loading && !error && <NearestEventPainel event={nearestEvent}/>}
+                <EventPainel />
+                <PricingCalculatorPromo />
+                <ContactSection />
+            </div>
+            <Footer />
         </>
     )
 }

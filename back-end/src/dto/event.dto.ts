@@ -48,8 +48,6 @@ export class EventCreateDTO {
     adminId: string
 }
 
-//O id ja vai ser definido automaticamente, tirar ele do DTO so torma o codigo mais complexo de ler
-
 export class EventUpdateDTO {
     @IsOptional()
     @IsString()
@@ -113,6 +111,15 @@ export class EventNearestSearchDTO {
     bannerImage: string | null;
 }
 
+export class EventAgendaSearchDTO {
+    id: string;
+    title: string;
+    date: string;
+    startAt: string;
+    endAt: string;
+    localAddress: string;
+}
+
 export class EventSearchByIdDTO {
     id: string;
     title: string;
@@ -129,4 +136,3 @@ export class EventSearchByIdDTO {
     administratorId: string;
     eventImages: EventImageSearchByEventId[] | null;
 }
-

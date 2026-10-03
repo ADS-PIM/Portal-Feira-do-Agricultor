@@ -1,0 +1,55 @@
+.about-section {
+    box-sizing: border-box;
+    display: flex;
+    min-height: 359px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 72px 24px;
+    background: #f8efd9;
+    color: #62645d;
+    font-family: "Segoe UI", Arial, sans-serif;
+    text-align: center;
+}
+
+.about-section-eyebrow {
+    margin: 0 0 12px;
+    color: #e96b29;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.about-section h2 {
+    max-width: 1000px;
+    margin: 0 0 12px;
+    color: #315f47;
+    font-size: clamp(30px, 3vw, 40px);
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.about-section-description {
+    max-width: 720px;
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+@media (max-width: 640px) {
+    .about-section {
+        min-height: 0;
+        padding: 64px 22px;
+    }
+
+    .about-section-eyebrow {
+        margin-bottom: 10px;
+    }
+
+    .about-section h2 {
+        margin-bottom: 14px;
+    }
+
+    .about-section-description {
+        font-size: 15px;
+    }
+}

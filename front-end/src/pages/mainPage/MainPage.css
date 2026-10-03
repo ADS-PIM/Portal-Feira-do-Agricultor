@@ -1,0 +1,21 @@
+.main-page-sections {
+    display: flex;
+    flex-direction: column;
+}
+
+.main-page-sections > .pricing-calculator-promo,
+.main-page-sections > .contact-section {
+    position: relative;
+}
+
+.main-page-sections > .pricing-calculator-promo::before,
+.main-page-sections > .contact-section::before {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 55%;
+    height: 1px;
+    transform: translateX(-50%);
+    background: rgb(0 0 0 / 12%);
+    content: "";
+}

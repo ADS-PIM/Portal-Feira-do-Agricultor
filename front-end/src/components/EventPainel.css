@@ -1,0 +1,237 @@
+.event-agenda {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 96px 5.6% 94px;
+    background: #faf9f6;
+    color: #60645c;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.event-agenda *,
+.event-agenda *::before,
+.event-agenda *::after {
+    box-sizing: border-box;
+}
+
+.event-agenda-header {
+    max-width: 760px;
+    margin: 0 auto 56px;
+    text-align: center;
+}
+
+.event-agenda-header h2 {
+    margin: 0;
+    color: #315f47;
+    font-size: clamp(30px, 3vw, 40px);
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.event-agenda-eyebrow {
+    margin: 12px 0 14px;
+    color: #e96b29;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.event-agenda-intro {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+.event-agenda-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 1248px;
+    margin: 0 auto;
+}
+
+.event-agenda-list--1 {
+    grid-template-columns: minmax(0, 400px);
+    justify-content: center;
+}
+
+.event-agenda-list--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 824px;
+    justify-content: center;
+}
+
+.event-agenda-card {
+    display: flex;
+    min-width: 0;
+    min-height: 144px;
+    align-items: center;
+    gap: 24px;
+    padding: 24px 30px;
+    border: 1px solid #e2e2d9;
+    border-radius: 21px;
+    background: #fdfcf9;
+}
+
+.event-agenda-date {
+    display: flex;
+    width: 74px;
+    height: 82px;
+    flex: 0 0 74px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: #315f47;
+    color: #fff;
+}
+
+.event-agenda-date strong {
+    font-size: 27px;
+    font-weight: 750;
+    line-height: 1.1;
+}
+
+.event-agenda-date span {
+    margin-top: 7px;
+    color: #101b14;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.event-agenda-card-content {
+    min-width: 0;
+}
+
+.event-agenda-card h3 {
+    margin: 0 0 7px;
+    color: #315f47;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.event-agenda-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 5px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.event-agenda-detail svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    margin-top: 1px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.5;
+}
+
+.event-agenda-calendar-button {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 46px;
+    margin: 54px auto 0;
+    padding: 10px 26px;
+    border: 1.5px solid #315f47;
+    border-radius: 999px;
+    background: #fff;
+    color: #315f47;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: center;
+    cursor: default;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+.event-agenda-calendar-button:hover,
+.event-agenda-calendar-button:focus-visible {
+    background: #315f47;
+    color: #fff;
+}
+
+.event-agenda-calendar-button:focus-visible {
+    outline: 2px solid #315f47;
+    outline-offset: 3px;
+}
+
+.event-agenda-message {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 30px 24px;
+    border: 1px solid #e2e2d9;
+    border-radius: 18px;
+    background: #fdfcf9;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.event-agenda-message.is-error {
+    color: #9f2d24;
+}
+
+@media (max-width: 1000px) {
+    .event-agenda {
+        padding-right: 32px;
+        padding-left: 32px;
+    }
+
+    .event-agenda-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .event-agenda-list--1 {
+        grid-template-columns: minmax(0, 400px);
+    }
+
+    .event-agenda-list--2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .event-agenda-card {
+        gap: 18px;
+        padding: 22px;
+    }
+}
+
+@media (max-width: 640px) {
+    .event-agenda {
+        padding: 64px 20px 68px;
+    }
+
+    .event-agenda-header {
+        margin-bottom: 36px;
+    }
+
+    .event-agenda-intro {
+        font-size: 15px;
+    }
+
+    .event-agenda-list {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .event-agenda-list--1,
+    .event-agenda-list--2 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .event-agenda-card {
+        min-height: 126px;
+        padding: 20px;
+    }
+
+    .event-agenda-calendar-button {
+        width: min(100%, 320px);
+        min-height: 48px;
+        margin-top: 34px;
+        padding: 10px 18px;
+    }
+}

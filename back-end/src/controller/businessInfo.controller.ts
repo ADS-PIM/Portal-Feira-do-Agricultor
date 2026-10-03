@@ -29,10 +29,19 @@ export class BusinessInfoController {
         try {
             const businessInfo = await this.businessInfoService.getInfo();
             if (!businessInfo) {
-                return res.status(404).json({ error: 'Business info not found' });
+                return res.status(200).json({ businessInfo: null });
             }
 
-            return res.status(200).json({ businessInfo })
+            return res.status(200).json({
+                businessInfo: {
+                    id: businessInfo.id,
+                    instagramAccount: businessInfo.instagramAccount,
+                    whatsappNumber: businessInfo.whatsappNumber,
+                    businessEmail: businessInfo.businessEmail,
+                    businessHours: businessInfo.businessHours,
+                    updatedAt: businessInfo.updatedAt,
+                },
+            });
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
         }
