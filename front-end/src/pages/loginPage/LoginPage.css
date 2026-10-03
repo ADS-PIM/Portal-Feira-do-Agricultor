@@ -1,0 +1,20 @@
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.login-page input,
+.login-page button {
+    font-family: inherit;
+}
+
+.login-page-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: radial-gradient(circle at top, #f3f6f1 0%, #e7ebe2 100%);
+}

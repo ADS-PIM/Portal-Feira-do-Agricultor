@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getEventAgenda, type AgendaEvent } from '../services/eventService'
+import { getUserFacingError } from '../services/errors'
 import './EventPainel.css'
 
 const VISIBLE_EVENT_COUNT = 6
@@ -71,7 +72,7 @@ const EventPainel = () => {
                 setEvents(await getEventAgenda(today, controller.signal))
             } catch (requestError) {
                 if (!controller.signal.aborted) {
-                    setError(requestError instanceof Error ? requestError.message : 'Não foi possível carregar a agenda de eventos.')
+                    setError(getUserFacingError(requestError, 'Não foi possível carregar a agenda de eventos. Tente novamente mais tarde.'))
                 }
             } finally {
                 if (!controller.signal.aborted) {

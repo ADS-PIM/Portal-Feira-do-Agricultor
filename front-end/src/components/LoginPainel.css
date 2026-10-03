@@ -1,0 +1,173 @@
+.login-painel {
+    width: 100%;
+    max-width: 370px;
+    padding: 2.5rem 2rem 2rem;
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #ece9e2;
+    box-shadow: 0 20px 45px -25px rgba(31, 36, 33, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.login-painel-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.9rem;
+}
+
+.login-painel-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(160deg, #2f7d4f, #245f3e);
+    color: #ffffff;
+}
+
+.login-painel-mark svg {
+    width: 28px;
+    height: 28px;
+}
+
+.login-painel-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1f2421;
+}
+
+.login-painel-subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #767d73;
+    line-height: 1.4;
+}
+
+.login-painel-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.login-painel-error {
+    margin: 0;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    background: #fdecec;
+    color: #b3261e;
+    font-size: 0.85rem;
+}
+
+.login-painel-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.login-painel-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #3a3f38;
+}
+
+.login-painel-field-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.login-painel-forgot {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2f7d4f;
+    cursor: pointer;
+}
+
+.login-painel-forgot:hover {
+    text-decoration: underline;
+}
+
+.login-painel input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.7rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid #e4e2dc;
+    background: #f6f5f1;
+    font-size: 0.95rem;
+    color: #1f2421;
+}
+
+.login-painel input:focus {
+    outline: none;
+    border-color: #2f7d4f;
+    box-shadow: 0 0 0 3px rgba(47, 125, 79, 0.15);
+}
+
+.login-painel-password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.login-painel-password-wrapper input {
+    padding-right: 2.6rem;
+}
+
+.login-painel-toggle-visibility {
+    position: absolute;
+    right: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    color: #767d73;
+    cursor: pointer;
+}
+
+.login-painel-toggle-visibility svg {
+    width: 20px;
+    height: 20px;
+}
+
+.login-painel-submit {
+    margin-top: 0.25rem;
+    width: 100%;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 12px;
+    background: #2f7d4f;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.login-painel-submit:hover:not(:disabled) {
+    background: #286a43;
+}
+
+.login-painel-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.login-painel-footer {
+    margin: 0;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #9a9f94;
+    line-height: 1.4;
+}

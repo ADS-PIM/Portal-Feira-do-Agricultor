@@ -8,6 +8,7 @@ import NearestEventPainel from '../../components/NearestEventPainel';
 import ContactSection from '../../components/ContactSection';
 import Footer from '../../components/Footer';
 import { getNearestEvent, type NearestEvent } from '../../services/eventService';
+import { getUserFacingError } from '../../services/errors';
 import './MainPage.css';
 
 const MainPage = () => {
@@ -29,7 +30,7 @@ const MainPage = () => {
                 setNearestEvent(await getNearestEvent(today, controller.signal));
             } catch (requestError) {
                 if (!controller.signal.aborted) {
-                    setError(requestError instanceof Error ? requestError.message : 'Não foi possível carregar o próximo evento.');
+                    setError(getUserFacingError(requestError, 'Não foi possível carregar o próximo evento. Tente novamente mais tarde.'));
                 }
             } finally {
                 if (!controller.signal.aborted) {

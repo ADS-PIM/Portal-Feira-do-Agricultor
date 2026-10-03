@@ -105,6 +105,63 @@
     color: #fff;
 }
 
+.site-header-profile {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.site-header-profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.site-header-profile-name {
+    max-width: 180px;
+    overflow: hidden;
+    color: #315f47;
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.site-header-profile-role {
+    color: #767d73;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.site-header-profile-picture {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    overflow: hidden;
+    place-items: center;
+    border: 1px solid #dce5dc;
+    border-radius: 50%;
+    background: #eef3ec;
+    color: #315f47;
+}
+
+.site-header-profile-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.site-header-profile-picture svg {
+    width: 23px;
+    height: 23px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
 .site-header a:focus-visible,
 .site-header button:focus-visible {
     outline: 2px solid #78a77b;
@@ -154,5 +211,19 @@
 
     .site-header-account button {
         min-height: 34px;
+    }
+
+    .site-header-profile {
+        gap: 8px;
+    }
+
+    .site-header-profile-name {
+        max-width: 120px;
+    }
+
+    .site-header-profile-picture {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
     }
 }

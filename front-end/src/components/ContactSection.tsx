@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getBusinessInfo, type BusinessInfo } from '../services/businessInfoService'
+import { getUserFacingError } from '../services/errors'
 import './ContactSection.css'
 
 const unavailableMessage = 'Não disponível no momento'
@@ -97,7 +98,7 @@ const ContactSection = () => {
                 setBusinessInfo(await getBusinessInfo(controller.signal))
             } catch (requestError) {
                 if (!controller.signal.aborted) {
-                    setError(requestError instanceof Error ? requestError.message : 'Não foi possível carregar os contatos.')
+                    setError(getUserFacingError(requestError, 'Não foi possível carregar os contatos. Tente novamente mais tarde.'))
                 }
             }
         }

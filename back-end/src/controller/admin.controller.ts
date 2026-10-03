@@ -120,7 +120,7 @@ export class AdminController {
             await refreshTokenDAO.create(newRefreshTokenId, newRefreshToken, adminId, newRefreshExpiresAt);
         
             res.cookie('refreshToken', newRefreshToken, refreshCookieOptions);
-            res.status(200).json({ accessToken: newAccessToken });
+            res.status(200).json({ accessToken: newAccessToken, userId: adminId });
         } catch (error: any) {
             console.error('Error during token refresh:', error);
             res.status(500).json({ error: error.message || 'Error during token refresh' });
