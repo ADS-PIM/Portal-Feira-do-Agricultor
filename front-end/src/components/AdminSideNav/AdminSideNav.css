@@ -1,0 +1,108 @@
+.admin-side-nav {
+    box-sizing: border-box;
+    position: sticky;
+    top: 68px;
+    align-self: flex-start;
+    width: 240px;
+    height: calc(100vh - 68px);
+    flex: 0 0 240px;
+    padding: 24px 14px;
+    overflow-y: auto;
+    background: #293b30;
+    color: #d7d9d6;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.site-header.is-hidden + .admin-area .admin-side-nav {
+    top: 0;
+    height: 100vh;
+}
+
+.admin-side-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-side-nav-item {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 41px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+.admin-side-nav-item:hover,
+.admin-side-nav-item:focus-visible {
+    background: #354a3b;
+    color: #fff;
+}
+
+.admin-side-nav-item.is-active,
+.admin-side-nav-item.is-active:hover,
+.admin-side-nav-item.is-active:focus-visible {
+    background: #2f8038;
+    color: #fff;
+    font-weight: 600;
+}
+
+.admin-side-nav-item:focus-visible {
+    outline: 2px solid #b9e2bf;
+    outline-offset: 2px;
+}
+
+.admin-side-nav-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    color: #aeb5af;
+}
+
+.admin-side-nav-item.is-active .admin-side-nav-icon {
+    color: #fff;
+}
+
+@media (max-width: 680px) {
+    .admin-side-nav {
+        width: 72px;
+        flex-basis: 72px;
+        padding: 20px 8px;
+    }
+
+    .admin-side-nav-item {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .admin-side-nav-item span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        clip-path: inset(50%);
+    }
+}
+
+@media (max-width: 380px) {
+    .admin-side-nav {
+        width: 60px;
+        flex-basis: 60px;
+        padding: 16px 4px;
+    }
+}

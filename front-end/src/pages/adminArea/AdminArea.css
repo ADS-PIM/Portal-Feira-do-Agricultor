@@ -1,0 +1,85 @@
+.admin-area {
+    display: flex;
+    min-height: calc(100vh - 68px);
+    background: #f8f7f5;
+}
+
+.admin-area-error-state {
+    display: grid;
+    min-height: calc(100vh - 68px);
+    place-items: center;
+    padding: 32px 16px;
+    background: #f8f7f5;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.admin-area-error-card {
+    display: flex;
+    width: min(100%, 760px);
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 36px;
+    border: 1px solid #e2e2d9;
+    border-radius: 22px;
+    background: #fdfcf9;
+    text-align: center;
+}
+
+.admin-area-error-icon {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-items: center;
+    margin-bottom: 20px;
+    border-radius: 50%;
+    background: #f9ecdc;
+    color: #e96b29;
+}
+
+.admin-area-error-icon svg {
+    width: 30px;
+    height: 30px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.admin-area-error-card h1 {
+    margin: 0 0 10px;
+    color: #315f47;
+    font-size: clamp(21px, 3vw, 27px);
+    font-weight: 750;
+    line-height: 1.3;
+}
+
+.admin-area-error-card p {
+    max-width: 520px;
+    margin: 0;
+    color: #9f2d24;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.admin-area-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.admin-area-placeholder {
+    padding: 28px 30px;
+    color: #30332e;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+@media (max-width: 640px) {
+    .admin-area-error-card {
+        padding: 32px 24px;
+    }
+
+    .admin-area-error-card p {
+        font-size: 14px;
+    }
+}

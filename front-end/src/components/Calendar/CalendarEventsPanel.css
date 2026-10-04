@@ -202,7 +202,8 @@
     }
 
     .calendar-events-list {
-        max-height: 560px;
+        max-height: none;
+        overflow-y: visible;
     }
 }
 

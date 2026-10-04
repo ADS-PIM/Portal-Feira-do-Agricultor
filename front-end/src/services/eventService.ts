@@ -20,6 +20,52 @@ export interface AgendaEvent {
     localAddress: string
 }
 
+export interface AdminEvent extends AgendaEvent {
+    description: string | null
+    state: 'PENDING' | 'CANCELED' | 'CONCLUDED' | 'RESCHEDULED' | 'HAPPENING'
+    createdAt: string
+    bannerImage: string | null
+}
+
+export type AdminEventInput = Pick<
+    AdminEvent,
+    'title' | 'description' | 'date' | 'startAt' | 'endAt' | 'localAddress' | 'state' | 'bannerImage'
+>
+
+export function uploadEventBanner(file: File): Promise<{ url: string }> {
+    return apiFetch<{ url: string }>('event/image/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': file.type },
+        body: file,
+    })
+}
+
+export function getAdminEvents(signal?: AbortSignal): Promise<AdminEvent[] | null> {
+    return apiFetch<AdminEvent[] | null>('event', { signal })
+}
+
+export function createAdminEvent(event: AdminEventInput): Promise<{ message: string }> {
+    return apiFetch<{ message: string }>('event/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(event),
+    })
+}
+
+export function updateAdminEvent(id: string, event: AdminEventInput): Promise<{ message: string }> {
+    return apiFetch<{ message: string }>(`event/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(event),
+    })
+}
+
+export function deleteAdminEvent(id: string): Promise<{ message: string }> {
+    return apiFetch<{ message: string }>(`event/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+    })
+}
+
 export function getNearestEvent(date: string, signal?: AbortSignal): Promise<NearestEvent | null> {
     const query = new URLSearchParams({ date })
     return apiFetch<NearestEvent | null>(`event/nearest?${query}`, { signal })

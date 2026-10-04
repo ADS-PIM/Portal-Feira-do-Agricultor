@@ -23,7 +23,7 @@ create table `events` (
     `localLongitude` decimal(11,8) not null,
     `state` enum('PENDING', 'CANCELED', 'CONCLUDED', 'RESCHEDULED', 'HAPPENING') not null,
     `bannerImage` varchar(2048) default null,
-    `createdAt` date not null,
+    `createdAt` datetime(6) not null default current_timestamp(6),
     `administratorId` char(36) not null,
     primary key (`id`),
     key `events_administrators_FK` (`administratorId`),
@@ -73,8 +73,5 @@ create table `refresh_tokens` (
     key `refreshTokens_administrators_FK` (`adminId`),
     constraint `refreshTokens_administrators_FK` foreign key (`adminId`) references `administrators` (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
-
-
-
 
 

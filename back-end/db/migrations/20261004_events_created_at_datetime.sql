@@ -1,0 +1,2 @@
+ALTER TABLE `events`
+    MODIFY COLUMN `createdAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6);

@@ -1,4 +1,6 @@
 import { connection } from '../util/connection'
+import { randomUUID } from 'node:crypto'
+import type { PoolConnection } from 'mysql2/promise'
 import { Event, EventState } from '../model/event'
 import { EventAgendaSearchDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
 
@@ -12,13 +14,15 @@ export type EventUpdateData = {
     latitude?: number;
     longitude?: number;
     state?: EventState;
-    bannerImage?: string;
+    bannerImage?: string | null;
 }
 
 export class EventDAO {
     public async create(event: Event): Promise <void> {
+        const dbConnection = await connection.getConnection()
         try {
-            await connection.query('INSERT INTO events (id, title, date, description, startAt, endAt, localAddress, localLatitude, localLongitude, state, bannerImage, createdAt, administratorId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ', [
+            await dbConnection.beginTransaction()
+            await dbConnection.query('INSERT INTO events (id, title, date, description, startAt, endAt, localAddress, localLatitude, localLongitude, state, bannerImage, createdAt, administratorId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(6), ?) ', [
                 event.id,
                 event.title,
                 event.date,
@@ -30,11 +34,17 @@ export class EventDAO {
                 event.longitude,
                 event.state,
                 event.bannerImage,
-                event.createdAt,
                 event.adminId
             ]);
+            if (event.bannerImage) {
+                await this.syncBannerImage(dbConnection, event.id, event.bannerImage)
+            }
+            await dbConnection.commit()
         } catch (error: any) {
+            await dbConnection.rollback()
             throw new Error('Error creating event: ' + error.message)
+        } finally {
+            dbConnection.release()
         }
     }
 
@@ -54,7 +64,7 @@ export class EventDAO {
     public async searchAll(): Promise<EventSearchDTO[] | null> {
         try {
             const [events]: any = await connection.query(
-                'SELECT id, title, date, startAt, endAt, state, bannerImage FROM events'
+                "SELECT id, title, date, description, startAt, endAt, localAddress, state, bannerImage, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i:%s.%f') AS createdAt FROM events ORDER BY createdAt DESC, id DESC"
             );
             return events.length === 0 ? null : events;
         } catch (error: any) {
@@ -137,22 +147,62 @@ export class EventDAO {
             fields.push('bannerImage = ?'); values.push(data.bannerImage)
         };
 
-        if (fields.length === 0) {
+        if (fields.length === 0 && data.bannerImage === undefined) {
             return;
         }
 
+        const dbConnection = await connection.getConnection()
         try {
-            await connection.query(`UPDATE events SET ${fields.join(', ')} WHERE id = ?`,[...values, id]);
+            await dbConnection.beginTransaction()
+            if (fields.length > 0) {
+                await dbConnection.query(`UPDATE events SET ${fields.join(', ')} WHERE id = ?`, [...values, id])
+            }
+            if (data.bannerImage !== undefined) {
+                await this.syncBannerImage(dbConnection, id, data.bannerImage)
+            }
+            await dbConnection.commit()
         } catch (error: any) {
+            await dbConnection.rollback()
             throw new Error('Error updating event: ' + error.message)
+        } finally {
+            dbConnection.release()
         }
     }
 
+    private async syncBannerImage(dbConnection: PoolConnection, eventId: string, imageURL: string | null): Promise<void> {
+        const description = 'Banner do evento'
+        if (!imageURL) {
+            await dbConnection.query('DELETE FROM images WHERE eventId = ? AND description = ?', [eventId, description])
+            return
+        }
+
+        const [rows]: any = await dbConnection.query(
+            'SELECT id FROM images WHERE eventId = ? AND description = ? LIMIT 1',
+            [eventId, description],
+        )
+        if (rows.length) {
+            await dbConnection.query('UPDATE images SET imageUrl = ? WHERE id = ?', [imageURL, rows[0].id])
+            return
+        }
+
+        await dbConnection.query(
+            'INSERT INTO images (id, imageUrl, description, eventId) VALUES (?, ?, ?, ?)',
+            [randomUUID(), imageURL, description, eventId],
+        )
+    }
+
     public async delete(id: string): Promise<void> {
+        const dbConnection = await connection.getConnection()
         try {
-            await connection.query('DELETE FROM events WHERE id = ?', [id])
+            await dbConnection.beginTransaction()
+            await dbConnection.query('DELETE FROM images WHERE eventId = ?', [id])
+            await dbConnection.query('DELETE FROM events WHERE id = ?', [id])
+            await dbConnection.commit()
         } catch (error: any) {
+            await dbConnection.rollback()
             throw new Error('Error deleting event: ' + error.message)
+        } finally {
+            dbConnection.release()
         }
     }
 }

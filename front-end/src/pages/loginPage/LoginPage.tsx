@@ -73,7 +73,7 @@ const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
 
     return (
         <div className="login-page">
-            <Header initialActiveLink="#area-administrativa" />
+            <Header initialActiveLink="#/admin" />
             <div className="login-page-content">
                 {isCheckingSession || sessionRestored ? (
                     <p role="status">

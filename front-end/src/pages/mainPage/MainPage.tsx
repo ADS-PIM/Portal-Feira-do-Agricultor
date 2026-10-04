@@ -48,9 +48,9 @@ const MainPage = () => {
             <Header/>
             <MainBanner/>
             <AboutSection />
-            <div className="main-page-sections">
+            <div className={`main-page-sections${error ? ' has-event-error' : ''}`}>
                 {loading && <p role="status">Carregando próximo evento...</p>}
-                {error && <p role="alert">Erro ao carregar o próximo evento: {error}</p>}
+                {error && <p className="main-page-error" role="alert">Erro ao carregar o próximo evento: {error}</p>}
                 {!loading && !error && <NearestEventPainel event={nearestEvent}/>}
                 <EventPainel />
                 <PricingCalculatorPromo />

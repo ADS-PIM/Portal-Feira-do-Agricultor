@@ -4,11 +4,13 @@ import MainPage from './pages/mainPage/MainPage'
 import LoginPage from './pages/loginPage/LoginPage'
 import ContactUsPage from './pages/contactUs/ContactUs'
 import CalendarPage from './pages/calendarPage/CalendarPage'
+import AdminArea from './pages/adminArea/AdminArea'
 
 function getCurrentRoute() {
   const hash = window.location.hash || '#inicio'
 
   if (hash === '#/admin/login') return 'login'
+  if (hash === '#/admin') return 'admin'
   if (hash === '#contato' || hash === '#/contato') return 'contact'
   if (hash === '#/calendario') return 'calendar'
 
@@ -16,7 +18,7 @@ function getCurrentRoute() {
 }
 
 function App() {
-  const [route, setRoute] = useState<'home' | 'login' | 'contact' | 'calendar'>(getCurrentRoute)
+  const [route, setRoute] = useState<'home' | 'login' | 'admin' | 'contact' | 'calendar'>(getCurrentRoute)
 
   useEffect(() => {
     const syncRoute = () => setRoute(getCurrentRoute())
@@ -25,11 +27,15 @@ function App() {
   }, [])
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+    window.scrollTo(0, 0)
   }, [route])
 
   if (route === 'login') {
-    return <LoginPage onLoginSuccess={() => { window.location.hash = '#inicio' }} />
+    return <LoginPage onLoginSuccess={() => { window.location.hash = '#/admin' }} />
+  }
+
+  if (route === 'admin') {
+    return <AdminArea />
   }
 
   if (route === 'contact') {

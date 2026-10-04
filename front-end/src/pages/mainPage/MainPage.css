@@ -3,6 +3,35 @@
     flex-direction: column;
 }
 
+.main-page-sections.has-event-error {
+    background: #faf9f6;
+}
+
+.main-page-error {
+    display: flex;
+    width: min(100% - 32px, 1280px);
+    align-items: center;
+    justify-content: center;
+    margin: 24px auto 32px;
+    padding: 30px 32px;
+    border: 1px solid #e4e1d8;
+    border-radius: 20px;
+    background: #fdfcf9;
+    color: #b83a2b;
+    font-size: 15px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .main-page-error {
+        width: calc(100% - 32px);
+        margin-bottom: 24px;
+        padding: 24px 20px;
+        font-size: 14px;
+    }
+}
+
 .main-page-sections > .pricing-calculator-promo,
 .main-page-sections > .contact-section {
     position: relative;

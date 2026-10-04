@@ -19,7 +19,7 @@ export type propsEvent = {
     latitude?: number;
     longitude?: number;
     state: EventState;
-    bannerImage?: string;
+    bannerImage?: string | null;
     createdAt: Date;
     adminId: string;
 }

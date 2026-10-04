@@ -41,7 +41,7 @@ export class EventCreateDTO {
 
     @IsOptional()
     @IsString()
-    bannerImage?: string;
+    bannerImage?: string | null;
 
     @IsNotEmpty()
     @IsString()
@@ -87,7 +87,7 @@ export class EventUpdateDTO {
 
     @IsOptional()
     @IsString()
-    bannerImage?: string;
+    bannerImage?: string | null;
 }
 
 export class EventSearchDTO {
@@ -96,8 +96,11 @@ export class EventSearchDTO {
     date: Date;
     startAt: string;
     endAt: string;
+    description: string | null;
+    localAddress: string;
     state: EventState;
     bannerImage: string | null;
+    createdAt: Date;
 }
 
 export class EventNearestSearchDTO {
