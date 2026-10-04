@@ -37,7 +37,7 @@ const NearestEventPainel = ({ event }: NearestEventPainelProps) => {
                     </div>
                     <div className='event-info'>
                         <h3>{event.title}</h3>
-                        {event.description && <p className='event-description'>{event.description}</p>}
+                        {event.description && <p className='event-description' tabIndex={0}>{event.description}</p>}
                         <div className='event-details'>
                             <div className='event-detail'>
                                 <span className='event-detail-icon' aria-hidden='true'>

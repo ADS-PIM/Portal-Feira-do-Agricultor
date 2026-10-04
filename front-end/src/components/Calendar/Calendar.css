@@ -35,11 +35,40 @@
 }
 
 .calendar-heading h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin: 0;
     color: #30332e;
     font-size: clamp(22px, 3vw, 30px);
     font-weight: 750;
     line-height: 1.2;
+}
+
+.calendar-year-select {
+    width: calc(5ch + 2rem);
+    min-width: calc(5ch + 2rem);
+    flex: 0 0 auto;
+    padding: 2px 0.75rem 2px 0.4rem;
+    border: 1px solid #e2e2d9;
+    border-radius: 8px;
+    background-color: #fdfcf9;
+    color: #000;
+    font: inherit;
+    font-size: 0.82em;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.calendar-year-select:hover {
+    border-color: #cbd8cd;
+    background-color: #f0f5f1;
+    color: #000;
+}
+
+.calendar-year-select:focus-visible {
+    outline: 2px solid #315f47;
+    outline-offset: 2px;
 }
 
 .calendar-event-count {

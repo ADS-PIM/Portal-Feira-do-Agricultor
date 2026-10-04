@@ -140,10 +140,23 @@
 }
 
 .event-description {
+    max-width: 100%;
+    max-height: min(35vh, 320px);
+    overflow-y: auto;
+    overflow-wrap: anywhere;
     margin: 0 0 28px;
+    padding-right: 6px;
     color: #696b64;
-    font-size: 15px;
+    font-size: clamp(13px, 1vw + 10px, 15px);
     line-height: 1.6;
+    scrollbar-color: #c9d6cc transparent;
+    scrollbar-width: thin;
+}
+
+.event-description:focus-visible {
+    border-radius: 4px;
+    outline: 2px solid #315f47;
+    outline-offset: 3px;
 }
 
 .event-details {

@@ -3,7 +3,7 @@ import Header from '../../components/Header/Header';
 import MainBanner from '../../components/MainBanner/MainBanner';
 import AboutSection from '../../components/AboutSection/AboutSection';
 import EventPainel from '../../components/Event/EventPainel';
-import PricingCalculatorPromo from '../../components/Calculator/PricingCalculatorPromo';
+import PricingCalculatorPromo from '../../components/CalculatorPromo/PricingCalculatorPromo';
 import NearestEventPainel from '../../components/Event/NearestEventPainel';
 import ContactSection from '../../components/ContactSection/ContactSection';
 import Footer from '../../components/Footer/Footer';

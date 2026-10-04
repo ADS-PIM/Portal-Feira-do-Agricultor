@@ -118,9 +118,11 @@ function Calendar() {
         })
     }, [month, year])
 
-    const monthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' })
+    const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' })
         .format(visibleMonth)
         .replace(/^./, character => character.toLocaleUpperCase('pt-BR'))
+    const monthLabel = `${monthName} ${year}`
+    const availableYears = Array.from({ length: 101 }, (_, index) => year - 50 + index)
     const currentDayEvents = todayEvents.length > 0
         ? todayEvents
         : events.filter(event => event.date.slice(0, 10) === todayDateKey)
@@ -144,7 +146,22 @@ function Calendar() {
             <section className="calendar" aria-labelledby="calendar-title">
                 <header className="calendar-header">
                     <div className="calendar-heading">
-                        <h2 id="calendar-title">{monthLabel}</h2>
+                        <h2 id="calendar-title">
+                            <span>{monthName}</span>
+                            <select
+                                className="calendar-year-select"
+                                aria-label="Selecionar ano"
+                                value={year}
+                                onChange={event => {
+                                    setVisibleMonth(new Date(Number(event.target.value), month, 1))
+                                    setSelectedDate(null)
+                                }}
+                            >
+                                {availableYears.map(availableYear => (
+                                    <option key={availableYear} value={availableYear}>{availableYear}</option>
+                                ))}
+                            </select>
+                        </h2>
                         <p className="calendar-event-count" aria-live="polite">
                             {loading ? 'Carregando eventos...' : `${events.length} ${events.length === 1 ? 'evento' : 'eventos'} neste mês`}
                         </p>
