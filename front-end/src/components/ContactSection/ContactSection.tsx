@@ -148,7 +148,7 @@ const ContactSection = () => {
                 />
             </div>
             <div className="contact-section-action">
-                <button type="button">
+                <button type="button" onClick={() => { window.location.hash = '#/contato' }}>
                     Enviar mensagem
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M5 12h14M13 6l6 6-6 6" />

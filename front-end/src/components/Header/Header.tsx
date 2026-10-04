@@ -81,7 +81,7 @@ import {
 
 const navigationLinks = [
     { href: '#inicio', label: 'Início' },
-    { href: '#calendario', label: 'Calendário' },
+    { href: '#/calendario', label: 'Calendário' },
     { href: '#contato', label: 'Fale Conosco' },
     { href: '#calculadora', label: 'Calculadora de Preços' },
     { href: '#area-administrativa', label: 'Área administrativa' },

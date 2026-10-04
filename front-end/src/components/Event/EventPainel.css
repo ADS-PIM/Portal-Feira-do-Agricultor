@@ -145,7 +145,8 @@
     font-weight: 700;
     line-height: 1.35;
     text-align: center;
-    cursor: default;
+    text-decoration: none;
+    cursor: pointer;
     transition: background-color 150ms ease, color 150ms ease;
 }
 

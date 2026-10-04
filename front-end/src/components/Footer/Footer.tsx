@@ -115,7 +115,7 @@ const Footer = () => {
                         <h2>Menu Rápido</h2>
                         <a href="#sobre">Sobre Nós</a>
                         <a href="#sobre">Nossos Agricultores</a>
-                        <a href="#agenda">Calendário de Eventos</a>
+                        <a href="#/calendario">Calendário de Eventos</a>
                     </div>
                     <div>
                         <h2>Serviços &amp; Links</h2>

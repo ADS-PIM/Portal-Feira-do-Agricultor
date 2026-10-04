@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Header from '../../components/Header/Header';
-import MainBanner from '../../components/Main/MainBanner';
+import MainBanner from '../../components/MainBanner/MainBanner';
 import AboutSection from '../../components/AboutSection/AboutSection';
 import EventPainel from '../../components/Event/EventPainel';
 import PricingCalculatorPromo from '../../components/Calculator/PricingCalculatorPromo';

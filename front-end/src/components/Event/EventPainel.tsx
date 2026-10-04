@@ -110,11 +110,11 @@ const EventPainel = () => {
                     <div className={`event-agenda-list ${eventCountClass}`}>
                         {visibleEvents.map(event => <AgendaEventCard key={event.id} event={event} />)}
                     </div>
-                    <button className='event-agenda-calendar-button' type='button'>
-                        Ver Calendário Completo
-                    </button>
                 </>
             )}
+            <a className='event-agenda-calendar-button' href='#/calendario'>
+                Ver Calendário Completo
+            </a>
         </section>
     )
 }

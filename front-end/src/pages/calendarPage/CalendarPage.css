@@ -1,0 +1,51 @@
+.calendar-page {
+    box-sizing: border-box;
+    min-height: 55vh;
+    padding: 72px 5.6% 88px;
+    background: #faf9f6;
+    color: #30332e;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.calendar-page-header {
+    max-width: 760px;
+    margin: 0 auto 38px;
+    text-align: center;
+}
+
+.calendar-page-header p {
+    margin: 0 0 12px;
+    color: #e96b29;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.calendar-page-header h1 {
+    margin: 0;
+    color: #315f47;
+    font-size: clamp(30px, 4vw, 42px);
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.calendar-page-header span {
+    display: block;
+    margin-top: 12px;
+    color: #60645c;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+    .calendar-page {
+        padding: 52px 18px 64px;
+    }
+
+    .calendar-page-header {
+        margin-bottom: 28px;
+    }
+
+    .calendar-page-header span {
+        font-size: 14px;
+    }
+}
