@@ -64,6 +64,7 @@ function ContactIcon({ type }: { type: 'whatsapp' | 'email' | 'instagram' }) {
 const ContactUsPage = () => {
   const [formData, setFormData] = useState<ContactFormState>(initialFormState)
   const [businessInfo, setBusinessInfo] = useState<BusinessInfo | null>(null)
+  const [hasContactError, setHasContactError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [submitFeedback, setSubmitFeedback] = useState<{ type: 'idle' | 'success' | 'error'; message: string } | null>(null)
 
@@ -73,12 +74,9 @@ const ContactUsPage = () => {
     const loadBusinessInfo = async () => {
       try {
         setBusinessInfo(await getBusinessInfo(controller.signal))
-      } catch (error) {
+      } catch {
         if (!controller.signal.aborted) {
-          setSubmitFeedback({
-            type: 'error',
-            message: getUserFacingError(error, 'Não foi possível carregar os contatos no momento.'),
-          })
+          setHasContactError(true)
         }
       }
     }
@@ -87,27 +85,31 @@ const ContactUsPage = () => {
     return () => controller.abort()
   }, [])
 
+  const whatsappNumber = businessInfo?.whatsappNumber?.trim() || null
+  const businessEmail = businessInfo?.businessEmail?.trim() || null
+  const instagramAccount = businessInfo?.instagramAccount?.trim() || null
+  const unavailableMessage = 'Não disponível no momento'
   const contactLinks = [
     {
       label: 'Conversar no WhatsApp',
-      value: businessInfo?.whatsappNumber || '(88) 99923-4567',
-      href: businessInfo?.whatsappNumber ? `https://wa.me/${businessInfo.whatsappNumber.replace(/\D/g, '')}` : 'https://wa.me/5588999234567',
+      value: whatsappNumber || unavailableMessage,
+      href: whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/\D/g, '')}` : null,
       icon: 'whatsapp' as const,
     },
     {
       label: 'Enviar um E-mail',
-      value: businessInfo?.businessEmail || 'contato@brotandofeiras.org',
-      href: businessInfo?.businessEmail ? `mailto:${businessInfo.businessEmail}` : 'mailto:contato@brotandofeiras.org',
+      value: businessEmail || unavailableMessage,
+      href: businessEmail ? `mailto:${businessEmail}` : null,
       icon: 'email' as const,
     },
     {
       label: 'Siga-nos no Instagram',
-      value: businessInfo?.instagramAccount || '@brotandofeiras',
-      href: businessInfo?.instagramAccount
-        ? /^https?:\/\//i.test(businessInfo.instagramAccount)
-          ? businessInfo.instagramAccount
-          : `https://www.instagram.com/${businessInfo.instagramAccount.replace(/^@/, '')}`
-        : 'https://www.instagram.com/brotandofeiras',
+      value: instagramAccount || unavailableMessage,
+      href: instagramAccount
+        ? /^https?:\/\//i.test(instagramAccount)
+          ? instagramAccount
+          : `https://www.instagram.com/${instagramAccount.replace(/^@/, '')}`
+        : null,
       icon: 'instagram' as const,
     },
   ]
@@ -258,17 +260,33 @@ const ContactUsPage = () => {
             </section>
 
             <aside className="contact-side-panel" aria-label="Contatos e redes sociais">
-              {contactLinks.map(({ label, value, href, icon }) => (
-                <a key={label} className="contact-side-item" href={href} target="_blank" rel="noreferrer">
-                  <span className="contact-side-icon" aria-hidden="true">
-                    <ContactIcon type={icon} />
-                  </span>
-                  <span className="contact-side-text">
-                    <strong>{label}</strong>
-                    <small>{value}</small>
-                  </span>
-                </a>
-              ))}
+              {hasContactError ? (
+                <p className="contact-side-error" role="alert">Erro ao carregar contato</p>
+              ) : (
+                contactLinks.map(({ label, value, href, icon }) => {
+                  const content = (
+                    <>
+                      <span className="contact-side-icon" aria-hidden="true">
+                        <ContactIcon type={icon} />
+                      </span>
+                      <span className="contact-side-text">
+                        <strong>{label}</strong>
+                        <small>{value}</small>
+                      </span>
+                    </>
+                  )
+
+                  return href ? (
+                    <a key={label} className="contact-side-item" href={href} target="_blank" rel="noreferrer">
+                      {content}
+                    </a>
+                  ) : (
+                    <div key={label} className="contact-side-item">
+                      {content}
+                    </div>
+                  )
+                })
+              )}
             </aside>
           </div>
         </div>

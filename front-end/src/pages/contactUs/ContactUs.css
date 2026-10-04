@@ -198,6 +198,15 @@
     line-height: 1.5;
 }
 
+.contact-side-error {
+    margin: 0;
+    padding: 14px 16px;
+    border: 1px solid #f1c7ba;
+    border-radius: 16px;
+    background: rgba(203, 89, 67, 0.08);
+    color: #a5442d;
+}
+
 .contact-form-feedback {
     margin-top: -4px;
     padding: 10px 12px;
