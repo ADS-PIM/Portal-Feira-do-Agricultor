@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getBusinessInfo, type BusinessInfo } from '../services/businessInfoService'
-import { getUserFacingError } from '../services/errors'
+import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoService'
+import { getUserFacingError } from '../../services/errors'
 import './Footer.css'
 
 function getInstagramUrl(account: string): string {

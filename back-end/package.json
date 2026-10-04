@@ -28,7 +28,7 @@
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.24.4",
     "node": "^26.9.0",
-    "sequelize": "^6.37.8",
+    "sequelize": "^3.30.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },

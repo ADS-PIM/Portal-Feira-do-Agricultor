@@ -1,4 +1,4 @@
-import feiraImage from '../assets/Placeholder-Feira-de-Agricultura.jpg'
+import feiraImage from '../../assets/Placeholder-Feira-de-Agricultura.jpg'
 import './MainBanner.css'
 
 const MainBanner = () => {

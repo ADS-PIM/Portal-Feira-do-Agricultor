@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getEventAgenda, type AgendaEvent } from '../services/eventService'
-import { getUserFacingError } from '../services/errors'
+import { getEventAgenda, type AgendaEvent } from '../../services/eventService'
+import { getUserFacingError } from '../../services/errors'
 import './EventPainel.css'
 
 const VISIBLE_EVENT_COUNT = 6

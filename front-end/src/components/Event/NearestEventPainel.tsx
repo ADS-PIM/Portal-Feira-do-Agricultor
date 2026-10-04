@@ -1,5 +1,5 @@
 import './NearestEventPainel.css'
-import type { NearestEvent } from '../services/eventService'
+import type { NearestEvent } from '../../services/eventService'
 
 interface NearestEventPainelProps {
     event: NearestEvent | null

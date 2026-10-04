@@ -2,18 +2,36 @@ import './App.css'
 import { useEffect, useState } from 'react'
 import MainPage from './pages/mainPage/MainPage'
 import LoginPage from './pages/loginPage/LoginPage'
+import ContactUsPage from './pages/contactUs/ContactUs'
+
+function getCurrentRoute() {
+  const hash = window.location.hash || '#inicio'
+
+  if (hash === '#/admin/login') return 'login'
+  if (hash === '#contato' || hash === '#/contato') return 'contact'
+
+  return 'home'
+}
 
 function App() {
-  const [isLoginPage, setIsLoginPage] = useState(() => window.location.hash === '#/admin/login')
+  const [route, setRoute] = useState<'home' | 'login' | 'contact'>(getCurrentRoute)
 
   useEffect(() => {
-    const syncRoute = () => setIsLoginPage(window.location.hash === '#/admin/login')
+    const syncRoute = () => setRoute(getCurrentRoute())
     window.addEventListener('hashchange', syncRoute)
     return () => window.removeEventListener('hashchange', syncRoute)
   }, [])
 
-  if (isLoginPage) {
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+  }, [route])
+
+  if (route === 'login') {
     return <LoginPage onLoginSuccess={() => { window.location.hash = '#inicio' }} />
+  }
+
+  if (route === 'contact') {
+    return <ContactUsPage />
   }
 
   return <MainPage />

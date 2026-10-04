@@ -1,12 +1,12 @@
 import './Header.css'
 import { useEffect, useRef, useState } from 'react'
-import { restoreAdminProfile } from '../services/api'
+import { restoreAdminProfile } from '../../services/api'
 import {
     AUTH_STATE_CHANGE_EVENT,
     getAdminProfile,
     isAuthenticated,
     type AdminProfile,
-} from '../services/authToken'
+} from '../../services/authToken'
 
 // const navigationLinks = [
 //     { href: '#inicio', label: 'Início' },

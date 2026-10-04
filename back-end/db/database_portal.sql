@@ -55,7 +55,7 @@ create table `message` (
     `name` varchar(255) not null,
     `email` varchar(320) not null,
     `phone` varchar(20) default null,
-    `subject` enum('doubt', 'suggestion', 'complaint', 'partnership', 'other') not null,
+    `subject` enum('DOUBT', 'SUGGESTION', 'COMPLAINT', 'PARTNERSHIP', 'OTHER') not null,
     `message` varchar(1500) not null,
     `submitDate` timestamp not null,
     `title` varchar(255) not null,
