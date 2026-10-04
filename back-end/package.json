@@ -39,7 +39,7 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.4",
     "sequelize-cli": "^6.6.5"
   }
 }
