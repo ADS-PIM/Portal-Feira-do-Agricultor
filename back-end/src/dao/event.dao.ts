@@ -91,7 +91,7 @@ export class EventDAO {
     public async searchAgenda(date: string): Promise<EventAgendaSearchDTO[]> {
         try {
             const [events]: any = await connection.query(
-                `SELECT id, title, DATE_FORMAT(date, '%Y-%m-%d') AS date, startAt, endAt, localAddress
+                `SELECT id, title, DATE_FORMAT(date, '%Y-%m-%d') AS date, startAt, endAt, localAddress, state
                 FROM events
                 WHERE date >= ? AND state IN (?, ?)
                 ORDER BY date ASC, startAt ASC`,

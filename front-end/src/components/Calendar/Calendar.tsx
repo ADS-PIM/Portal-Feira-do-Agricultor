@@ -5,6 +5,20 @@ import CalendarEventsPanel from './CalendarEventsPanel'
 import './Calendar.css'
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+const WEEKDAY_OPTIONS = [
+    { value: '', label: 'Todos os dias' },
+    { value: '0', label: 'Domingo' },
+    { value: '1', label: 'Segunda-feira' },
+    { value: '2', label: 'Terça-feira' },
+    { value: '3', label: 'Quarta-feira' },
+    { value: '4', label: 'Quinta-feira' },
+    { value: '5', label: 'Sexta-feira' },
+    { value: '6', label: 'Sábado' },
+]
+const PUBLIC_EVENT_STATES: Array<{ value: AgendaEvent['state']; label: string }> = [
+    { value: 'PENDING', label: 'Agendado' },
+    { value: 'HAPPENING', label: 'Em andamento' },
+]
 
 function getDateKey(date: Date): string {
     const year = date.getFullYear()
@@ -16,6 +30,26 @@ function getDateKey(date: Date): string {
 function formatTime(value: string): string {
     const [hours, minutes] = value.slice(0, 5).split(':')
     return `${hours}:${minutes}`
+}
+
+function matchesFilters(
+    event: AgendaEvent,
+    query: string,
+    statusFilter: AgendaEvent['state'] | '',
+    weekdayFilter: string,
+    timeFromFilter: string,
+    timeToFilter: string,
+): boolean {
+    const matchesSearch = !query || event.title.toLocaleLowerCase('pt-BR').includes(query)
+    const matchesStatus = !statusFilter || event.state === statusFilter
+    const eventWeekday = new Date(`${event.date.slice(0, 10)}T12:00:00`).getDay().toString()
+    const matchesWeekday = !weekdayFilter || eventWeekday === weekdayFilter
+    const startsAt = event.startAt.slice(0, 5)
+    const endsAt = event.endAt.slice(0, 5)
+    const matchesTime = (!timeFromFilter || endsAt >= timeFromFilter)
+        && (!timeToFilter || startsAt <= timeToFilter)
+
+    return matchesSearch && matchesStatus && matchesWeekday && matchesTime
 }
 
 function Calendar() {
@@ -30,6 +64,12 @@ function Calendar() {
     const [error, setError] = useState<string | null>(null)
     const [todayLoading, setTodayLoading] = useState(true)
     const [todayError, setTodayError] = useState<string | null>(null)
+    const [searchTerm, setSearchTerm] = useState('')
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+    const [statusFilter, setStatusFilter] = useState<AgendaEvent['state'] | ''>('')
+    const [weekdayFilter, setWeekdayFilter] = useState('')
+    const [timeFromFilter, setTimeFromFilter] = useState('')
+    const [timeToFilter, setTimeToFilter] = useState('')
 
     const year = visibleMonth.getFullYear()
     const month = visibleMonth.getMonth()
@@ -46,7 +86,7 @@ function Calendar() {
 
             try {
                 const agenda = await getEventAgenda(firstDayOfMonth, controller.signal)
-                setEvents(agenda.filter(event => event.date.slice(0, 7) === monthKey))
+                setEvents(agenda)
             } catch (requestError) {
                 if (!controller.signal.aborted) {
                     setEvents([])
@@ -89,16 +129,35 @@ function Calendar() {
         return () => controller.abort()
     }, [todayDateKey])
 
+    const query = searchTerm.trim().toLocaleLowerCase('pt-BR')
+    const matchingEvents = useMemo(
+        () => events.filter(event => matchesFilters(event, query, statusFilter, weekdayFilter, timeFromFilter, timeToFilter)),
+        [events, query, statusFilter, timeFromFilter, timeToFilter, weekdayFilter],
+    )
+
     const eventsByDate = useMemo(() => {
         const grouped = new Map<string, AgendaEvent[]>()
-        for (const event of events) {
+        for (const event of matchingEvents) {
             const dateKey = event.date.slice(0, 10)
             const dayEvents = grouped.get(dateKey) ?? []
             dayEvents.push(event)
             grouped.set(dateKey, dayEvents)
         }
         return grouped
-    }, [events])
+    }, [matchingEvents])
+
+    const currentDayEvents = todayEvents.length > 0
+        ? todayEvents
+        : events.filter(event => event.date.slice(0, 10) === todayDateKey)
+    const calendarEvents = matchingEvents.filter(event => event.date.slice(0, 7) === monthKey)
+    const visibleEvents = selectedDate
+        ? matchingEvents.filter(event => event.date.slice(0, 10) === selectedDate)
+        : query
+            ? matchingEvents
+            : calendarEvents
+    const visibleTodayEvents = currentDayEvents.filter(
+        event => matchesFilters(event, query, statusFilter, weekdayFilter, timeFromFilter, timeToFilter),
+    )
 
     const calendarDays = useMemo(() => {
         const firstWeekday = new Date(year, month, 1).getDay()
@@ -123,12 +182,9 @@ function Calendar() {
         .replace(/^./, character => character.toLocaleUpperCase('pt-BR'))
     const monthLabel = `${monthName} ${year}`
     const availableYears = Array.from({ length: 101 }, (_, index) => year - 50 + index)
-    const currentDayEvents = todayEvents.length > 0
-        ? todayEvents
-        : events.filter(event => event.date.slice(0, 10) === todayDateKey)
     const selectedEvents = selectedDate
         ? selectedDate === todayDateKey
-            ? currentDayEvents
+            ? visibleTodayEvents
             : eventsByDate.get(selectedDate) ?? []
         : []
     const selectedEventsLoading = selectedDate === todayDateKey ? todayLoading : loading
@@ -139,6 +195,13 @@ function Calendar() {
     const navigateMonth = (offset: number) => {
         setVisibleMonth(current => new Date(current.getFullYear(), current.getMonth() + offset, 1))
         setSelectedDate(null)
+    }
+    const activeFilterCount = [statusFilter, weekdayFilter, timeFromFilter, timeToFilter].filter(Boolean).length
+    const clearFilters = () => {
+        setStatusFilter('')
+        setWeekdayFilter('')
+        setTimeFromFilter('')
+        setTimeToFilter('')
     }
 
     return (
@@ -163,7 +226,7 @@ function Calendar() {
                             </select>
                         </h2>
                         <p className="calendar-event-count" aria-live="polite">
-                            {loading ? 'Carregando eventos...' : `${events.length} ${events.length === 1 ? 'evento' : 'eventos'} neste mês`}
+                            {loading ? 'Carregando eventos...' : `${calendarEvents.length} ${calendarEvents.length === 1 ? 'evento' : 'eventos'} neste mês`}
                         </p>
                     </div>
                     <nav className="calendar-navigation" aria-label="Navegação do calendário">
@@ -204,7 +267,7 @@ function Calendar() {
                         }
 
                         const dateKey = getDateKey(cell.date)
-                        const dayEvents = eventsByDate.get(dateKey) ?? []
+                        const dayEvents = eventsByDate.get(dateKey)?.filter(event => event.date.slice(0, 7) === monthKey) ?? []
                         const hasEvents = dayEvents.length > 0
                         const isToday = dateKey === getDateKey(new Date())
                         const isSelected = dateKey === selectedDate
@@ -256,13 +319,32 @@ function Calendar() {
                 )}
             </section>
             <CalendarEventsPanel
-                events={events}
+                events={visibleEvents}
                 loading={loading}
                 error={error}
                 monthLabel={monthLabel}
-                todayEvents={currentDayEvents}
+                todayEvents={visibleTodayEvents}
                 todayLoading={todayLoading && currentDayEvents.length === 0}
                 todayError={todayError}
+                searchTerm={searchTerm}
+                onSearchTermChange={value => {
+                    setSearchTerm(value)
+                    setSelectedDate(null)
+                }}
+                isFiltersOpen={isFiltersOpen}
+                onToggleFilters={() => setIsFiltersOpen(open => !open)}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                weekdayFilter={weekdayFilter}
+                onWeekdayFilterChange={setWeekdayFilter}
+                timeFromFilter={timeFromFilter}
+                onTimeFromFilterChange={setTimeFromFilter}
+                timeToFilter={timeToFilter}
+                onTimeToFilterChange={setTimeToFilter}
+                activeFilterCount={activeFilterCount}
+                onClearFilters={clearFilters}
+                weekdayOptions={WEEKDAY_OPTIONS}
+                statusOptions={PUBLIC_EVENT_STATES}
             />
         </div>
     )

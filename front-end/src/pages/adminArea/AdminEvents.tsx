@@ -342,9 +342,11 @@ const AdminEvents = () => {
     const [formError, setFormError] = useState<string | null>(null)
     const [actionMessage, setActionMessage] = useState<string | null>(null)
     const monthKey = getMonthKey(visibleMonth)
-    const monthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' })
+    const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' })
         .format(visibleMonth)
         .replace(/^./, character => character.toLocaleUpperCase('pt-BR'))
+    const monthLabel = `${monthName} ${visibleMonth.getFullYear()}`
+    const availableYears = Array.from({ length: 101 }, (_, index) => visibleMonth.getFullYear() - 50 + index)
 
     const loadEvents = useCallback((signal?: AbortSignal) => getAdminEvents(signal), [])
 
@@ -596,7 +598,22 @@ const AdminEvents = () => {
                 <div className="admin-events-columns">
                     <section className="admin-events-calendar" aria-labelledby="admin-calendar-title">
                         <header className="admin-events-calendar-header">
-                            <h2 id="admin-calendar-title">{monthLabel}</h2>
+                            <h2 id="admin-calendar-title">
+                                <span>{monthName}</span>
+                                <select
+                                    className="admin-events-calendar-year"
+                                    aria-label="Selecionar ano do calendário administrativo"
+                                    value={visibleMonth.getFullYear()}
+                                    onChange={event => {
+                                        setVisibleMonth(new Date(Number(event.target.value), visibleMonth.getMonth(), 1))
+                                        setSelectedDate(null)
+                                    }}
+                                >
+                                    {availableYears.map(availableYear => (
+                                        <option key={availableYear} value={availableYear}>{availableYear}</option>
+                                    ))}
+                                </select>
+                            </h2>
                             <div className="admin-events-month-navigation">
                                 <button type="button" onClick={() => shiftMonth(-1)} aria-label="Mês anterior">
                                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>

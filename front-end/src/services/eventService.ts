@@ -18,6 +18,7 @@ export interface AgendaEvent {
     startAt: string
     endAt: string
     localAddress: string
+    state: 'PENDING' | 'CANCELED' | 'CONCLUDED' | 'RESCHEDULED' | 'HAPPENING'
 }
 
 export interface AdminEvent extends AgendaEvent {

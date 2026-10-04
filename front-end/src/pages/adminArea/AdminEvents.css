@@ -252,7 +252,34 @@
     margin-bottom: 12px;
 }
 
-.admin-events-calendar-header h2,
+.admin-events-calendar-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.admin-events-calendar-year {
+    width: calc(5ch + 2.75rem);
+    min-width: calc(5ch + 2.75rem);
+    padding: 2px 1.15rem 2px 0.45rem;
+    border: 1px solid #e2ded9;
+    border-radius: 7px;
+    background: #fff;
+    color: #30332e;
+    font: inherit;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.admin-events-calendar-year:focus-visible {
+    outline: 2px solid #2f8038;
+    outline-offset: 2px;
+}
+
 .admin-events-agenda > h2 {
     margin: 0;
     font-size: 15px;

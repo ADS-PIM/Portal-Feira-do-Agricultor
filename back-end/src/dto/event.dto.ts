@@ -121,6 +121,7 @@ export class EventAgendaSearchDTO {
     startAt: string;
     endAt: string;
     localAddress: string;
+    state: EventState;
 }
 
 export class EventSearchByIdDTO {
