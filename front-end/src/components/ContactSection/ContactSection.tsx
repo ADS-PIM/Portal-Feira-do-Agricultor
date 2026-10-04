@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoService'
-import { getUserFacingError } from '../../services/errors'
 import './ContactSection.css'
 
 const unavailableMessage = 'Não disponível no momento'
@@ -88,7 +87,7 @@ function ContactCard({
 
 const ContactSection = () => {
     const [businessInfo, setBusinessInfo] = useState<BusinessInfo | null>(null)
-    const [error, setError] = useState<string | null>(null)
+    const [hasError, setHasError] = useState(false)
 
     useEffect(() => {
         const controller = new AbortController()
@@ -96,9 +95,9 @@ const ContactSection = () => {
         const loadBusinessInfo = async () => {
             try {
                 setBusinessInfo(await getBusinessInfo(controller.signal))
-            } catch (requestError) {
+            } catch {
                 if (!controller.signal.aborted) {
-                    setError(getUserFacingError(requestError, 'Não foi possível carregar os contatos. Tente novamente mais tarde.'))
+                    setHasError(true)
                 }
             }
         }
@@ -122,31 +121,33 @@ const ContactSection = () => {
                 </p>
             </header>
 
-            {error && <p className="contact-section-error" role="alert">Erro ao carregar os contatos: {error}</p>}
-
-            <div className="contact-cards">
-                <ContactCard
-                    type="whatsapp"
-                    title="Conversar no WhatsApp"
-                    value={whatsappNumber}
-                    href={whatsappNumber ? getWhatsAppUrl(whatsappNumber) : null}
-                    action="Enviar Mensagem"
-                />
-                <ContactCard
-                    type="instagram"
-                    title="Instagram Oficial"
-                    value={instagramAccount}
-                    href={instagramAccount?.trim() ? getInstagramUrl(instagramAccount) : null}
-                    action="Seguir Perfil"
-                />
-                <ContactCard
-                    type="email"
-                    title="Enviar um E-mail"
-                    value={businessEmail}
-                    href={businessEmail?.trim() ? `mailto:${businessEmail.trim()}` : null}
-                    action="Enviar E-mail"
-                />
-            </div>
+            {hasError ? (
+                <p className="contact-section-error" role="alert">Erro ao carregar contato</p>
+            ) : (
+                <div className="contact-cards">
+                    <ContactCard
+                        type="whatsapp"
+                        title="Conversar no WhatsApp"
+                        value={whatsappNumber}
+                        href={whatsappNumber ? getWhatsAppUrl(whatsappNumber) : null}
+                        action="Enviar Mensagem"
+                    />
+                    <ContactCard
+                        type="instagram"
+                        title="Instagram Oficial"
+                        value={instagramAccount}
+                        href={instagramAccount?.trim() ? getInstagramUrl(instagramAccount) : null}
+                        action="Seguir Perfil"
+                    />
+                    <ContactCard
+                        type="email"
+                        title="Enviar um E-mail"
+                        value={businessEmail}
+                        href={businessEmail?.trim() ? `mailto:${businessEmail.trim()}` : null}
+                        action="Enviar E-mail"
+                    />
+                </div>
+            )}
             <div className="contact-section-action">
                 <button type="button" onClick={() => { window.location.hash = '#/contato' }}>
                     Enviar mensagem
