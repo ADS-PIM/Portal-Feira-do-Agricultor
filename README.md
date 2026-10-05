@@ -101,6 +101,12 @@ Após publicar alterações de esquema, execute também `npm run db:migrate` con
 o banco de produção. A migration de papéis de administrador converte `normal`
 para `ADMIN` e `master` para `SUPER_ADMIN`, alinhando os valores existentes ao
 backend.
+The event-coordinate migration also makes `localLatitude` and `localLongitude`
+nullable without changing existing values.
+The refresh-token expiry migration changes the expiry column to `DATETIME` so
+it preserves the full token lifetime. In production, refresh cookies use
+`SameSite=None; Secure` because the frontend and API are hosted on separate
+Vercel domains; local development keeps `SameSite=Lax`.
 
 A configuração do Sequelize CLI fica em `back-end/db/config/config.js` e lê
 as variáveis `DB_*` de `back-end/.env` localmente ou do ambiente de produção.

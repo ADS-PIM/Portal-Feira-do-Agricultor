@@ -11,8 +11,8 @@ export type EventUpdateData = {
     startAt?: string;
     endAt?: string;
     localAddress?: string;
-    latitude?: number;
-    longitude?: number;
+    latitude?: number | null;
+    longitude?: number | null;
     state?: EventState;
     bannerImage?: string | null;
 }
@@ -132,11 +132,11 @@ export class EventDAO {
         };
 
         if (data.latitude !== undefined) {
-            fields.push('latitude = ?'); values.push(data.latitude)
+            fields.push('localLatitude = ?'); values.push(data.latitude)
         };
 
         if (data.longitude !== undefined) {
-            fields.push('longitude = ?'); values.push(data.longitude)
+            fields.push('localLongitude = ?'); values.push(data.longitude)
         };
 
         if (data.state !== undefined) {

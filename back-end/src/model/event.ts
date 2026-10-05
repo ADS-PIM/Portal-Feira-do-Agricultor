@@ -16,8 +16,8 @@ export type propsEvent = {
     startAt: string;
     endAt: string;
     localAddress: string;
-    latitude?: number;
-    longitude?: number;
+    latitude?: number | null;
+    longitude?: number | null;
     state: EventState;
     bannerImage?: string | null;
     createdAt: Date;
@@ -36,8 +36,8 @@ export class Event {
             startAt: eventCreateDTO.startAt,
             endAt: eventCreateDTO.endAt,
             localAddress: eventCreateDTO.localAddress,
-            latitude: eventCreateDTO.latitude,
-            longitude: eventCreateDTO.longitude,
+            latitude: eventCreateDTO.latitude ?? null,
+            longitude: eventCreateDTO.longitude ?? null,
             state: (eventCreateDTO.state as EventState) ?? EventState.PENDING, //ao criar o evento o admin pode escolher o estado, se não alterar por padão fica com pendente
             bannerImage: eventCreateDTO.bannerImage,
             createdAt: new Date(),

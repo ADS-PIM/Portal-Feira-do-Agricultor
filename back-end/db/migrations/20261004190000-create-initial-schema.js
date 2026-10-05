@@ -39,8 +39,8 @@ module.exports = {
       startAt: { type: Sequelize.TIME, allowNull: false },
       endAt: { type: Sequelize.TIME, allowNull: false },
       localAddress: { type: Sequelize.STRING(255), allowNull: false },
-      localLatitude: { type: Sequelize.DECIMAL(10, 8), allowNull: false },
-      localLongitude: { type: Sequelize.DECIMAL(11, 8), allowNull: false },
+      localLatitude: { type: Sequelize.DECIMAL(10, 8), allowNull: true },
+      localLongitude: { type: Sequelize.DECIMAL(11, 8), allowNull: true },
       state: {
         type: Sequelize.ENUM(
           'PENDING',
@@ -112,7 +112,7 @@ module.exports = {
       },
       tokenHash: { type: Sequelize.STRING(281), allowNull: false },
       createdAt: { type: Sequelize.DATEONLY, allowNull: false },
-      expiresAt: { type: Sequelize.DATEONLY, allowNull: false },
+      expiresAt: { type: Sequelize.DATE, allowNull: false },
       revokedAt: { type: Sequelize.DATEONLY, allowNull: true },
     }, tableOptions);
   },

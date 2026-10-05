@@ -9,10 +9,12 @@ import jwt from 'jsonwebtoken';
 import { AdminRole } from '../model/admin';
 import { AuthRequest } from '../../authMiddleware';
 
+const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+
 const refreshCookieOptions = {
     httpOnly: true,
-    sameSite: 'lax' as const,
-    secure: process.env.NODE_ENV === 'production',
+    sameSite: isProduction ? 'none' as const : 'lax' as const,
+    secure: isProduction,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/admin'
 };
@@ -91,11 +93,6 @@ export class AdminController {
             const refreshTokenDAO = new RefreshTokenDAO();
             const storedToken = await refreshTokenDAO.findByToken(refreshToken);
             if (!storedToken) return res.status(401).json({ message: 'Invalid refresh token' });
-
-            if (new Date(storedToken.expires_at).getTime() < Date.now()) {
-                await refreshTokenDAO.deleteByToken(refreshToken);
-                return res.status(401).json({ message: 'Refresh token has expired' });
-            }
 
             let payload: any;
             try {

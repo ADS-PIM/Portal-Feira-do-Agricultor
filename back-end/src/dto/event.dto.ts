@@ -29,11 +29,11 @@ export class EventCreateDTO {
 
     @IsOptional()
     @IsNumber()
-    latitude?: number;
+    latitude?: number | null;
 
     @IsOptional()
     @IsNumber()
-    longitude?: number;
+    longitude?: number | null;
 
     @IsOptional()
     @IsEnum(EventState)
@@ -75,11 +75,11 @@ export class EventUpdateDTO {
 
     @IsOptional()
     @IsNumber()
-    latitude?: number;
+    latitude?: number | null;
 
     @IsOptional()
     @IsNumber()
-    longitude?: number;
+    longitude?: number | null;
 
     @IsOptional()   
     @IsEnum(EventState)
@@ -132,8 +132,8 @@ export class EventSearchByIdDTO {
     startAt: string;
     endAt: string;
     localAddress: string;
-    localLatitude: number | string;
-    localLongitude: number | string;
+    localLatitude: number | string | null;
+    localLongitude: number | string | null;
     state: EventState;
     bannerImage: string | null;
     createdAt: Date;

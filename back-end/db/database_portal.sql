@@ -19,8 +19,8 @@ create table `events` (
     `startAt` time not null,
     `endAt` time not null,
     `localAddress` varchar(255) not null,
-    `localLatitude` decimal(10,8) not null,
-    `localLongitude` decimal(11,8) not null,
+    `localLatitude` decimal(10,8) default null,
+    `localLongitude` decimal(11,8) default null,
     `state` enum('PENDING', 'CANCELED', 'CONCLUDED', 'RESCHEDULED', 'HAPPENING') not null,
     `bannerImage` varchar(2048) default null,
     `createdAt` datetime(6) not null default current_timestamp(6),
@@ -67,10 +67,9 @@ create table `refresh_tokens` (
     `adminId` char(36) not null,
     `tokenHash` varchar(281) not null,
     `createdAt` date not null,
-    `expiresAt` date not null,
+    `expiresAt` datetime not null,
     `revokedAt` date default null,
     primary key (`id`),
     key `refreshTokens_administrators_FK` (`adminId`),
     constraint `refreshTokens_administrators_FK` foreign key (`adminId`) references `administrators` (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
-
