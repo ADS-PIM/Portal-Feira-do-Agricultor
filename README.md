@@ -48,6 +48,7 @@ DB_PORT=3306
 DB_NAME=api_portal_feira
 DB_USER=root
 DB_PASSWORD=sua_senha_mysql
+DB_SSL=false
 PORT=8080
 FRONTEND_URL=http://localhost:5173
 JWT_ACCESS_SECRET=configure_um_segredo_aleatorio
@@ -58,6 +59,23 @@ Gere valores diferentes para os dois segredos JWT. Por exemplo, execute duas
 vezes `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`
 e copie cada resultado para uma variável diferente. Não compartilhe nem versione
 o arquivo `.env`.
+
+Para usar o MySQL do Aiven, configure `DB_HOST`, `DB_PORT`, `DB_NAME`,
+`DB_USER` e `DB_PASSWORD` com os valores do serviço e defina `DB_SSL=true`.
+Se o certificado CA do serviço não for confiável por padrão no ambiente,
+configure também `DB_SSL_CA` com o conteúdo PEM do certificado (use `\n` para
+representar as quebras de linha ao cadastrar a variável).
+
+### Publicação na Vercel
+
+Configure o frontend e o backend como projetos separados. No frontend, defina
+`VITE_API_BASE_URL` com a URL pública estável do backend, sem barra final; essa
+variável é incorporada durante o build, portanto publique novamente o frontend
+depois de alterá-la. No backend, configure as variáveis do banco acima,
+`FRONTEND_URL` com a origem exata do frontend (sem caminho ou barra final) e os
+segredos JWT. A API precisa estar acessível publicamente pelo navegador: desative
+a proteção de Deployment/Authentication para a implantação de produção ou use
+um domínio de produção não protegido. Não use o URL de preview protegido.
 
 Instale as dependências e crie o banco e as tabelas:
 
