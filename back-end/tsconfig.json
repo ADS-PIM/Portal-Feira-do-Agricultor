@@ -45,5 +45,10 @@
     "strictPropertyInitialization": false, /* Check for class properties that are declared but not set in the constructor. */
     "experimentalDecorators": true, /* Enable experimental support for legacy experimental decorators. */
     "emitDecoratorMetadata": true,
-  }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "../front-end"
+  ]
 }
