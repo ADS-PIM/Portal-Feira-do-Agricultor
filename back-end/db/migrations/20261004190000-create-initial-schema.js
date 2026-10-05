@@ -10,27 +10,26 @@ const tableOptions = {
 
 module.exports = {
   async up(queryInterface) {
-    await queryInterface.createTable('administrators', {
-      id: { type: Sequelize.CHAR(36), allowNull: false, primaryKey: true },
-      name: { type: Sequelize.STRING(255), allowNull: false },
-      email: {
-        type: Sequelize.STRING(320),
-        allowNull: false,
-        unique: 'administrators_unique',
-      },
-      hashPassword: { type: Sequelize.STRING(255), allowNull: false },
-      role: {
-        type: Sequelize.ENUM('normal', 'master'),
-        allowNull: false,
-      },
-      active: { type: Sequelize.BOOLEAN, allowNull: false },
-      createdAt: { type: Sequelize.DATEONLY, allowNull: false },
-      profile_picture: { type: Sequelize.STRING(2048), allowNull: true },
-    }, tableOptions);
-    await queryInterface.addIndex('administrators', ['email'], {
-      unique: true,
-      name: 'administrators_unique',
-    });
+    const existingTables = await queryInterface.showAllTables();
+    if (!existingTables.includes('administrators')) {
+      await queryInterface.createTable('administrators', {
+        id: { type: Sequelize.CHAR(36), allowNull: false, primaryKey: true },
+        name: { type: Sequelize.STRING(255), allowNull: false },
+        email: {
+          type: Sequelize.STRING(320),
+          allowNull: false,
+          unique: 'administrators_unique',
+        },
+        hashPassword: { type: Sequelize.STRING(255), allowNull: false },
+        role: {
+          type: Sequelize.ENUM('normal', 'master'),
+          allowNull: false,
+        },
+        active: { type: Sequelize.BOOLEAN, allowNull: false },
+        createdAt: { type: Sequelize.DATEONLY, allowNull: false },
+        profile_picture: { type: Sequelize.STRING(2048), allowNull: true },
+      }, tableOptions);
+    }
 
     await queryInterface.createTable('events', {
       id: { type: Sequelize.CHAR(36), allowNull: false, primaryKey: true },

@@ -97,6 +97,21 @@ e registra as migrations aplicadas. O usuário do MySQL precisa ter permissão
 para criar o banco. Se você já o criou manualmente, pule `db:create` e rode
 `npm run db:migrate`.
 
+Após publicar alterações de esquema, execute também `npm run db:migrate` contra
+o banco de produção. A migration de papéis de administrador converte `normal`
+para `ADMIN` e `master` para `SUPER_ADMIN`, alinhando os valores existentes ao
+backend.
+
+A configuração do Sequelize CLI fica em `back-end/db/config/config.js` e lê
+as variáveis `DB_*` de `back-end/.env` localmente ou do ambiente de produção.
+Cadastre as mesmas variáveis no projeto backend da Vercel; não coloque
+credenciais no código ou em arquivos de configuração estáticos.
+
+Se a migration inicial falhar com `Duplicate key name 'administrators_unique'`,
+rode novamente `npm run db:migrate` com esta versão corrigida. A migration
+retoma a tabela `administrators` já criada pela tentativa anterior e continua
+criando as tabelas restantes.
+
 > A migration inicial espera que o banco não tenha tabelas. Se pretende usar um
 > banco que já contém tabelas ou dados, faça backup e defina uma estratégia de
 > baseline antes de aplicar as migrations.
@@ -123,7 +138,8 @@ npm run dev
 
 Abra no navegador o endereço informado pelo Vite, normalmente
 `http://localhost:5173`. Durante o desenvolvimento, o Vite encaminha as
-requisições da API para `http://localhost:8080`.
+requisições da API para `http://localhost:8080`; assim o navegador não chama
+diretamente a API de produção nem depende do CORS da Vercel.
 
 ## Comandos úteis
 

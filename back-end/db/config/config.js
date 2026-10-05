@@ -2,6 +2,8 @@ const path = require('node:path');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
+const sslCA = process.env.DB_SSL_CA?.replace(/\\n/g, '\n');
+
 const shared = {
   username: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
@@ -9,6 +11,16 @@ const shared = {
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT || 3306),
   dialect: 'mysql',
+  ...(process.env.DB_SSL === 'true'
+    ? {
+        dialectOptions: {
+          ssl: {
+            rejectUnauthorized: true,
+            ...(sslCA ? { ca: sslCA } : {}),
+          },
+        },
+      }
+    : {}),
   logging: false,
   define: {
     charset: 'utf8mb4',
