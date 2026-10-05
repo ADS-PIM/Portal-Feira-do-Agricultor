@@ -3,7 +3,7 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { BusinessInfoCreateDTO, BusinessInfoUpdateDTO } from '../dto/businessInfo.dto';
 import { BusinessInfoService } from '../service/businessInfo.service';
-import { AuthRequest } from '../../middleware';
+import { AuthRequest } from '../../authMiddleware';
 
 
 export class BusinessInfoController {

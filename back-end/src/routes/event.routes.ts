@@ -2,7 +2,7 @@ import { Router } from "express";
 import { EventController } from "../controller/event.controller";
 import { EventService } from "../service/event.service";
 import { EventDAO } from "../dao/event.dao";
-import authToken from "../../middleware";
+import authToken from "../../authMiddleware";
 
 const eventRoutes = Router();
 const eventDAO = new EventDAO();

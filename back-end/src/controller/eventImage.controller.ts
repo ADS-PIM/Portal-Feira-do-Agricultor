@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { EventImageService } from '../service/eventImage.service'
-import { AuthRequest } from '../../middleware'
+import { AuthRequest } from '../../authMiddleware'
 import { Response } from 'express';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';

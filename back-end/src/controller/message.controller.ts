@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { AuthRequest } from '../../middleware';
+import { AuthRequest } from '../../authMiddleware';
 import { MessageCreateDTO } from '../dto/message.dto';
 import { MessageService } from '../service/message.service';
 

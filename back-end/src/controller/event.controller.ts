@@ -3,7 +3,7 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { EventCreateDTO, EventUpdateDTO } from '../dto/event.dto';
 import { EventService } from '../service/event.service';
-import { AuthRequest } from '../../middleware'
+import { AuthRequest } from '../../authMiddleware'
 
 export class EventController {
     public constructor(private eventService: EventService) {}

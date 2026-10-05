@@ -76,6 +76,9 @@ depois de alterá-la. No backend, configure as variáveis do banco acima,
 segredos JWT. A API precisa estar acessível publicamente pelo navegador: desative
 a proteção de Deployment/Authentication para a implantação de produção ou use
 um domínio de produção não protegido. Não use o URL de preview protegido.
+No backend, mantenha o middleware de autenticação do Express em
+`authMiddleware.ts`, não em `middleware.ts`: a Vercel reserva esse nome para o
+middleware da própria plataforma.
 
 Instale as dependências e crie o banco e as tabelas:
 

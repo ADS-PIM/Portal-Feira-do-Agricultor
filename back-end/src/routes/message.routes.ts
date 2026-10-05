@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import authToken from '../../middleware';
+import authToken from '../../authMiddleware';
 import { MessageController } from '../controller/message.controller';
 import { MessageDAO } from '../dao/message.dao';
 import { MessageService } from '../service/message.service';

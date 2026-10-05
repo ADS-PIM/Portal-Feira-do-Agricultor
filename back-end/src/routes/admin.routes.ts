@@ -2,7 +2,7 @@ import { Router } from "express";
 import { AdminController } from "../controller/admin.controller";
 import { AdminService } from "../service/admin.service";
 import { AdminDAO } from "../dao/admin.dao";
-import authToken, { isSuperAdmin } from "../../middleware";
+import authToken, { isSuperAdmin } from "../../authMiddleware";
 
 
 const adminRoutes = Router();

@@ -7,7 +7,7 @@ import { AdminService } from '../service/admin.service';
 import { RefreshTokenDAO } from '../dao/refreshToken.dao';
 import jwt from 'jsonwebtoken';
 import { AdminRole } from '../model/admin';
-import { AuthRequest } from '../../middleware';
+import { AuthRequest } from '../../authMiddleware';
 
 const refreshCookieOptions = {
     httpOnly: true,

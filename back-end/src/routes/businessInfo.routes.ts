@@ -2,7 +2,7 @@ import { Router } from "express";
 import { BusinessInfoController } from "../controller/businessInfo.controller";
 import { BusinessInfoService } from "../service/businessInfo.service";
 import { BusinessInfoDAO } from "../dao/businessInfo.dao";
-import authToken, { isSuperAdmin } from "../../middleware";
+import authToken, { isSuperAdmin } from "../../authMiddleware";
 
 const businessInfoRoutes = Router();
 const businessInfoDAO = new BusinessInfoDAO();

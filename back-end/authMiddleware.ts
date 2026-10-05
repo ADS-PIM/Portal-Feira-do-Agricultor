@@ -65,7 +65,7 @@ export function authToken(req: AuthRequest, res: Response, next: NextFunction): 
             next();
         });
     } catch (error) {
-    res.status(500).json({ error: 'Internal server error during authentication' });
+        res.status(500).json({ error: 'Internal server error during authentication' });
     }
 }
 

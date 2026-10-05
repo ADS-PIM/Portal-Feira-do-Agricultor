@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import { EventImageController } from '../controller/eventImage.controller'
 import { EventImageDAO } from "../dao/eventImage.dao";
 import { EventImageService } from "../service/eventImage.service";
-import authToken from "../../middleware";
+import authToken from "../../authMiddleware";
 
 const eventImageRoutes = Router();
 const eventImageDAO = new EventImageDAO();
