@@ -1,5 +1,6 @@
 import './Header.css'
 import { useEffect, useRef, useState } from 'react'
+import logo from '../../assets/brotando_feiras_logo.png'
 import { restoreAdminProfile } from '../../services/api'
 import {
     AUTH_STATE_CHANGE_EVENT,
@@ -85,12 +86,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     return (
         <header className={`site-header${isVisible ? '' : ' is-hidden'}`}>
             <a className="site-header-brand" href="#inicio" aria-label="Brotando Feiras - início">
-                <span className="site-header-mark" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M12 20V11m0 4c0-4-2.5-6-6-6 0 3.5 2 6 6 6Zm0-3c0-3.5 2-5.5 6-5.5 0 3.5-2 5.5-6 5.5Zm0-5V4m0 0c-1.5 0-2.5-1-2.5-2.5C11 1.5 12 2.5 12 4Zm0 0c1.5 0 2.5-1 2.5-2.5C13 1.5 12 2.5 12 4Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                </span>
-                <span className="site-header-name">Brotando Feiras</span>
+                <img src={logo} alt="Brotando Feiras" />
             </a>
 
             <nav className="site-header-navigation" aria-label="Navegação principal">

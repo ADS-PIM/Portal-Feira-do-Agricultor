@@ -19,27 +19,11 @@
     gap: 0.9rem;
 }
 
-.login-painel-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    background: linear-gradient(160deg, #2f7d4f, #245f3e);
-    color: #ffffff;
-}
-
-.login-painel-mark svg {
-    width: 28px;
-    height: 28px;
-}
-
-.login-painel-title {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #1f2421;
+.login-painel-logo {
+    display: block;
+    width: min(100%, 260px);
+    height: auto;
+    object-fit: contain;
 }
 
 .login-painel-subtitle {
@@ -88,7 +72,7 @@
     padding: 0;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #2f7d4f;
+    color: var(--brand-green);
     cursor: pointer;
 }
 
@@ -109,8 +93,8 @@
 
 .login-painel input:focus {
     outline: none;
-    border-color: #2f7d4f;
-    box-shadow: 0 0 0 3px rgba(47, 125, 79, 0.15);
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgb(10 145 52 / 15%);
 }
 
 .login-painel-password-wrapper {
@@ -147,7 +131,7 @@
     padding: 0.85rem;
     border: none;
     border-radius: 12px;
-    background: #2f7d4f;
+    background: var(--brand-green);
     color: #ffffff;
     font-size: 0.95rem;
     font-weight: 600;
@@ -156,7 +140,7 @@
 }
 
 .login-painel-submit:hover:not(:disabled) {
-    background: #286a43;
+    background: var(--brand-green-dark);
 }
 
 .login-painel-submit:disabled {

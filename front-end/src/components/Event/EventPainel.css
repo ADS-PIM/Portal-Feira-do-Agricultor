@@ -2,7 +2,7 @@
     box-sizing: border-box;
     width: 100%;
     padding: 96px 5.6% 94px;
-    background: #faf9f6;
+    background: #fffdf8;
     color: #60645c;
     font-family: "Segoe UI", Arial, sans-serif;
 }
@@ -21,7 +21,7 @@
 
 .event-agenda-header h2 {
     margin: 0;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: clamp(30px, 3vw, 40px);
     font-weight: 750;
     line-height: 1.2;
@@ -29,7 +29,7 @@
 
 .event-agenda-eyebrow {
     margin: 12px 0 14px;
-    color: #e96b29;
+    color: var(--brand-orange-dark);
     font-size: 13px;
     font-weight: 700;
 }
@@ -66,7 +66,7 @@
     align-items: center;
     gap: 24px;
     padding: 24px 30px;
-    border: 1px solid #e2e2d9;
+    border: 1px solid #e2eee4;
     border-radius: 21px;
     background: #fdfcf9;
 }
@@ -80,7 +80,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 16px;
-    background: #315f47;
+    background: var(--brand-green);
     color: #fff;
 }
 
@@ -103,7 +103,7 @@
 
 .event-agenda-card h3 {
     margin: 0 0 7px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 19px;
     font-weight: 700;
     line-height: 1.25;
@@ -136,10 +136,10 @@
     min-height: 46px;
     margin: 54px auto 0;
     padding: 10px 26px;
-    border: 1.5px solid #315f47;
+    border: 1.5px solid var(--brand-green);
     border-radius: 999px;
     background: #fff;
-    color: #315f47;
+    color: var(--brand-green);
     font: inherit;
     font-size: 14px;
     font-weight: 700;
@@ -152,12 +152,12 @@
 
 .event-agenda-calendar-button:hover,
 .event-agenda-calendar-button:focus-visible {
-    background: #315f47;
+    background: var(--brand-green);
     color: #fff;
 }
 
 .event-agenda-calendar-button:focus-visible {
-    outline: 2px solid #315f47;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 
@@ -165,7 +165,7 @@
     max-width: 720px;
     margin: 0 auto;
     padding: 30px 24px;
-    border: 1px solid #e2e2d9;
+    border: 1px solid #e2eee4;
     border-radius: 18px;
     background: #fdfcf9;
     text-align: center;

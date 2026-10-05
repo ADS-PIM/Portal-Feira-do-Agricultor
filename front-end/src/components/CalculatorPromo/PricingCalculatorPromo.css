@@ -2,7 +2,7 @@
     box-sizing: border-box;
     width: 100%;
     padding: 80px 5.6%;
-    background: #faf9f6;
+    background: #fffdf8;
     color: #fff;
     font-family: "Segoe UI", Arial, sans-serif;
 }
@@ -23,7 +23,7 @@
     margin: 0 auto;
     padding: 46px;
     border-radius: 32px;
-    background: #2e5d47;
+    background: var(--brand-green-dark);
 }
 
 .pricing-calculator-content {
@@ -55,7 +55,7 @@
     padding: 0 27px;
     border: 0;
     border-radius: 999px;
-    background: #e9782e;
+    background: var(--brand-orange);
     color: #fff;
     font: inherit;
     font-size: 14px;
@@ -66,7 +66,7 @@
 
 .pricing-calculator-button:hover {
     transform: translateY(-2px);
-    background: #d96724;
+    background: var(--brand-orange-dark);
     box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
 }
 
@@ -110,7 +110,7 @@
     flex: 0 0 70px;
     place-items: center;
     border-radius: 20px;
-    background: #e9782e;
+    background: var(--brand-orange);
 }
 
 .pricing-calculator-icon svg {
@@ -124,7 +124,7 @@
 
 .pricing-calculator-kicker {
     margin: 0 0 4px;
-    color: #f27b35;
+    color: #ffc16e;
     font-size: 12px;
     font-weight: 750;
     letter-spacing: 1px;
@@ -161,7 +161,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #f27b35;
+    background: var(--brand-orange);
     content: "";
 }
 

@@ -2,8 +2,8 @@
     box-sizing: border-box;
     min-height: 55vh;
     padding: 72px 5.6% 88px;
-    background: #faf9f6;
-    color: #30332e;
+    background: #fffdf8;
+    color: var(--brand-charcoal);
     font-family: "Segoe UI", Arial, sans-serif;
 }
 
@@ -15,14 +15,14 @@
 
 .calendar-page-header p {
     margin: 0 0 12px;
-    color: #e96b29;
+    color: var(--brand-orange-dark);
     font-size: 13px;
     font-weight: 700;
 }
 
 .calendar-page-header h1 {
     margin: 0;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: clamp(30px, 4vw, 42px);
     font-weight: 750;
     line-height: 1.2;

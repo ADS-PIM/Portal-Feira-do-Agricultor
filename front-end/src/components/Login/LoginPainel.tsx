@@ -1,5 +1,6 @@
 import './LoginPainel.css'
 import { useState, type FormEvent } from 'react'
+import logo from '../../assets/instituto_brotar_logo_preto.png'
 
 export type LoginCredentials = {
     email: string
@@ -26,12 +27,7 @@ const LoginPainel = ({ onSubmit, isLoading = false, errorMessage = null, onForgo
     return (
         <div className="login-painel">
             <div className="login-painel-brand">
-                <span className="login-painel-mark" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M12 20V11m0 4c0-4-2.5-6-6-6 0 3.5 2 6 6 6Zm0-3c0-3.5 2-5.5 6-5.5 0 3.5-2 5.5-6 5.5Zm0-5V4m0 0c-1.5 0-2.5-1-2.5-2.5C11 1.5 12 2.5 12 4Zm0 0c1.5 0 2.5-1 2.5-2.5C13 1.5 12 2.5 12 4Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                </span>
-                <h1 className="login-painel-title">Brotando Feiras</h1>
+                <img className="login-painel-logo" src={logo} alt="Instituto Brotar" />
                 <p className="login-painel-subtitle">
                     Gestão da Feira do Agricultor Familiar · Tabuleiro do Norte
                 </p>

@@ -3,6 +3,18 @@
     padding: 0;
 }
 
+:root {
+    --brand-green: #0a9134;
+    --brand-green-dark: #08752b;
+    --brand-green-light: #e9f7ed;
+    --brand-green-soft: #f3faf4;
+    --brand-orange: #ff9d2e;
+    --brand-orange-dark: #e88313;
+    --brand-pink: #ff315a;
+    --brand-charcoal: #242223;
+    --brand-white: #fff;
+}
+
 html {
     scrollbar-gutter: stable;
 }

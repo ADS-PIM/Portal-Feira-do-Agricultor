@@ -56,8 +56,8 @@
 }
 
 .admin-events-search:focus-within {
-    border-color: #2f8038;
-    box-shadow: 0 0 0 2px rgb(47 128 56 / 12%);
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 2px rgb(10 145 52 / 12%);
 }
 
 .admin-events-search svg {
@@ -107,9 +107,9 @@
 .admin-events-filter-button:hover,
 .admin-events-filter-button:focus-visible,
 .admin-events-filter-button.is-open {
-    border-color: #2f8038;
-    background: #f4f9f4;
-    color: #2f8038;
+    border-color: var(--brand-green);
+    background: var(--brand-green-light);
+    color: var(--brand-green-dark);
 }
 
 .admin-events-filter-button svg {
@@ -128,7 +128,7 @@
     place-items: center;
     padding: 0 4px;
     border-radius: 999px;
-    background: #2f8038;
+    background: var(--brand-green);
     color: #fff;
     font-size: 10px;
     line-height: 1;
@@ -171,8 +171,8 @@
 
 .admin-events-filters select:focus,
 .admin-events-filters input:focus {
-    border-color: #2f8038;
-    outline: 2px solid rgb(47 128 56 / 12%);
+    border-color: var(--brand-green);
+    outline: 2px solid rgb(10 145 52 / 12%);
 }
 
 .admin-events-clear-filters {
@@ -180,7 +180,7 @@
     padding: 0 8px;
     border: 0;
     background: transparent;
-    color: #2f8038;
+    color: var(--brand-green);
     font: inherit;
     font-size: 11px;
     font-weight: 650;
@@ -203,7 +203,7 @@
     padding: 0 18px;
     border: 0;
     border-radius: 9px;
-    background: #2f8038;
+    background: var(--brand-green);
     color: #fff;
     font: inherit;
     font-size: 13px;
@@ -217,7 +217,7 @@
 .admin-events-create:focus-visible,
 .admin-event-button.is-primary:hover,
 .admin-event-button.is-primary:focus-visible {
-    background: #256a2d;
+    background: var(--brand-green-dark);
 }
 
 .admin-events-create svg {
@@ -276,7 +276,7 @@
 }
 
 .admin-events-calendar-year:focus-visible {
-    outline: 2px solid #2f8038;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 2px;
 }
 
@@ -305,8 +305,8 @@
 
 .admin-events-month-navigation button:hover,
 .admin-events-month-navigation button:focus-visible {
-    background: #e9f2ea;
-    color: #2f8038;
+    background: var(--brand-green-light);
+    color: var(--brand-green-dark);
 }
 
 .admin-events-month-navigation svg {
@@ -369,14 +369,14 @@
 }
 
 .admin-events-day-button.has-events {
-    background: #e7f3e9;
-    color: #2f8038;
+    background: var(--brand-green-light);
+    color: var(--brand-green-dark);
     font-weight: 700;
 }
 
 .admin-events-day-button.has-events.is-selected,
 .admin-events-day-button.has-events:hover {
-    background: #2f8038;
+    background: var(--brand-green);
     color: #fff;
 }
 
@@ -442,8 +442,8 @@
 .admin-event-status {
     padding: 4px 8px;
     border-radius: 6px;
-    background: #e8f4e9;
-    color: #2f8038;
+    background: var(--brand-green-light);
+    color: var(--brand-green-dark);
     font-size: 10px;
     font-weight: 650;
 }
@@ -543,7 +543,7 @@
 }
 
 .admin-event-action.is-edit {
-    color: #2f8038;
+    color: var(--brand-green);
 }
 
 .admin-event-action.is-delete {
@@ -669,8 +669,8 @@
 .admin-event-form input:focus,
 .admin-event-form textarea:focus,
 .admin-event-form select:focus {
-    border-color: #2f8038;
-    outline: 2px solid rgb(47 128 56 / 12%);
+    border-color: var(--brand-green);
+    outline: 2px solid rgb(10 145 52 / 12%);
 }
 
 .admin-event-form-grid {

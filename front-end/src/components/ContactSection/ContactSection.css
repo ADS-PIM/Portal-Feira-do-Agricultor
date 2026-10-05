@@ -1,7 +1,7 @@
 .contact-section {
     box-sizing: border-box;
     padding: 48px 5.6% 96px;
-    background: #fcfaf6;
+    background: #fffdf8;
     color: #62645d;
     font-family: "Segoe UI", Arial, sans-serif;
 }
@@ -20,14 +20,14 @@
 
 .contact-section-eyebrow {
     margin: 0 0 12px;
-    color: #e96b29;
+    color: var(--brand-orange-dark);
     font-size: 13px;
     font-weight: 700;
 }
 
 .contact-section-header h2 {
     margin: 0 0 12px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: clamp(30px, 3vw, 40px);
     font-weight: 750;
     line-height: 1.2;
@@ -73,7 +73,7 @@
     border: 1px solid #e1e3db;
     border-radius: 50%;
     background: #fff;
-    color: #315f47;
+    color: var(--brand-green-dark);
 }
 
 .contact-card-icon svg {
@@ -87,7 +87,7 @@
 
 .contact-card h3 {
     margin: 0 0 4px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 19px;
     font-weight: 700;
 }
@@ -102,7 +102,7 @@
 .contact-card a,
 .contact-card-unavailable {
     margin-top: 21px;
-    color: #e96b29;
+    color: var(--brand-orange-dark);
     font-size: 14px;
     font-weight: 700;
 }
@@ -114,7 +114,7 @@
 
 .contact-card a:focus-visible {
     border-radius: 2px;
-    outline: 2px solid #315f47;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 
@@ -138,7 +138,7 @@
     padding: 0 26px;
     border: 0;
     border-radius: 999px;
-    background: #315f47;
+    background: var(--brand-green);
     color: #fff;
     font: inherit;
     font-size: 15px;
@@ -157,11 +157,11 @@
 }
 
 .contact-section-action button:hover {
-    background: #244a37;
+    background: var(--brand-green-dark);
 }
 
 .contact-section-action button:focus-visible {
-    outline: 2px solid #315f47;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 

@@ -2,7 +2,7 @@
     box-sizing: border-box;
     width: 100%;
     padding: 48px 5.6% 64px;
-    background: #fff5e3;
+    background: #fff8ed;
     color: #30332e;
     font-family: "Segoe UI", Arial, sans-serif;
 }
@@ -24,7 +24,7 @@
 
 .panel-header h2 {
     margin: 0;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: clamp(30px, 3vw, 40px);
     font-weight: 750;
     line-height: 1.2;
@@ -32,7 +32,7 @@
 
 .panel-header p {
     margin: 10px 0 0;
-    color: #e96b29;
+    color: var(--brand-orange-dark);
     font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
@@ -60,8 +60,8 @@
     place-items: center;
     margin-bottom: 20px;
     border-radius: 50%;
-    background: #f9ecdc;
-    color: #e96b29;
+    background: #fff0dc;
+    color: var(--brand-orange-dark);
 }
 
 .event-empty-icon svg {
@@ -75,7 +75,7 @@
 
 .event-empty-state h3 {
     margin: 0 0 8px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 22px;
     font-weight: 700;
     line-height: 1.35;
@@ -133,7 +133,7 @@
 
 .event-info h3 {
     margin: 0 0 12px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 27px;
     font-weight: 700;
     line-height: 1.25;
@@ -155,7 +155,7 @@
 
 .event-description:focus-visible {
     border-radius: 4px;
-    outline: 2px solid #315f47;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 
@@ -179,8 +179,8 @@
     flex: 0 0 40px;
     place-items: center;
     border-radius: 50%;
-    background: #f9ecdc;
-    color: #e96b29;
+    background: #fff0dc;
+    color: var(--brand-orange-dark);
 }
 
 .event-detail-icon svg {
@@ -222,7 +222,7 @@
     padding: 0 22px;
     border: 0;
     border-radius: 999px;
-    background: #315f47;
+    background: var(--brand-green);
     color: #fff;
     font: inherit;
     font-size: 14px;
@@ -232,11 +232,11 @@
 }
 
 .event-actions button:hover {
-    background: #244a37;
+    background: var(--brand-green-dark);
 }
 
 .event-actions button:focus-visible {
-    outline: 2px solid #315f47;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 

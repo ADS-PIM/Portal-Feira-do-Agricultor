@@ -25,8 +25,8 @@
 }
 
 .calendar-events-search:focus-within {
-    border-color: #315f47;
-    box-shadow: 0 0 0 2px rgb(49 95 71 / 12%);
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 2px rgb(10 145 52 / 12%);
 }
 
 .calendar-events-search svg,
@@ -77,14 +77,14 @@
 .calendar-events-filter-button:hover,
 .calendar-events-filter-button:focus-visible,
 .calendar-events-filter-button.is-open {
-    border-color: #315f47;
-    background: #f0f5f1;
-    color: #315f47;
+    border-color: var(--brand-green);
+    background: var(--brand-green-light);
+    color: var(--brand-green-dark);
 }
 
 .calendar-events-filter-button:focus-visible,
 .calendar-events-clear-filters:focus-visible {
-    outline: 2px solid #315f47;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 2px;
 }
 
@@ -95,7 +95,7 @@
     place-items: center;
     padding: 0 4px;
     border-radius: 999px;
-    background: #315f47;
+    background: var(--brand-green);
     color: #fff;
     font-size: 10px;
     line-height: 1;
@@ -138,7 +138,7 @@
 
 .calendar-events-filters select:focus,
 .calendar-events-filters input:focus {
-    border-color: #315f47;
+    border-color: var(--brand-green);
     outline: 2px solid rgb(49 95 71 / 12%);
 }
 
@@ -147,7 +147,7 @@
     padding: 0 8px;
     border: 0;
     background: transparent;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font: inherit;
     font-size: 11px;
     font-weight: 650;
@@ -167,7 +167,7 @@
 
 .calendar-events-panel-header h2 {
     margin: 0;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 22px;
     font-weight: 750;
     line-height: 1.25;
@@ -201,9 +201,9 @@
 }
 
 .calendar-event-card.is-today-event {
-    border-color: #315f47;
-    background: #f0f6f1;
-    box-shadow: 0 4px 14px rgb(49 95 71 / 10%);
+    border-color: var(--brand-green);
+    background: var(--brand-green-soft);
+    box-shadow: 0 4px 14px rgb(10 145 52 / 10%);
 }
 
 .calendar-events-today {
@@ -212,7 +212,7 @@
 
 .calendar-events-today h2 {
     margin: 0 0 12px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 22px;
     font-weight: 750;
     line-height: 1.25;
@@ -234,7 +234,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 13px;
-    background: #315f47;
+    background: var(--brand-green);
     color: #fff;
 }
 
@@ -277,7 +277,7 @@
     height: 16px;
     flex: 0 0 16px;
     margin-top: 1px;
-    color: #e96b29;
+    color: var(--brand-orange-dark);
     stroke: currentColor;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -307,10 +307,10 @@
     justify-content: center;
     gap: 7px;
     padding: 0 10px;
-    border: 1px solid #315f47;
+    border: 1px solid var(--brand-green);
     border-radius: 999px;
     background: #fff;
-    color: #315f47;
+    color: var(--brand-green);
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -321,12 +321,12 @@
 
 .calendar-event-details-button:hover,
 .calendar-event-details-button:focus-visible {
-    background: #315f47;
+    background: var(--brand-green);
     color: #fff;
 }
 
 .calendar-event-details-button:focus-visible {
-    outline: 2px solid #315f47;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 

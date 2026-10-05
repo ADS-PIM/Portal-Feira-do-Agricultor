@@ -13,10 +13,10 @@
     min-width: 0;
     margin: 0;
     padding: 32px;
-    border: 1px solid #e2e2d9;
+    border: 1px solid #e2eee4;
     border-radius: 24px;
     background: #fff;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font-family: "Segoe UI", Arial, sans-serif;
 }
 
@@ -39,7 +39,7 @@
     align-items: center;
     gap: 8px;
     margin: 0;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font-size: clamp(22px, 3vw, 30px);
     font-weight: 750;
     line-height: 1.2;
@@ -50,7 +50,7 @@
     min-width: calc(5ch + 2rem);
     flex: 0 0 auto;
     padding: 2px 0.75rem 2px 0.4rem;
-    border: 1px solid #e2e2d9;
+    border: 1px solid #e2eee4;
     border-radius: 8px;
     background-color: #fdfcf9;
     color: #000;
@@ -62,12 +62,12 @@
 
 .calendar-year-select:hover {
     border-color: #cbd8cd;
-    background-color: #f0f5f1;
+    background-color: var(--brand-green-light);
     color: #000;
 }
 
 .calendar-year-select:focus-visible {
-    outline: 2px solid #315f47;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 2px;
 }
 
@@ -90,7 +90,7 @@
     height: 42px;
     place-items: center;
     padding: 0;
-    border: 1px solid #e2e2d9;
+    border: 1px solid #e2eee4;
     border-radius: 10px;
     background: #fdfcf9;
     color: #30332e;
@@ -99,13 +99,13 @@
 }
 
 .calendar-navigation button:hover {
-    border-color: #315f47;
-    background: #f0f5f1;
+    border-color: var(--brand-green);
+    background: var(--brand-green-light);
 }
 
 .calendar-navigation button:focus-visible,
 .calendar-day-button:focus-visible {
-    outline: 2px solid #315f47;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 
@@ -169,19 +169,19 @@
 }
 
 .calendar-day-button.has-events {
-    background: #e7f1e9;
-    color: #315f47;
+    background: var(--brand-green-light);
+    color: var(--brand-green-dark);
     font-weight: 700;
 }
 
 .calendar-day-button.has-events:hover,
 .calendar-day-button.has-events.is-selected {
-    background: #315f47;
+    background: var(--brand-green);
     color: #fff;
 }
 
 .calendar-day-button.is-today:not(.has-events) {
-    box-shadow: inset 0 0 0 1px #315f47;
+    box-shadow: inset 0 0 0 1px var(--brand-pink);
 }
 
 .calendar-day-indicator {
@@ -207,7 +207,7 @@
 
 .calendar-selected-events h3 {
     margin: 0 0 12px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 17px;
     font-weight: 700;
     text-transform: capitalize;
@@ -231,7 +231,7 @@
     display: grid;
     gap: 4px;
     padding-top: 12px;
-    border-top: 1px solid #e2e2d9;
+    border-top: 1px solid #e2eee4;
     color: #60645c;
     font-size: 14px;
     line-height: 1.45;

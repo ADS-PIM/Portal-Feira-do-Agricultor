@@ -8,7 +8,7 @@
     flex: 0 0 240px;
     padding: 24px 14px;
     overflow-y: auto;
-    background: #293b30;
+    background: var(--brand-charcoal);
     color: #d7d9d6;
     font-family: "Segoe UI", Arial, sans-serif;
 }
@@ -48,20 +48,20 @@
 
 .admin-side-nav-item:hover,
 .admin-side-nav-item:focus-visible {
-    background: #354a3b;
+    background: #3b3536;
     color: #fff;
 }
 
 .admin-side-nav-item.is-active,
 .admin-side-nav-item.is-active:hover,
 .admin-side-nav-item.is-active:focus-visible {
-    background: #2f8038;
+    background: var(--brand-green);
     color: #fff;
     font-weight: 600;
 }
 
 .admin-side-nav-item:focus-visible {
-    outline: 2px solid #b9e2bf;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 2px;
 }
 

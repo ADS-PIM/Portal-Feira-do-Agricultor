@@ -1,7 +1,7 @@
 .admin-area {
     display: flex;
     min-height: calc(100vh - 68px);
-    background: #f8f7f5;
+    background: #f4f8f4;
 }
 
 .admin-area-error-state {
@@ -9,7 +9,7 @@
     min-height: calc(100vh - 68px);
     place-items: center;
     padding: 32px 16px;
-    background: #f8f7f5;
+    background: #f4f8f4;
     font-family: "Segoe UI", Arial, sans-serif;
 }
 
@@ -21,7 +21,7 @@
     padding: 40px 36px;
     border: 1px solid #e2e2d9;
     border-radius: 22px;
-    background: #fdfcf9;
+    background: #fffdf8;
     text-align: center;
 }
 
@@ -32,8 +32,8 @@
     place-items: center;
     margin-bottom: 20px;
     border-radius: 50%;
-    background: #f9ecdc;
-    color: #e96b29;
+    background: #fff0dc;
+    color: var(--brand-orange-dark);
 }
 
 .admin-area-error-icon svg {
@@ -47,7 +47,7 @@
 
 .admin-area-error-card h1 {
     margin: 0 0 10px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: clamp(21px, 3vw, 27px);
     font-weight: 750;
     line-height: 1.3;

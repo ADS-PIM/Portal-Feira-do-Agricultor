@@ -1,6 +1,6 @@
 .contact-page {
-    background: #ece8df;
-    color: #234f40;
+    background: #f3faf4;
+    color: var(--brand-charcoal);
     font-family: 'Segoe UI', Arial, sans-serif;
 }
 
@@ -16,7 +16,7 @@
 
 .contact-page-header h1 {
     margin-bottom: 10px;
-    color: #2d6f5a;
+    color: var(--brand-green-dark);
     font-size: clamp(2.2rem, 4vw, 4rem);
     line-height: 1.1;
     letter-spacing: -0.04em;
@@ -46,7 +46,7 @@
 
 .contact-form-panel h2 {
     margin-bottom: 20px;
-    color: #234f40;
+    color: var(--brand-green-dark);
     font-size: clamp(1.7rem, 2vw, 2.4rem);
 }
 
@@ -66,7 +66,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    color: #234f40;
+    color: var(--brand-green-dark);
     font-size: 0.9rem;
     font-weight: 600;
 }
@@ -93,8 +93,8 @@
 .contact-field input:focus,
 .contact-field select:focus,
 .contact-field textarea:focus {
-    border-color: #4f8d69;
-    box-shadow: 0 0 0 3px rgba(79, 141, 105, 0.14);
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgb(10 145 52 / 14%);
     outline: none;
 }
 
@@ -108,7 +108,7 @@
     min-height: 48px;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(135deg, #1e5742, #2d6b4d);
+    background: linear-gradient(135deg, var(--brand-green-dark), var(--brand-green));
     color: #fff;
     font: inherit;
     font-weight: 700;
@@ -138,7 +138,7 @@
     border: 1px solid #dfe6dc;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.26);
-    color: #234f40;
+    color: var(--brand-green-dark);
     text-decoration: none;
     transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
@@ -159,7 +159,7 @@
     border: 1px solid #efc7a6;
     border-radius: 50%;
     background: rgba(231, 121, 50, 0.08);
-    color: #df7b3d;
+    color: var(--brand-orange-dark);
     flex-shrink: 0;
 }
 
@@ -186,7 +186,7 @@
 }
 
 .contact-side-text strong {
-    color: #234f40;
+    color: var(--brand-green-dark);
     font-size: 0.98rem;
     line-height: 1.35;
     text-decoration: none;

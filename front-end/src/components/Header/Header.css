@@ -8,11 +8,11 @@
     align-items: center;
     gap: 24px;
     width: 100%;
-    min-height: 68px;
+    min-height: 84px;
     padding: 0 24px;
-    border-bottom: 1px solid #e8ebe7;
-    background: #fff;
-    color: #4d514a;
+    border-bottom: 1px solid #e2eee4;
+    background: var(--brand-white);
+    color: var(--brand-charcoal);
     font-family: "Segoe UI", Arial, sans-serif;
     transform: translateY(0);
     transition: transform 180ms ease;
@@ -24,34 +24,24 @@
 }
 
 .site-header-brand {
+    position: relative;
     display: inline-flex;
+    width: 164px;
+    height: 76px;
+    overflow: hidden;
     align-items: center;
     justify-self: start;
-    gap: 10px;
-    color: #2f8038;
     text-decoration: none;
-    white-space: nowrap;
 }
 
-.site-header-mark {
-    display: grid;
-    width: 31px;
-    height: 31px;
-    flex: 0 0 31px;
-    place-items: center;
-    border-radius: 9px;
-    background: #2f8038;
-    color: #fff;
-}
-
-.site-header-mark svg {
-    width: 21px;
-    height: 21px;
-}
-
-.site-header-name {
-    font-size: 19px;
-    font-weight: 700;
+.site-header-brand img {
+    position: absolute;
+    top: calc(50% + 5px);
+    left: 50%;
+    width: 230px;
+    max-width: none;
+    height: auto;
+    transform: translate(-50%, -50%);
 }
 
 .site-header-navigation {
@@ -65,7 +55,7 @@
 }
 
 .site-header-navigation a {
-    color: #4d514a;
+    color: var(--brand-charcoal);
     font-size: 12.5px;
     font-weight: 500;
     line-height: 1.3;
@@ -75,11 +65,11 @@
 
 .site-header-navigation a:focus-visible,
 .site-header-navigation a.is-active {
-    color: #315f47;
+    color: var(--brand-green);
 }
 
 .site-header-navigation a:hover{
-    color: #429e6e;
+    color: var(--brand-pink);
 }
 
 .site-header-navigation a.is-active {
@@ -90,10 +80,10 @@
     min-width: 77px;
     min-height: 36px;
     padding: 0 18px;
-    border: 1px solid #315f47;
+    border: 1px solid var(--brand-green);
     border-radius: 999px;
     background: #fff;
-    color: #315f47;
+    color: var(--brand-green);
     font: inherit;
     font-size: 11px;
     font-weight: 700;
@@ -107,7 +97,7 @@
 
 .site-header-account button:hover,
 .site-header-account button:focus-visible {
-    background: #315f47;
+    background: var(--brand-green);
     color: #fff;
 }
 
@@ -127,7 +117,7 @@
 .site-header-profile-name {
     max-width: 180px;
     overflow: hidden;
-    color: #315f47;
+    color: var(--brand-green);
     font-size: 12px;
     font-weight: 700;
     text-overflow: ellipsis;
@@ -147,10 +137,10 @@
     flex: 0 0 40px;
     overflow: hidden;
     place-items: center;
-    border: 1px solid #dce5dc;
+    border: 1px solid #dcebdd;
     border-radius: 50%;
-    background: #eef3ec;
-    color: #315f47;
+    background: var(--brand-green-light);
+    color: var(--brand-green);
 }
 
 .site-header-profile-picture img {
@@ -170,7 +160,7 @@
 
 .site-header a:focus-visible,
 .site-header button:focus-visible {
-    outline: 2px solid #78a77b;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 
@@ -206,8 +196,13 @@
         padding: 10px 16px;
     }
 
-    .site-header-name {
-        font-size: 17px;
+    .site-header-brand {
+        width: 145px;
+        height: 68px;
+    }
+
+    .site-header-brand img {
+        width: 204px;
     }
 
     .site-header-navigation {

@@ -1,7 +1,7 @@
 .site-footer {
     box-sizing: border-box;
     padding: 64px 5.6% 36px;
-    background: #292c26;
+    background: #333;
     color: #c5c8bf;
     font-family: "Segoe UI", Arial, sans-serif;
 }
@@ -24,36 +24,16 @@
 }
 
 .site-footer-brand-heading {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
+    display: block;
+    width: min(100%, 220px);
     margin-bottom: 14px;
-    color: #fff;
-    font-size: 21px;
-    font-weight: 750;
     text-decoration: none;
 }
 
-.site-footer-mark {
-    display: grid;
-    width: 32px;
-    height: 32px;
-    place-items: center;
-    border-radius: 50%;
-    background: #e77932;
-    color: #fff;
-}
-
-.site-footer-mark svg {
-    width: 19px;
-    height: 19px;
-}
-
-.site-footer-mark path {
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.7;
+.site-footer-brand-heading img {
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 .site-footer-brand > p {
@@ -79,8 +59,8 @@
 }
 
 .site-footer-socials a:hover {
-    border-color: #e77932;
-    color: #e77932;
+    border-color: var(--brand-pink);
+    color: var(--brand-pink);
 }
 
 .site-footer-socials svg {
@@ -100,7 +80,7 @@
 
 .site-footer-socials a:focus-visible,
 .site-footer a:focus-visible {
-    outline: 2px solid #f19a5d;
+    outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 

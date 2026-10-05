@@ -2,6 +2,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background: transparent;
     font-family: "Segoe UI", Arial, sans-serif;
 }
 
@@ -16,5 +17,10 @@
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    background: radial-gradient(circle at top, #f3f6f1 0%, #e7ebe2 100%);
+    background: transparent;
+}
+
+html:has(.login-page) {
+    scrollbar-gutter: auto;
+    background: radial-gradient(circle at top, #f3faf4 0%, #e5f3e8 100%);
 }

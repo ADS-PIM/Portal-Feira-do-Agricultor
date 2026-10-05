@@ -14,7 +14,7 @@
 
 .about-section-eyebrow {
     margin: 0 0 12px;
-    color: #e96b29;
+    color: var(--brand-orange-dark);
     font-size: 13px;
     font-weight: 700;
 }
@@ -22,7 +22,7 @@
 .about-section h2 {
     max-width: 1000px;
     margin: 0 0 12px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: clamp(30px, 3vw, 40px);
     font-weight: 750;
     line-height: 1.2;
