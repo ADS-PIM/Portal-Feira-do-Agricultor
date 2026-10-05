@@ -73,7 +73,10 @@ Configure o frontend e o backend como projetos separados. No frontend, defina
 variável é incorporada durante o build, portanto publique novamente o frontend
 depois de alterá-la. No backend, configure as variáveis do banco acima,
 `FRONTEND_URL` com a origem exata do frontend (sem caminho ou barra final) e os
-segredos JWT. A API precisa estar acessível publicamente pelo navegador: desative
+segredos JWT. Para autorizar mais de uma origem, separe-as por vírgula, por
+exemplo a URL de produção e uma URL de preview. Atualize essa variável nas
+configurações do projeto backend na Vercel e faça novo deploy sempre que mudar
+as origens. A API precisa estar acessível publicamente pelo navegador: desative
 a proteção de Deployment/Authentication para a implantação de produção ou use
 um domínio de produção não protegido. Não use o URL de preview protegido.
 No backend, mantenha o middleware de autenticação do Express em

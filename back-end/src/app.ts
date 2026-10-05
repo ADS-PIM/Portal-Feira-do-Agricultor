@@ -7,11 +7,23 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 
+const allowedOrigins = new Set(
+    (process.env.FRONTEND_URL || 'http://localhost:5173')
+        .split(',')
+        .map(origin => origin.trim().replace(/\/+$/, ''))
+        .filter(Boolean)
+);
+
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:5173');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Credentials', 'true');
+    const origin = req.headers.origin?.replace(/\/+$/, '');
+    if (origin && allowedOrigins.has(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Vary', 'Origin');
+    }
+
     if (req.method === 'OPTIONS') {
         return res.sendStatus(204);
     }
