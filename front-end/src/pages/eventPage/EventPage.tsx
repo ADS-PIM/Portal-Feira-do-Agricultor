@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Icon from '../../components/Icon'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import { getEventDetails, getEventImages, type EventDetails, type EventImage } from '../../services/eventService'
@@ -44,33 +45,6 @@ function getMapCoordinates(event: EventDetails): { latitude: number; longitude: 
     }
 
     return { latitude, longitude }
-}
-
-function EventIcon({ name }: { name: 'calendar' | 'clock' | 'location' }) {
-    if (name === 'calendar') {
-        return (
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="4" y="6" width="16" height="15" rx="2" />
-                <path d="M8 3v6M16 3v6M4 10h16" />
-            </svg>
-        )
-    }
-
-    if (name === 'clock') {
-        return (
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3 2" />
-            </svg>
-        )
-    }
-
-    return (
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-            <circle cx="12" cy="10" r="2.5" />
-        </svg>
-    )
 }
 
 function EventPhoto({ image }: { image: EventImage }) {
@@ -174,16 +148,14 @@ function EventPage({ eventId }: { eventId: string }) {
             <main className="event-page">
                 <div className="event-page-content">
                     <a className="event-page-back" href="#/calendario">
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="m15 18-6-6 6-6" />
-                        </svg>
+                        <Icon name="arrowLeft" />
                         Voltar para o Calendário
                     </a>
 
                     {isLoading && (
                         <section className="event-page-feedback" role="status">
                             <span className="event-page-feedback-icon" aria-hidden="true">
-                                <EventIcon name="calendar" />
+                                <Icon name="calendar" />
                             </span>
                             <h1>Carregando evento...</h1>
                             <p>Estamos buscando os detalhes para você.</p>
@@ -192,7 +164,7 @@ function EventPage({ eventId }: { eventId: string }) {
 
                     {!isLoading && eventError && (
                         <section className="event-page-feedback is-error" role="alert">
-                            <span className="event-page-feedback-icon" aria-hidden="true">!</span>
+                            <span className="event-page-feedback-icon"><Icon name="error" /></span>
                             <h1>Não foi possível carregar este evento</h1>
                             <p>{eventError}</p>
                             <div className="event-page-feedback-actions">
@@ -228,21 +200,21 @@ function EventPage({ eventId }: { eventId: string }) {
 
                                     <div className="event-page-meta">
                                         <div className="event-page-meta-item">
-                                            <span className="event-page-meta-icon"><EventIcon name="calendar" /></span>
+                                            <span className="event-page-meta-icon"><Icon name="calendar" /></span>
                                             <p>
                                                 <strong>{formatDate(event.date)}</strong>
                                                 <span>Data do evento</span>
                                             </p>
                                         </div>
                                         <div className="event-page-meta-item">
-                                            <span className="event-page-meta-icon"><EventIcon name="clock" /></span>
+                                            <span className="event-page-meta-icon"><Icon name="clock" /></span>
                                             <p>
                                                 <strong>{formatTime(event.startAt)} às {formatTime(event.endAt)}</strong>
                                                 <span>Horário local</span>
                                             </p>
                                         </div>
                                         <div className="event-page-meta-item">
-                                            <span className="event-page-meta-icon"><EventIcon name="location" /></span>
+                                            <span className="event-page-meta-icon"><Icon name="location" /></span>
                                             <p>
                                                 <strong>{hasAddress ? event.localAddress : 'Localização não informada'}</strong>
                                                 <span>Local do evento</span>
@@ -316,10 +288,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                     {mapUrl && (
                                         <a href={mapUrl} target="_blank" rel="noreferrer">
                                             Abrir no mapa
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path d="M14 4h6v6M20 4l-9 9" />
-                                                <path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" />
-                                            </svg>
+                                            <Icon name="map" />
                                         </a>
                                     )}
                                 </div>

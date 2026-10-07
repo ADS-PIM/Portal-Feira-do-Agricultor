@@ -1,30 +1,37 @@
 .admin-side-nav {
     box-sizing: border-box;
-    position: sticky;
-    top: 68px;
-    align-self: flex-start;
+    position: relative;
+    align-self: stretch;
     width: 240px;
-    height: calc(100vh - 68px);
+    height: auto;
     flex: 0 0 240px;
-    padding: 24px 14px;
-    overflow-y: auto;
+    overflow: visible;
     background: var(--brand-charcoal);
     color: #d7d9d6;
     font-family: "Now", sans-serif;
 }
 
-.site-header.is-hidden + .admin-area .admin-side-nav {
-    top: 0;
-    height: 100vh;
+.admin-side-nav > nav {
+    height: 100%;
 }
 
 .admin-side-nav-list {
+    box-sizing: border-box;
+    position: sticky;
+    top: 68px;
+    max-height: calc(100vh - 68px);
+    overflow-y: auto;
+    padding: 24px 14px;
     display: flex;
     flex-direction: column;
     gap: 5px;
     margin: 0;
-    padding: 0;
     list-style: none;
+}
+
+.site-header.is-hidden + .admin-area .admin-side-nav-list {
+    top: 0;
+    max-height: 100vh;
 }
 
 .admin-side-nav-item {
@@ -80,6 +87,9 @@
     .admin-side-nav {
         width: 72px;
         flex-basis: 72px;
+    }
+
+    .admin-side-nav-list {
         padding: 20px 8px;
     }
 
@@ -103,6 +113,9 @@
     .admin-side-nav {
         width: 60px;
         flex-basis: 60px;
+    }
+
+    .admin-side-nav-list {
         padding: 16px 4px;
     }
 }

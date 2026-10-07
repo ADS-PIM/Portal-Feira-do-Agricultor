@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Icon from '../Icon'
 import { getEventAgenda, type AgendaEvent } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
 import './EventPainel.css'
@@ -36,17 +37,11 @@ const AgendaEventCard = ({ event }: { event: AgendaEvent }) => {
             <div className='event-agenda-card-content'>
                 <h3>{event.title}</h3>
                 <p className='event-agenda-detail'>
-                    <svg viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-                        <circle cx='12' cy='12' r='9' />
-                        <path d='M12 7v5l3 2' />
-                    </svg>
+                    <Icon name="clock" />
                     <span>{formatTime(event.startAt)} às {formatTime(event.endAt)}</span>
                 </p>
                 <p className='event-agenda-detail'>
-                    <svg viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-                        <path d='M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z' />
-                        <circle cx='12' cy='10' r='2.5' />
-                    </svg>
+                    <Icon name="location" />
                     <span>{event.localAddress}</span>
                 </p>
             </div>

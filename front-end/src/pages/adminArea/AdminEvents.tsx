@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import Icon from '../../components/Icon'
 import {
     createAdminEvent,
     deleteAdminEvent,
@@ -181,7 +182,9 @@ function AdminEventForm({
             <section className="admin-event-modal" role="dialog" aria-modal="true" aria-labelledby="admin-event-form-title">
                 <header className="admin-event-modal-header">
                     <h2 id="admin-event-form-title">Detalhes da Agenda</h2>
-                    <button type="button" className="admin-event-modal-close" onClick={onClose} aria-label="Fechar" disabled={isSaving}>×</button>
+                    <button type="button" className="admin-event-modal-close" onClick={onClose} aria-label="Fechar" disabled={isSaving}>
+                        <Icon name="close" />
+                    </button>
                 </header>
                 <form className="admin-event-form" onSubmit={submit}>
                     {error && <p className="admin-events-alert is-error" role="alert">{error}</p>}
@@ -283,7 +286,7 @@ function AdminEventForm({
                                             setFileError(null)
                                         }}
                                     >
-                                        ×
+                                        <Icon name="close" />
                                     </button>
                                 )}
                             </div>
@@ -322,7 +325,15 @@ function AdminEventForm({
     )
 }
 
-const AdminEvents = () => {
+const AdminEvents = ({
+    initialEventDate = null,
+    openCreateOnMount = false,
+    initialEventAction = null,
+}: {
+    initialEventDate?: string | null
+    openCreateOnMount?: boolean
+    initialEventAction?: { eventId: string; action: 'edit' | 'delete' } | null
+}) => {
     const [events, setEvents] = useState<AdminEvent[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [loadError, setLoadError] = useState<string | null>(null)
@@ -332,15 +343,19 @@ const AdminEvents = () => {
     const [weekdayFilter, setWeekdayFilter] = useState('')
     const [timeFromFilter, setTimeFromFilter] = useState('')
     const [timeToFilter, setTimeToFilter] = useState('')
-    const [visibleMonth, setVisibleMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
-    const [selectedDate, setSelectedDate] = useState<string | null>(null)
+    const [visibleMonth, setVisibleMonth] = useState(() => initialEventDate
+        ? new Date(`${initialEventDate}T12:00:00`)
+        : new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+    const [selectedDate, setSelectedDate] = useState<string | null>(initialEventDate)
+    const [newEventDate, setNewEventDate] = useState(initialEventDate ?? '')
     const [editingEvent, setEditingEvent] = useState<AdminEvent | null>(null)
     const [eventPendingDeletion, setEventPendingDeletion] = useState<AdminEvent | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
-    const [isCreating, setIsCreating] = useState(false)
+    const [isCreating, setIsCreating] = useState(openCreateOnMount)
     const [isSaving, setIsSaving] = useState(false)
     const [formError, setFormError] = useState<string | null>(null)
     const [actionMessage, setActionMessage] = useState<string | null>(null)
+    const handledInitialAction = useRef<string | null>(null)
     const monthKey = getMonthKey(visibleMonth)
     const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' })
         .format(visibleMonth)
@@ -366,6 +381,30 @@ const AdminEvents = () => {
             })
         return () => controller.abort()
     }, [loadEvents])
+
+    useEffect(() => {
+        if (!initialEventAction || isLoading) return
+
+        const requestKey = `${initialEventAction.action}:${initialEventAction.eventId}`
+        if (handledInitialAction.current === requestKey) return
+        handledInitialAction.current = requestKey
+
+        const requestedEvent = events.find(event => event.id === initialEventAction.eventId)
+        if (!requestedEvent) {
+            setLoadError('O evento selecionado não foi encontrado na agenda.')
+            return
+        }
+
+        setActionMessage(null)
+        if (initialEventAction.action === 'edit') {
+            setIsCreating(false)
+            setNewEventDate('')
+            setFormError(null)
+            setEditingEvent(requestedEvent)
+        } else {
+            setEventPendingDeletion(requestedEvent)
+        }
+    }, [events, initialEventAction, isLoading])
 
     const eventsByDate = useMemo(() => {
         const grouped = new Map<string, AdminEvent[]>()
@@ -442,6 +481,7 @@ const AdminEvents = () => {
     const closeForm = () => {
         if (isSaving) return
         setIsCreating(false)
+        setNewEventDate('')
         setEditingEvent(null)
         setFormError(null)
     }
@@ -469,6 +509,7 @@ const AdminEvents = () => {
                 setActionMessage('Evento criado com sucesso.')
             }
             setIsCreating(false)
+            setNewEventDate('')
             setEditingEvent(null)
             setIsLoading(true)
             setLoadError(null)
@@ -519,10 +560,7 @@ const AdminEvents = () => {
                 <div className="admin-events-toolbar">
                     <div className="admin-events-search-controls">
                         <label className="admin-events-search">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <circle cx="10.8" cy="10.8" r="6.8" />
-                                <path d="m16 16 4.5 4.5" />
-                            </svg>
+                            <Icon name="magnifyingGlass" />
                             <input
                                 type="search"
                                 placeholder="Buscar por título do evento"
@@ -541,9 +579,7 @@ const AdminEvents = () => {
                             aria-controls="admin-events-filters"
                             onClick={() => setIsFiltersOpen(open => !open)}
                         >
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M4 7h16M7 12h10m-7 5h4" />
-                            </svg>
+                            <Icon name="sliders" />
                             Filtros
                             {activeFilterCount > 0 && <span className="admin-events-filter-count">{activeFilterCount}</span>}
                         </button>
@@ -555,10 +591,11 @@ const AdminEvents = () => {
                             setActionMessage(null)
                             setFormError(null)
                             setEditingEvent(null)
+                            setNewEventDate(selectedDate ?? '')
                             setIsCreating(true)
                         }}
                     >
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                        <Icon name="plus" />
                         Criar Evento
                     </button>
                 </div>
@@ -616,10 +653,10 @@ const AdminEvents = () => {
                             </h2>
                             <div className="admin-events-month-navigation">
                                 <button type="button" onClick={() => shiftMonth(-1)} aria-label="Mês anterior">
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+                                    <Icon name="chevronLeft" />
                                 </button>
                                 <button type="button" onClick={() => shiftMonth(1)} aria-label="Próximo mês">
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+                                    <Icon name="chevronRight" />
                                 </button>
                             </div>
                         </header>
@@ -669,15 +706,15 @@ const AdminEvents = () => {
                                         <h3>{event.title}</h3>
                                         {event.description && <p className="admin-event-description">{event.description}</p>}
                                         <p className="admin-event-detail">
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4m8-4v4M4 10h16" /></svg>
+                                            <Icon name="calendar" />
                                             <span>{formatDate(event.date)}</span>
                                         </p>
                                         <p className="admin-event-detail">
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                                            <Icon name="clock" />
                                             <span>{event.startAt.slice(0, 5)} - {event.endAt.slice(0, 5)}</span>
                                         </p>
                                         <p className="admin-event-detail">
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+                                            <Icon name="location" />
                                             <span>{event.localAddress}</span>
                                         </p>
                                         <div className="admin-event-actions">
@@ -690,11 +727,11 @@ const AdminEvents = () => {
                                                     setEditingEvent(event)
                                                 }}
                                             >
-                                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" /></svg>
+                                                <Icon name="edit" />
                                                 Editar
                                             </button>
                                             <button type="button" className="admin-event-action is-delete" onClick={() => setEventPendingDeletion(event)}>
-                                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m3 0-.8 14H5.8L5 6m4 4v6m6-6v6" /></svg>
+                                                <Icon name="trash" />
                                                 Excluir
                                             </button>
                                         </div>
@@ -725,24 +762,15 @@ const AdminEvents = () => {
                                         <p className="admin-event-description">{latestCreatedEvent.description}</p>
                                     )}
                                     <p className="admin-event-detail">
-                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                            <rect x="4" y="5" width="16" height="16" rx="2" />
-                                            <path d="M8 3v4m8-4v4M4 10h16" />
-                                        </svg>
+                                        <Icon name="calendar" />
                                         <span>{formatDate(latestCreatedEvent.date)}</span>
                                     </p>
                                     <p className="admin-event-detail">
-                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                            <circle cx="12" cy="12" r="9" />
-                                            <path d="M12 7v5l3 2" />
-                                        </svg>
+                                        <Icon name="clock" />
                                         <span>{latestCreatedEvent.startAt.slice(0, 5)} - {latestCreatedEvent.endAt.slice(0, 5)}</span>
                                     </p>
                                     <p className="admin-event-detail">
-                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-                                            <circle cx="12" cy="10" r="2.5" />
-                                        </svg>
+                                        <Icon name="location" />
                                         <span>{latestCreatedEvent.localAddress}</span>
                                     </p>
                                     <p className="admin-event-created-at">Criado em {formatCreatedAt(latestCreatedEvent.createdAt)}</p>
@@ -756,9 +784,7 @@ const AdminEvents = () => {
                                                 setEditingEvent(latestCreatedEvent)
                                             }}
                                         >
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
-                                            </svg>
+                                            <Icon name="edit" />
                                             Editar
                                         </button>
                                         <button
@@ -766,9 +792,7 @@ const AdminEvents = () => {
                                             className="admin-event-action is-delete"
                                             onClick={() => setEventPendingDeletion(latestCreatedEvent)}
                                         >
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path d="M3 6h18M8 6V4h8v2m3 0-.8 14H5.8L5 6m4 4v6m6-6v6" />
-                                            </svg>
+                                            <Icon name="trash" />
                                             Excluir
                                         </button>
                                     </div>
@@ -781,7 +805,7 @@ const AdminEvents = () => {
 
             {(isCreating || editingEvent) && (
                 <AdminEventForm
-                    initialValues={editingEvent ? toFormValues(editingEvent) : emptyForm}
+                    initialValues={editingEvent ? toFormValues(editingEvent) : { ...emptyForm, date: newEventDate }}
                     isSaving={isSaving}
                     error={formError}
                     onClose={closeForm}
@@ -804,10 +828,7 @@ const AdminEvents = () => {
                         aria-describedby="admin-event-delete-description"
                     >
                         <span className="admin-event-delete-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M12 3 2.8 19h18.4L12 3Z" />
-                                <path d="M12 9v4m0 3h.01" />
-                            </svg>
+                            <Icon name="error" />
                         </span>
                         <h2 id="admin-event-delete-title">Excluir evento?</h2>
                         <p id="admin-event-delete-description">

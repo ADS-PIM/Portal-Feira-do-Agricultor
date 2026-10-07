@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getEventAgenda, type AgendaEvent } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
+import Icon from '../Icon'
 import CalendarEventsPanel from './CalendarEventsPanel'
 import './Calendar.css'
 
@@ -235,18 +236,14 @@ function Calendar() {
                             onClick={() => navigateMonth(-1)}
                             aria-label="Mês anterior"
                         >
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="m15 18-6-6 6-6" />
-                            </svg>
+                            <Icon name="chevronLeft" />
                         </button>
                         <button
                             type="button"
                             onClick={() => navigateMonth(1)}
                             aria-label="Próximo mês"
                         >
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="m9 18 6-6-6-6" />
-                            </svg>
+                            <Icon name="chevronRight" />
                         </button>
                     </nav>
                 </header>

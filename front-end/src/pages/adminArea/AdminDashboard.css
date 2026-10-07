@@ -73,7 +73,9 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
-    margin-bottom: 18px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 18px;
 }
 
 .admin-dashboard-summary-secondary {
@@ -82,10 +84,10 @@
 
 .admin-dashboard-stat-card {
     display: flex;
-    min-height: 160px;
+    min-height: 144px;
     flex-direction: column;
     justify-content: flex-start;
-    padding: 16px 18px 18px;
+    padding: 12px 14px 14px;
     border: 1px solid #dfe5df;
     border-radius: 14px;
     background: #fff;
@@ -101,7 +103,35 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
+}
+
+.admin-dashboard-stat-shortcut {
+    align-self: flex-start;
+    margin-top: auto;
+    padding: 10px 0 0;
+    border: 0;
+    background: transparent;
+    color: var(--brand-green-dark);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+
+.admin-dashboard-stat-shortcut:hover {
+    color: var(--brand-green);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.admin-dashboard-stat-shortcut:focus-visible,
+.admin-dashboard-calendar-selection button:focus-visible,
+.admin-dashboard-day-cell:focus-visible,
+.admin-dashboard-section-actions button:focus-visible {
+    outline: 2px solid var(--brand-orange-dark);
+    outline-offset: 2px;
 }
 
 .admin-dashboard-stat-body {
@@ -243,6 +273,28 @@
     letter-spacing: 0.01em;
 }
 
+.admin-dashboard-section-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.admin-dashboard-section-actions button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--brand-green-dark);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-dashboard-section-actions button:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
 .admin-dashboard-calendar-header {
     display: flex;
     align-items: center;
@@ -346,7 +398,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    margin: 0 auto;
     border: 0;
     border-radius: 50%;
     background: transparent;
@@ -355,6 +411,14 @@
     font-weight: 600;
     line-height: 1;
     position: relative;
+    padding: 0;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+.admin-dashboard-day-cell:hover {
+    background: #f0f5f0;
 }
 
 .admin-dashboard-day-cell.is-muted {
@@ -366,15 +430,68 @@
     color: #1c6d3b;
     border-radius: 999px;
     box-shadow: inset 0 0 0 1px rgba(92, 163, 112, 0.12);
-    min-width: 44px;
-    width: 44px;
-    height: 44px;
-    margin: 0 auto;
+}
+
+.admin-dashboard-day-cell.is-selected {
+    background: var(--brand-green);
+    color: #fff;
+    box-shadow: none;
 }
 
 .admin-dashboard-day-cell.is-event span {
     position: relative;
     z-index: 1;
+}
+
+.admin-dashboard-calendar-selection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid #dfe8df;
+    border-radius: 9px;
+    background: #f7faf7;
+}
+
+.admin-dashboard-calendar-selection > div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.admin-dashboard-calendar-selection strong {
+    color: #30332e;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-dashboard-calendar-selection span {
+    overflow: hidden;
+    color: #6d6b67;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-dashboard-calendar-selection button {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--brand-green);
+    color: #fff;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-dashboard-calendar-selection button:hover {
+    background: var(--brand-green-dark);
 }
 
 .admin-dashboard-event-list {
@@ -385,7 +502,7 @@
 
 .admin-dashboard-event-item {
     display: grid;
-    grid-template-columns: 76px minmax(0, 1fr) auto;
+    grid-template-columns: 76px minmax(0, 1fr);
     gap: 16px;
     align-items: center;
     padding: 12px 14px;
@@ -453,31 +570,63 @@
     line-height: 1.4;
 }
 
-.admin-dashboard-event-meta span {
-    font-weight: 700;
+.admin-dashboard-event-info p {
+    margin: 0;
+    color: #5c5854;
+    font-size: 11px;
+    line-height: 1.45;
 }
 
-.admin-dashboard-event-badge {
+.admin-dashboard-event-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.admin-dashboard-event-actions a,
+.admin-dashboard-event-actions button {
     display: inline-flex;
+    min-height: 30px;
     align-items: center;
     justify-content: center;
-    min-width: 116px;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-.admin-dashboard-event-badge.is-pending {
-    background: rgba(10, 145, 52, 0.12);
+    padding: 0 9px;
+    border: 1px solid #d9e5da;
+    border-radius: 6px;
+    background: #fff;
     color: var(--brand-green-dark);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-.admin-dashboard-event-badge.is-confirmed {
-    background: rgba(255, 157, 46, 0.12);
-    color: #c76d00;
+.admin-dashboard-event-actions a:hover,
+.admin-dashboard-event-actions button:hover {
+    border-color: var(--brand-green);
+    background: #f4faf5;
+}
+
+.admin-dashboard-event-actions button.is-danger {
+    border-color: #efd7d3;
+    color: #a33b31;
+}
+
+.admin-dashboard-event-actions button.is-danger:hover {
+    border-color: #dba69e;
+    background: #fff7f5;
+}
+
+.admin-dashboard-event-actions a:focus-visible,
+.admin-dashboard-event-actions button:focus-visible {
+    outline: 2px solid var(--brand-orange-dark);
+    outline-offset: 2px;
+}
+
+.admin-dashboard-event-meta span {
+    font-weight: 700;
 }
 
 .admin-dashboard-empty-state {
@@ -496,8 +645,16 @@
         grid-template-columns: 48px 1fr;
     }
 
-    .admin-dashboard-event-badge {
-        grid-column: 2;
-        justify-self: flex-start;
+    .admin-dashboard-calendar-selection {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-dashboard-calendar-selection button {
+        align-self: flex-start;
+    }
+
+    .admin-dashboard-section-actions {
+        gap: 8px;
     }
 }

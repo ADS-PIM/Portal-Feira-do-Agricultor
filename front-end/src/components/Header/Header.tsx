@@ -1,6 +1,7 @@
 import './Header.css'
 import { useEffect, useRef, useState } from 'react'
 import logo from '../../assets/brotando_feiras_logo.png'
+import Icon from '../Icon'
 import { restoreAdminProfile } from '../../services/api'
 import {
     AUTH_STATE_CHANGE_EVENT,
@@ -124,15 +125,10 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
                                     }}
                                 />
                             ) : null}
-                            <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                aria-hidden="true"
+                            <Icon
+                                name="user"
                                 style={{ display: adminProfile.profile_picture?.trim() ? 'none' : 'block' }}
-                            >
-                                <circle cx="12" cy="8" r="4" />
-                                <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
-                            </svg>
+                            />
                         </div>
                     </div>
                 ) : hasCheckedSession ? (

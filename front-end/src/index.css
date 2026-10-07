@@ -55,6 +55,10 @@ body {
     font-family: "Now", sans-serif;
 }
 
+:is(h1, h2, h3, h4, h5, h6) {
+    zoom: 0.94;
+}
+
 :root {
     --brand-green: #0a9134;
     --brand-green-dark: #08752b;
@@ -69,4 +73,9 @@ body {
 
 html {
     scrollbar-gutter: stable;
+}
+.font-awesome-icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
 }

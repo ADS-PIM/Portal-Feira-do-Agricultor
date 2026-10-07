@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import AdminSideNav, { type AdminSection } from '../../components/AdminSideNav/AdminSideNav'
-import AdminEvents from './AdminEvents'
+import Icon from '../../components/Icon'
 import AdminUsersMessages from './AdminUsersMessages'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
@@ -16,6 +16,31 @@ const AdminArea = () => {
     const [status, setStatus] = useState<'checking' | 'authorized' | 'error'>('checking')
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [activeSection, setActiveSection] = useState<AdminSection>('dashboard')
+    const [createEventRequest, setCreateEventRequest] = useState<{ date: string | null } | null>(null)
+    const [eventActionRequest, setEventActionRequest] = useState<{
+        eventId: string
+        action: 'edit' | 'delete'
+    } | null>(null)
+
+    const selectSection = (section: AdminSection) => {
+        setActiveSection(section)
+        if (section !== 'eventos') {
+            setCreateEventRequest(null)
+            setEventActionRequest(null)
+        }
+    }
+
+    const createEventAtDate = (date: string | null = null) => {
+        setCreateEventRequest({ date })
+        setEventActionRequest(null)
+        setActiveSection('eventos')
+    }
+
+    const handleDashboardEventAction = (eventId: string, action: 'edit' | 'delete') => {
+        setEventActionRequest({ eventId, action })
+        setCreateEventRequest(null)
+        setActiveSection('eventos')
+    }
 
     useEffect(() => {
         let active = true
@@ -52,36 +77,40 @@ const AdminArea = () => {
                 <main className="admin-area-error-state" role="alert">
                     <div className="admin-area-error-card">
                         <span className="admin-area-error-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M12 3 2.8 19a1.4 1.4 0 0 0 1.2 2.1h16a1.4 1.4 0 0 0 1.2-2.1L12 3Z" />
-                                <path d="M12 9v5m0 3h.01" />
-                            </svg>
+                            <Icon name="error" />
                         </span>
                         <h1>Não foi possível validar o acesso administrativo</h1>
                         <p>{errorMessage}</p>
                     </div>
                 </main>
             )}
+
             {status === 'authorized' && (
                 <main className="admin-area">
-                    <AdminSideNav activeItem={activeSection} onSelect={setActiveSection} />
+                    <AdminSideNav activeItem={activeSection} onSelect={selectSection} />
                     <section className="admin-area-content" aria-label="Conteúdo administrativo">
                         {activeSection === 'dashboard' ? (
-                            <AdminDashboard onSelectSection={setActiveSection} />
+                            <AdminDashboard
+                                onSelectSection={selectSection}
+                                onCreateEventAtDate={createEventAtDate}
+                                onEditEvent={eventId => handleDashboardEventAction(eventId, 'edit')}
+                                onDeleteEvent={eventId => handleDashboardEventAction(eventId, 'delete')}
+                            />
                         ) : activeSection === 'eventos' ? (
-                            <AdminEvents />
-                        ) : activeSection === 'mensagens' ? (
-                            <AdminUsersMessages />
-                        ) : (
-                            <div className="admin-area-placeholder">
-                                {activeSection === 'dashboard' ? 'Painel Geral' : activeSection === 'informacoes' ? 'Informações da Feira' : 'Administradores'}
+                            <AdminEvents
+                                initialEventDate={createEventRequest?.date}
+                                openCreateOnMount={Boolean(createEventRequest)}
+                                initialEventAction={eventActionRequest}
+                            />
                         ) : activeSection === 'informacoes' ? (
                             <AdminBusinessInfo />
                         ) : activeSection === 'administradores' ? (
                             <AdminAdministrators />
+                        ) : activeSection === 'mensagens' ? (
+                            <AdminUsersMessages />
                         ) : (
                             <div className="admin-area-placeholder">
-                                Mensagens de usuários
+                                Seção administrativa indisponível.
                             </div>
                         )}
                     </section>

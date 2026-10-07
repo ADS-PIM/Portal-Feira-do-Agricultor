@@ -123,6 +123,40 @@
     font-weight: 500;
 }
 
+.contact-section-hours {
+    max-width: 760px;
+    margin: 32px auto 0;
+    padding: 22px 26px;
+    border: 1px solid #e1e3db;
+    border-radius: 18px;
+    background: #fff;
+    text-align: center;
+}
+
+.contact-section-hours h3 {
+    margin: 0 0 10px;
+    color: var(--brand-green-dark);
+    font-size: 18px;
+}
+
+.contact-section-hours ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 22px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.contact-section-hours li,
+.contact-section-hours p {
+    margin: 0;
+    color: #62645d;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
 .contact-section-action {
     display: flex;
     justify-content: center;

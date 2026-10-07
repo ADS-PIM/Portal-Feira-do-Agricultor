@@ -42,9 +42,9 @@ create table `images` (
 
 create table `businessInfo` (
     `id` char(36) not null,
-    `instagramAccount` varchar(64) not null,
-    `whatsappNumber` varchar(20) not null,
-    `businessEmail` varchar(320) not null,
+    `instagramAccount` varchar(64) default null,
+    `whatsappNumber` varchar(20) default null,
+    `businessEmail` varchar(320) default null,
     `businessHours` varchar(255) not null,
     `description` varchar(1000) default null, 
     `updatedAt` date not null,

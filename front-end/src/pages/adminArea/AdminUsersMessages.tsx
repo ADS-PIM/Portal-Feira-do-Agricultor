@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import Icon from '../../components/Icon'
 import {
     deleteUserMessage,
     getUserMessages,
@@ -92,9 +93,7 @@ function UserMessageDetails({
         <section className="admin-user-message-detail" aria-labelledby="admin-user-message-detail-title">
             <div className="admin-user-message-detail-toolbar">
                 <button type="button" className="admin-user-message-back-button" onClick={onBack}>
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="m15 18-6-6 6-6M9 12h12" />
-                    </svg>
+                    <Icon name="arrowLeft" />
                     Voltar para mensagens
                 </button>
                 <div className="admin-user-message-detail-actions">
@@ -103,25 +102,18 @@ function UserMessageDetails({
                             className="admin-user-message-reply-button"
                             href={`mailto:${email}?subject=${encodeURIComponent(`Re: ${displayValue(message.title)}`)}`}
                         >
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <rect x="3" y="5" width="18" height="14" rx="2" />
-                                <path d="m4 7 8 6 8-6" />
-                            </svg>
+                            <Icon name="email" />
                             Responder por e-mail
                         </a>
                     )}
                     {whatsappUrl && (
                         <a className="admin-user-message-reply-button is-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.6A8.5 8.5 0 1 1 20.5 11.5Z" />
-                            </svg>
+                            <Icon name="whatsapp" />
                             Responder pelo WhatsApp
                         </a>
                     )}
                     <button type="button" className="admin-user-message-delete-button" onClick={onDelete}>
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M4 7h16M10 11v6m4-6v6M5 7l1 14h12l1-14M9 7V4h6v3" />
-                        </svg>
+                        <Icon name="trash" />
                         Excluir mensagem
                     </button>
                 </div>
@@ -296,9 +288,7 @@ function AdminUsersMessages() {
                 {isLoading && (
                     <section className="admin-user-messages-state" role="status">
                         <span className="admin-user-messages-state-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M4 5h16v14H4zM4 7l8 6 8-6" />
-                            </svg>
+                            <Icon name="email" />
                         </span>
                         <h2>Carregando mensagens...</h2>
                         <p>Aguarde enquanto buscamos as mensagens recebidas.</p>

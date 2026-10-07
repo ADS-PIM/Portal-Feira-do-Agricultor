@@ -1,6 +1,6 @@
 .site-footer {
     box-sizing: border-box;
-    padding: 64px 5.6% 36px;
+    padding: 48px 5.6% 28px;
     background: #333;
     color: #c5c8bf;
     font-family: "Now", sans-serif;
@@ -16,7 +16,7 @@
     display: flex;
     justify-content: space-between;
     gap: 64px;
-    padding-bottom: 52px;
+    padding-bottom: 36px;
 }
 
 .site-footer-brand {
@@ -37,7 +37,7 @@
 }
 
 .site-footer-brand > p {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.5;
 }
 
@@ -100,13 +100,13 @@
     min-width: 136px;
     flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
+    gap: 12px;
 }
 
 .site-footer-links h2 {
     margin-bottom: 1px;
     color: #fff;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
 }
 
@@ -114,7 +114,7 @@
 .site-footer-links span,
 .site-footer-bottom {
     color: #c5c8bf;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .site-footer-links a,
@@ -133,7 +133,7 @@
     display: flex;
     justify-content: space-between;
     gap: 24px;
-    padding-top: 52px;
+    padding-top: 36px;
     border-top: 1px solid #45493f;
 }
 
@@ -144,13 +144,13 @@
 
 @media (max-width: 760px) {
     .site-footer {
-        padding: 48px 24px 28px;
+        padding: 40px 24px 24px;
     }
 
     .site-footer-main {
         flex-direction: column;
-        gap: 36px;
-        padding-bottom: 36px;
+        gap: 28px;
+        padding-bottom: 28px;
     }
 
     .site-footer-links {
@@ -160,8 +160,8 @@
 
     .site-footer-bottom {
         flex-direction: column;
-        gap: 18px;
-        padding-top: 28px;
+        gap: 14px;
+        padding-top: 22px;
     }
 
     .site-footer-bottom nav {
@@ -178,6 +178,6 @@
 
     .site-footer-links {
         flex-direction: column;
-        gap: 28px;
+        gap: 24px;
     }
 }
