@@ -6,6 +6,7 @@ export type propsBusinessInfo = {
     whatsappNumber: string;
     businessEmail: string;
     businessHours: string;
+    description: string | null;
     updatedAt: Date;
 }
 
@@ -19,6 +20,7 @@ export class BusinessInfo {
             whatsappNumber: businessInfoCreateDTO.whatsappNumber,
             businessEmail: businessInfoCreateDTO.businessEmail,
             businessHours: businessInfoCreateDTO.businessHours,
+            description: businessInfoCreateDTO.description ?? null,
             updatedAt: new Date()
         }
         return new BusinessInfo(props)
@@ -46,6 +48,10 @@ export class BusinessInfo {
 
     public get businessHours () {
         return this.props.businessHours;
+    }
+
+    public get description () {
+        return this.props.description;
     }
 
     public get updatedAt () {

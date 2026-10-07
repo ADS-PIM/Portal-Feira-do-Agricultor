@@ -65,9 +65,9 @@ export class AdminDAO {
     async searchAll(): Promise<AdminSearchDTO[] | null> {
         try {
             const [admins]: any = await connection.query(
-                'SELECT id, name, email, role, active, profile_picture FROM administrators'
+                'SELECT id, name, email, role, active, profile_picture, createdAt FROM administrators ORDER BY createdAt DESC'
             );
-            return admins.length === 0 ? null : admins[0];
+            return admins.length === 0 ? [] : admins;
         } catch (error: any) {
             throw new Error('Error searching admins: ' + error.message);
         }
