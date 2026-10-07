@@ -10,7 +10,7 @@
     overflow-y: auto;
     background: var(--brand-charcoal);
     color: #d7d9d6;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Now", sans-serif;
 }
 
 .site-header.is-hidden + .admin-area .admin-side-nav {

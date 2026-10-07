@@ -59,6 +59,7 @@ create table `message` (
     `message` varchar(1500) not null,
     `submitDate` timestamp not null,
     `title` varchar(255) not null,
+    `isRead` boolean not null default false,
     primary key (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
 

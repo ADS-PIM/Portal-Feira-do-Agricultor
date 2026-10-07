@@ -3,6 +3,58 @@
     padding: 0;
 }
 
+@font-face {
+    font-family: "Now";
+    src: url("./fonts/Now-Thin.otf") format("opentype");
+    font-style: normal;
+    font-weight: 100;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Now";
+    src: url("./fonts/Now-Light.otf") format("opentype");
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Now";
+    src: url("./fonts/Now-Regular.otf") format("opentype");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Now";
+    src: url("./fonts/Now-Medium.otf") format("opentype");
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Now";
+    src: url("./fonts/Now-Bold.otf") format("opentype");
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Now";
+    src: url("./fonts/Now-Black.otf") format("opentype");
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+}
+
+body {
+    font-family: "Now", sans-serif;
+}
+
 :root {
     --brand-green: #0a9134;
     --brand-green-dark: #08752b;

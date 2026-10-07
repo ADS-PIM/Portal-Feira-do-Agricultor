@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import AdminSideNav, { type AdminSection } from '../../components/AdminSideNav/AdminSideNav'
 import AdminEvents from './AdminEvents'
+import AdminUsersMessages from './AdminUsersMessages'
 import Header from '../../components/Header/Header'
+import Footer from '../../components/Footer/Footer'
 import { restoreAdminProfile } from '../../services/api'
 import { getUserFacingError } from '../../services/errors'
 import './AdminArea.css'
@@ -62,14 +64,17 @@ const AdminArea = () => {
                     <section className="admin-area-content" aria-label="Conteúdo administrativo">
                         {activeSection === 'eventos' ? (
                             <AdminEvents />
+                        ) : activeSection === 'mensagens' ? (
+                            <AdminUsersMessages />
                         ) : (
                             <div className="admin-area-placeholder">
-                                {activeSection === 'dashboard' ? 'Painel Geral' : activeSection === 'informacoes' ? 'Informações da Feira' : activeSection === 'administradores' ? 'Administradores' : 'Mensagens de usuários'}
+                                {activeSection === 'dashboard' ? 'Painel Geral' : activeSection === 'informacoes' ? 'Informações da Feira' : 'Administradores'}
                             </div>
                         )}
                     </section>
                 </main>
             )}
+            {status === 'authorized' && <Footer />}
         </>
     )
 }

@@ -8,8 +8,8 @@ const MainBanner = () => {
             <h1>Direto do campo para a sua mesa</h1>
             <p>Conheça e apoie o trabalho dos agricultores de sua região. Descubra os produtos rescos e os eventos do Brotando Feiras de Tabuleiro do Norte, Ceará.</p>
             <div className="MainBanner-buttons">
-                <button>Ver Eventos</button>
-                <button>Conhecer Agricultores</button>
+                <a href="#/calendario">Ver Eventos</a>
+                <a href="#sobre">Conhecer Agricultores</a>
             </div>
         </div>
     )

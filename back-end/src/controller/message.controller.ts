@@ -46,6 +46,20 @@ export class MessageController {
         }
     }
 
+    public async markAsRead(req: AuthRequest, res: Response) {
+        try {
+            const messageId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+            const updated = await this.messageService.markAsRead(messageId);
+            if (!updated) {
+                return res.status(404).json({ error: 'Message not found' });
+            }
+
+            return res.status(200).json({ message: 'Message marked as read' });
+        } catch (error: any) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
     public async delete(req: AuthRequest, res: Response) {
         try {
             const targetMessageId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

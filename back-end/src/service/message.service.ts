@@ -20,6 +20,10 @@ export class MessageService {
         return message ? Message.reconstruct(message) : null;
     }
 
+    public async markAsRead(id: string): Promise<boolean> {
+        return this.messageDAO.markAsRead(id);
+    }
+
     public async delete(id: string): Promise<boolean> {
         return this.messageDAO.delete(id);
     }

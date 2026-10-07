@@ -68,12 +68,12 @@ const NearestEventPainel = ({ event }: NearestEventPainelProps) => {
                             </div>
                         </div>
                         <div className='event-actions'>
-                            <button type='button'>
+                            <a href={`#/evento/${encodeURIComponent(event.id)}`}>
                                 Ver detalhes
                                 <svg viewBox='0 0 24 24' fill='none' aria-hidden='true'>
                                     <path d='M5 12h14M13 6l6 6-6 6' />
                                 </svg>
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -71,12 +71,12 @@ function CalendarEventCard({ event, isTodayEvent = false }: { event: AgendaEvent
                     </svg>
                     <span>{event.localAddress}</span>
                 </p>
-                <button className="calendar-event-details-button" type="button">
+                <a className="calendar-event-details-button" href={`#/evento/${encodeURIComponent(event.id)}`}>
                     <span>Ver detalhes</span>
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M5 12h14M13 6l6 6-6 6" />
                     </svg>
-                </button>
+                </a>
             </div>
         </li>
     )

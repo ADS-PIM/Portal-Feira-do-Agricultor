@@ -27,9 +27,12 @@ export class MessageDAO {
     public async search(): Promise<MessageSearchDTO[]> {
         try {
             const [rows] = await connection.query<(RowDataPacket & MessageSearchDTO)[]>(
-                'SELECT id, title, subject, name FROM message'
+                'SELECT id, title, subject, name, email, phone, message, submitDate, isRead FROM message ORDER BY submitDate DESC'
             );
-            return rows.map((row) => Object.assign(new MessageSearchDTO(), row));
+            return rows.map((row) => Object.assign(new MessageSearchDTO(), {
+                ...row,
+                isRead: Boolean(row.isRead),
+            }));
         } catch (error: any) {
             throw new Error('Error retrieving messages: ' + error.message);
         }
@@ -51,6 +54,21 @@ export class MessageDAO {
             };
         } catch (error: any) {
             throw new Error('Error retrieving message: ' + error.message);
+        }
+    }
+
+    public async markAsRead(id: string): Promise<boolean> {
+        try {
+            const [result]: any = await connection.query(
+                'UPDATE message SET isRead = TRUE WHERE id = ?',
+                [id],
+            );
+            if (result.affectedRows > 0) return true;
+
+            const [rows]: any = await connection.query('SELECT id FROM message WHERE id = ?', [id]);
+            return rows.length > 0;
+        } catch (error: any) {
+            throw new Error('Error marking message as read: ' + error.message);
         }
     }
 

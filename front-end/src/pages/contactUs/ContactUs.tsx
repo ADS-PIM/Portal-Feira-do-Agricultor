@@ -11,6 +11,7 @@ type ContactFormState = {
   email: string
   phone: string
   subject: MessageSubject | ''
+  title: string
   message: string
 }
 
@@ -19,15 +20,8 @@ const initialFormState: ContactFormState = {
   email: '',
   phone: '',
   subject: '',
+  title: '',
   message: '',
-}
-
-const subjectLabelMap: Record<MessageSubject, string> = {
-  DOUBT: 'Dúvida',
-  SUGGESTION: 'Sugestão',
-  COMPLAINT: 'Reclamação',
-  PARTNERSHIP: 'Parceria',
-  OTHER: 'Outros',
 }
 
 function ContactIcon({ type }: { type: 'whatsapp' | 'email' | 'instagram' }) {
@@ -128,13 +122,14 @@ const ContactUsPage = () => {
     const trimmedName = formData.name.trim()
     const trimmedEmail = formData.email.trim()
     const trimmedPhone = formData.phone.trim()
+    const trimmedTitle = formData.title.trim()
     const trimmedMessage = formData.message.trim()
     const selectedSubject = formData.subject
 
-    if (!trimmedName || !trimmedEmail || !selectedSubject || !trimmedMessage) {
+    if (!trimmedName || !trimmedEmail || !selectedSubject || !trimmedTitle || !trimmedMessage) {
       setSubmitFeedback({
         type: 'error',
-        message: 'Preencha seu nome, e-mail, assunto e mensagem antes de enviar.',
+        message: 'Preencha seu nome, e-mail, assunto, título e mensagem antes de enviar.',
       })
       return
     }
@@ -149,7 +144,7 @@ const ContactUsPage = () => {
         phone: trimmedPhone || undefined,
         subject: selectedSubject,
         message: trimmedMessage,
-        title: `Contato - ${subjectLabelMap[selectedSubject]}`,
+        title: trimmedTitle,
       })
 
       setFormData(initialFormState)
@@ -233,6 +228,19 @@ const ContactUsPage = () => {
                     <option value="COMPLAINT">Reclamação</option>
                     <option value="OTHER">Outros</option>
                   </select>
+                </label>
+
+                <label className="contact-field">
+                  <span>Título</span>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="Resuma o motivo do contato..."
+                    maxLength={255}
+                    required
+                  />
                 </label>
 
                 <label className="contact-field">

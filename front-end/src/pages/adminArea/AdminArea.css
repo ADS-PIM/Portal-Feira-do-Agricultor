@@ -10,7 +10,7 @@
     place-items: center;
     padding: 32px 16px;
     background: #f4f8f4;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Now", sans-serif;
 }
 
 .admin-area-error-card {
@@ -69,7 +69,7 @@
 .admin-area-placeholder {
     padding: 28px 30px;
     color: #30332e;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Now", sans-serif;
     font-size: 22px;
     font-weight: 700;
 }

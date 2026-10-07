@@ -28,7 +28,7 @@ const AgendaEventCard = ({ event }: { event: AgendaEvent }) => {
     const { day } = getDateParts(event.date)
 
     return (
-        <article className='event-agenda-card'>
+        <a className='event-agenda-card' href={`#/evento/${encodeURIComponent(event.id)}`}>
             <time className='event-agenda-date' dateTime={event.date.slice(0, 10)}>
                 <strong>{day}</strong>
                 <span>{formatMonth(event.date)}</span>
@@ -50,7 +50,7 @@ const AgendaEventCard = ({ event }: { event: AgendaEvent }) => {
                     <span>{event.localAddress}</span>
                 </p>
             </div>
-        </article>
+        </a>
     )
 }
 
