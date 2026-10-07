@@ -4,6 +4,213 @@
     background: #f4f8f4;
 }
 
+.admin-area-checking {
+    position: relative;
+}
+
+.admin-area-skeleton-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+}
+
+.admin-area-skeleton-nav {
+    box-sizing: border-box;
+    align-self: stretch;
+    width: 240px;
+    flex: 0 0 240px;
+    background: var(--brand-charcoal);
+}
+
+.admin-area-skeleton-nav-list {
+    position: sticky;
+    top: 68px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: calc(100vh - 68px);
+    margin: 0;
+    overflow: hidden;
+    padding: 24px 14px;
+    list-style: none;
+}
+
+.admin-area-skeleton-nav-item {
+    box-sizing: border-box;
+    display: flex;
+    min-height: 41px;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    border-radius: 9px;
+}
+
+.admin-area-skeleton-nav-item.is-active {
+    background: var(--brand-green);
+}
+
+.admin-area-skeleton-nav-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    border-radius: 5px;
+    background: #66726a;
+}
+
+.admin-area-skeleton-nav-item.is-active .admin-area-skeleton-nav-icon {
+    background: rgb(255 255 255 / 55%);
+}
+
+.admin-area-skeleton-block {
+    display: block;
+    height: 14px;
+    border-radius: 7px;
+    background: linear-gradient(100deg, #edf1eb 25%, #f7f8f6 45%, #edf1eb 65%);
+    background-size: 220% 100%;
+    animation: admin-area-skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.admin-area-skeleton-nav .is-nav-label {
+    width: 76%;
+    height: 12px;
+    background: linear-gradient(100deg, #626a64 25%, #757d77 45%, #626a64 65%);
+    background-size: 220% 100%;
+}
+
+.admin-area-skeleton-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.admin-area-checking .admin-dashboard-header {
+    display: grid;
+    justify-items: start;
+    gap: 4px;
+    box-sizing: border-box;
+}
+
+.admin-area-checking .is-title {
+    width: 140px;
+    height: 26px;
+}
+
+.admin-area-checking .is-subtitle {
+    width: min(270px, 55%);
+    height: 17px;
+}
+
+.admin-area-checking .admin-dashboard-stat-card {
+    box-sizing: border-box;
+    min-height: 144px;
+    gap: 9px;
+}
+
+.admin-area-checking .is-card-label {
+    width: 48%;
+    height: 12px;
+}
+
+.admin-area-checking .is-card-value {
+    width: 62px;
+    height: 25px;
+}
+
+.admin-area-checking .is-card-detail {
+    width: 78%;
+    height: 10px;
+}
+
+.admin-area-checking .is-card-action {
+    width: 150px;
+    height: 11px;
+    margin-top: auto;
+}
+
+.admin-area-checking .is-calendar-heading {
+    width: 110px;
+    height: 15px;
+}
+
+.admin-area-checking .is-calendar-navigation {
+    width: 54px;
+    height: 28px;
+}
+
+.admin-area-checking .admin-events-calendar-grid {
+    gap: 5px 2px;
+}
+
+.admin-area-checking .is-calendar-cell {
+    width: 40px;
+    height: 40px;
+    min-height: 44px;
+    margin: 0 auto;
+    border-radius: 50%;
+}
+
+.admin-area-checking .is-calendar-cell.is-weekday {
+    width: 48%;
+    height: 10px;
+    min-height: 10px;
+    border-radius: 6px;
+}
+
+.admin-area-checking .admin-dashboard-agenda-header {
+    min-height: 33px;
+}
+
+.admin-area-checking .is-agenda-heading {
+    width: 140px;
+    height: 15px;
+}
+
+.admin-area-skeleton-agenda-list {
+    display: grid;
+    max-height: 620px;
+    gap: 14px;
+    overflow: hidden;
+}
+
+.admin-area-skeleton-agenda-card {
+    display: grid;
+    min-height: 168px;
+    align-content: start;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid #e2ded9;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.admin-area-checking .is-agenda-meta {
+    width: 86px;
+    height: 17px;
+}
+
+.admin-area-checking .is-agenda-title {
+    width: 46%;
+    height: 14px;
+}
+
+.admin-area-checking .is-agenda-detail {
+    width: 82%;
+    height: 10px;
+}
+
+.admin-area-checking .is-agenda-detail.is-short {
+    width: 55%;
+}
+
+@keyframes admin-area-skeleton-shimmer {
+    to {
+        background-position: -220% 0;
+    }
+}
+
 .admin-area-error-state {
     display: grid;
     min-height: calc(100vh - 68px);
@@ -81,5 +288,57 @@
 
     .admin-area-error-card p {
         font-size: 14px;
+    }
+}
+
+@media (max-width: 680px) {
+    .admin-area-skeleton-nav {
+        width: 72px;
+        flex-basis: 72px;
+    }
+
+    .admin-area-skeleton-nav-list {
+        padding: 20px 8px;
+    }
+
+    .admin-area-skeleton-nav-item {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .admin-area-skeleton-nav-item .is-nav-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        clip-path: inset(50%);
+    }
+
+    .admin-area-checking .is-calendar-cell {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+@media (max-width: 380px) {
+    .admin-area-skeleton-nav {
+        width: 60px;
+        flex-basis: 60px;
+    }
+
+    .admin-area-skeleton-nav-list {
+        padding: 16px 4px;
+    }
+
+    .admin-area-checking .is-calendar-cell {
+        min-height: 39px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-area-skeleton-block {
+        animation: none;
     }
 }

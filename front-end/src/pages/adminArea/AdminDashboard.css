@@ -250,6 +250,33 @@
     margin-top: 22px;
 }
 
+.admin-dashboard-agenda-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 13px;
+}
+
+.admin-dashboard-agenda-header h2 {
+    min-width: 0;
+    margin: 2px 0 0;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.admin-dashboard-create-event-button {
+    min-height: 36px;
+    flex: 0 0 auto;
+    padding: 0 11px;
+    font-size: 12px;
+}
+
+.admin-dashboard-create-event-button svg {
+    width: 15px;
+    height: 15px;
+}
+
 .admin-dashboard-section-header {
     display: flex;
     align-items: center;
@@ -639,6 +666,15 @@
 @media (max-width: 760px) {
     .admin-dashboard-summary {
         grid-template-columns: 1fr;
+    }
+
+    .admin-dashboard-agenda-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-dashboard-create-event-button {
+        align-self: flex-start;
     }
 
     .admin-dashboard-event-item {

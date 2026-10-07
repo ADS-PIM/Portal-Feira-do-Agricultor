@@ -12,6 +12,82 @@ import AdminEvents from './AdminEvents'
 import AdminAdministrators from './AdminAdministrators'
 import './AdminArea.css'
 
+const AdminAccessSkeleton = () => (
+    <main className="admin-area admin-area-checking" aria-label="Verificação de acesso administrativo" aria-busy="true">
+        <p className="admin-area-skeleton-status" role="status">Verificando acesso administrativo...</p>
+        <aside className="admin-area-skeleton-nav" aria-hidden="true">
+            <nav>
+                <ul className="admin-area-skeleton-nav-list">
+                    {Array.from({ length: 5 }, (_, index) => (
+                        <li className={`admin-area-skeleton-nav-item${index === 0 ? ' is-active' : ''}`} key={index}>
+                            <span className="admin-area-skeleton-nav-icon" />
+                            <span className="admin-area-skeleton-block is-nav-label" />
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        </aside>
+        <section className="admin-area-content admin-area-skeleton-content" aria-hidden="true">
+            <div className="admin-dashboard-page">
+                <header className="admin-dashboard-header">
+                    <span className="admin-area-skeleton-block is-title" />
+                    <span className="admin-area-skeleton-block is-subtitle" />
+                </header>
+                <div className="admin-dashboard-workspace">
+                    <div className="admin-dashboard-summary">
+                        {Array.from({ length: 2 }, (_, index) => (
+                            <div className="admin-dashboard-stat-card" key={index}>
+                                <span className="admin-area-skeleton-block is-card-label" />
+                                <span className="admin-area-skeleton-block is-card-value" />
+                                <span className="admin-area-skeleton-block is-card-detail" />
+                                <span className="admin-area-skeleton-block is-card-action" />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="admin-dashboard-summary admin-dashboard-summary-secondary">
+                        {Array.from({ length: 2 }, (_, index) => (
+                            <div className="admin-dashboard-stat-card is-subtle" key={index}>
+                                <span className="admin-area-skeleton-block is-card-label" />
+                                <span className="admin-area-skeleton-block is-card-value" />
+                                <span className="admin-area-skeleton-block is-card-detail" />
+                                <span className="admin-area-skeleton-block is-card-action" />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="admin-events admin-events-columns admin-dashboard-agenda">
+                        <section className="admin-events-calendar">
+                            <header className="admin-events-calendar-header">
+                                <span className="admin-area-skeleton-block is-calendar-heading" />
+                                <span className="admin-area-skeleton-block is-calendar-navigation" />
+                            </header>
+                            <div className="admin-events-calendar-grid">
+                                {Array.from({ length: 49 }, (_, index) => (
+                                    <span className={`admin-area-skeleton-block is-calendar-cell${index < 7 ? ' is-weekday' : ''}`} key={index} />
+                                ))}
+                            </div>
+                        </section>
+                        <section className="admin-events-agenda admin-dashboard-agenda-list">
+                            <header className="admin-dashboard-agenda-header">
+                                <span className="admin-area-skeleton-block is-agenda-heading" />
+                            </header>
+                            <div className="admin-area-skeleton-agenda-list">
+                                {Array.from({ length: 4 }, (_, index) => (
+                                    <div className="admin-area-skeleton-agenda-card" key={index}>
+                                        <span className="admin-area-skeleton-block is-agenda-meta" />
+                                        <span className="admin-area-skeleton-block is-agenda-title" />
+                                        <span className="admin-area-skeleton-block is-agenda-detail" />
+                                        <span className="admin-area-skeleton-block is-agenda-detail is-short" />
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+)
+
 const AdminArea = () => {
     const [status, setStatus] = useState<'checking' | 'authorized' | 'error'>('checking')
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -72,7 +148,7 @@ const AdminArea = () => {
     return (
         <>
             <Header initialActiveLink="#/admin" />
-            {status === 'checking' && <p role="status">Verificando acesso administrativo...</p>}
+            {status === 'checking' && <AdminAccessSkeleton />}
             {status === 'error' && (
                 <main className="admin-area-error-state" role="alert">
                     <div className="admin-area-error-card">
