@@ -315,7 +315,7 @@
     font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
-    cursor: pointer;
+    text-decoration: none;
     transition: background-color 150ms ease, color 150ms ease;
 }
 

@@ -1,6 +1,17 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import Icon from '../../components/Icon'
 import { getBusinessInfo, type BusinessInfo, upsertBusinessInfo } from '../../services/businessInfoService'
 import { getUserFacingError } from '../../services/errors'
+import { defaultBusinessDescription } from '../../utils/businessDescription'
+import {
+    createEmptyWeeklyBusinessHours,
+    formatWeeklyBusinessHours,
+    parseWeeklyBusinessHours,
+    validateWeeklyBusinessHours,
+    weekdays,
+    type DayBusinessHours,
+    type WeekdayId,
+} from '../../utils/businessHours'
 import './AdminBusinessInfo.css'
 
 type BusinessInfoFormValues = {
@@ -43,31 +54,7 @@ function formatLastUpdated(value: string | null | undefined): string {
 
 
 function BusinessInfoFieldIcon({ type }: { type: 'whatsapp' | 'instagram' | 'email' }) {
-    if (type === 'whatsapp') {
-        return (
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M5.5 19.5 6.2 16a7.8 7.8 0 1 1 11.6 0l.7 3.5-3.3-1.2a9.7 9.7 0 0 0-6.4 0l-3.3 1.2Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M9.5 9.8c.3-.5 1-.8 1.3-.8.3 0 .6.2.8.6.2.4.5 1.3.1 1.7-.4.3-1 .6-1.4 1-.3.3-.7 1-.2 1.7.5 1 2.4 1.8 3.8 1.5.9-.2 1.2-.9 1.3-1.4.1-.6.4-.9.8-1.1.3-.1.8-.2.8-.8 0-.6-.5-1.4-1.3-2.1-.8-.7-1.7-1.4-2.2-1.7-.8-.5-1.8-.6-2.5-.2-.7.4-1.3.9-1.5 1.5-.2.6-.1 1.2.1 1.9Z" fill="currentColor" stroke="none" />
-            </svg>
-        )
-    }
-
-    if (type === 'instagram') {
-        return (
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="3.5" y="3.5" width="17" height="17" rx="4" stroke="currentColor" strokeWidth="1.7" />
-                <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.7" />
-                <circle cx="17.3" cy="6.7" r="1.2" fill="currentColor" stroke="none" />
-            </svg>
-        )
-    }
-
-    return (
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" stroke="currentColor" strokeWidth="1.7" />
-            <path d="m4.5 7 7.5 6 7.5-6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-    )
+    return <Icon name={type} />
 }
 
 const AdminBusinessInfo = () => {
@@ -77,6 +64,8 @@ const AdminBusinessInfo = () => {
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [statusMessage, setStatusMessage] = useState<string | null>(null)
+    const [weeklyHours, setWeeklyHours] = useState(createEmptyWeeklyBusinessHours)
+    const [legacyHours, setLegacyHours] = useState<string | null>(null)
     const [fieldToggles, setFieldToggles] = useState({
         whatsapp: true,
         instagram: true,
@@ -92,6 +81,9 @@ const AdminBusinessInfo = () => {
                 const info = await getBusinessInfo(controller.signal)
                 setBusinessInfo(info)
                 setValues(toValues(info))
+                const parsedHours = parseWeeklyBusinessHours(info?.businessHours)
+                setWeeklyHours(parsedHours ?? createEmptyWeeklyBusinessHours())
+                setLegacyHours(info?.businessHours?.trim() && !parsedHours ? info.businessHours : null)
                 setFieldToggles({
                     whatsapp: Boolean(info?.whatsappNumber?.trim()),
                     instagram: Boolean(info?.instagramAccount?.trim()),
@@ -123,8 +115,36 @@ const AdminBusinessInfo = () => {
         setFieldToggles((current) => ({ ...current, [field]: !current[field] }))
     }
 
+    const handleDayHoursChange = (day: WeekdayId, field: 'opensAt' | 'closesAt', value: string) => {
+        setWeeklyHours((current) => ({
+            ...current,
+            [day]: { ...current[day], [field]: value },
+        }))
+        setError(null)
+        setStatusMessage(null)
+    }
+
+    const handleDayClosedChange = (day: WeekdayId, closed: boolean) => {
+        setWeeklyHours((current) => ({
+            ...current,
+            [day]: closed
+                ? { closed, opensAt: '', closesAt: '' }
+                : { ...current[day], closed },
+        }))
+        setError(null)
+        setStatusMessage(null)
+    }
+
+    const handleEditLegacyHours = () => {
+        setLegacyHours(null)
+        setWeeklyHours(createEmptyWeeklyBusinessHours())
+    }
+
     const handleReset = () => {
         setValues(toValues(businessInfo))
+        const parsedHours = parseWeeklyBusinessHours(businessInfo?.businessHours)
+        setWeeklyHours(parsedHours ?? createEmptyWeeklyBusinessHours())
+        setLegacyHours(businessInfo?.businessHours?.trim() && !parsedHours ? businessInfo.businessHours : null)
         setFieldToggles({
             whatsapp: Boolean(businessInfo?.whatsappNumber?.trim()),
             instagram: Boolean(businessInfo?.instagramAccount?.trim()),
@@ -137,11 +157,20 @@ const AdminBusinessInfo = () => {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
+        if (!legacyHours) {
+            const hoursError = validateWeeklyBusinessHours(weeklyHours)
+            if (hoursError) {
+                setError(hoursError)
+                setStatusMessage(null)
+                return
+            }
+        }
+
         const payload = {
-            instagramAccount: fieldToggles.instagram ? values.instagramAccount.trim() : '',
-            whatsappNumber: fieldToggles.whatsapp ? values.whatsappNumber.trim() : '',
-            businessEmail: fieldToggles.email ? values.businessEmail.trim() : '',
-            businessHours: businessInfo?.businessHours?.trim() ?? '',
+            instagramAccount: fieldToggles.instagram ? values.instagramAccount.trim() : null,
+            whatsappNumber: fieldToggles.whatsapp ? values.whatsappNumber.trim() : null,
+            businessEmail: fieldToggles.email ? values.businessEmail.trim() : null,
+            businessHours: legacyHours ?? formatWeeklyBusinessHours(weeklyHours),
             description: values.description.trim(),
         }
 
@@ -154,6 +183,9 @@ const AdminBusinessInfo = () => {
             const refreshed = await getBusinessInfo()
             setBusinessInfo(refreshed)
             setValues(toValues(refreshed))
+            const parsedHours = parseWeeklyBusinessHours(refreshed?.businessHours)
+            setWeeklyHours(parsedHours ?? createEmptyWeeklyBusinessHours())
+            setLegacyHours(refreshed?.businessHours?.trim() && !parsedHours ? refreshed.businessHours : null)
             setStatusMessage('Informações salvas com sucesso.')
         } catch (submissionError) {
             setError(getUserFacingError(submissionError, 'Não foi possível salvar as informações da feira.'))
@@ -190,6 +222,7 @@ const AdminBusinessInfo = () => {
                                     rows={3}
                                     value={values.description}
                                     onChange={handleFieldChange}
+                                    placeholder={defaultBusinessDescription}
                                 />
                             </label>
 
@@ -259,6 +292,67 @@ const AdminBusinessInfo = () => {
                                     </button>
                                 </div>
                             </div>
+
+                            <section className="admin-business-hours" aria-labelledby="business-hours-title">
+                                <div>
+                                    <h2 id="business-hours-title">Horário de atendimento</h2>
+                                    <p>Defina os horários de início e término para cada dia da semana.</p>
+                                </div>
+                                {legacyHours && (
+                                    <div className="admin-business-hours-legacy">
+                                        <p>
+                                            O horário salvo anteriormente não está no formato semanal. Ele será mantido até você
+                                            escolher editar os horários por dia.
+                                        </p>
+                                        <p className="admin-business-hours-legacy-value">{legacyHours}</p>
+                                        <button type="button" onClick={handleEditLegacyHours}>
+                                            Editar horários por dia
+                                        </button>
+                                    </div>
+                                )}
+                                {!legacyHours && (
+                                    <div className="admin-business-hours-list">
+                                        {weekdays.map(({ id, label }) => {
+                                            const schedule: DayBusinessHours = weeklyHours[id]
+                                            return (
+                                                <div className="admin-business-hours-day" key={id}>
+                                                    <div className="admin-business-hours-dayHeader">
+                                                        <strong>{label}</strong>
+                                                        <label className="admin-business-hours-closed">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={schedule.closed}
+                                                                onChange={(event) => handleDayClosedChange(id, event.target.checked)}
+                                                            />
+                                                            <span>Não atendemos</span>
+                                                        </label>
+                                                    </div>
+                                                    <label className="admin-business-hours-time">
+                                                        <span>Início</span>
+                                                        <input
+                                                            type="time"
+                                                            value={schedule.opensAt}
+                                                            onChange={(event) => handleDayHoursChange(id, 'opensAt', event.target.value)}
+                                                            disabled={schedule.closed}
+                                                            aria-label={`Horário de início de ${label}`}
+                                                        />
+                                                    </label>
+                                                    <label className="admin-business-hours-time">
+                                                        <span>Término</span>
+                                                        <input
+                                                            type="time"
+                                                            value={schedule.closesAt}
+                                                            onChange={(event) => handleDayHoursChange(id, 'closesAt', event.target.value)}
+                                                            disabled={schedule.closed}
+                                                            aria-label={`Horário de término de ${label}`}
+                                                        />
+                                                    </label>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+                            </section>
 
                             <div className="admin-business-info-actions">
                                 <span className="admin-business-info-updateStamp">

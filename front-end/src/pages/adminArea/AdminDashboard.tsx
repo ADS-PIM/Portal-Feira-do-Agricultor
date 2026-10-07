@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { AdminSection } from '../../components/AdminSideNav/AdminSideNav'
-import { apiFetch } from '../../services/api'
 import { getAdmins, type AdminRecord } from '../../services/adminService'
 import { getAdminEvents, type AdminEvent } from '../../services/eventService'
+import { getUserMessages, type UserMessage } from '../../services/messageService'
+import './AdminEvents.css'
 import './AdminDashboard.css'
+import Icon from '../../components/Icon'
 
-type MessageSummary = {
-    id: string
-}
-
-const WEEK_DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
 const normalizeDateOnly = (value: string | Date) => {
     if (value instanceof Date) {
@@ -30,85 +28,38 @@ const formatDateKey = (value: string | Date) => {
     return `${year}-${month}-${day}`
 }
 
-const monthLabel = (date: Date) =>
+const formatEventDate = (value: string | Date) =>
     new Intl.DateTimeFormat('pt-BR', {
+        weekday: 'long',
+        day: 'numeric',
         month: 'long',
         year: 'numeric',
-    }).format(date)
-
-const normalizeText = (value: string) => value.charAt(0).toUpperCase() + value.slice(1)
-
-const formatShortDate = (value: string) =>
-    new Intl.DateTimeFormat('pt-BR', {
-        day: '2-digit',
-        month: 'short',
     }).format(new Date(`${normalizeDateOnly(value)}T12:00:00`))
 
-const formatTimeLabel = (value: string | null | undefined) => {
-    if (!value) return 'Horário não informado'
-
-    const [hours, minutes] = String(value).split(':')
-    if (!hours || !minutes) return 'Horário não informado'
-
-    const hourNumber = Number(hours)
-    if (Number.isNaN(hourNumber)) return 'Horário não informado'
-
-    const displayHour = hourNumber % 12 === 0 ? 12 : hourNumber % 12
-    const period = hourNumber >= 12 ? 'pm' : 'am'
-
-    return `${displayHour}h${String(minutes).padStart(2, '0')} ${period}`
-}
-
-const formatEventStateLabel = (state: AdminEvent['state']) => {
-    switch (state) {
-        case 'PENDING':
-            return 'Agendado'
-        case 'HAPPENING':
-            return 'Em andamento'
-        case 'CONCLUDED':
-            return 'Concluído'
-        case 'CANCELED':
-            return 'Cancelado'
-        case 'RESCHEDULED':
-            return 'Reagendado'
-        default:
-            return state
-    }
-}
-
-const AdminDashboard = ({ onSelectSection }: { onSelectSection: (section: AdminSection) => void }) => {
+const AdminDashboard = ({
+    onSelectSection,
+    onCreateEventAtDate,
+    onEditEvent,
+    onDeleteEvent,
+}: {
+    onSelectSection: (section: AdminSection) => void
+    onCreateEventAtDate: (date: string | null) => void
+    onEditEvent: (eventId: string) => void
+    onDeleteEvent: (eventId: string) => void
+}) => {
     const [admins, setAdmins] = useState<AdminRecord[]>([])
-    const [messagesCount, setMessagesCount] = useState(0)
+    const [messages, setMessages] = useState<UserMessage[]>([])
     const [events, setEvents] = useState<AdminEvent[]>([])
-    const [selectedMonth, setSelectedMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+    const [visibleMonth, setVisibleMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+    const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     const adminsCount = admins.filter(admin => admin.active).length
     const primaryAdmin = useMemo(() => admins.find(admin => admin.active) ?? admins[0], [admins])
-    const latestAdminDate = useMemo(() => {
-        const dates = admins
-            .map(admin => admin.createdAt)
-            .filter((value): value is string => Boolean(value))
-            .map(value => new Date(value))
-            .filter(date => !Number.isNaN(date.getTime()))
-
-        if (dates.length === 0) {
-            return null
-        }
-
-        const latest = dates.reduce((max, current) => (current > max ? current : max), dates[0])
-        return new Intl.DateTimeFormat('pt-BR', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        }).format(latest)
-    }, [admins])
-
-    const eventDates = useMemo(
-        () => new Set(events.filter(event => event.state !== 'CANCELED').map(event => formatDateKey(event.date))),
-        [events],
-    )
+    const unreadMessagesCount = messages.filter(message => !message.isRead).length
+    const readMessagesCount = messages.filter(message => message.isRead).length
+    const monthKey = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, '0')}`
 
     useEffect(() => {
         let active = true
@@ -121,13 +72,13 @@ const AdminDashboard = ({ onSelectSection }: { onSelectSection: (section: AdminS
                 const [admins, eventList, messages] = await Promise.all([
                     getAdmins(),
                     getAdminEvents(),
-                    apiFetch<MessageSummary[]>('message').catch(() => []),
+                    getUserMessages().catch(() => []),
                 ])
 
                 if (!active) return
 
                 setAdmins(Array.isArray(admins) ? admins : [])
-                setMessagesCount(Array.isArray(messages) ? messages.length : 0)
+                setMessages(Array.isArray(messages) ? messages : [])
                 setEvents(Array.isArray(eventList) ? eventList : [])
             } catch (dashboardError) {
                 if (!active) return
@@ -143,52 +94,54 @@ const AdminDashboard = ({ onSelectSection }: { onSelectSection: (section: AdminS
         }
     }, [])
 
-    const monthDays = useMemo(() => {
-        const firstDayOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1)
-        const startDay = new Date(firstDayOfMonth)
-        startDay.setDate(firstDayOfMonth.getDate() - firstDayOfMonth.getDay())
-
-        const days: Date[] = []
-        for (let index = 0; index < 42; index += 1) {
-            const current = new Date(startDay)
-            current.setDate(startDay.getDate() + index)
-            days.push(current)
-        }
-
-        return days
-    }, [selectedMonth])
-
-    const upcomingEvents = useMemo(() => {
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-
-        return [...events]
-            .filter(event => {
-                const eventDate = new Date(`${normalizeDateOnly(event.date)}T12:00:00`)
-                return !Number.isNaN(eventDate.getTime()) && eventDate >= today && event.state !== 'CANCELED'
-            })
-            .sort((left, right) => {
-                const leftDate = new Date(`${normalizeDateOnly(left.date)}T12:00:00`).getTime()
-                const rightDate = new Date(`${normalizeDateOnly(right.date)}T12:00:00`).getTime()
-                return leftDate - rightDate
-            })
-            .slice(0, 3)
+    const eventsByDate = useMemo(() => {
+        const grouped = new Map<string, AdminEvent[]>()
+        events.forEach(event => {
+            const dateKey = formatDateKey(event.date)
+            const dateEvents = grouped.get(dateKey) ?? []
+            dateEvents.push(event)
+            grouped.set(dateKey, dateEvents)
+        })
+        return grouped
     }, [events])
 
-    const monthEventsCount = useMemo(
-        () =>
-            events.filter(event => {
-                const eventDate = new Date(`${normalizeDateOnly(event.date)}T12:00:00`)
-                return event.state !== 'CANCELED' && !Number.isNaN(eventDate.getTime()) && eventDate.getMonth() === selectedMonth.getMonth() && eventDate.getFullYear() === selectedMonth.getFullYear()
-            }).length,
-        [events, selectedMonth],
+    const calendarDays = useMemo(() => {
+        const firstWeekday = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1).getDay()
+        const daysInMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 0).getDate()
+        const previousMonthDays = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 0).getDate()
+
+        return Array.from({ length: 42 }, (_, index) => {
+            const day = index - firstWeekday + 1
+            if (day < 1) return { day: previousMonthDays + day, date: null as string | null, outside: true }
+            if (day > daysInMonth) return { day: day - daysInMonth, date: null as string | null, outside: true }
+            return { day, date: formatDateKey(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), day)), outside: false }
+        })
+    }, [visibleMonth])
+
+    const agendaEvents = useMemo(
+        () => events
+            .filter(event => selectedCalendarDate
+                ? formatDateKey(event.date) === selectedCalendarDate
+                : formatDateKey(event.date).startsWith(monthKey))
+            .sort((first, second) => {
+                const firstDate = `${formatDateKey(first.date)}T${first.startAt}`
+                const secondDate = `${formatDateKey(second.date)}T${second.startAt}`
+                return firstDate.localeCompare(secondDate)
+            }),
+        [events, monthKey, selectedCalendarDate],
     )
 
     const pendingEvents = events.filter(event => event.state === 'PENDING').length
     const totalEvents = events.length
+    const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' })
+        .format(visibleMonth)
+        .replace(/^./, character => character.toLocaleUpperCase('pt-BR'))
+    const monthLabel = `${monthName} ${visibleMonth.getFullYear()}`
+    const availableYears = Array.from({ length: 101 }, (_, index) => visibleMonth.getFullYear() - 50 + index)
 
-    const moveMonth = (delta: number) => {
-        setSelectedMonth(current => new Date(current.getFullYear(), current.getMonth() + delta, 1))
+    const shiftMonth = (offset: number) => {
+        setVisibleMonth(current => new Date(current.getFullYear(), current.getMonth() + offset, 1))
+        setSelectedCalendarDate(null)
     }
 
     return (
@@ -199,14 +152,6 @@ const AdminDashboard = ({ onSelectSection }: { onSelectSection: (section: AdminS
             </header>
 
             <div className="admin-dashboard-workspace">
-                <div className="admin-dashboard-actions-row">
-                    <button type="button" className="admin-dashboard-primary-button" onClick={() => onSelectSection('eventos')}>
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 5v14M5 12h14" />
-                        </svg>
-                        Criar Evento
-                    </button>
-                </div>
 
                 {error && <p className="admin-dashboard-alert is-error" role="alert">{error}</p>}
 
@@ -214,9 +159,6 @@ const AdminDashboard = ({ onSelectSection }: { onSelectSection: (section: AdminS
                     <div className="admin-dashboard-stat-card">
                         <div className="admin-dashboard-stat-card-header">
                             <span className="admin-dashboard-stat-label">Administradores cadastrados</span>
-                            {latestAdminDate && (
-                                <span className="admin-dashboard-stat-pill">Último cadastro: {latestAdminDate}</span>
-                            )}
                         </div>
                         <div className="admin-dashboard-stat-body">
                             <strong className="admin-dashboard-stat-value">
@@ -224,23 +166,27 @@ const AdminDashboard = ({ onSelectSection }: { onSelectSection: (section: AdminS
                                 {adminsCount > 0 && <em>ativos</em>}
                             </strong>
                             <small>
-                                {primaryAdmin ? `${primaryAdmin.name}` : 'Nenhum administrador ativo'}
-                                {primaryAdmin?.role ? ` · ${primaryAdmin.role === 'SUPER_ADMIN' ? 'Gestor de Campo' : 'Administrador'}` : ''}
+                                {admins.length} no sistema{primaryAdmin ? ` · Responsável: ${primaryAdmin.name}` : ''}
                             </small>
                         </div>
+                        <button type="button" className="admin-dashboard-stat-shortcut" onClick={() => onSelectSection('administradores')}>
+                            Gerenciar administradores
+                        </button>
                     </div>
 
                     <div className="admin-dashboard-stat-card">
                         <div className="admin-dashboard-stat-card-header">
                             <span className="admin-dashboard-stat-label">Mensagens não lidas</span>
-                            {messagesCount > 0 && <span className="admin-dashboard-stat-action">A confirmar</span>}
                         </div>
                         <div className="admin-dashboard-stat-body">
                             <strong className="admin-dashboard-stat-value">
-                                <span>{isLoading ? '...' : messagesCount}</span>
+                                <span>{isLoading ? '...' : unreadMessagesCount}</span>
                             </strong>
-                            <small>Dados não disponíveis para atualização em tempo real.</small>
+                            <small>{messages.length} recebidas · {readMessagesCount} lidas</small>
                         </div>
+                        <button type="button" className="admin-dashboard-stat-shortcut" onClick={() => onSelectSection('mensagens')}>
+                            Abrir mensagens
+                        </button>
                     </div>
                 </div>
 
@@ -248,112 +194,160 @@ const AdminDashboard = ({ onSelectSection }: { onSelectSection: (section: AdminS
                     <div className="admin-dashboard-stat-card is-subtle">
                         <div className="admin-dashboard-stat-card-header">
                             <span className="admin-dashboard-stat-label">Feiras pendentes</span>
-                            {pendingEvents > 0 && <span className="admin-dashboard-stat-action is-warning">A confirmar</span>}
                         </div>
                         <div className="admin-dashboard-stat-body">
                             <strong>{pendingEvents}</strong>
                             <small>{pendingEvents > 0 ? 'Aguardando revisão' : 'Não há pendências'}</small>
                         </div>
+                        <button type="button" className="admin-dashboard-stat-shortcut" onClick={() => onSelectSection('eventos')}>
+                            Revisar agenda
+                        </button>
                     </div>
 
                     <div className="admin-dashboard-stat-card is-subtle">
                         <div className="admin-dashboard-stat-card-header">
                             <span className="admin-dashboard-stat-label">Feiras cadastradas</span>
-                            {totalEvents > 0 && <span className="admin-dashboard-stat-meta">Menor ênfase</span>}
                         </div>
                         <div className="admin-dashboard-stat-body">
                             <strong>{totalEvents}</strong>
                             <small>{totalEvents > 0 ? 'Ativas no sistema' : 'Nenhuma feira registrada'}</small>
                         </div>
+                        <button type="button" className="admin-dashboard-stat-shortcut" onClick={() => onSelectSection('eventos')}>
+                            Ver eventos
+                        </button>
                     </div>
                 </div>
 
-                <div className="admin-dashboard-calendar-panel">
-                    <div className="admin-dashboard-calendar-header">
-                        <div className="admin-dashboard-calendar-title-wrap">
-                            <h2>{new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(selectedMonth)}</h2>
-                            <span className="admin-dashboard-calendar-year">{selectedMonth.getFullYear()}</span>
-                            <button type="button" className="admin-dashboard-calendar-toggle" aria-label="Abrir seleção de mês">
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M7 10l5 5 5-5" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div className="admin-dashboard-month-nav" aria-label="Navegação do mês">
-                            <button type="button" onClick={() => moveMonth(-1)} aria-label="Mês anterior">‹</button>
-                            <button type="button" onClick={() => moveMonth(1)} aria-label="Próximo mês">›</button>
-                        </div>
-                    </div>
-
-                    <p className="admin-dashboard-calendar-summary">{monthEventsCount} eventos neste mês</p>
-
-                    <div className="admin-dashboard-calendar-grid" role="grid" aria-label="Calendário do mês">
-                        {WEEK_DAYS.map(day => (
-                            <span key={day} className="admin-dashboard-calendar-weekday" role="columnheader">
-                                {day}
-                            </span>
-                        ))}
-
-                        {monthDays.map(day => {
-                            const isCurrentMonth = day.getMonth() === selectedMonth.getMonth()
-                            const dateKey = formatDateKey(day)
-                            const hasEvent = eventDates.has(dateKey)
-
-                            return (
-                                <div
-                                    key={dateKey}
-                                    className={`admin-dashboard-day-cell${!isCurrentMonth ? ' is-muted' : ''}${hasEvent ? ' is-event' : ''}`}
+                <div className="admin-events admin-events-columns admin-dashboard-agenda">
+                    <section className="admin-events-calendar" aria-labelledby="dashboard-calendar-title">
+                        <header className="admin-events-calendar-header">
+                            <h2 id="dashboard-calendar-title">
+                                <span>{monthName}</span>
+                                <select
+                                    className="admin-events-calendar-year"
+                                    aria-label="Selecionar ano do calendário administrativo"
+                                    value={visibleMonth.getFullYear()}
+                                    onChange={event => {
+                                        setVisibleMonth(new Date(Number(event.target.value), visibleMonth.getMonth(), 1))
+                                        setSelectedCalendarDate(null)
+                                    }}
                                 >
-                                    <span>{day.getDate()}</span>
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
-
-                <div className="admin-dashboard-events-panel">
-                    <div className="admin-dashboard-section-header">
-                        <h2>Eventos Próximos</h2>
-                        <span>{normalizeText(monthLabel(selectedMonth))}</span>
-                    </div>
-
-                    {upcomingEvents.length === 0 ? (
-                        <p className="admin-dashboard-empty-state">Nenhum evento programado para os próximos dias.</p>
-                    ) : (
-                        <div className="admin-dashboard-event-list">
-                            {upcomingEvents.map(event => {
-                                const eventDate = new Date(`${normalizeDateOnly(event.date)}T12:00:00`)
-                                const dayNumber = String(eventDate.getDate()).padStart(2, '0')
-                                const monthLabelShort = new Intl.DateTimeFormat('pt-BR', { month: 'short' })
-                                    .format(eventDate)
-                                    .replace('.', '')
-                                    .toUpperCase()
-
+                                    {availableYears.map(availableYear => (
+                                        <option key={availableYear} value={availableYear}>{availableYear}</option>
+                                    ))}
+                                </select>
+                            </h2>
+                            <div className="admin-events-month-navigation">
+                                <button type="button" onClick={() => shiftMonth(-1)} aria-label="Mês anterior">
+                                    <Icon name="chevronLeft" />
+                                </button>
+                                <button type="button" onClick={() => shiftMonth(1)} aria-label="Próximo mês">
+                                    <Icon name="chevronRight" />
+                                </button>
+                            </div>
+                        </header>
+                        <div className="admin-events-calendar-grid" role="grid" aria-label={monthLabel}>
+                            {WEEKDAYS.map(day => <span className="admin-events-weekday" role="columnheader" key={day}>{day}</span>)}
+                            {calendarDays.map((cell, index) => {
+                                if (cell.outside || !cell.date) {
+                                    return <span className="admin-events-day is-outside" role="gridcell" key={`outside-${index}`}>{cell.day}</span>
+                                }
+                                const dateEvents = eventsByDate.get(cell.date) ?? []
+                                const hasEvents = dateEvents.length > 0
                                 return (
-                                    <div className="admin-dashboard-event-item" key={event.id}>
-                                        <div className="admin-dashboard-event-date" aria-label={`Data do evento ${event.title}`}>
-                                            <span className="admin-dashboard-event-date-number">{dayNumber}</span>
-                                            <small>{monthLabelShort}</small>
-                                        </div>
-
-                                        <div className="admin-dashboard-event-info">
-                                            <strong>{event.title}</strong>
-                                            <div className="admin-dashboard-event-meta">
-                                                <span>{formatEventStateLabel(event.state)}</span>
-                                                <small>{event.startAt ? formatTimeLabel(event.startAt) : formatShortDate(event.date)}</small>
-                                            </div>
-                                            <small>{event.localAddress}</small>
-                                        </div>
-
-                                        <span className={`admin-dashboard-event-badge ${event.state === 'PENDING' ? 'is-pending' : 'is-confirmed'}`}>
-                                            {event.state === 'PENDING' ? 'Confirmado' : 'Em breve'}
-                                        </span>
+                                    <div className="admin-events-day" role="gridcell" key={cell.date}>
+                                        <button
+                                            type="button"
+                                            className={`admin-events-day-button${hasEvents ? ' has-events' : ''}${selectedCalendarDate === cell.date ? ' is-selected' : ''}`}
+                                            aria-pressed={selectedCalendarDate === cell.date}
+                                            aria-label={`${cell.day}${hasEvents ? ', contém eventos' : ''}`}
+                                            title={hasEvents ? dateEvents.map(event => event.title).join(', ') : undefined}
+                                            onClick={() => setSelectedCalendarDate(selectedCalendarDate === cell.date ? null : cell.date)}
+                                        >
+                                            <span>{cell.day}</span>
+                                            {hasEvents && <span className="admin-events-day-indicator" aria-hidden="true" />}
+                                        </button>
                                     </div>
                                 )
                             })}
                         </div>
-                    )}
+                    </section>
+
+                    <section className="admin-events-agenda admin-dashboard-agenda-list" aria-labelledby="dashboard-agenda-title">
+                        <header className="admin-dashboard-agenda-header">
+                            <h2 id="dashboard-agenda-title">
+                                {selectedCalendarDate ? formatEventDate(selectedCalendarDate) : 'Agenda do Mês'}
+                            </h2>
+                            {selectedCalendarDate && (
+                                <button
+                                    type="button"
+                                    className="admin-events-create admin-dashboard-create-event-button"
+                                    onClick={() => onCreateEventAtDate(selectedCalendarDate)}
+                                >
+                                    <Icon name="plus" />
+                                    Criar evento nesta data
+                                </button>
+                            )}
+                        </header>
+                        {isLoading ? (
+                            <p className="admin-events-empty" role="status">Carregando eventos...</p>
+                        ) : agendaEvents.length ? (
+                            <ul className="admin-events-list">
+                                {agendaEvents.map(event => (
+                                    <li className="admin-event-card" key={event.id}>
+                                            <h3>{event.title}</h3>
+                                            {event.description && <p className="admin-event-description">{event.description}</p>}
+                                        <p className="admin-event-detail">
+                                            <Icon name="calendar" />
+                                            <span>{formatEventDate(event.date)}</span>
+                                        </p>
+                                        <p className="admin-event-detail">
+                                            <Icon name="clock" />
+                                            <span>{event.startAt.slice(0, 5)} - {event.endAt.slice(0, 5)}</span>
+                                        </p>
+                                        <p className="admin-event-detail">
+                                            <Icon name="location" />
+                                            <span>{event.localAddress}</span>
+                                        </p>
+                                        <div className="admin-event-actions">
+                                            <a
+                                                className="admin-event-action is-view"
+                                                href={`#/evento/${encodeURIComponent(event.id)}`}
+                                                aria-label={`Ver evento ${event.title}`}
+                                            >
+                                                <Icon name="eye" />
+                                                Ver Evento
+                                            </a>
+                                            <button
+                                                type="button"
+                                                className="admin-event-action is-edit"
+                                                aria-label={`Editar ${event.title}`}
+                                                onClick={() => onEditEvent(event.id)}
+                                            >
+                                                <Icon name="edit" />
+                                                Editar
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="admin-event-action is-delete"
+                                                aria-label={`Excluir ${event.title}`}
+                                                onClick={() => onDeleteEvent(event.id)}
+                                            >
+                                                <Icon name="trash" />
+                                                Excluir
+                                            </button>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="admin-events-empty">
+                                {selectedCalendarDate
+                                    ? 'Nenhum evento marcado para este dia.'
+                                    : 'Não há eventos programados para este mês.'}
+                            </p>
+                        )}
+                    </section>
                 </div>
             </div>
         </section>

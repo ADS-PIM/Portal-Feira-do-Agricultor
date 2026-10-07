@@ -1,4 +1,5 @@
 import type { AgendaEvent } from '../../services/eventService'
+import Icon from '../Icon'
 import './CalendarEventsPanel.css'
 
 type CalendarEventsPanelProps = {
@@ -55,28 +56,20 @@ function CalendarEventCard({ event, isTodayEvent = false }: { event: AgendaEvent
                 <div className="calendar-event-card-content">
                     <h3>{event.title}</h3>
                     <p className="calendar-event-detail">
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="12" r="9" />
-                            <path d="M12 7v5l3 2" />
-                        </svg>
+                        <Icon name="clock" />
                         <span>{weekday}, {formatTime(event.startAt)} às {formatTime(event.endAt)}</span>
                     </p>
                 </div>
             </div>
             <div className="calendar-event-footer">
                 <p className="calendar-event-detail calendar-event-location">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-                        <circle cx="12" cy="10" r="2.5" />
-                    </svg>
+                    <Icon name="location" />
                     <span>{event.localAddress}</span>
                 </p>
-                <button className="calendar-event-details-button" type="button">
+                <a className="calendar-event-details-button" href={`#/evento/${encodeURIComponent(event.id)}`}>
                     <span>Ver detalhes</span>
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M5 12h14M13 6l6 6-6 6" />
-                    </svg>
-                </button>
+                    <Icon name="arrowRight" />
+                </a>
             </div>
         </li>
     )
@@ -127,10 +120,7 @@ function CalendarEventsPanel({
 
             <div className="calendar-events-toolbar">
                 <label className="calendar-events-search">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <circle cx="10.8" cy="10.8" r="6.8" />
-                        <path d="m16 16 4.5 4.5" />
-                    </svg>
+                    <Icon name="magnifyingGlass" />
                     <input
                         type="search"
                         placeholder="Buscar por título do evento"
@@ -146,9 +136,7 @@ function CalendarEventsPanel({
                     aria-controls="calendar-events-filters"
                     onClick={onToggleFilters}
                 >
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M4 7h16M7 12h10m-7 5h4" />
-                    </svg>
+                    <Icon name="sliders" />
                     Filtros
                     {activeFilterCount > 0 && <span className="calendar-events-filter-count">{activeFilterCount}</span>}
                 </button>

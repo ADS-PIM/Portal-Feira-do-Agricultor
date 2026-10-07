@@ -28,7 +28,7 @@ eventImageRoutes
 
 eventImageRoutes
     .route('/:eventId')
-    .get(authToken, async (req, res) => eventImageController.searchByEventId(req, res));
+    .get(async (req, res) => eventImageController.searchByEventId(req, res));
 
 eventImageRoutes
     .route('/create')

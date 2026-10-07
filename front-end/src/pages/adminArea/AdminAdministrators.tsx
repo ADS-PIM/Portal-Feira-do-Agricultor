@@ -1,4 +1,5 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import Icon from '../../components/Icon'
 import { createAdmin, deleteAdmin, getAdmins, updateAdmin, type AdminRecord } from '../../services/adminService'
 import { getAdminId } from '../../services/authToken'
 import './AdminAdministrators.css'
@@ -42,22 +43,11 @@ const getRoleLabel = (role: string) => (
 )
 
 function EditIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 20.5h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17.5l-1 3Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="m13.5 6.5 4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-        </svg>
-    )
+    return <Icon name="edit" />
 }
 
 function DeleteIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 7h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-            <path d="M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-    )
+    return <Icon name="trash" />
 }
 
 const AdminAdministrators = () => {
@@ -194,7 +184,9 @@ const AdminAdministrators = () => {
             <div className="admin-managers-workspace">
                 <div className="admin-managers-breadcrumb">
                     <span>Administradores</span>
-                    <span className="admin-managers-breadcrumb-separator">›</span>
+                    <span className="admin-managers-breadcrumb-separator" aria-hidden="true">
+                        <Icon name="chevronRight" />
+                    </span>
                     <strong>Lista de Gestores</strong>
                 </div>
 

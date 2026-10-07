@@ -13,7 +13,7 @@
     border-bottom: 1px solid #e2eee4;
     background: var(--brand-white);
     color: var(--brand-charcoal);
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Now", sans-serif;
     transform: translateY(0);
     transition: transform 180ms ease;
 }

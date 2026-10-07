@@ -1,7 +1,7 @@
 .contact-page {
     background: #f3faf4;
     color: var(--brand-charcoal);
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: "Now", sans-serif;
 }
 
 .contact-page-shell {
@@ -205,6 +205,36 @@
     border-radius: 16px;
     background: rgba(203, 89, 67, 0.08);
     color: #a5442d;
+}
+
+.contact-side-hours {
+    padding: 18px 16px;
+    border: 1px solid #dfe6dc;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--brand-green-dark);
+}
+
+.contact-side-hours h2 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+}
+
+.contact-side-hours ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.contact-side-hours li,
+.contact-side-hours p {
+    margin: 0;
+    color: #4f5c56;
+    font-size: 0.85rem;
+    line-height: 1.5;
 }
 
 .contact-form-feedback {

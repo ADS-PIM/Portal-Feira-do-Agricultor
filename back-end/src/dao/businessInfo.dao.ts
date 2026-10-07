@@ -2,9 +2,9 @@ import { connection } from '../util/connection';
 import { BusinessInfo } from '../model/businessInfo';
 
 export type BusinessInfoUpdateData = {
-    instagramAccount?: string;
-    whatsappNumber?: string;
-    businessEmail?: string;
+    instagramAccount?: string | null;
+    whatsappNumber?: string | null;
+    businessEmail?: string | null;
     businessHours?: string;
     description?: string | null;
 };
