@@ -1,0 +1,294 @@
+.admin-business-info-page {
+    min-width: 0;
+    color: #30332e;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.admin-business-info-header {
+    padding: 15px 30px 13px;
+    border-bottom: 1px solid #e5e1dc;
+    background: #fff;
+}
+
+.admin-business-info-header h1 {
+    margin: 0;
+    color: #2a2c2a;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.admin-business-info-header p {
+    margin: 4px 0 0;
+    color: #77736f;
+    font-size: 13px;
+}
+
+.admin-business-info-workspace {
+    padding: 30px;
+}
+
+.admin-business-info-card {
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid #e2ded9;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: none;
+}
+
+.admin-business-info-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    padding: 18px 20px 16px;
+    box-sizing: border-box;
+}
+
+.admin-business-info-sectionTitle {
+    margin: 0 0 2px;
+    color: #272822;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.admin-business-info-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+    max-width: 100%;
+    color: #423f3b;
+    font-size: 12px;
+    font-weight: 700;
+    box-sizing: border-box;
+}
+
+.admin-business-info-field textarea,
+.admin-business-info-field input,
+.admin-business-info-row input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #dedbd7;
+    border-radius: 9px;
+    background: #f3f1ed;
+    color: #30332e;
+    font: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-business-info-field textarea,
+.admin-business-info-field input {
+    padding: 10px 12px;
+    font-size: 13px;
+}
+
+.admin-business-info-field textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.admin-business-info-field:focus-within input,
+.admin-business-info-field:focus-within textarea,
+.admin-business-info-row:focus-within input {
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgba(10, 145, 52, 0.12);
+    outline: none;
+}
+
+.admin-business-info-summary {
+    margin-top: 4px;
+}
+
+.admin-business-info-subtitle {
+    margin-top: 4px;
+    margin-bottom: 2px;
+    color: #2b2d2a;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.admin-business-info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-business-info-row {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 40px;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    min-height: 42px;
+    padding: 8px 10px 8px 8px;
+    border: 1px solid #dedbd7;
+    border-radius: 9px;
+    background: #f3f1ed;
+    box-sizing: border-box;
+}
+
+.admin-business-info-iconWrap {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: transparent;
+    color: #4a5049;
+}
+
+.admin-business-info-iconWrap svg {
+    width: 18px;
+    height: 18px;
+}
+
+.admin-business-info-row input {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    padding: 0 2px;
+    font-size: 13px;
+    color: #30332e;
+}
+
+.admin-business-info-toggle {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border: 1px solid #c8cec6;
+    border-radius: 999px;
+    background: #dfe3dc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.admin-business-info-toggle span {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #f9f9f7;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+    transition: transform 0.2s ease;
+}
+
+.admin-business-info-toggle.is-enabled {
+    border-color: rgba(10, 145, 52, 0.35);
+    background: rgba(10, 145, 52, 0.18);
+}
+
+.admin-business-info-toggle.is-enabled span {
+    transform: translateX(16px);
+    background: var(--brand-green);
+}
+
+.admin-business-info-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #e6e2dd;
+}
+
+.admin-business-info-updateStamp {
+    color: #79716a;
+    font-size: 11px;
+}
+
+.admin-business-info-buttons {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.admin-business-info-button {
+    border: 1px solid transparent;
+    border-radius: 9px;
+    padding: 9px 18px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.admin-business-info-button:hover {
+    transform: translateY(-1px);
+}
+
+.admin-business-info-button:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.admin-business-info-button.is-secondary {
+    border-color: #d4d3ce;
+    background: #f8f8f5;
+    color: #2b2d2a;
+}
+
+.admin-business-info-button.is-primary {
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
+    color: #fff;
+}
+
+.admin-business-info-alert {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.admin-business-info-alert.is-error {
+    border: 1px solid rgba(226, 43, 43, 0.15);
+    background: rgba(255, 245, 245, 0.8);
+    color: #b42318;
+}
+
+.admin-business-info-alert.is-success {
+    border: 1px solid rgba(10, 145, 52, 0.18);
+    background: rgba(233, 247, 237, 0.85);
+    color: var(--brand-green-dark);
+}
+
+.admin-business-info-loading {
+    padding: 36px 18px;
+    color: var(--brand-green-dark);
+    font-weight: 700;
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .admin-business-info-page {
+        padding: 18px 16px 0;
+    }
+
+    .admin-business-info-form {
+        padding: 14px 14px 18px;
+    }
+
+    .admin-business-info-actions {
+        align-items: flex-start;
+    }
+
+    .admin-business-info-buttons {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .admin-business-info-button {
+        flex: 1;
+    }
+}

@@ -16,6 +16,10 @@ export class BusinessInfoCreateDTO {
     @IsNotEmpty()
     @IsString()
     businessHours: string
+
+    @IsOptional()
+    @IsString()
+    description?: string
 }
 
 export class BusinessInfoUpdateDTO {
@@ -35,4 +39,7 @@ export class BusinessInfoUpdateDTO {
     @IsString()
     businessHours?: string
 
+    @IsOptional()
+    @IsString()
+    description?: string
 }

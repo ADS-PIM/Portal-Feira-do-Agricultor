@@ -15,7 +15,7 @@ export class BusinessInfoController {
             const errors = await validate(businessInfoCreateDTO);
 
             if (errors.length > 0) {
-                return res.status(400).json
+                return res.status(400).json({ errors });
             }
 
             await this.businessInfoService.register(businessInfoCreateDTO);
@@ -39,6 +39,7 @@ export class BusinessInfoController {
                     whatsappNumber: businessInfo.whatsappNumber,
                     businessEmail: businessInfo.businessEmail,
                     businessHours: businessInfo.businessHours,
+                    description: businessInfo.description,
                     updatedAt: businessInfo.updatedAt,
                 },
             });
@@ -58,7 +59,7 @@ export class BusinessInfoController {
             await this.businessInfoService.update(businessInfoUpdateDTO);
             return res.status(200).json({ message: 'Business info updated successfully' })
         } catch (error: any) {
-            if (error.message.includes === 'Business info not found') {
+            if (error.message.includes('Business info not found')) {
                 return res.status(404).json({ error: error.message });
             }
             return res.status(500).json({ error: error.message });

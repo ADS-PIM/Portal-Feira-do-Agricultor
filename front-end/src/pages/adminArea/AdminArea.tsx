@@ -6,6 +6,10 @@ import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import { restoreAdminProfile } from '../../services/api'
 import { getUserFacingError } from '../../services/errors'
+import AdminBusinessInfo from './AdminBusinessInfo'
+import AdminDashboard from './AdminDashboard'
+import AdminEvents from './AdminEvents'
+import AdminAdministrators from './AdminAdministrators'
 import './AdminArea.css'
 
 const AdminArea = () => {
@@ -62,13 +66,22 @@ const AdminArea = () => {
                 <main className="admin-area">
                     <AdminSideNav activeItem={activeSection} onSelect={setActiveSection} />
                     <section className="admin-area-content" aria-label="Conteúdo administrativo">
-                        {activeSection === 'eventos' ? (
+                        {activeSection === 'dashboard' ? (
+                            <AdminDashboard onSelectSection={setActiveSection} />
+                        ) : activeSection === 'eventos' ? (
                             <AdminEvents />
                         ) : activeSection === 'mensagens' ? (
                             <AdminUsersMessages />
                         ) : (
                             <div className="admin-area-placeholder">
                                 {activeSection === 'dashboard' ? 'Painel Geral' : activeSection === 'informacoes' ? 'Informações da Feira' : 'Administradores'}
+                        ) : activeSection === 'informacoes' ? (
+                            <AdminBusinessInfo />
+                        ) : activeSection === 'administradores' ? (
+                            <AdminAdministrators />
+                        ) : (
+                            <div className="admin-area-placeholder">
+                                Mensagens de usuários
                             </div>
                         )}
                     </section>

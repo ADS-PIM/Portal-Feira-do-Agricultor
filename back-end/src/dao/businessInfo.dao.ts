@@ -6,17 +6,19 @@ export type BusinessInfoUpdateData = {
     whatsappNumber?: string;
     businessEmail?: string;
     businessHours?: string;
+    description?: string | null;
 };
 
 export class BusinessInfoDAO {
     public async register(businessInfo: BusinessInfo): Promise<void> {
         try {
-            await connection.query('INSERT INTO businessInfo (id, instagramAccount, whatsappNumber, businessEmail, businessHours, updatedAt) VALUES (?, ?, ?, ?, ?, ?)', [
+            await connection.query('INSERT INTO businessInfo (id, instagramAccount, whatsappNumber, businessEmail, businessHours, description, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)', [
                 businessInfo.id,
                 businessInfo.instagramAccount,
                 businessInfo.whatsappNumber,
                 businessInfo.businessEmail,
                 businessInfo.businessHours,
+                businessInfo.description,
                 businessInfo.updatedAt
             ]);
         } catch (error: any) {
@@ -39,7 +41,7 @@ export class BusinessInfoDAO {
     public async searchFirst(): Promise<BusinessInfo | null> {
         try {
             const [businessInfo]: any = await connection.query(
-                'SELECT id, instagramAccount, whatsappNumber, businessEmail, businessHours, updatedAt FROM businessInfo LIMIT 1'
+                'SELECT id, instagramAccount, whatsappNumber, businessEmail, businessHours, description, updatedAt FROM businessInfo LIMIT 1'
             );
             
             if (!businessInfo || businessInfo.length === 0) {
@@ -71,6 +73,10 @@ export class BusinessInfoDAO {
 
         if (data.businessHours !== undefined) {
             fields.push('businessHours = ?'); values.push(data.businessHours)
+        };
+
+        if (data.description !== undefined) {
+            fields.push('description = ?'); values.push(data.description)
         };
 
         if (fields.length === 0) {
