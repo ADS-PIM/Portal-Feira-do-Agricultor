@@ -10,6 +10,7 @@ import {
     type AdminEventInput,
 } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
+import { matchesEventTimeRange } from './eventTimeFilter'
 import './AdminEvents.css'
 
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
@@ -367,10 +368,7 @@ const AdminEvents = ({
                 const matchesStatus = !statusFilter || event.state === statusFilter
                 const eventWeekday = new Date(`${getDateKey(event.date)}T12:00:00`).getDay().toString()
                 const matchesWeekday = !weekdayFilter || eventWeekday === weekdayFilter
-                const startsAt = event.startAt.slice(0, 5)
-                const endsAt = event.endAt.slice(0, 5)
-                const matchesTime = (!timeFromFilter || endsAt >= timeFromFilter)
-                    && (!timeToFilter || startsAt <= timeToFilter)
+                const matchesTime = matchesEventTimeRange(event, timeFromFilter, timeToFilter)
                 return matchesSearch && matchesYear && matchesStatus && matchesWeekday && matchesTime
             })
             .sort((first, second) => {
