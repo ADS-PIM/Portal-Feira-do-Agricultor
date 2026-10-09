@@ -103,10 +103,62 @@
     height: 17px;
 }
 
-.admin-area-checking .admin-dashboard-stat-card {
+.admin-area-skeleton-intro {
+    display: grid;
+    gap: 10px;
+    width: min(100%, 390px);
+    padding: 6px 0 2px;
+}
+
+.admin-area-checking .is-eyebrow { width: 85px; height: 10px; }
+.admin-area-checking .is-overview-title { width: 80%; height: 32px; }
+.admin-area-checking .is-overview-description { width: 100%; height: 19px; }
+.admin-area-checking .is-create-button { width: 136px; height: 42px; flex-shrink: 0; border-radius: 10px; }
+.admin-area-checking .is-metric-icon { width: 36px; height: 36px; flex-shrink: 0; border-radius: 11px; }
+
+.admin-area-checking .dashboard-metric {
     box-sizing: border-box;
-    min-height: 144px;
-    gap: 9px;
+    min-height: 202px;
+}
+
+.admin-area-skeleton-card-footer,
+.admin-area-skeleton-legend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.admin-area-skeleton-card-footer {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #eef1ed;
+}
+
+.admin-area-checking .is-action-icon { width: 12px; height: 12px; flex-shrink: 0; }
+
+.admin-area-skeleton-insight {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-sizing: border-box;
+    min-height: 238px;
+}
+
+.admin-area-checking .is-panel-title { width: 55%; height: 18px; }
+.admin-area-checking .is-date-tile { width: 62px; height: 68px; flex: 0 0 62px; border-radius: 12px; }
+.admin-area-checking .is-status-bar { height: 9px; margin: 3px 0 6px; }
+.admin-area-checking .is-quality-row { height: 45px; border-radius: 9px; }
+
+.admin-area-skeleton-event-info {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    gap: 10px;
+}
+
+.admin-area-checking .dashboard-next-event .admin-area-skeleton-block {
+    background-image: linear-gradient(100deg, #4e745b 25%, #64876f 45%, #4e745b 65%);
 }
 
 .admin-area-checking .is-card-label {
@@ -116,7 +168,8 @@
 
 .admin-area-checking .is-card-value {
     width: 62px;
-    height: 25px;
+    height: 43px;
+    margin-top: 12px;
 }
 
 .admin-area-checking .is-card-detail {
@@ -124,8 +177,13 @@
     height: 10px;
 }
 
+.admin-area-checking .dashboard-metric > .is-card-detail {
+    height: 17px;
+    margin: 7px 0 18px;
+}
+
 .admin-area-checking .is-card-action {
-    width: 150px;
+    width: min(150px, 75%);
     height: 11px;
     margin-top: auto;
 }
@@ -157,10 +215,12 @@
     height: 10px;
     min-height: 10px;
     border-radius: 6px;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 .admin-area-checking .admin-dashboard-agenda-header {
-    min-height: 33px;
+    min-height: 19px;
 }
 
 .admin-area-checking .is-agenda-heading {
@@ -171,19 +231,19 @@
 .admin-area-skeleton-agenda-list {
     display: grid;
     max-height: 620px;
-    gap: 14px;
+    gap: 18px;
     overflow: hidden;
 }
 
 .admin-area-skeleton-agenda-card {
-    display: grid;
-    min-height: 168px;
-    align-content: start;
-    gap: 10px;
-    padding: 12px;
-    border: 1px solid #e2ded9;
-    border-radius: 12px;
-    background: #fff;
+    box-sizing: border-box;
+    min-height: 246px;
+    gap: 14px;
+}
+
+.admin-area-checking .is-agenda-action {
+    width: 74px;
+    height: 36px;
 }
 
 .admin-area-checking .is-agenda-meta {
@@ -203,6 +263,11 @@
 
 .admin-area-checking .is-agenda-detail.is-short {
     width: 55%;
+}
+
+@media (max-width: 680px) {
+    .admin-area-checking .is-create-button { width: 100%; }
+    .admin-area-checking .is-calendar-cell { width: 32px; }
 }
 
 @keyframes admin-area-skeleton-shimmer {

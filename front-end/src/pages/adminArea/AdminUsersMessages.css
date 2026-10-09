@@ -260,7 +260,24 @@
 }
 
 .admin-user-message-status svg { width: 11px; height: 11px; }
-.admin-user-message-row-actions svg { width: 13px; height: 13px; }
+.admin-user-message-row-actions button {
+    height: 36px;
+    line-height: 1;
+}
+
+.admin-user-message-row-actions button > svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+}
+
+.admin-user-message-row-actions button > span {
+    display: block;
+    line-height: 1;
+    /* Compensa o centro visual dos caracteres da fonte Now. */
+    transform: translateY(1px);
+}
 
 .admin-user-message-status.is-unread {
     background: #e8f5eb;

@@ -380,7 +380,8 @@ function AdminUsersMessages() {
                                                 <td className="admin-user-message-actions-cell">
                                                     <div className="admin-user-message-row-actions">
                                                         <button type="button" className="is-primary" onClick={() => void openMessage(message)} aria-label={`Abrir mensagem: ${displayValue(message.title)}`}>
-                                                            <Icon name="eye" /> Abrir
+                                                            <Icon name="eye" />
+                                                            <span>Abrir</span>
                                                         </button>
                                                         <button
                                                             type="button"
@@ -391,7 +392,8 @@ function AdminUsersMessages() {
                                                                 setPendingDeletion(message)
                                                             }}
                                                         >
-                                                            <Icon name="trash" /> Excluir
+                                                            <Icon name="trash" />
+                                                            <span>Excluir</span>
                                                         </button>
                                                     </div>
                                                 </td>

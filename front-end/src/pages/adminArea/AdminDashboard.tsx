@@ -170,8 +170,9 @@ const AdminDashboard = ({
                 <div className="admin-events admin-events-columns admin-dashboard-agenda">
                     <section className="admin-events-calendar" aria-labelledby="dashboard-calendar-title">
                         <header className="admin-events-calendar-header">
-                            <h2 id="dashboard-calendar-title">
-                                <span>{monthName}</span>
+                            <h2 id="dashboard-calendar-title" className="admin-dashboard-period">
+                                <span className="admin-dashboard-period-month">{monthName}</span>
+                                <span className="admin-dashboard-period-year">
                                 <select
                                     className="admin-events-calendar-year"
                                     aria-label="Selecionar ano do calendário administrativo"
@@ -185,6 +186,8 @@ const AdminDashboard = ({
                                         <option key={availableYear} value={availableYear}>{availableYear}</option>
                                     ))}
                                 </select>
+                                    <Icon name="chevronRight" />
+                                </span>
                             </h2>
                             <div className="admin-events-month-navigation">
                                 <button type="button" onClick={() => shiftMonth(-1)} aria-label="Mês anterior">

@@ -34,25 +34,65 @@ const AdminAccessSkeleton = () => (
                     <span className="admin-area-skeleton-block is-subtitle" />
                 </header>
                 <div className="admin-dashboard-workspace">
-                    <div className="admin-dashboard-summary">
-                        {Array.from({ length: 2 }, (_, index) => (
-                            <div className="admin-dashboard-stat-card" key={index}>
-                                <span className="admin-area-skeleton-block is-card-label" />
-                                <span className="admin-area-skeleton-block is-card-value" />
-                                <span className="admin-area-skeleton-block is-card-detail" />
-                                <span className="admin-area-skeleton-block is-card-action" />
+                    <div className="dashboard-overview">
+                        <div className="dashboard-overview-heading">
+                            <div className="admin-area-skeleton-intro">
+                                <span className="admin-area-skeleton-block is-eyebrow" />
+                                <span className="admin-area-skeleton-block is-overview-title" />
+                                <span className="admin-area-skeleton-block is-overview-description" />
                             </div>
-                        ))}
-                    </div>
-                    <div className="admin-dashboard-summary admin-dashboard-summary-secondary">
-                        {Array.from({ length: 2 }, (_, index) => (
-                            <div className="admin-dashboard-stat-card is-subtle" key={index}>
+                            <span className="admin-area-skeleton-block is-create-button" />
+                        </div>
+                        <div className="dashboard-metrics">
+                            {Array.from({ length: 4 }, (_, index) => (
+                                <div className="dashboard-metric" key={index}>
+                                    <div className="dashboard-metric-heading">
+                                        <span className="admin-area-skeleton-block is-card-label" />
+                                        <span className="admin-area-skeleton-block is-metric-icon" />
+                                    </div>
+                                    <span className="admin-area-skeleton-block is-card-value" />
+                                    <span className="admin-area-skeleton-block is-card-detail" />
+                                    <div className="admin-area-skeleton-card-footer">
+                                        <span className="admin-area-skeleton-block is-card-action" />
+                                        <span className="admin-area-skeleton-block is-action-icon" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="dashboard-insights">
+                            <article className="dashboard-next-event admin-area-skeleton-insight">
+                                <span className="admin-area-skeleton-block is-panel-title" />
+                                <div className="dashboard-next-main">
+                                    <span className="admin-area-skeleton-block is-date-tile" />
+                                    <div className="admin-area-skeleton-event-info">
+                                        <span className="admin-area-skeleton-block is-panel-title" />
+                                        <span className="admin-area-skeleton-block is-card-detail" />
+                                        <span className="admin-area-skeleton-block is-card-label" />
+                                    </div>
+                                </div>
                                 <span className="admin-area-skeleton-block is-card-label" />
-                                <span className="admin-area-skeleton-block is-card-value" />
-                                <span className="admin-area-skeleton-block is-card-detail" />
                                 <span className="admin-area-skeleton-block is-card-action" />
-                            </div>
-                        ))}
+                            </article>
+                            <article className="admin-area-skeleton-insight">
+                                <span className="admin-area-skeleton-block is-panel-title" />
+                                <span className="admin-area-skeleton-block is-status-bar" />
+                                <div className="dashboard-status-legend">
+                                    {Array.from({ length: 5 }, (_, index) => (
+                                        <div className="admin-area-skeleton-legend-row" key={index}>
+                                            <span className="admin-area-skeleton-block is-card-label" />
+                                            <span className="admin-area-skeleton-block is-action-icon" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </article>
+                            <article className="admin-area-skeleton-insight">
+                                <span className="admin-area-skeleton-block is-panel-title" />
+                                <span className="admin-area-skeleton-block is-card-detail" />
+                                <span className="admin-area-skeleton-block is-quality-row" />
+                                <span className="admin-area-skeleton-block is-quality-row" />
+                                <span className="admin-area-skeleton-block is-card-detail" />
+                            </article>
+                        </div>
                     </div>
                     <div className="admin-events admin-events-columns admin-dashboard-agenda">
                         <section className="admin-events-calendar">
@@ -72,11 +112,17 @@ const AdminAccessSkeleton = () => (
                             </header>
                             <div className="admin-area-skeleton-agenda-list">
                                 {Array.from({ length: 4 }, (_, index) => (
-                                    <div className="admin-area-skeleton-agenda-card" key={index}>
+                                    <div className="admin-event-card admin-area-skeleton-agenda-card" key={index}>
                                         <span className="admin-area-skeleton-block is-agenda-meta" />
                                         <span className="admin-area-skeleton-block is-agenda-title" />
                                         <span className="admin-area-skeleton-block is-agenda-detail" />
                                         <span className="admin-area-skeleton-block is-agenda-detail is-short" />
+                                        <span className="admin-area-skeleton-block is-agenda-detail is-short" />
+                                        <div className="admin-event-actions">
+                                            {Array.from({ length: 3 }, (_, actionIndex) => (
+                                                <span className="admin-area-skeleton-block is-agenda-action" key={actionIndex} />
+                                            ))}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
