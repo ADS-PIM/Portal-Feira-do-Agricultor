@@ -4,7 +4,7 @@
     padding: 96px 5.6% 94px;
     background: #fffdf8;
     color: #60645c;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Now", sans-serif;
 }
 
 .event-agenda *,
@@ -69,6 +69,35 @@
     border: 1px solid #e2eee4;
     border-radius: 21px;
     background: #fdfcf9;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.event-agenda-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--brand-green);
+    background: #fff;
+    box-shadow: 0 12px 26px rgb(8 117 43 / 12%);
+}
+
+.event-agenda-card:focus-visible {
+    outline: 3px solid var(--brand-orange);
+    outline-offset: 3px;
+}
+
+.event-agenda-card:hover .event-agenda-date {
+    background: var(--brand-green-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .event-agenda-card {
+        transition: none;
+    }
+
+    .event-agenda-card:hover {
+        transform: none;
+    }
 }
 
 .event-agenda-date {
@@ -130,7 +159,9 @@
 }
 
 .event-agenda-calendar-button {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: fit-content;
     max-width: 100%;
     min-height: 46px;

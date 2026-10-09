@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import Icon from '../../components/Icon'
 import {
     createAdminEvent,
     deleteAdminEvent,
@@ -11,7 +12,6 @@ import {
 import { getUserFacingError } from '../../services/errors'
 import './AdminEvents.css'
 
-const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
 const WEEKDAY_OPTIONS = [
     { value: '', label: 'Todos os dias' },
@@ -63,10 +63,6 @@ function getDateKey(value: string | Date): string {
     return value.slice(0, 10)
 }
 
-function getMonthKey(date: Date): string {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-}
-
 function formatDate(value: string): string {
     return new Intl.DateTimeFormat('pt-BR', {
         weekday: 'long',
@@ -74,48 +70,6 @@ function formatDate(value: string): string {
         month: 'long',
         year: 'numeric',
     }).format(new Date(`${getDateKey(value)}T12:00:00`))
-}
-
-function parseCreatedAt(value: string): { date: Date; sortKey: string; hasRecordedTime: boolean } | null {
-    const match = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?)?$/.exec(value.trim())
-    if (!match) return null
-
-    const [, year, month, day, hour = '00', minute = '00', second = '00', fraction = ''] = match
-    const date = new Date(0)
-    date.setUTCFullYear(Number(year), Number(month) - 1, Number(day))
-    date.setUTCHours(Number(hour), Number(minute), Number(second))
-    if (
-        date.getUTCFullYear() !== Number(year)
-        || date.getUTCMonth() !== Number(month) - 1
-        || date.getUTCDate() !== Number(day)
-        || date.getUTCHours() !== Number(hour)
-        || date.getUTCMinutes() !== Number(minute)
-        || date.getUTCSeconds() !== Number(second)
-    ) {
-        return null
-    }
-
-    const time = `${hour}:${minute}:${second}`
-    const sortKey = `${year}-${month}-${day}T${time}.${fraction.padEnd(6, '0').slice(0, 6)}`
-    const hasRecordedTime = match[4] !== undefined && time !== '00:00:00'
-    return { date, sortKey, hasRecordedTime }
-}
-
-function formatCreatedAt(value: string): string {
-    const parsed = parseCreatedAt(value)
-    if (!parsed) return 'Data de criação indisponível'
-
-    const dateLabel = new Intl.DateTimeFormat('pt-BR', {
-        dateStyle: 'medium',
-        timeZone: 'UTC',
-    }).format(parsed.date)
-    if (!parsed.hasRecordedTime) return `${dateLabel} (horário não registrado)`
-
-    return new Intl.DateTimeFormat('pt-BR', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-        timeZone: 'UTC',
-    }).format(parsed.date)
 }
 
 function toFormValues(event: AdminEvent): EventFormValues {
@@ -181,7 +135,9 @@ function AdminEventForm({
             <section className="admin-event-modal" role="dialog" aria-modal="true" aria-labelledby="admin-event-form-title">
                 <header className="admin-event-modal-header">
                     <h2 id="admin-event-form-title">Detalhes da Agenda</h2>
-                    <button type="button" className="admin-event-modal-close" onClick={onClose} aria-label="Fechar" disabled={isSaving}>×</button>
+                    <button type="button" className="admin-event-modal-close" onClick={onClose} aria-label="Fechar" disabled={isSaving}>
+                        <Icon name="close" />
+                    </button>
                 </header>
                 <form className="admin-event-form" onSubmit={submit}>
                     {error && <p className="admin-events-alert is-error" role="alert">{error}</p>}
@@ -283,7 +239,7 @@ function AdminEventForm({
                                             setFileError(null)
                                         }}
                                     >
-                                        ×
+                                        <Icon name="close" />
                                     </button>
                                 )}
                             </div>
@@ -322,31 +278,34 @@ function AdminEventForm({
     )
 }
 
-const AdminEvents = () => {
+const AdminEvents = ({
+    initialEventDate = null,
+    openCreateOnMount = false,
+    initialEventAction = null,
+}: {
+    initialEventDate?: string | null
+    openCreateOnMount?: boolean
+    initialEventAction?: { eventId: string; action: 'edit' | 'delete' } | null
+}) => {
     const [events, setEvents] = useState<AdminEvent[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [loadError, setLoadError] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [isFiltersOpen, setIsFiltersOpen] = useState(false)
     const [statusFilter, setStatusFilter] = useState<AdminEvent['state'] | ''>('')
+    const [yearFilter, setYearFilter] = useState('')
     const [weekdayFilter, setWeekdayFilter] = useState('')
     const [timeFromFilter, setTimeFromFilter] = useState('')
     const [timeToFilter, setTimeToFilter] = useState('')
-    const [visibleMonth, setVisibleMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
-    const [selectedDate, setSelectedDate] = useState<string | null>(null)
+    const [newEventDate, setNewEventDate] = useState(initialEventDate ?? '')
     const [editingEvent, setEditingEvent] = useState<AdminEvent | null>(null)
     const [eventPendingDeletion, setEventPendingDeletion] = useState<AdminEvent | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
-    const [isCreating, setIsCreating] = useState(false)
+    const [isCreating, setIsCreating] = useState(openCreateOnMount)
     const [isSaving, setIsSaving] = useState(false)
     const [formError, setFormError] = useState<string | null>(null)
     const [actionMessage, setActionMessage] = useState<string | null>(null)
-    const monthKey = getMonthKey(visibleMonth)
-    const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' })
-        .format(visibleMonth)
-        .replace(/^./, character => character.toLocaleUpperCase('pt-BR'))
-    const monthLabel = `${monthName} ${visibleMonth.getFullYear()}`
-    const availableYears = Array.from({ length: 101 }, (_, index) => visibleMonth.getFullYear() - 50 + index)
+    const handledInitialAction = useRef<string | null>(null)
 
     const loadEvents = useCallback((signal?: AbortSignal) => getAdminEvents(signal), [])
 
@@ -367,39 +326,44 @@ const AdminEvents = () => {
         return () => controller.abort()
     }, [loadEvents])
 
-    const eventsByDate = useMemo(() => {
-        const grouped = new Map<string, AdminEvent[]>()
-        events.forEach(event => {
-            const dateKey = getDateKey(event.date)
-            const dateEvents = grouped.get(dateKey) ?? []
-            dateEvents.push(event)
-            grouped.set(dateKey, dateEvents)
-        })
-        return grouped
-    }, [events])
+    useEffect(() => {
+        if (!initialEventAction || isLoading) return
 
-    const calendarDays = useMemo(() => {
-        const firstWeekday = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1).getDay()
-        const daysInMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 0).getDate()
-        const previousMonthDays = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 0).getDate()
+        const requestKey = `${initialEventAction.action}:${initialEventAction.eventId}`
+        if (handledInitialAction.current === requestKey) return
+        handledInitialAction.current = requestKey
 
-        return Array.from({ length: 42 }, (_, index) => {
-            const day = index - firstWeekday + 1
-            if (day < 1) return { day: previousMonthDays + day, date: null as string | null, outside: true }
-            if (day > daysInMonth) return { day: day - daysInMonth, date: null as string | null, outside: true }
-            const date = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), day)
-            return { day, date: getDateKey(date), outside: false }
-        })
-    }, [visibleMonth])
+        const requestedEvent = events.find(event => event.id === initialEventAction.eventId)
+        if (!requestedEvent) {
+            setLoadError('O evento selecionado não foi encontrado na agenda.')
+            return
+        }
+
+        setActionMessage(null)
+        if (initialEventAction.action === 'edit') {
+            setIsCreating(false)
+            setNewEventDate('')
+            setFormError(null)
+            setEditingEvent(requestedEvent)
+        } else {
+            setEventPendingDeletion(requestedEvent)
+        }
+    }, [events, initialEventAction, isLoading])
+
+    const availableYears = useMemo(
+        () => [...new Set(events.map(event => getDateKey(event.date).slice(0, 4)))]
+            .sort((first, second) => second.localeCompare(first)),
+        [events],
+    )
 
     const filteredEvents = useMemo(() => {
         const query = searchTerm.trim().toLocaleLowerCase('pt-BR')
+        const now = new Date()
+        const currentDateTime = `${getDateKey(now)}T${now.toTimeString().slice(0, 5)}`
         return events
             .filter(event => {
                 const matchesSearch = !query || event.title.toLocaleLowerCase('pt-BR').includes(query)
-                const matchesDate = query || selectedDate
-                    ? !selectedDate || getDateKey(event.date) === selectedDate
-                    : getDateKey(event.date).startsWith(monthKey)
+                const matchesYear = !yearFilter || getDateKey(event.date).startsWith(yearFilter)
                 const matchesStatus = !statusFilter || event.state === statusFilter
                 const eventWeekday = new Date(`${getDateKey(event.date)}T12:00:00`).getDay().toString()
                 const matchesWeekday = !weekdayFilter || eventWeekday === weekdayFilter
@@ -407,33 +371,25 @@ const AdminEvents = () => {
                 const endsAt = event.endAt.slice(0, 5)
                 const matchesTime = (!timeFromFilter || endsAt >= timeFromFilter)
                     && (!timeToFilter || startsAt <= timeToFilter)
-                return matchesSearch && matchesDate && matchesStatus && matchesWeekday && matchesTime
+                return matchesSearch && matchesYear && matchesStatus && matchesWeekday && matchesTime
             })
             .sort((first, second) => {
-                const firstDate = `${getDateKey(first.date)}T${first.startAt}`
-                const secondDate = `${getDateKey(second.date)}T${second.startAt}`
-                return firstDate.localeCompare(secondDate)
+                const firstDate = `${getDateKey(first.date)}T${first.startAt.slice(0, 5)}`
+                const secondDate = `${getDateKey(second.date)}T${second.startAt.slice(0, 5)}`
+                const firstUpcoming = firstDate >= currentDateTime
+                const secondUpcoming = secondDate >= currentDateTime
+                if (firstUpcoming !== secondUpcoming) return firstUpcoming ? -1 : 1
+                return firstUpcoming
+                    ? firstDate.localeCompare(secondDate)
+                    : secondDate.localeCompare(firstDate)
             })
-    }, [events, monthKey, searchTerm, selectedDate, statusFilter, timeFromFilter, timeToFilter, weekdayFilter])
-    const latestCreatedEvent = useMemo(
-        () => events.reduce<AdminEvent | null>((latest, event) => {
-            if (!latest) return event
-            const eventCreatedAt = parseCreatedAt(event.createdAt)?.sortKey
-            const latestCreatedAt = parseCreatedAt(latest.createdAt)?.sortKey
-            if (!eventCreatedAt) {
-                return !latestCreatedAt && event.id.localeCompare(latest.id) > 0 ? event : latest
-            }
-            if (!latestCreatedAt) return event
-            if (eventCreatedAt !== latestCreatedAt) return eventCreatedAt > latestCreatedAt ? event : latest
-            return event.id.localeCompare(latest.id) > 0 ? event : latest
-        }, null),
-        [events],
-    )
+    }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter])
 
-    const activeFilterCount = [statusFilter, weekdayFilter, timeFromFilter, timeToFilter].filter(Boolean).length
+    const activeFilterCount = [statusFilter, yearFilter, weekdayFilter, timeFromFilter, timeToFilter].filter(Boolean).length
 
     const clearFilters = () => {
         setStatusFilter('')
+        setYearFilter('')
         setWeekdayFilter('')
         setTimeFromFilter('')
         setTimeToFilter('')
@@ -442,6 +398,7 @@ const AdminEvents = () => {
     const closeForm = () => {
         if (isSaving) return
         setIsCreating(false)
+        setNewEventDate('')
         setEditingEvent(null)
         setFormError(null)
     }
@@ -469,6 +426,7 @@ const AdminEvents = () => {
                 setActionMessage('Evento criado com sucesso.')
             }
             setIsCreating(false)
+            setNewEventDate('')
             setEditingEvent(null)
             setIsLoading(true)
             setLoadError(null)
@@ -503,34 +461,23 @@ const AdminEvents = () => {
         }
     }
 
-    const shiftMonth = (offset: number) => {
-        setVisibleMonth(current => new Date(current.getFullYear(), current.getMonth() + offset, 1))
-        setSelectedDate(null)
-    }
-
     return (
         <div className="admin-events">
             <header className="admin-events-heading">
-                <h1>Calendário e Eventos</h1>
-                <p>Organize e promova os encontros dos produtores e feiras agendadas</p>
+                <h1>Eventos</h1>
+                <p>Gerencie os eventos cadastrados e suas informações</p>
             </header>
 
             <section className="admin-events-workspace" aria-label="Gerenciamento de eventos">
                 <div className="admin-events-toolbar">
                     <div className="admin-events-search-controls">
                         <label className="admin-events-search">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <circle cx="10.8" cy="10.8" r="6.8" />
-                                <path d="m16 16 4.5 4.5" />
-                            </svg>
+                            <Icon name="magnifyingGlass" />
                             <input
                                 type="search"
                                 placeholder="Buscar por título do evento"
                                 value={searchTerm}
-                                onChange={event => {
-                                    setSearchTerm(event.target.value)
-                                    setSelectedDate(null)
-                                }}
+                                onChange={event => setSearchTerm(event.target.value)}
                                 aria-label="Buscar eventos pelo título"
                             />
                         </label>
@@ -541,9 +488,7 @@ const AdminEvents = () => {
                             aria-controls="admin-events-filters"
                             onClick={() => setIsFiltersOpen(open => !open)}
                         >
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M4 7h16M7 12h10m-7 5h4" />
-                            </svg>
+                            <Icon name="sliders" />
                             Filtros
                             {activeFilterCount > 0 && <span className="admin-events-filter-count">{activeFilterCount}</span>}
                         </button>
@@ -555,16 +500,24 @@ const AdminEvents = () => {
                             setActionMessage(null)
                             setFormError(null)
                             setEditingEvent(null)
+                            setNewEventDate(initialEventDate ?? '')
                             setIsCreating(true)
                         }}
                     >
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                        <Icon name="plus" />
                         Criar Evento
                     </button>
                 </div>
 
                 {isFiltersOpen && (
                     <section className="admin-events-filters" id="admin-events-filters" aria-label="Filtros de eventos">
+                        <label>
+                            Ano
+                            <select value={yearFilter} onChange={event => setYearFilter(event.target.value)}>
+                                <option value="">Ver todos</option>
+                                {availableYears.map(year => <option key={year} value={year}>{year}</option>)}
+                            </select>
+                        </label>
                         <label>
                             Status
                             <select value={statusFilter} onChange={event => setStatusFilter(event.target.value as AdminEvent['state'] | '')}>
@@ -595,193 +548,75 @@ const AdminEvents = () => {
                 {actionMessage && <p className="admin-events-alert is-success" role="status">{actionMessage}</p>}
                 {loadError && <p className="admin-events-alert is-error" role="alert">{loadError}</p>}
 
-                <div className="admin-events-columns">
-                    <section className="admin-events-calendar" aria-labelledby="admin-calendar-title">
-                        <header className="admin-events-calendar-header">
-                            <h2 id="admin-calendar-title">
-                                <span>{monthName}</span>
-                                <select
-                                    className="admin-events-calendar-year"
-                                    aria-label="Selecionar ano do calendário administrativo"
-                                    value={visibleMonth.getFullYear()}
-                                    onChange={event => {
-                                        setVisibleMonth(new Date(Number(event.target.value), visibleMonth.getMonth(), 1))
-                                        setSelectedDate(null)
-                                    }}
-                                >
-                                    {availableYears.map(availableYear => (
-                                        <option key={availableYear} value={availableYear}>{availableYear}</option>
-                                    ))}
-                                </select>
-                            </h2>
-                            <div className="admin-events-month-navigation">
-                                <button type="button" onClick={() => shiftMonth(-1)} aria-label="Mês anterior">
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
-                                </button>
-                                <button type="button" onClick={() => shiftMonth(1)} aria-label="Próximo mês">
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
-                                </button>
-                            </div>
-                        </header>
-                        <div className="admin-events-calendar-grid" role="grid" aria-label={monthLabel}>
-                            {WEEKDAYS.map(day => <span className="admin-events-weekday" role="columnheader" key={day}>{day}</span>)}
-                            {calendarDays.map((cell, index) => {
-                                if (cell.outside || !cell.date) {
-                                    return <span className="admin-events-day is-outside" role="gridcell" key={`outside-${index}`}>{cell.day}</span>
-                                }
-                                const hasEvents = (eventsByDate.get(cell.date)?.length ?? 0) > 0
-                                return (
-                                    <div className="admin-events-day" role="gridcell" key={cell.date}>
-                                        <button
-                                            type="button"
-                                            className={`admin-events-day-button${hasEvents ? ' has-events' : ''}${selectedDate === cell.date ? ' is-selected' : ''}`}
-                                            aria-pressed={selectedDate === cell.date}
-                                            aria-label={`${cell.day}${hasEvents ? ', contém eventos' : ''}`}
-                                            title={hasEvents ? eventsByDate.get(cell.date)?.map(event => event.title).join(', ') : undefined}
-                                            onClick={() => {
-                                                setSelectedDate(selectedDate === cell.date ? null : cell.date)
-                                                setSearchTerm('')
-                                            }}
-                                        >
-                                            <span>{cell.day}</span>
-                                            {hasEvents && <span className="admin-events-day-indicator" aria-hidden="true" />}
-                                        </button>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </section>
-
-                    <section className="admin-events-agenda" aria-labelledby="admin-events-agenda-title">
-                        <h2 id="admin-events-agenda-title">
-                            {searchTerm.trim() || activeFilterCount > 0 ? 'Resultados dos eventos' : selectedDate ? formatDate(selectedDate) : 'Agenda do Mês'}
-                        </h2>
-                        {isLoading ? (
-                            <p className="admin-events-empty" role="status">Carregando eventos...</p>
-                        ) : filteredEvents.length ? (
-                            <ul className="admin-events-list">
-                                {filteredEvents.map(event => (
-                                    <li className="admin-event-card" key={event.id}>
-                                        <div className="admin-event-card-meta">
-                                            <span className={`admin-event-status is-${event.state.toLowerCase()}`}>{STATE_LABELS[event.state]}</span>
-                                            <span className="admin-event-id">ID: #{event.id.slice(0, 6)}</span>
-                                        </div>
+                <section className="admin-events-agenda admin-events-all-list" aria-labelledby="admin-events-agenda-title">
+                    <h2 id="admin-events-agenda-title">
+                        {searchTerm.trim() || activeFilterCount > 0 ? 'Resultados dos eventos' : 'Todos os eventos'}
+                    </h2>
+                    {isLoading ? (
+                        <p className="admin-events-empty" role="status">Carregando eventos...</p>
+                    ) : filteredEvents.length ? (
+                        <ul className="admin-events-list">
+                            {filteredEvents.map(event => (
+                                <li className="admin-event-card" key={event.id}>
+                                    <div className="admin-event-title-row">
                                         <h3>{event.title}</h3>
-                                        {event.description && <p className="admin-event-description">{event.description}</p>}
-                                        <p className="admin-event-detail">
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4m8-4v4M4 10h16" /></svg>
-                                            <span>{formatDate(event.date)}</span>
-                                        </p>
-                                        <p className="admin-event-detail">
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                                            <span>{event.startAt.slice(0, 5)} - {event.endAt.slice(0, 5)}</span>
-                                        </p>
-                                        <p className="admin-event-detail">
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
-                                            <span>{event.localAddress}</span>
-                                        </p>
-                                        <div className="admin-event-actions">
-                                            <button
-                                                type="button"
-                                                className="admin-event-action is-edit"
-                                                onClick={() => {
-                                                    setActionMessage(null)
-                                                    setFormError(null)
-                                                    setEditingEvent(event)
-                                                }}
-                                            >
-                                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" /></svg>
-                                                Editar
-                                            </button>
-                                            <button type="button" className="admin-event-action is-delete" onClick={() => setEventPendingDeletion(event)}>
-                                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m3 0-.8 14H5.8L5 6m4 4v6m6-6v6" /></svg>
-                                                Excluir
-                                            </button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="admin-events-empty">
-                                {searchTerm.trim() || activeFilterCount > 0
-                                    ? 'Nenhum evento corresponde à busca e aos filtros selecionados.'
-                                    : selectedDate
-                                        ? 'Nenhum evento marcado para este dia.'
-                                        : 'Não há eventos programados para este mês.'}
-                            </p>
-                        )}
-                        {latestCreatedEvent && (
-                            <section className="admin-latest-event" aria-labelledby="admin-latest-event-title">
-                                <h2 id="admin-latest-event-title">Último evento criado</h2>
-                                <article className="admin-event-card">
-                                    <div className="admin-event-card-meta">
-                                        <span className={`admin-event-status is-${latestCreatedEvent.state.toLowerCase()}`}>
-                                            {STATE_LABELS[latestCreatedEvent.state]}
-                                        </span>
-                                        <span className="admin-event-id">ID: #{latestCreatedEvent.id.slice(0, 6)}</span>
+                                        <span className={`admin-event-status is-${event.state.toLowerCase()}`}>{STATE_LABELS[event.state]}</span>
                                     </div>
-                                    <h3>{latestCreatedEvent.title}</h3>
-                                    {latestCreatedEvent.description && (
-                                        <p className="admin-event-description">{latestCreatedEvent.description}</p>
-                                    )}
+                                    {event.description && <p className="admin-event-description">{event.description}</p>}
                                     <p className="admin-event-detail">
-                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                            <rect x="4" y="5" width="16" height="16" rx="2" />
-                                            <path d="M8 3v4m8-4v4M4 10h16" />
-                                        </svg>
-                                        <span>{formatDate(latestCreatedEvent.date)}</span>
+                                        <Icon name="calendar" />
+                                        <span>{formatDate(event.date)}</span>
                                     </p>
                                     <p className="admin-event-detail">
-                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                            <circle cx="12" cy="12" r="9" />
-                                            <path d="M12 7v5l3 2" />
-                                        </svg>
-                                        <span>{latestCreatedEvent.startAt.slice(0, 5)} - {latestCreatedEvent.endAt.slice(0, 5)}</span>
+                                        <Icon name="clock" />
+                                        <span>{event.startAt.slice(0, 5)} - {event.endAt.slice(0, 5)}</span>
                                     </p>
                                     <p className="admin-event-detail">
-                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-                                            <circle cx="12" cy="10" r="2.5" />
-                                        </svg>
-                                        <span>{latestCreatedEvent.localAddress}</span>
+                                        <Icon name="location" />
+                                        <span>{event.localAddress}</span>
                                     </p>
-                                    <p className="admin-event-created-at">Criado em {formatCreatedAt(latestCreatedEvent.createdAt)}</p>
                                     <div className="admin-event-actions">
+                                        <a
+                                            className="admin-event-action is-view"
+                                            href={`#/evento/${encodeURIComponent(event.id)}`}
+                                            aria-label={`Ver evento ${event.title}`}
+                                        >
+                                            <Icon name="eye" />
+                                            Ver Evento
+                                        </a>
                                         <button
                                             type="button"
                                             className="admin-event-action is-edit"
                                             onClick={() => {
                                                 setActionMessage(null)
                                                 setFormError(null)
-                                                setEditingEvent(latestCreatedEvent)
+                                                setEditingEvent(event)
                                             }}
                                         >
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
-                                            </svg>
+                                            <Icon name="edit" />
                                             Editar
                                         </button>
-                                        <button
-                                            type="button"
-                                            className="admin-event-action is-delete"
-                                            onClick={() => setEventPendingDeletion(latestCreatedEvent)}
-                                        >
-                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path d="M3 6h18M8 6V4h8v2m3 0-.8 14H5.8L5 6m4 4v6m6-6v6" />
-                                            </svg>
+                                        <button type="button" className="admin-event-action is-delete" onClick={() => setEventPendingDeletion(event)}>
+                                            <Icon name="trash" />
                                             Excluir
                                         </button>
                                     </div>
-                                </article>
-                            </section>
-                        )}
-                    </section>
-                </div>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="admin-events-empty">
+                            {searchTerm.trim() || activeFilterCount > 0
+                                ? 'Nenhum evento corresponde à busca e aos filtros selecionados.'
+                                : 'Nenhum evento cadastrado.'}
+                        </p>
+                    )}
+                </section>
             </section>
 
             {(isCreating || editingEvent) && (
                 <AdminEventForm
-                    initialValues={editingEvent ? toFormValues(editingEvent) : emptyForm}
+                    initialValues={editingEvent ? toFormValues(editingEvent) : { ...emptyForm, date: newEventDate }}
                     isSaving={isSaving}
                     error={formError}
                     onClose={closeForm}
@@ -804,10 +639,7 @@ const AdminEvents = () => {
                         aria-describedby="admin-event-delete-description"
                     >
                         <span className="admin-event-delete-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M12 3 2.8 19h18.4L12 3Z" />
-                                <path d="M12 9v4m0 3h.01" />
-                            </svg>
+                            <Icon name="error" />
                         </span>
                         <h2 id="admin-event-delete-title">Excluir evento?</h2>
                         <p id="admin-event-delete-description">

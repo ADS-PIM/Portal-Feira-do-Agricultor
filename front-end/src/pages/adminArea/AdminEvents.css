@@ -1,7 +1,7 @@
 .admin-events {
     min-width: 0;
     color: #30332e;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Now", sans-serif;
 }
 
 .admin-events-heading {
@@ -37,6 +37,7 @@
 
 .admin-events-search-controls {
     display: flex;
+    flex: 1 1 auto;
     min-width: 0;
     align-items: center;
     gap: 10px;
@@ -44,7 +45,8 @@
 
 .admin-events-search {
     display: flex;
-    width: min(100%, 350px);
+    width: min(100%, 520px);
+    flex: 1 1 520px;
     height: 42px;
     align-items: center;
     gap: 10px;
@@ -136,7 +138,7 @@
 
 .admin-events-filters {
     display: grid;
-    grid-template-columns: repeat(4, minmax(120px, 1fr)) auto;
+    grid-template-columns: repeat(5, minmax(120px, 1fr)) auto;
     align-items: end;
     gap: 12px;
     margin: -14px 0 24px;
@@ -395,24 +397,6 @@
     margin: 2px 0 13px;
 }
 
-.admin-latest-event {
-    display: grid;
-    gap: 12px;
-    margin-top: 24px;
-}
-
-.admin-latest-event > h2 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 700;
-}
-
-.admin-event-created-at {
-    margin: 10px 0 0;
-    color: #85807a;
-    font-size: 11px;
-}
-
 .admin-events-list {
     display: grid;
     max-height: 620px;
@@ -423,6 +407,12 @@
     list-style: none;
 }
 
+.admin-events-all-list .admin-events-list {
+    max-height: none;
+    overflow: visible;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .admin-event-card {
     min-width: 0;
     padding: 14px 15px;
@@ -431,7 +421,7 @@
     background: #fff;
 }
 
-.admin-event-card-meta {
+.admin-event-title-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -439,7 +429,13 @@
     margin-bottom: 10px;
 }
 
+.admin-event-title-row h3 {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 .admin-event-status {
+    flex: 0 0 auto;
     padding: 4px 8px;
     border-radius: 6px;
     background: var(--brand-green-light);
@@ -513,6 +509,7 @@
 
 .admin-event-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 11px;
 }
@@ -544,6 +541,11 @@
 
 .admin-event-action.is-edit {
     color: var(--brand-green);
+}
+
+.admin-event-action.is-view {
+    color: var(--brand-green-dark);
+    text-decoration: none;
 }
 
 .admin-event-action.is-delete {
@@ -938,6 +940,10 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .admin-events-all-list .admin-events-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .admin-events-filters {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -961,10 +967,12 @@
 
     .admin-events-search-controls {
         width: 100%;
+        flex: 1 1 100%;
     }
 
     .admin-events-search {
         width: 100%;
+        flex-basis: 0;
     }
 
     .admin-events-create {
@@ -987,6 +995,10 @@
     }
 
     .admin-events-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-events-all-list .admin-events-list {
         grid-template-columns: minmax(0, 1fr);
     }
 

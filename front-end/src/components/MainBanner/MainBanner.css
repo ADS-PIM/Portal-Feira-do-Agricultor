@@ -11,7 +11,7 @@
     padding: 64px 5.6%;
     background: var(--brand-green-dark);
     color: #fff;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Now", sans-serif;
 }
 
 .MainBanner::before {
@@ -54,7 +54,10 @@
     gap: 16px;
 }
 
-.MainBanner-buttons button {
+.MainBanner-buttons a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-height: 44px;
     padding: 0 26px;
     border: 1px solid #fff;
@@ -64,26 +67,26 @@
     font: inherit;
     font-size: 14px;
     font-weight: 700;
-    cursor: pointer;
+    text-decoration: none;
     transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
 
-.MainBanner-buttons button:first-child {
+.MainBanner-buttons a:first-child {
     border-color: var(--brand-green);
     background: var(--brand-green);
     color: #fff;
 }
 
-.MainBanner-buttons button:first-child:hover {
+.MainBanner-buttons a:first-child:hover {
     border-color: var(--brand-green-dark);
     background: var(--brand-green-dark);
 }
 
-.MainBanner-buttons button:last-child:hover {
+.MainBanner-buttons a:last-child:hover {
     background: var(--brand-green-light);
 }
 
-.MainBanner-buttons button:focus-visible {
+.MainBanner-buttons a:focus-visible {
     outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
@@ -117,7 +120,7 @@
         align-items: stretch;
     }
 
-    .MainBanner-buttons button {
+    .MainBanner-buttons a {
         width: 100%;
     }
 }

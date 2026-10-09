@@ -2,9 +2,9 @@ import { BusinessInfoCreateDTO } from '../dto/businessInfo.dto';
 
 export type propsBusinessInfo = {
     id: string;
-    instagramAccount: string;
-    whatsappNumber: string;
-    businessEmail: string;
+    instagramAccount: string | null;
+    whatsappNumber: string | null;
+    businessEmail: string | null;
     businessHours: string;
     description: string | null;
     updatedAt: Date;

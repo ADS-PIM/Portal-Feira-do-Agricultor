@@ -1,3 +1,4 @@
+import Icon from '../Icon'
 import './PricingCalculatorPromo.css';
 
 const PricingCalculatorPromo = () => {
@@ -12,19 +13,14 @@ const PricingCalculatorPromo = () => {
                     </p>
                     <button className="pricing-calculator-button" type="button">
                         Acessar Calculadora
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M5 12h14M13 6l6 6-6 6" />
-                        </svg>
+                        <Icon name="arrowRight" />
                     </button>
                 </div>
 
                 <aside className="pricing-calculator-preview" aria-label="Resumo do cálculo de preço">
                     <div className="pricing-calculator-preview-heading">
                         <span className="pricing-calculator-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <rect x="4" y="3" width="16" height="18" rx="2" />
-                                <path d="M7.5 7.5h9M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01" />
-                            </svg>
+                            <Icon name="calculator" />
                         </span>
                         <div>
                             <p className="pricing-calculator-kicker">RESULTADO RÁPIDO</p>

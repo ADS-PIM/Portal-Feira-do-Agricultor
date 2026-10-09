@@ -4,7 +4,7 @@
     padding: 48px 5.6% 64px;
     background: #fff8ed;
     color: #30332e;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Now", sans-serif;
 }
 
 .nearest-event-painel.is-empty {
@@ -213,7 +213,7 @@
     margin-top: 8px;
 }
 
-.event-actions button {
+.event-actions a {
     display: inline-flex;
     min-height: 52px;
     align-items: center;
@@ -228,19 +228,20 @@
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
+    text-decoration: none;
     transition: background-color 150ms ease;
 }
 
-.event-actions button:hover {
+.event-actions a:hover {
     background: var(--brand-green-dark);
 }
 
-.event-actions button:focus-visible {
+.event-actions a:focus-visible {
     outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
 
-.event-actions button svg {
+.event-actions a svg {
     width: 18px;
     height: 18px;
     stroke: currentColor;
@@ -320,7 +321,7 @@
         font-size: 13px;
     }
 
-    .event-actions button {
+    .event-actions a {
         width: 100%;
     }
 }

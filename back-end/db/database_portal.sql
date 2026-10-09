@@ -42,9 +42,9 @@ create table `images` (
 
 create table `businessInfo` (
     `id` char(36) not null,
-    `instagramAccount` varchar(64) not null,
-    `whatsappNumber` varchar(20) not null,
-    `businessEmail` varchar(320) not null,
+    `instagramAccount` varchar(64) default null,
+    `whatsappNumber` varchar(20) default null,
+    `businessEmail` varchar(320) default null,
     `businessHours` varchar(255) not null,
     `description` varchar(1000) default null, 
     `updatedAt` date not null,
@@ -60,6 +60,7 @@ create table `message` (
     `message` varchar(1500) not null,
     `submitDate` timestamp not null,
     `title` varchar(255) not null,
+    `isRead` boolean not null default false,
     primary key (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
 

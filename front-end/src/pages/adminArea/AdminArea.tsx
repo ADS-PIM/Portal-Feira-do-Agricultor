@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import AdminSideNav, { type AdminSection } from '../../components/AdminSideNav/AdminSideNav'
+import Icon from '../../components/Icon'
+import AdminUsersMessages from './AdminUsersMessages'
 import Header from '../../components/Header/Header'
+import Footer from '../../components/Footer/Footer'
 import { restoreAdminProfile } from '../../services/api'
 import { getUserFacingError } from '../../services/errors'
 import AdminBusinessInfo from './AdminBusinessInfo'
@@ -9,10 +12,111 @@ import AdminEvents from './AdminEvents'
 import AdminAdministrators from './AdminAdministrators'
 import './AdminArea.css'
 
+const AdminAccessSkeleton = () => (
+    <main className="admin-area admin-area-checking" aria-label="Verificação de acesso administrativo" aria-busy="true">
+        <p className="admin-area-skeleton-status" role="status">Verificando acesso administrativo...</p>
+        <aside className="admin-area-skeleton-nav" aria-hidden="true">
+            <nav>
+                <ul className="admin-area-skeleton-nav-list">
+                    {Array.from({ length: 5 }, (_, index) => (
+                        <li className={`admin-area-skeleton-nav-item${index === 0 ? ' is-active' : ''}`} key={index}>
+                            <span className="admin-area-skeleton-nav-icon" />
+                            <span className="admin-area-skeleton-block is-nav-label" />
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        </aside>
+        <section className="admin-area-content admin-area-skeleton-content" aria-hidden="true">
+            <div className="admin-dashboard-page">
+                <header className="admin-dashboard-header">
+                    <span className="admin-area-skeleton-block is-title" />
+                    <span className="admin-area-skeleton-block is-subtitle" />
+                </header>
+                <div className="admin-dashboard-workspace">
+                    <div className="admin-dashboard-summary">
+                        {Array.from({ length: 2 }, (_, index) => (
+                            <div className="admin-dashboard-stat-card" key={index}>
+                                <span className="admin-area-skeleton-block is-card-label" />
+                                <span className="admin-area-skeleton-block is-card-value" />
+                                <span className="admin-area-skeleton-block is-card-detail" />
+                                <span className="admin-area-skeleton-block is-card-action" />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="admin-dashboard-summary admin-dashboard-summary-secondary">
+                        {Array.from({ length: 2 }, (_, index) => (
+                            <div className="admin-dashboard-stat-card is-subtle" key={index}>
+                                <span className="admin-area-skeleton-block is-card-label" />
+                                <span className="admin-area-skeleton-block is-card-value" />
+                                <span className="admin-area-skeleton-block is-card-detail" />
+                                <span className="admin-area-skeleton-block is-card-action" />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="admin-events admin-events-columns admin-dashboard-agenda">
+                        <section className="admin-events-calendar">
+                            <header className="admin-events-calendar-header">
+                                <span className="admin-area-skeleton-block is-calendar-heading" />
+                                <span className="admin-area-skeleton-block is-calendar-navigation" />
+                            </header>
+                            <div className="admin-events-calendar-grid">
+                                {Array.from({ length: 49 }, (_, index) => (
+                                    <span className={`admin-area-skeleton-block is-calendar-cell${index < 7 ? ' is-weekday' : ''}`} key={index} />
+                                ))}
+                            </div>
+                        </section>
+                        <section className="admin-events-agenda admin-dashboard-agenda-list">
+                            <header className="admin-dashboard-agenda-header">
+                                <span className="admin-area-skeleton-block is-agenda-heading" />
+                            </header>
+                            <div className="admin-area-skeleton-agenda-list">
+                                {Array.from({ length: 4 }, (_, index) => (
+                                    <div className="admin-area-skeleton-agenda-card" key={index}>
+                                        <span className="admin-area-skeleton-block is-agenda-meta" />
+                                        <span className="admin-area-skeleton-block is-agenda-title" />
+                                        <span className="admin-area-skeleton-block is-agenda-detail" />
+                                        <span className="admin-area-skeleton-block is-agenda-detail is-short" />
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+)
+
 const AdminArea = () => {
     const [status, setStatus] = useState<'checking' | 'authorized' | 'error'>('checking')
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [activeSection, setActiveSection] = useState<AdminSection>('dashboard')
+    const [createEventRequest, setCreateEventRequest] = useState<{ date: string | null } | null>(null)
+    const [eventActionRequest, setEventActionRequest] = useState<{
+        eventId: string
+        action: 'edit' | 'delete'
+    } | null>(null)
+
+    const selectSection = (section: AdminSection) => {
+        setActiveSection(section)
+        if (section !== 'eventos') {
+            setCreateEventRequest(null)
+            setEventActionRequest(null)
+        }
+    }
+
+    const createEventAtDate = (date: string | null = null) => {
+        setCreateEventRequest({ date })
+        setEventActionRequest(null)
+        setActiveSection('eventos')
+    }
+
+    const handleDashboardEventAction = (eventId: string, action: 'edit' | 'delete') => {
+        setEventActionRequest({ eventId, action })
+        setCreateEventRequest(null)
+        setActiveSection('eventos')
+    }
 
     useEffect(() => {
         let active = true
@@ -44,41 +148,51 @@ const AdminArea = () => {
     return (
         <>
             <Header initialActiveLink="#/admin" />
-            {status === 'checking' && <p role="status">Verificando acesso administrativo...</p>}
+            {status === 'checking' && <AdminAccessSkeleton />}
             {status === 'error' && (
                 <main className="admin-area-error-state" role="alert">
                     <div className="admin-area-error-card">
                         <span className="admin-area-error-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M12 3 2.8 19a1.4 1.4 0 0 0 1.2 2.1h16a1.4 1.4 0 0 0 1.2-2.1L12 3Z" />
-                                <path d="M12 9v5m0 3h.01" />
-                            </svg>
+                            <Icon name="error" />
                         </span>
                         <h1>Não foi possível validar o acesso administrativo</h1>
                         <p>{errorMessage}</p>
                     </div>
                 </main>
             )}
+
             {status === 'authorized' && (
                 <main className="admin-area">
-                    <AdminSideNav activeItem={activeSection} onSelect={setActiveSection} />
+                    <AdminSideNav activeItem={activeSection} onSelect={selectSection} />
                     <section className="admin-area-content" aria-label="Conteúdo administrativo">
                         {activeSection === 'dashboard' ? (
-                            <AdminDashboard onSelectSection={setActiveSection} />
+                            <AdminDashboard
+                                onSelectSection={selectSection}
+                                onCreateEventAtDate={createEventAtDate}
+                                onEditEvent={eventId => handleDashboardEventAction(eventId, 'edit')}
+                                onDeleteEvent={eventId => handleDashboardEventAction(eventId, 'delete')}
+                            />
                         ) : activeSection === 'eventos' ? (
-                            <AdminEvents />
+                            <AdminEvents
+                                initialEventDate={createEventRequest?.date}
+                                openCreateOnMount={Boolean(createEventRequest)}
+                                initialEventAction={eventActionRequest}
+                            />
                         ) : activeSection === 'informacoes' ? (
                             <AdminBusinessInfo />
                         ) : activeSection === 'administradores' ? (
                             <AdminAdministrators />
+                        ) : activeSection === 'mensagens' ? (
+                            <AdminUsersMessages />
                         ) : (
                             <div className="admin-area-placeholder">
-                                Mensagens de usuários
+                                Seção administrativa indisponível.
                             </div>
                         )}
                     </section>
                 </main>
             )}
+            {status === 'authorized' && <Footer />}
         </>
     )
 }

@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 import { MessageSubject } from "../model/message";
 
 export class MessageCreateDTO {// phone, subject, message
@@ -24,6 +24,7 @@ export class MessageCreateDTO {// phone, subject, message
 
     @IsNotEmpty()
     @IsString()
+    @MaxLength(255)
     title: string;
 }
 
@@ -32,4 +33,9 @@ export class MessageSearchDTO {
     title: string;
     subject: string;
     name: string;
+    email: string | null;
+    phone: string | null;
+    message: string | null;
+    submitDate: Date | null;
+    isRead: boolean;
 }

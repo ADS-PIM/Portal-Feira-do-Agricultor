@@ -14,6 +14,10 @@ messageRoutes
     .post(async (req, res) => messageController.create(req, res));
 
 messageRoutes
+    .route('/:id/read')
+    .patch(authToken, async (req, res) => messageController.markAsRead(req, res));
+
+messageRoutes
     .route('/:id')
     .delete(authToken, async (req, res) => messageController.delete(req, res))
     .get(authToken, async (req, res) => messageController.searchById(req, res));

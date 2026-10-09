@@ -28,6 +28,18 @@ export interface AdminEvent extends AgendaEvent {
     bannerImage: string | null
 }
 
+export interface EventDetails extends Omit<AdminEvent, 'createdAt' | 'localAddress'> {
+    localAddress: string | null
+    localLatitude: number | string | null
+    localLongitude: number | string | null
+}
+
+export interface EventImage {
+    id: string
+    imageURL: string
+    description: string
+}
+
 export type AdminEventInput = Pick<
     AdminEvent,
     'title' | 'description' | 'date' | 'startAt' | 'endAt' | 'localAddress' | 'state' | 'bannerImage'
@@ -41,9 +53,11 @@ export function uploadEventBanner(file: File): Promise<{ url: string }> {
     })
 }
 
-export function getAdminEvents(signal?: AbortSignal): Promise<AdminEvent[] | null> {
+export function getEvents(signal?: AbortSignal): Promise<AdminEvent[] | null> {
     return apiFetch<AdminEvent[] | null>('event', { signal })
 }
+
+export const getAdminEvents = getEvents
 
 export function createAdminEvent(event: AdminEventInput): Promise<{ message: string }> {
     return apiFetch<{ message: string }>('event/create', {
@@ -75,4 +89,12 @@ export function getNearestEvent(date: string, signal?: AbortSignal): Promise<Nea
 export function getEventAgenda(date: string, signal?: AbortSignal): Promise<AgendaEvent[]> {
     const query = new URLSearchParams({ date })
     return apiFetch<AgendaEvent[]>(`event/agenda?${query}`, { signal })
+}
+
+export function getEventDetails(id: string, signal?: AbortSignal): Promise<EventDetails> {
+    return apiFetch<EventDetails>(`event/${encodeURIComponent(id)}`, { signal })
+}
+
+export function getEventImages(id: string, signal?: AbortSignal): Promise<EventImage[] | null> {
+    return apiFetch<EventImage[] | null>(`event/image/${encodeURIComponent(id)}`, { signal })
 }
