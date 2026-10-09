@@ -6,15 +6,17 @@ import ContactUsPage from './pages/contactUs/ContactUs'
 import CalendarPage from './pages/calendarPage/CalendarPage'
 import AdminArea from './pages/adminArea/AdminArea'
 import EventPage from './pages/eventPage/EventPage'
+import AccountPage from './pages/accountPage/AccountPage'
 
 type AppRoute =
-  | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' }
+  | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' }
   | { page: 'event'; eventId: string }
 
 function getCurrentRoute(): AppRoute {
   const hash = window.location.hash || '#inicio'
 
   if (hash === '#/admin/login') return { page: 'login' }
+  if (hash === '#/minha-conta') return { page: 'account' }
   if (hash === '#/admin') return { page: 'admin' }
   if (hash === '#contato' || hash === '#/contato') return { page: 'contact' }
   if (hash === '#/calendario') return { page: 'calendar' }
@@ -51,6 +53,8 @@ function App() {
   if (route.page === 'admin') {
     return <AdminArea />
   }
+
+  if (route.page === 'account') return <AccountPage />
 
   if (route.page === 'contact') {
     return <ContactUsPage />

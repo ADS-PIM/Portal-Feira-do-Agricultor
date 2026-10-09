@@ -25,24 +25,15 @@
 }
 
 .admin-managers-workspace {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
     padding: 30px;
 }
 
-.admin-managers-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 18px;
-    color: #5a5854;
-    font-size: 13px;
-}
-
-.admin-managers-breadcrumb strong {
-    color: #2b2d2a;
-}
-
-.admin-managers-breadcrumb-separator {
-    color: #88817c;
+.admin-managers-workspace.is-read-only {
+    max-width: 1120px;
 }
 
 .admin-managers-summary {
@@ -53,8 +44,9 @@
 }
 
 .admin-managers-stat-card {
+    box-sizing: border-box;
     display: flex;
-    min-height: 120px;
+    min-height: 112px;
     flex-direction: column;
     justify-content: center;
     padding: 18px 20px;
@@ -101,8 +93,18 @@
     box-sizing: border-box;
 }
 
+.admin-managers-main-content.is-read-only {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.admin-managers-main-content.is-read-only .admin-managers-table-head,
+.admin-managers-main-content.is-read-only .admin-managers-table-row {
+    min-width: 0;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr) 110px 80px;
+}
+
 .admin-managers-list-panel {
-    padding: 18px 18px 12px;
+    padding: 22px;
 }
 
 .admin-managers-list-panel h2,
@@ -184,6 +186,7 @@
 }
 
 .admin-managers-avatar {
+    flex-shrink: 0;
     display: grid;
     width: 34px;
     height: 34px;

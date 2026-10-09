@@ -212,10 +212,13 @@ const AdminBusinessInfo = () => {
                             {error && <p className="admin-business-info-alert is-error" role="alert">{error}</p>}
                             {statusMessage && <p className="admin-business-info-alert is-success" role="status">{statusMessage}</p>}
 
-                            <div className="admin-business-info-sectionTitle">Dados Institucionais e Contatos</div>
+                            <div className="admin-business-info-intro">
+                                <h2 className="admin-business-info-sectionTitle"><Icon name="seedling" /> A feira no portal</h2>
+                                <p>Atualize a apresentação da feira e as informações de contato dos visitantes.</p>
+                            </div>
 
                             <label className="admin-business-info-field" htmlFor="businessInfo-name">
-                                <span>Sobre a Feira (Descrição Pública)</span>
+                                <span>Sobre a feira</span>
                                 <textarea
                                     id="businessInfo-name"
                                     name="description"
@@ -226,13 +229,18 @@ const AdminBusinessInfo = () => {
                                 />
                             </label>
 
-                            <div className="admin-business-info-subtitle">Canais de Atendimento &amp; Status</div>
+                            <div className="admin-business-info-contact-heading">
+                                <h2 className="admin-business-info-subtitle"><Icon name="comments" /> Canais de contato</h2>
+                                <p>Ative os canais que deseja exibir. Ao salvar, os contatos desativados serão removidos.</p>
+                            </div>
 
                             <div className="admin-business-info-grid">
                                 <div className="admin-business-info-row">
                                     <div className="admin-business-info-iconWrap" aria-hidden="true">
                                         <BusinessInfoFieldIcon type="whatsapp" />
                                     </div>
+                                    <label className="admin-business-contact-field">
+                                    <span>WhatsApp</span>
                                     <input
                                         type="text"
                                         name="whatsappNumber"
@@ -240,10 +248,13 @@ const AdminBusinessInfo = () => {
                                         onChange={handleFieldChange}
                                         placeholder="(88) 99876-5432"
                                     />
+                                    </label>
                                     <button
                                         type="button"
                                         className={`admin-business-info-toggle ${fieldToggles.whatsapp ? 'is-enabled' : ''}`}
                                         aria-label={fieldToggles.whatsapp ? 'Desativar WhatsApp' : 'Ativar WhatsApp'}
+                                        role="switch"
+                                        aria-checked={fieldToggles.whatsapp}
                                         onClick={() => handleToggle('whatsapp')}
                                     >
                                         <span />
@@ -254,6 +265,8 @@ const AdminBusinessInfo = () => {
                                     <div className="admin-business-info-iconWrap" aria-hidden="true">
                                         <BusinessInfoFieldIcon type="instagram" />
                                     </div>
+                                    <label className="admin-business-contact-field">
+                                    <span>Instagram</span>
                                     <input
                                         type="text"
                                         name="instagramAccount"
@@ -261,10 +274,13 @@ const AdminBusinessInfo = () => {
                                         onChange={handleFieldChange}
                                         placeholder="@brotando.feiras"
                                     />
+                                    </label>
                                     <button
                                         type="button"
                                         className={`admin-business-info-toggle ${fieldToggles.instagram ? 'is-enabled' : ''}`}
                                         aria-label={fieldToggles.instagram ? 'Desativar Instagram' : 'Ativar Instagram'}
+                                        role="switch"
+                                        aria-checked={fieldToggles.instagram}
                                         onClick={() => handleToggle('instagram')}
                                     >
                                         <span />
@@ -275,6 +291,8 @@ const AdminBusinessInfo = () => {
                                     <div className="admin-business-info-iconWrap" aria-hidden="true">
                                         <BusinessInfoFieldIcon type="email" />
                                     </div>
+                                    <label className="admin-business-contact-field">
+                                    <span>E-mail</span>
                                     <input
                                         type="email"
                                         name="businessEmail"
@@ -282,10 +300,13 @@ const AdminBusinessInfo = () => {
                                         onChange={handleFieldChange}
                                         placeholder="contato@brotandofeiras.com"
                                     />
+                                    </label>
                                     <button
                                         type="button"
                                         className={`admin-business-info-toggle ${fieldToggles.email ? 'is-enabled' : ''}`}
                                         aria-label={fieldToggles.email ? 'Desativar e-mail' : 'Ativar e-mail'}
+                                        role="switch"
+                                        aria-checked={fieldToggles.email}
                                         onClick={() => handleToggle('email')}
                                     >
                                         <span />
@@ -295,8 +316,8 @@ const AdminBusinessInfo = () => {
 
                             <section className="admin-business-hours" aria-labelledby="business-hours-title">
                                 <div>
-                                    <h2 id="business-hours-title">Horário de atendimento</h2>
-                                    <p>Defina os horários de início e término para cada dia da semana.</p>
+                                    <h2 id="business-hours-title"><Icon name="clock" /> Horários de atendimento</h2>
+                                    <p>Ative os dias de atendimento e defina os horários de abertura e encerramento.</p>
                                 </div>
                                 {legacyHours && (
                                     <div className="admin-business-hours-legacy">
@@ -315,16 +336,19 @@ const AdminBusinessInfo = () => {
                                         {weekdays.map(({ id, label }) => {
                                             const schedule: DayBusinessHours = weeklyHours[id]
                                             return (
-                                                <div className="admin-business-hours-day" key={id}>
+                                                <div className={`admin-business-hours-day ${schedule.closed ? 'is-closed' : 'is-open'}`} key={id}>
                                                     <div className="admin-business-hours-dayHeader">
                                                         <strong>{label}</strong>
-                                                        <label className="admin-business-hours-closed">
+                                                        <label className="admin-business-hours-availability">
                                                             <input
                                                                 type="checkbox"
-                                                                checked={schedule.closed}
-                                                                onChange={(event) => handleDayClosedChange(id, event.target.checked)}
+                                                                role="switch"
+                                                                aria-label={`Atendimento de ${label}`}
+                                                                checked={!schedule.closed}
+                                                                onChange={(event) => handleDayClosedChange(id, !event.target.checked)}
                                                             />
-                                                            <span>Não atendemos</span>
+                                                            <span className="admin-business-hours-switch" aria-hidden="true" />
+                                                            <span>{schedule.closed ? 'Fechado' : 'Aberto'}</span>
                                                         </label>
                                                     </div>
                                                     <label className="admin-business-hours-time">
@@ -356,14 +380,14 @@ const AdminBusinessInfo = () => {
 
                             <div className="admin-business-info-actions">
                                 <span className="admin-business-info-updateStamp">
-                                    Última atualização em: {formatLastUpdated(businessInfo?.updatedAt ?? null)}
+                                    <Icon name="clock" /> Última atualização: {formatLastUpdated(businessInfo?.updatedAt ?? null)}
                                 </span>
                                 <div className="admin-business-info-buttons">
                                     <button type="button" className="admin-business-info-button is-secondary" onClick={handleReset}>
-                                        Descartar
+                                        <Icon name="close" /> Descartar alterações
                                     </button>
                                     <button type="submit" className="admin-business-info-button is-primary" disabled={isSaving}>
-                                        {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+                                        <Icon name="edit" /> {isSaving ? 'Salvando...' : 'Salvar alterações'}
                                     </button>
                                 </div>
                             </div>

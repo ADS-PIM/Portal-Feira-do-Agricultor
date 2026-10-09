@@ -1,7 +1,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import Icon from '../../components/Icon'
 import { createAdmin, deleteAdmin, getAdmins, updateAdmin, type AdminRecord } from '../../services/adminService'
-import { getAdminId } from '../../services/authToken'
+import { AUTH_STATE_CHANGE_EVENT, getAdminId, getAdminProfile } from '../../services/authToken'
 import './AdminAdministrators.css'
 
 type AdminFormState = {
@@ -51,6 +51,15 @@ function DeleteIcon() {
 }
 
 const AdminAdministrators = () => {
+    const [currentProfile, setCurrentProfile] = useState(getAdminProfile)
+    const canManageAdmins = currentProfile?.role === 'SUPER_ADMIN' && Boolean(currentProfile.active)
+
+    useEffect(() => {
+        const syncProfile = () => setCurrentProfile(getAdminProfile())
+        window.addEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
+        return () => window.removeEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
+    }, [])
+
     const [admins, setAdmins] = useState<AdminRecord[]>([])
     const [form, setForm] = useState<AdminFormState>(emptyForm)
     const [isLoading, setIsLoading] = useState(true)
@@ -87,6 +96,7 @@ const AdminAdministrators = () => {
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
+        if (!canManageAdmins) return
 
         if (!form.name.trim() || !form.email.trim()) {
             setError('Preencha nome e e-mail para continuar.')
@@ -138,6 +148,7 @@ const AdminAdministrators = () => {
     }
 
     const handleToggleStatus = async (admin: AdminRecord) => {
+        if (!canManageAdmins) return
         const currentUserId = getAdminId()
         if (admin.id === currentUserId) {
             setError('Você não pode desativar o seu próprio acesso administrativo.')
@@ -155,6 +166,7 @@ const AdminAdministrators = () => {
     }
 
     const handleDelete = async (admin: AdminRecord) => {
+        if (!canManageAdmins) return
         const currentUserId = getAdminId()
         if (admin.id === currentUserId) {
             setError('Você não pode excluir sua própria conta administrativa.')
@@ -181,15 +193,7 @@ const AdminAdministrators = () => {
                 <p>Controle as permissões de acesso ao painel da associação</p>
             </header>
 
-            <div className="admin-managers-workspace">
-                <div className="admin-managers-breadcrumb">
-                    <span>Administradores</span>
-                    <span className="admin-managers-breadcrumb-separator" aria-hidden="true">
-                        <Icon name="chevronRight" />
-                    </span>
-                    <strong>Lista de Gestores</strong>
-                </div>
-
+            <div className={`admin-managers-workspace${canManageAdmins ? '' : ' is-read-only'}`}>
                 <div className="admin-managers-summary">
                     <div className="admin-managers-stat-card">
                         <span className="admin-managers-stat-label">Administradores Ativos</span>
@@ -206,7 +210,7 @@ const AdminAdministrators = () => {
                     </div>
                 </div>
 
-                <div className="admin-managers-main-content">
+                <div className={`admin-managers-main-content${canManageAdmins ? '' : ' is-read-only'}`}>
                     <div className="admin-managers-list-panel">
                         <h2>Admins com Acesso ao Sistema</h2>
 
@@ -224,7 +228,7 @@ const AdminAdministrators = () => {
                                     <span>E-mail</span>
                                     <span>Cargo</span>
                                     <span>Status</span>
-                                    <span>Ações</span>
+                                    {canManageAdmins && <span>Ações</span>}
                                 </div>
 
                                 {admins.map(admin => (
@@ -243,7 +247,7 @@ const AdminAdministrators = () => {
                                             </span>
                                         </span>
 
-                                        <div className="admin-managers-actions" role="cell">
+                                        {canManageAdmins && <div className="admin-managers-actions" role="cell">
                                             <button
                                                 type="button"
                                                 className="admin-managers-action-button is-toggle"
@@ -281,14 +285,14 @@ const AdminAdministrators = () => {
                                             >
                                                 <DeleteIcon />
                                             </button>
-                                        </div>
+                                        </div>}
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
 
-                    <aside className="admin-managers-form-panel">
+                    {canManageAdmins && <aside className="admin-managers-form-panel">
                         <h2>Cadastrar Novo Admin</h2>
 
                         <form className="admin-managers-form" onSubmit={handleSubmit}>
@@ -352,7 +356,7 @@ const AdminAdministrators = () => {
                                 </button>
                             )}
                         </form>
-                    </aside>
+                    </aside>}
                 </div>
             </div>
         </section>

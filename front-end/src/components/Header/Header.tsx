@@ -106,7 +106,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
 
             <div className="site-header-account">
                 {adminProfile ? (
-                    <div className="site-header-profile">
+                    <a className="site-header-profile" href="#/minha-conta" aria-label="Visualizar minha conta" aria-current={initialActiveLink === '#/minha-conta' ? 'page' : undefined}>
                         <div className="site-header-profile-info">
                             <span className="site-header-profile-name">{adminProfile.name}</span>
                             <span className="site-header-profile-role">
@@ -116,6 +116,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
                         <div className="site-header-profile-picture">
                             {adminProfile.profile_picture?.trim() ? (
                                 <img
+                                    key={adminProfile.profile_picture}
                                     src={adminProfile.profile_picture.trim()}
                                     alt={`Foto de perfil de ${adminProfile.name}`}
                                     onError={(event) => {
@@ -130,7 +131,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
                                 style={{ display: adminProfile.profile_picture?.trim() ? 'none' : 'block' }}
                             />
                         </div>
-                    </div>
+                    </a>
                 ) : hasCheckedSession ? (
                     <button type="button" onClick={() => { window.location.hash = '#/admin/login' }}>
                         Entrar

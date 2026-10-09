@@ -1,7 +1,7 @@
 .admin-user-messages {
     min-width: 0;
     min-height: calc(100vh - 68px);
-    background: #f8f7f5;
+    background: #f6f8f4;
     color: #30332e;
     font-family: "Now", sans-serif;
 }
@@ -36,26 +36,30 @@
 }
 
 .admin-user-messages-workspace {
-    padding: 24px;
+    width: 100%;
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 28px 24px;
 }
 
 .admin-user-message-stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 210px));
-    gap: 12px;
-    margin-bottom: 18px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
 .admin-user-message-stats article {
+    position: relative;
     min-width: 0;
-    padding: 14px 16px;
+    padding: 20px;
     border: 1px solid #e3e2dd;
     border-radius: 14px;
     background: #fff;
 }
 
 .admin-user-message-stats h2 {
-    margin: 0 0 7px;
+    margin: 0 48px 12px 0;
     color: #74746e;
     font-size: 12px;
     font-weight: 700;
@@ -64,7 +68,8 @@
 .admin-user-message-stats strong {
     display: block;
     color: #315f47;
-    font-size: 23px;
+    font-size: 30px;
+    font-variant-numeric: tabular-nums;
     line-height: 1.15;
 }
 
@@ -74,14 +79,31 @@
 
 .admin-user-message-stats p {
     margin: 6px 0 0;
-    color: #85817c;
-    font-size: 12px;
+    color: #72796f;
+    font-size: 11px;
     line-height: 1.4;
 }
 
+.admin-message-stat-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 11px;
+    background: #edf4e9;
+    color: #3f7550;
+}
+
+.admin-message-stat-icon svg { width: 17px; height: 17px; }
+.admin-user-message-stats .is-attention .admin-message-stat-icon { background: #fff2df; color: #a36720; }
+.admin-user-message-stats article:last-child .admin-message-stat-icon { background: #edf3fa; color: #5276a1; }
+
 .admin-user-messages-list {
     min-width: 0;
-    padding: 17px 16px 16px;
+    padding: 22px;
     border: 1px solid #e3e2dd;
     border-radius: 16px;
     background: #fff;
@@ -92,15 +114,22 @@
     align-items: center;
     justify-content: space-between;
     gap: 18px;
-    margin-bottom: 11px;
+    margin-bottom: 22px;
 }
 
 .admin-user-messages-list-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 9px;
     margin: 0;
     color: #315f47;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 750;
 }
+
+.admin-user-messages-list-header h2 svg { width: 18px; height: 18px; }
+.admin-message-filter-count { padding: 2px 6px; border-radius: 5px; background: rgb(99 135 94 / 10%); font-size: 10px; }
+.admin-user-messages-filters .is-active .admin-message-filter-count { background: rgb(255 255 255 / 20%); }
 
 .admin-user-messages-list-header p {
     margin: 3px 0 0;
@@ -123,6 +152,7 @@
     min-height: 35px;
     align-items: center;
     justify-content: center;
+    gap: 7px;
     padding: 0 12px;
     border: 1px solid #e2e5de;
     border-radius: 9px;
@@ -165,7 +195,8 @@
 }
 
 .admin-user-messages-table th {
-    padding: 9px 8px;
+    padding: 12px;
+    background: #f5f7f2;
     border-bottom: 1px solid #e7e7e2;
     color: #73766e;
     font-size: 12px;
@@ -174,12 +205,20 @@
 }
 
 .admin-user-messages-table td {
-    padding: 11px 8px;
+    padding: 16px 12px;
     border-bottom: 1px solid #e7e7e2;
     color: #555750;
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.5;
     vertical-align: middle;
 }
+
+.admin-user-messages-table tbody tr:hover { background: #fafbf8; }
+.admin-user-messages-table tbody tr.is-unread { background: #f3f9ee; }
+.admin-user-messages-table tr.is-unread .admin-message-title-cell { color: #315f47; font-weight: 700; }
+.admin-message-title-cell { min-width: 150px; max-width: 260px; overflow-wrap: anywhere; }
+.admin-user-messages-table td:nth-child(4) { max-width: 230px; overflow-wrap: anywhere; }
+.admin-user-messages-table td:nth-child(5) { white-space: nowrap; font-size: 11px; }
 
 .admin-user-messages-table tbody tr:last-child td {
     border-bottom: 0;
@@ -196,7 +235,7 @@
 
 .admin-user-messages-table td:first-child strong {
     color: #41433d;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
 }
 
@@ -210,14 +249,18 @@
     display: inline-flex;
     min-height: 24px;
     align-items: center;
+    gap: 5px;
     padding: 0 9px;
     border-radius: 999px;
     background: #f0f1ee;
     color: #777a72;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 650;
     white-space: nowrap;
 }
+
+.admin-user-message-status svg { width: 11px; height: 11px; }
+.admin-user-message-row-actions svg { width: 13px; height: 13px; }
 
 .admin-user-message-status.is-unread {
     background: #e8f5eb;
@@ -258,7 +301,11 @@
 
 .admin-user-message-row-actions .is-secondary {
     padding: 0 9px;
+    color: #a34c3c;
+    border-color: #ebddd6;
 }
+
+.admin-user-message-row-actions .is-secondary:hover { background: #fff3ed; border-color: #d4a393; }
 
 .admin-user-messages-empty {
     display: grid;

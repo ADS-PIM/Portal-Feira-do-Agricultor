@@ -1,4 +1,16 @@
 import { apiFetch } from './api'
+import { clearAccessToken } from './authToken'
+import { ApiRequestError } from './errors'
+
+export async function logoutAdmin(): Promise<void> {
+    try {
+        await apiFetch<{ message: string }>('admin/logout', { method: 'POST' })
+    } catch (error) {
+        // The logout route returns 400 when there is no refresh cookie left.
+        if (!(error instanceof ApiRequestError) || error.status !== 400) throw error
+    }
+    clearAccessToken()
+}
 
 export type AdminRole = 'SUPER_ADMIN' | 'ADMIN'
 

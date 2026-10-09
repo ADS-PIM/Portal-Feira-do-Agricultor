@@ -127,7 +127,7 @@ function UserMessageDetails({
                     <div className="admin-user-message-read-status">
                         <span>Status de leitura</span>
                         <strong className={!message.isRead ? 'is-unread' : ''}>
-                            {message.isRead ? 'Aberta' : 'Não lida'}
+                            {message.isRead ? 'Lida' : 'Não lida'}
                         </strong>
                     </div>
                 </header>
@@ -237,11 +237,11 @@ function AdminUsersMessages() {
     return (
         <div className="admin-user-messages">
             <header className="admin-user-messages-heading">
-                <h1>{selectedMessage ? 'Mensagem aberta' : 'Mensagem de Usuários'}</h1>
+                <h1>{selectedMessage ? 'Detalhes da mensagem' : 'Mensagens dos usuários'}</h1>
                 <p>
                     {selectedMessage
                         ? 'Confira as informações e a mensagem enviada pelo usuário.'
-                        : 'Visualize e responda às mensagens dos usuários do site por e-mail ou WhatsApp/telefone.'}
+                        : 'Acompanhe os contatos recebidos e responda por e-mail ou WhatsApp.'}
                 </p>
             </header>
 
@@ -268,17 +268,20 @@ function AdminUsersMessages() {
                 {!loadError && (
                     <section className="admin-user-message-stats" aria-label="Resumo das mensagens">
                         <article>
-                            <h2>Total de mensagens</h2>
+                            <span className="admin-message-stat-icon"><Icon name="email" /></span>
+                            <h2>Mensagens recebidas</h2>
                             <strong>{isLoading ? '—' : messages.length}</strong>
-                            <p>Mensagens registradas no período</p>
+                            <p>Total de contatos pelo portal</p>
                         </article>
-                        <article>
+                        <article className="is-attention">
                             <h2>Não lidas</h2>
+                            <span className="admin-message-stat-icon"><Icon name="message" /></span>
                             <strong className="is-green">{isLoading ? '—' : unreadCount}</strong>
                             <p>Aguardando atenção da equipe</p>
                         </article>
                         <article>
-                            <h2>Abertas</h2>
+                            <span className="admin-message-stat-icon"><Icon name="eye" /></span>
+                            <h2>Lidas</h2>
                             <strong>{isLoading ? '—' : readCount}</strong>
                             <p>Já visualizadas pela equipe</p>
                         </article>
@@ -308,8 +311,8 @@ function AdminUsersMessages() {
                     <section className="admin-user-messages-list" aria-labelledby="admin-user-messages-list-title">
                         <div className="admin-user-messages-list-header">
                             <div>
-                                <h2 id="admin-user-messages-list-title">Listagem de mensagens</h2>
-                                <p>{unreadCount} não lidas · {readCount} abertas</p>
+                                <h2 id="admin-user-messages-list-title"><Icon name="comments" /> Caixa de entrada</h2>
+                                <p>{unreadCount} não lidas · {readCount} lidas</p>
                             </div>
                             <div className="admin-user-messages-filters" role="group" aria-label="Filtrar mensagens">
                                 <button
@@ -318,7 +321,7 @@ function AdminUsersMessages() {
                                     aria-pressed={filter === 'all'}
                                     onClick={() => setFilter('all')}
                                 >
-                                    Todas
+                                    Todas <span className="admin-message-filter-count">{messages.length}</span>
                                 </button>
                                 <button
                                     type="button"
@@ -326,7 +329,7 @@ function AdminUsersMessages() {
                                     aria-pressed={filter === 'unread'}
                                     onClick={() => setFilter('unread')}
                                 >
-                                    Não lidas
+                                    Não lidas <span className="admin-message-filter-count">{unreadCount}</span>
                                 </button>
                                 <button
                                     type="button"
@@ -334,7 +337,7 @@ function AdminUsersMessages() {
                                     aria-pressed={filter === 'read'}
                                     onClick={() => setFilter('read')}
                                 >
-                                    Abertas
+                                    Lidas <span className="admin-message-filter-count">{readCount}</span>
                                 </button>
                             </div>
                         </div>
@@ -348,7 +351,7 @@ function AdminUsersMessages() {
                                 <table className="admin-user-messages-table">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Nome</th>
+                                            <th scope="col">Remetente</th>
                                             <th scope="col">Título</th>
                                             <th scope="col">Assunto</th>
                                             <th scope="col">E-mail</th>
@@ -359,34 +362,36 @@ function AdminUsersMessages() {
                                     </thead>
                                     <tbody>
                                         {filteredMessages.map(message => (
-                                            <tr key={message.id}>
+                                            <tr key={message.id} className={!message.isRead ? 'is-unread' : undefined}>
                                                 <td>
                                                     <strong>{displayValue(message.name)}</strong>
                                                     {message.phone?.trim() && <span>{message.phone}</span>}
                                                 </td>
-                                                <td>{displayValue(message.title)}</td>
+                                                <td className="admin-message-title-cell">{displayValue(message.title)}</td>
                                                 <td>{formatSubject(message.subject)}</td>
                                                 <td>{displayValue(message.email)}</td>
                                                 <td>{formatSubmittedAt(message.submitDate)}</td>
                                                 <td>
                                                     <span className={`admin-user-message-status${!message.isRead ? ' is-unread' : ''}`}>
-                                                        {message.isRead ? 'Aberta' : 'Não lida'}
+                                                        <Icon name={message.isRead ? 'eye' : 'email'} />
+                                                        {message.isRead ? 'Lida' : 'Não lida'}
                                                     </span>
                                                 </td>
                                                 <td className="admin-user-message-actions-cell">
                                                     <div className="admin-user-message-row-actions">
-                                                        <button type="button" className="is-primary" onClick={() => void openMessage(message)}>
-                                                            Abrir mensagem
+                                                        <button type="button" className="is-primary" onClick={() => void openMessage(message)} aria-label={`Abrir mensagem: ${displayValue(message.title)}`}>
+                                                            <Icon name="eye" /> Abrir
                                                         </button>
                                                         <button
                                                             type="button"
                                                             className="is-secondary"
+                                                            aria-label={`Excluir mensagem: ${displayValue(message.title)}`}
                                                             onClick={() => {
                                                                 setActionError(null)
                                                                 setPendingDeletion(message)
                                                             }}
                                                         >
-                                                            Excluir
+                                                            <Icon name="trash" /> Excluir
                                                         </button>
                                                     </div>
                                                 </td>

@@ -551,6 +551,11 @@ const AdminEvents = ({
                 <section className="admin-events-agenda admin-events-all-list" aria-labelledby="admin-events-agenda-title">
                     <h2 id="admin-events-agenda-title">
                         {searchTerm.trim() || activeFilterCount > 0 ? 'Resultados dos eventos' : 'Todos os eventos'}
+                        {!isLoading && !loadError && (
+                            <span className="admin-events-result-count" aria-label={`${filteredEvents.length} eventos`}>
+                                {filteredEvents.length}
+                            </span>
+                        )}
                     </h2>
                     {isLoading ? (
                         <p className="admin-events-empty" role="status">Carregando eventos...</p>

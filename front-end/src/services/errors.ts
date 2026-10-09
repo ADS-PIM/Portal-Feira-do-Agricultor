@@ -1,7 +1,9 @@
 export class ApiRequestError extends Error {
+    readonly status: number
     constructor(status: number, endpoint: string) {
         super(getApiErrorMessage(status, endpoint))
         this.name = 'ApiRequestError'
+        this.status = status
     }
 }
 
@@ -12,6 +14,7 @@ function getApiErrorMessage(status: number, endpoint: string): string {
 
     if (status === 401) return 'Sua sessão expirou. Entre novamente.'
     if (status === 403) return 'Você não tem autorização para realizar esta ação.'
+    if (status === 409 && /^admin\//.test(endpoint)) return 'Este e-mail já está cadastrado em outra conta.'
     if (status === 404) return 'O conteúdo solicitado não está disponível.'
     if (status === 429) return 'Muitas tentativas. Aguarde um pouco e tente novamente.'
     if (status >= 500) return 'O serviço está temporariamente indisponível. Tente novamente mais tarde.'
