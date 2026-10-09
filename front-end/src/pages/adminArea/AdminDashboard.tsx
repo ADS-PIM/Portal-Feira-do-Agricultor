@@ -6,6 +6,7 @@ import { getUserMessages, type UserMessage } from '../../services/messageService
 import './AdminEvents.css'
 import './AdminDashboard.css'
 import Icon from '../../components/Icon'
+import AdminDashboardOverview, { type DashboardFailures } from './AdminDashboardOverview'
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
@@ -55,10 +56,7 @@ const AdminDashboard = ({
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    const adminsCount = admins.filter(admin => admin.active).length
-    const primaryAdmin = useMemo(() => admins.find(admin => admin.active) ?? admins[0], [admins])
-    const unreadMessagesCount = messages.filter(message => !message.isRead).length
-    const readMessagesCount = messages.filter(message => message.isRead).length
+    const [failures, setFailures] = useState<DashboardFailures>({ admins: false, events: false, messages: false })
     const monthKey = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, '0')}`
 
     useEffect(() => {
@@ -66,20 +64,25 @@ const AdminDashboard = ({
 
         const loadDashboard = async () => {
             try {
-                setIsLoading(true)
-                setError(null)
-
-                const [admins, eventList, messages] = await Promise.all([
+                const [admins, eventList, messages] = await Promise.allSettled([
                     getAdmins(),
                     getAdminEvents(),
-                    getUserMessages().catch(() => []),
+                    getUserMessages(),
                 ])
 
                 if (!active) return
 
-                setAdmins(Array.isArray(admins) ? admins : [])
-                setMessages(Array.isArray(messages) ? messages : [])
-                setEvents(Array.isArray(eventList) ? eventList : [])
+                setAdmins(admins.status === 'fulfilled' ? admins.value : [])
+                setMessages(messages.status === 'fulfilled' ? messages.value ?? [] : [])
+                setEvents(eventList.status === 'fulfilled' ? eventList.value ?? [] : [])
+                setFailures({
+                    admins: admins.status === 'rejected',
+                    events: eventList.status === 'rejected',
+                    messages: messages.status === 'rejected',
+                })
+                if ([admins, eventList, messages].some(result => result.status === 'rejected')) {
+                    setError('Alguns dados não puderam ser carregados. Os indicadores afetados estão indisponíveis. Recarregue a página para tentar novamente.')
+                }
             } catch (dashboardError) {
                 if (!active) return
                 setError(dashboardError instanceof Error ? dashboardError.message : 'Não foi possível carregar o painel geral.')
@@ -131,8 +134,6 @@ const AdminDashboard = ({
         [events, monthKey, selectedCalendarDate],
     )
 
-    const pendingEvents = events.filter(event => event.state === 'PENDING').length
-    const totalEvents = events.length
     const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' })
         .format(visibleMonth)
         .replace(/^./, character => character.toLocaleUpperCase('pt-BR'))
@@ -155,68 +156,16 @@ const AdminDashboard = ({
 
                 {error && <p className="admin-dashboard-alert is-error" role="alert">{error}</p>}
 
-                <div className="admin-dashboard-summary">
-                    <div className="admin-dashboard-stat-card">
-                        <div className="admin-dashboard-stat-card-header">
-                            <span className="admin-dashboard-stat-label">Administradores cadastrados</span>
-                        </div>
-                        <div className="admin-dashboard-stat-body">
-                            <strong className="admin-dashboard-stat-value">
-                                <span>{isLoading ? '...' : adminsCount}</span>
-                                {adminsCount > 0 && <em>ativos</em>}
-                            </strong>
-                            <small>
-                                {admins.length} no sistema{primaryAdmin ? ` · Responsável: ${primaryAdmin.name}` : ''}
-                            </small>
-                        </div>
-                        <button type="button" className="admin-dashboard-stat-shortcut" onClick={() => onSelectSection('administradores')}>
-                            Gerenciar administradores
-                        </button>
-                    </div>
-
-                    <div className="admin-dashboard-stat-card">
-                        <div className="admin-dashboard-stat-card-header">
-                            <span className="admin-dashboard-stat-label">Mensagens não lidas</span>
-                        </div>
-                        <div className="admin-dashboard-stat-body">
-                            <strong className="admin-dashboard-stat-value">
-                                <span>{isLoading ? '...' : unreadMessagesCount}</span>
-                            </strong>
-                            <small>{messages.length} recebidas · {readMessagesCount} lidas</small>
-                        </div>
-                        <button type="button" className="admin-dashboard-stat-shortcut" onClick={() => onSelectSection('mensagens')}>
-                            Abrir mensagens
-                        </button>
-                    </div>
-                </div>
-
-                <div className="admin-dashboard-summary admin-dashboard-summary-secondary">
-                    <div className="admin-dashboard-stat-card is-subtle">
-                        <div className="admin-dashboard-stat-card-header">
-                            <span className="admin-dashboard-stat-label">Feiras pendentes</span>
-                        </div>
-                        <div className="admin-dashboard-stat-body">
-                            <strong>{pendingEvents}</strong>
-                            <small>{pendingEvents > 0 ? 'Aguardando revisão' : 'Não há pendências'}</small>
-                        </div>
-                        <button type="button" className="admin-dashboard-stat-shortcut" onClick={() => onSelectSection('eventos')}>
-                            Revisar agenda
-                        </button>
-                    </div>
-
-                    <div className="admin-dashboard-stat-card is-subtle">
-                        <div className="admin-dashboard-stat-card-header">
-                            <span className="admin-dashboard-stat-label">Feiras cadastradas</span>
-                        </div>
-                        <div className="admin-dashboard-stat-body">
-                            <strong>{totalEvents}</strong>
-                            <small>{totalEvents > 0 ? 'Ativas no sistema' : 'Nenhuma feira registrada'}</small>
-                        </div>
-                        <button type="button" className="admin-dashboard-stat-shortcut" onClick={() => onSelectSection('eventos')}>
-                            Ver eventos
-                        </button>
-                    </div>
-                </div>
+                <AdminDashboardOverview
+                    admins={admins}
+                    events={events}
+                    messages={messages}
+                    isLoading={isLoading}
+                    failures={failures}
+                    onSelectSection={onSelectSection}
+                    onCreateEvent={() => onCreateEventAtDate(null)}
+                    onEditEvent={onEditEvent}
+                />
 
                 <div className="admin-events admin-events-columns admin-dashboard-agenda">
                     <section className="admin-events-calendar" aria-labelledby="dashboard-calendar-title">
@@ -291,6 +240,8 @@ const AdminDashboard = ({
                         </header>
                         {isLoading ? (
                             <p className="admin-events-empty" role="status">Carregando eventos...</p>
+                        ) : failures.events ? (
+                            <p className="admin-events-empty" role="status">Não foi possível carregar a agenda.</p>
                         ) : agendaEvents.length ? (
                             <ul className="admin-events-list">
                                 {agendaEvents.map(event => (
