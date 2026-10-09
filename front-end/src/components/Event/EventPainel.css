@@ -159,7 +159,9 @@
 }
 
 .event-agenda-calendar-button {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: fit-content;
     max-width: 100%;
     min-height: 46px;

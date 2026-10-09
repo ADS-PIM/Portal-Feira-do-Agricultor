@@ -509,6 +509,7 @@
 
 .admin-event-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 11px;
 }

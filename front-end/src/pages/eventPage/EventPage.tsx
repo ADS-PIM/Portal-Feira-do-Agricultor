@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import Icon from '../../components/Icon'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
-import { getEventDetails, getEventImages, type EventDetails, type EventImage } from '../../services/eventService'
+import { getEvents, getEventDetails, getEventImages, type AdminEvent, type EventDetails, type EventImage } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
+import { getAdjacentEvents } from './eventNavigation'
 import './EventPage.css'
 
 const EVENT_STATE_LABELS: Record<EventDetails['state'], string> = {
@@ -78,6 +79,25 @@ function EventPage({ eventId }: { eventId: string }) {
     const [imagesError, setImagesError] = useState<string | null>(null)
     const [showAllPhotos, setShowAllPhotos] = useState(false)
     const [reloadKey, setReloadKey] = useState(0)
+    const [navigation, setNavigation] = useState<{
+        events: AdminEvent[]; loading: boolean; error: boolean
+    }>({ events: [], loading: true, error: false })
+
+    useEffect(() => {
+        const controller = new AbortController()
+        void getEvents(controller.signal)
+            .then(events => {
+                if (!controller.signal.aborted) {
+                    setNavigation({ events: events ?? [], loading: false, error: false })
+                }
+            })
+            .catch(() => {
+                if (!controller.signal.aborted) {
+                    setNavigation({ events: [], loading: false, error: true })
+                }
+            })
+        return () => controller.abort()
+    }, [eventId, reloadKey])
 
     useEffect(() => {
         const controller = new AbortController()
@@ -115,6 +135,7 @@ function EventPage({ eventId }: { eventId: string }) {
         return () => controller.abort()
     }, [eventId, reloadKey])
 
+    const adjacentEvents = event ? getAdjacentEvents(navigation.events, event) : { previous: null, next: null }
     const galleryImages = images.filter(image =>
         image.imageURL.trim() && image.description.trim().toLocaleLowerCase('pt-BR') !== 'banner do evento',
     )
@@ -147,10 +168,42 @@ function EventPage({ eventId }: { eventId: string }) {
             <Header initialActiveLink="#/calendario" />
             <main className="event-page">
                 <div className="event-page-content">
-                    <a className="event-page-back" href="#/calendario">
-                        <Icon name="arrowLeft" />
-                        Voltar para o Calendário
-                    </a>
+                    <div className="event-page-toolbar">
+                        <a className="event-page-back" href="#/calendario">
+                            <Icon name="arrowLeft" />
+                            Voltar para o Calendário
+                        </a>
+                        {!isLoading && !eventError && event && (
+                            <nav className="event-page-navigation" aria-label="Navegar entre eventos">
+                                {(['previous', 'next'] as const).map(direction => {
+                                    const target = adjacentEvents[direction]
+                                    const label = direction === 'previous' ? 'Evento anterior' : 'Próximo evento'
+                                    const icon = direction === 'previous' ? 'arrowLeft' : 'arrowRight'
+                                    const unavailable = navigation.loading ? 'Carregando eventos'
+                                        : navigation.error ? 'Não foi possível carregar a navegação entre eventos'
+                                            : direction === 'previous' ? 'Não há evento anterior' : 'Não há próximo evento'
+                                    return target ? (
+                                        <a key={direction} className="event-page-navigation-arrow"
+                                            href={`#/evento/${encodeURIComponent(target.id)}`}
+                                            aria-label={`${label}: ${target.title}`}
+                                            title={`${label}: ${target.title} — ${formatDate(target.date)}, ${formatTime(target.startAt)}`}>
+                                            <Icon name={icon} />
+                                        </a>
+                                    ) : (
+                                        <button key={direction} type="button" className="event-page-navigation-arrow"
+                                            disabled aria-label={`${label}: ${unavailable}`} title={unavailable}>
+                                            <Icon name={icon} />
+                                        </button>
+                                    )
+                                })}
+                            </nav>
+                        )}
+                    </div>
+                    {navigation.error && !isLoading && !eventError && (
+                        <p className="event-page-navigation-error" role="status">
+                            Não foi possível carregar a navegação entre eventos.
+                        </p>
+                    )}
 
                     {isLoading && (
                         <section className="event-page-feedback" role="status">

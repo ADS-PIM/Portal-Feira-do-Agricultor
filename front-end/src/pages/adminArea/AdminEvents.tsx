@@ -576,6 +576,14 @@ const AdminEvents = ({
                                         <span>{event.localAddress}</span>
                                     </p>
                                     <div className="admin-event-actions">
+                                        <a
+                                            className="admin-event-action is-view"
+                                            href={`#/evento/${encodeURIComponent(event.id)}`}
+                                            aria-label={`Ver evento ${event.title}`}
+                                        >
+                                            <Icon name="eye" />
+                                            Ver Evento
+                                        </a>
                                         <button
                                             type="button"
                                             className="admin-event-action is-edit"

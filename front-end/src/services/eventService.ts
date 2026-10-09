@@ -53,9 +53,11 @@ export function uploadEventBanner(file: File): Promise<{ url: string }> {
     })
 }
 
-export function getAdminEvents(signal?: AbortSignal): Promise<AdminEvent[] | null> {
+export function getEvents(signal?: AbortSignal): Promise<AdminEvent[] | null> {
     return apiFetch<AdminEvent[] | null>('event', { signal })
 }
+
+export const getAdminEvents = getEvents
 
 export function createAdminEvent(event: AdminEventInput): Promise<{ message: string }> {
     return apiFetch<{ message: string }>('event/create', {
