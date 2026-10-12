@@ -11,7 +11,7 @@ const PricingCalculatorPromo = () => {
                         Calcule o preço justo do seu produto considerando sementes, água, transporte e horas
                         trabalhadas. Uma ferramenta simples para decisões mais seguras e sustentáveis.
                     </p>
-                    <button className="pricing-calculator-button" type="button">
+                    <button className="pricing-calculator-button" type="button" onClick={() => { window.location.hash = '#/calculadora' }}>
                         Acessar Calculadora
                         <Icon name="arrowRight" />
                     </button>

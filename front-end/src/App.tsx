@@ -7,9 +7,10 @@ import CalendarPage from './pages/calendarPage/CalendarPage'
 import AdminArea from './pages/adminArea/AdminArea'
 import EventPage from './pages/eventPage/EventPage'
 import AccountPage from './pages/accountPage/AccountPage'
+import PricingCalculatorPage from './pages/pricingCalculatorPage/PricingCalculatorPage'
 
 type AppRoute =
-  | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' }
+  | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' | 'calculator' }
   | { page: 'event'; eventId: string }
 
 function getCurrentRoute(): AppRoute {
@@ -20,6 +21,7 @@ function getCurrentRoute(): AppRoute {
   if (hash === '#/admin') return { page: 'admin' }
   if (hash === '#contato' || hash === '#/contato') return { page: 'contact' }
   if (hash === '#/calendario') return { page: 'calendar' }
+  if (hash === '#/calculadora' || hash === '#calculadora') return { page: 'calculator' }
 
   const eventRoute = /^#\/evento\/([^/?#]+)$/.exec(hash)
   if (eventRoute) {
@@ -55,6 +57,7 @@ function App() {
   }
 
   if (route.page === 'account') return <AccountPage />
+  if (route.page === 'calculator') return <PricingCalculatorPage />
 
   if (route.page === 'contact') {
     return <ContactUsPage />

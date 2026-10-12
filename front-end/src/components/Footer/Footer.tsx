@@ -90,7 +90,7 @@ const Footer = () => {
                     </div>
                     <div>
                         <h2>Serviços &amp; Links</h2>
-                        <a href="#calculadora">Calculadora de Preço</a>
+                        <a href="#/calculadora">Calculadora de Preço</a>
                         <span>Documentação</span>
                     </div>
                 </nav>
