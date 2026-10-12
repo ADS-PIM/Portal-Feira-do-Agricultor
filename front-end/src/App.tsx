@@ -13,6 +13,17 @@ type AppRoute =
   | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' | 'calculator' }
   | { page: 'event'; eventId: string }
 
+const pageTitles: Record<AppRoute['page'], string> = {
+  home: 'Início',
+  login: 'Entrar na área administrativa',
+  admin: 'Área administrativa',
+  contact: 'Fale conosco',
+  calendar: 'Calendário de feiras',
+  account: 'Minha conta',
+  calculator: 'Calculadora de precificação',
+  event: 'Detalhes do evento',
+}
+
 function getCurrentRoute(): AppRoute {
   const hash = window.location.hash || '#inicio'
 
@@ -47,6 +58,10 @@ function App() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [route])
+
+  useEffect(() => {
+    document.title = `${pageTitles[route.page]} | Brotando Feiras`
+  }, [route.page])
 
   if (route.page === 'login') {
     return <LoginPage onLoginSuccess={() => { window.location.hash = '#/admin' }} />
