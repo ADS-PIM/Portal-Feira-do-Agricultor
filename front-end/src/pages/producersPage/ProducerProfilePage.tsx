@@ -1,6 +1,5 @@
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
-import Icon from '../../components/Icon'
 import { getProducerBySlug } from './producersData'
 import './ProducerProfilePage.css'
 
