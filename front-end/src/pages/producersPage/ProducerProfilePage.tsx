@@ -51,7 +51,7 @@ const ProducerProfilePage = ({ producerSlug }: ProducerProfilePageProps) => {
               <h1>{producer.name}</h1>
 
               <p className="producer-profile-location">
-                <span aria-hidden="true">◉</span>
+                <span aria-hidden="true">•</span>
                 {producer.location} • {producer.community}
               </p>
 

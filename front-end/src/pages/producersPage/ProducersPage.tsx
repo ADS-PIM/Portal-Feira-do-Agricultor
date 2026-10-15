@@ -77,7 +77,7 @@ const ProducersPage = () => {
                   <div className="producer-card-body">
                     <h2>{producer.name}</h2>
                     <div className="producer-card-location">
-                      <span aria-hidden="true">◉</span>
+                      <span aria-hidden="true">•</span>
                       {producer.location}
                     </div>
 
