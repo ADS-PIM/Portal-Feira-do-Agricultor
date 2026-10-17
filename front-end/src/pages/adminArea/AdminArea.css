@@ -21,8 +21,8 @@
 .admin-area-skeleton-nav {
     box-sizing: border-box;
     align-self: stretch;
-    width: 240px;
-    flex: 0 0 240px;
+    width: 200px;
+    flex: 0 0 200px;
     background: var(--brand-charcoal);
 }
 
@@ -35,7 +35,7 @@
     max-height: calc(100vh - 68px);
     margin: 0;
     overflow: hidden;
-    padding: 24px 14px;
+    padding: 24px 10px;
     list-style: none;
 }
 
@@ -44,8 +44,8 @@
     display: flex;
     min-height: 41px;
     align-items: center;
-    gap: 12px;
-    padding: 0 14px;
+    gap: 8px;
+    padding: 0 10px;
     border-radius: 9px;
 }
 
@@ -358,12 +358,12 @@
 
 @media (max-width: 680px) {
     .admin-area-skeleton-nav {
-        width: 72px;
-        flex-basis: 72px;
+        width: 52px;
+        flex-basis: 52px;
     }
 
     .admin-area-skeleton-nav-list {
-        padding: 20px 8px;
+        padding: 20px 4px;
     }
 
     .admin-area-skeleton-nav-item {
@@ -388,11 +388,6 @@
 }
 
 @media (max-width: 380px) {
-    .admin-area-skeleton-nav {
-        width: 60px;
-        flex-basis: 60px;
-    }
-
     .admin-area-skeleton-nav-list {
         padding: 16px 4px;
     }

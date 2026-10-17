@@ -51,10 +51,12 @@
 .MainBanner-buttons {
     display: flex;
     flex-wrap: wrap;
+    max-width: 100%;
     gap: 16px;
 }
 
 .MainBanner-buttons a {
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -67,6 +69,7 @@
     font: inherit;
     font-size: 14px;
     font-weight: 700;
+    text-align: center;
     text-decoration: none;
     transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
@@ -94,7 +97,7 @@
 @media (max-width: 680px) {
     .MainBanner {
         min-height: 520px;
-        padding: 64px 24px;
+        padding: 48px clamp(16px, 5vw, 24px);
     }
 
     .MainBanner > img {
@@ -104,23 +107,25 @@
     .MainBanner h1 {
         max-width: 560px;
         margin-bottom: 20px;
-        font-size: 42px;
+        font-size: clamp(32px, 8.8vw, 42px);
     }
 
     .MainBanner p {
         margin-bottom: 28px;
         font-size: 16px;
     }
-}
 
-@media (max-width: 420px) {
     .MainBanner-buttons {
         width: 100%;
+        max-width: 380px;
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
     }
 
     .MainBanner-buttons a {
         width: 100%;
+        min-height: 48px;
+        padding: 12px 20px;
     }
 }

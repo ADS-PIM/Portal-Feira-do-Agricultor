@@ -1,5 +1,5 @@
 import './Header.css'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import logo from '../../assets/logo_extenso.png'
 import Icon from '../Icon'
 import { restoreAdminProfile } from '../../services/api'
@@ -28,10 +28,46 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
 
     const [activeLink, setActiveLink] = useState(initialActiveLink);
     const [isVisible, setIsVisible] = useState(true);
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const headerRef = useRef<HTMLElement>(null)
+    const menuButtonRef = useRef<HTMLButtonElement>(null)
+    const navigationId = useId()
     const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(() => getAdminProfile())
     const [hasCheckedSession, setHasCheckedSession] = useState(false)
     const lastVisibilityChangeY = useRef(0);
     const hasInitializedScrollPosition = useRef(false)
+
+    useEffect(() => {
+        if (!isMenuOpen) return
+
+        const closeMenu = () => setIsMenuOpen(false)
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                closeMenu()
+                menuButtonRef.current?.focus()
+            }
+        }
+        const handlePointerDown = (event: PointerEvent) => {
+            if (event.target instanceof Node && !headerRef.current?.contains(event.target)) {
+                closeMenu()
+            }
+        }
+        const mobileViewport = window.matchMedia('(max-width: 680px)')
+        const handleViewportChange = (event: MediaQueryListEvent) => {
+            if (!event.matches) closeMenu()
+        }
+
+        document.addEventListener('keydown', handleKeyDown)
+        document.addEventListener('pointerdown', handlePointerDown)
+        window.addEventListener('hashchange', closeMenu)
+        mobileViewport.addEventListener('change', handleViewportChange)
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown)
+            document.removeEventListener('pointerdown', handlePointerDown)
+            window.removeEventListener('hashchange', closeMenu)
+            mobileViewport.removeEventListener('change', handleViewportChange)
+        }
+    }, [isMenuOpen])
 
     useEffect(() => {
         const syncAuthState = () => {
@@ -85,19 +121,38 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     }, [])
 
     return (
-        <header className={`site-header${isVisible ? '' : ' is-hidden'}`}>
-            <a className="site-header-brand" href="#inicio" aria-label="Brotando Feiras - início">
+        <header ref={headerRef} className={`site-header${isVisible || isMenuOpen ? '' : ' is-hidden'}${isMenuOpen ? ' is-menu-open' : ''}`}>
+            <a className="site-header-brand" href="#inicio" aria-label="Brotando Feiras - início" onClick={() => setIsMenuOpen(false)}>
                 <img src={logo} alt="Brotando Feiras" />
             </a>
 
-            <nav className="site-header-navigation" aria-label="Navegação principal">
+            <button
+                ref={menuButtonRef}
+                className="site-header-menu-toggle"
+                type="button"
+                aria-label={isMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
+                aria-expanded={isMenuOpen}
+                aria-controls={navigationId}
+                onClick={() => setIsMenuOpen(open => !open)}
+            >
+                <span className="site-header-menu-icon" aria-hidden="true">
+                    <span />
+                    <span />
+                    <span />
+                </span>
+            </button>
+
+            <nav id={navigationId} className="site-header-navigation" aria-label="Navegação principal">
                 {navigationLinks.map(({ href, label }) => (
                     <a
                         key={href}
                         className={activeLink === href ? 'is-active' : ''}
                         href={href}
                         aria-current={activeLink === href ? 'page' : undefined}
-                        onClick={() => setActiveLink(href)}
+                        onClick={() => {
+                            setActiveLink(href)
+                            setIsMenuOpen(false)
+                        }}
                     >
                         {label}
                     </a>
@@ -106,7 +161,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
 
             <div className="site-header-account">
                 {adminProfile ? (
-                    <a className="site-header-profile" href="#/minha-conta" aria-label="Visualizar minha conta" aria-current={initialActiveLink === '#/minha-conta' ? 'page' : undefined}>
+                    <a className="site-header-profile" href="#/minha-conta" aria-label="Visualizar minha conta" aria-current={initialActiveLink === '#/minha-conta' ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>
                         <div className="site-header-profile-info">
                             <span className="site-header-profile-name">{adminProfile.name}</span>
                             <span className="site-header-profile-role">
@@ -133,7 +188,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
                         </div>
                     </a>
                 ) : hasCheckedSession ? (
-                    <button type="button" onClick={() => { window.location.hash = '#/admin/login' }}>
+                    <button type="button" onClick={() => { setIsMenuOpen(false); window.location.hash = '#/admin/login' }}>
                         Entrar
                     </button>
                 ) : null}

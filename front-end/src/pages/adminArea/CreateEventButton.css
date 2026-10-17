@@ -1,0 +1,38 @@
+button.admin-create-event {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 42px;
+    margin-left: auto;
+    padding: 0 16px;
+    border: 1px solid #19683b;
+    border-radius: 10px;
+    background: #19683b;
+    color: #fff;
+    font-family: "Now", "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+button.admin-create-event:hover {
+    background: #12502d;
+}
+
+button.admin-create-event:focus-visible {
+    outline: 3px solid #e5a141;
+    outline-offset: 4px;
+}
+
+.admin-create-event svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 680px) {
+    .admin-create-event { width: 100%; }
+}

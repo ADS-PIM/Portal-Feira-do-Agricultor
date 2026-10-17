@@ -2,9 +2,9 @@
     box-sizing: border-box;
     position: relative;
     align-self: stretch;
-    width: 240px;
+    width: 200px;
     height: auto;
-    flex: 0 0 240px;
+    flex: 0 0 200px;
     overflow: visible;
     background: var(--brand-charcoal);
     color: #d7d9d6;
@@ -21,7 +21,7 @@
     top: 68px;
     max-height: calc(100vh - 68px);
     overflow-y: auto;
-    padding: 24px 14px;
+    padding: 24px 10px;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -38,10 +38,10 @@
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     width: 100%;
     min-height: 41px;
-    padding: 0 14px;
+    padding: 0 10px;
     border: 0;
     border-radius: 9px;
     background: transparent;
@@ -85,12 +85,12 @@
 
 @media (max-width: 680px) {
     .admin-side-nav {
-        width: 72px;
-        flex-basis: 72px;
+        width: 52px;
+        flex-basis: 52px;
     }
 
     .admin-side-nav-list {
-        padding: 20px 8px;
+        padding: 20px 4px;
     }
 
     .admin-side-nav-item {
@@ -110,11 +110,6 @@
 }
 
 @media (max-width: 380px) {
-    .admin-side-nav {
-        width: 60px;
-        flex-basis: 60px;
-    }
-
     .admin-side-nav-list {
         padding: 16px 4px;
     }

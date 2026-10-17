@@ -144,40 +144,90 @@
 
 @media (max-width: 760px) {
     .site-footer {
-        padding: 40px 24px 24px;
+        padding: 28px 24px 20px;
     }
 
     .site-footer-main {
         flex-direction: column;
-        gap: 28px;
-        padding-bottom: 28px;
+        gap: 24px;
+        padding-bottom: 24px;
+    }
+
+    .site-footer-brand-heading {
+        width: min(100%, clamp(140px, 38vw, 180px));
+        margin-bottom: 12px;
+    }
+
+    .site-footer-brand > p {
+        font-size: 12px;
+    }
+
+    .site-footer-socials {
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .site-footer-socials:empty {
+        display: none;
+    }
+
+    .site-footer-socials svg {
+        width: 15px;
+        height: 15px;
     }
 
     .site-footer-links {
-        justify-content: space-between;
-        gap: 24px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .site-footer-links > div {
+        min-width: 0;
+        gap: 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .site-footer-links h2 {
+        font-size: 12px;
+    }
+
+    .site-footer-links a,
+    .site-footer-links span,
+    .site-footer-bottom {
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .site-footer-links a {
+        display: inline-flex;
+        min-height: 24px;
+        align-items: center;
     }
 
     .site-footer-bottom {
         flex-direction: column;
-        gap: 14px;
-        padding-top: 22px;
+        gap: 10px;
+        padding-top: 18px;
     }
 
     .site-footer-bottom nav {
         flex-wrap: wrap;
-        gap: 12px 24px;
+        gap: 8px 20px;
     }
 }
 
 @media (max-width: 420px) {
     .site-footer {
-        padding-right: 18px;
-        padding-left: 18px;
+        padding: 24px 16px 18px;
+    }
+
+    .site-footer-main {
+        gap: 20px;
+        padding-bottom: 20px;
     }
 
     .site-footer-links {
-        flex-direction: column;
-        gap: 24px;
+        gap: 16px;
     }
 }

@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import {
     faArrowLeft,
     faArrowRight,
+    faBars,
     faCalculator,
     faCalendarDays,
     faChevronLeft,
@@ -35,6 +36,7 @@ import { faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons'
 const icons = {
     arrowLeft: faArrowLeft,
     arrowRight: faArrowRight,
+    menu: faBars,
     calculator: faCalculator,
     dashboard: faTableCellsLarge,
     calendar: faCalendarDays,

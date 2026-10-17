@@ -11,6 +11,7 @@ import {
 } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
 import { matchesEventTimeRange } from './eventTimeFilter'
+import CreateEventButton from './CreateEventButton'
 import './AdminEvents.css'
 
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
@@ -484,16 +485,16 @@ const AdminEvents = ({
                             type="button"
                             aria-expanded={isFiltersOpen}
                             aria-controls="admin-events-filters"
+                            aria-label={activeFilterCount > 0 ? `Filtros (${activeFilterCount} ativos)` : 'Filtros'}
+                            title="Filtros"
                             onClick={() => setIsFiltersOpen(open => !open)}
                         >
                             <Icon name="sliders" />
-                            Filtros
+                            <span className="admin-event-action-label">Filtros</span>
                             {activeFilterCount > 0 && <span className="admin-events-filter-count">{activeFilterCount}</span>}
                         </button>
                     </div>
-                    <button
-                        className="admin-events-create"
-                        type="button"
+                    <CreateEventButton
                         onClick={() => {
                             setActionMessage(null)
                             setFormError(null)
@@ -501,10 +502,7 @@ const AdminEvents = ({
                             setNewEventDate(initialEventDate ?? '')
                             setIsCreating(true)
                         }}
-                    >
-                        <Icon name="plus" />
-                        Criar Evento
-                    </button>
+                    />
                 </div>
 
                 {isFiltersOpen && (
@@ -583,13 +581,16 @@ const AdminEvents = ({
                                             className="admin-event-action is-view"
                                             href={`#/evento/${encodeURIComponent(event.id)}`}
                                             aria-label={`Ver evento ${event.title}`}
+                                            title="Ver evento"
                                         >
                                             <Icon name="eye" />
-                                            Ver Evento
+                                            <span className="admin-event-action-label">Ver Evento</span>
                                         </a>
                                         <button
                                             type="button"
                                             className="admin-event-action is-edit"
+                                            aria-label={`Editar evento ${event.title}`}
+                                            title="Editar evento"
                                             onClick={() => {
                                                 setActionMessage(null)
                                                 setFormError(null)
@@ -597,11 +598,17 @@ const AdminEvents = ({
                                             }}
                                         >
                                             <Icon name="edit" />
-                                            Editar
+                                            <span className="admin-event-action-label">Editar</span>
                                         </button>
-                                        <button type="button" className="admin-event-action is-delete" onClick={() => setEventPendingDeletion(event)}>
+                                        <button
+                                            type="button"
+                                            className="admin-event-action is-delete"
+                                            aria-label={`Excluir evento ${event.title}`}
+                                            title="Excluir evento"
+                                            onClick={() => setEventPendingDeletion(event)}
+                                        >
                                             <Icon name="trash" />
-                                            Excluir
+                                            <span className="admin-event-action-label">Excluir</span>
                                         </button>
                                     </div>
                                 </li>

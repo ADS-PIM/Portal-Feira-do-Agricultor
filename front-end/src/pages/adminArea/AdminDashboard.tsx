@@ -5,6 +5,7 @@ import { getAdminEvents, type AdminEvent } from '../../services/eventService'
 import { getUserMessages, type UserMessage } from '../../services/messageService'
 import './AdminEvents.css'
 import './AdminDashboard.css'
+import './CreateEventButton.css'
 import Icon from '../../components/Icon'
 import AdminDashboardOverview, { type DashboardFailures } from './AdminDashboardOverview'
 
@@ -233,7 +234,7 @@ const AdminDashboard = ({
                             {selectedCalendarDate && (
                                 <button
                                     type="button"
-                                    className="admin-events-create admin-dashboard-create-event-button"
+                                    className="admin-create-event admin-dashboard-create-event-button"
                                     onClick={() => onCreateEventAtDate(selectedCalendarDate)}
                                 >
                                     <Icon name="plus" />
@@ -253,13 +254,13 @@ const AdminDashboard = ({
                                             {event.description && <p className="admin-event-description">{event.description}</p>}
                                         <p className="admin-event-detail">
                                             <Icon name="calendar" />
-                                            <span>{formatEventDate(event.date)}</span>
+                                            <span title={formatEventDate(event.date)}>{normalizeDateOnly(event.date).split('-').reverse().join('/')}</span>
                                         </p>
                                         <p className="admin-event-detail">
                                             <Icon name="clock" />
                                             <span>{event.startAt.slice(0, 5)} - {event.endAt.slice(0, 5)}</span>
                                         </p>
-                                        <p className="admin-event-detail">
+                                        <p className="admin-event-detail admin-event-location">
                                             <Icon name="location" />
                                             <span>{event.localAddress}</span>
                                         </p>
@@ -268,27 +269,27 @@ const AdminDashboard = ({
                                                 className="admin-event-action is-view"
                                                 href={`#/evento/${encodeURIComponent(event.id)}`}
                                                 aria-label={`Ver evento ${event.title}`}
+                                                title="Ver evento"
                                             >
                                                 <Icon name="eye" />
-                                                Ver Evento
                                             </a>
                                             <button
                                                 type="button"
                                                 className="admin-event-action is-edit"
                                                 aria-label={`Editar ${event.title}`}
+                                                title="Editar evento"
                                                 onClick={() => onEditEvent(event.id)}
                                             >
                                                 <Icon name="edit" />
-                                                Editar
                                             </button>
                                             <button
                                                 type="button"
                                                 className="admin-event-action is-delete"
                                                 aria-label={`Excluir ${event.title}`}
+                                                title="Excluir evento"
                                                 onClick={() => onDeleteEvent(event.id)}
                                             >
                                                 <Icon name="trash" />
-                                                Excluir
                                             </button>
                                         </div>
                                     </li>

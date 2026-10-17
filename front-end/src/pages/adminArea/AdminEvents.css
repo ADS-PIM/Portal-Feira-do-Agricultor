@@ -24,15 +24,16 @@
 }
 
 .admin-events-workspace {
-    padding: 30px;
+    padding: 29px 30px 30px;
 }
 
 .admin-events-toolbar {
     display: flex;
+    min-height: 84px;
     align-items: center;
     justify-content: space-between;
     gap: 14px;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 }
 
 .admin-events-search-controls {
@@ -202,12 +203,6 @@
     text-underline-offset: 3px;
 }
 
-.admin-events-toolbar .admin-events-create {
-    min-height: 46px;
-    box-shadow: 0 3px 8px rgb(35 105 48 / 12%);
-}
-
-.admin-events-create,
 .admin-event-button {
     display: inline-flex;
     min-height: 42px;
@@ -227,19 +222,9 @@
     transition: background-color 150ms ease;
 }
 
-.admin-events-create:hover,
-.admin-events-create:focus-visible,
 .admin-event-button.is-primary:hover,
 .admin-event-button.is-primary:focus-visible {
     background: var(--brand-green-dark);
-}
-
-.admin-events-create svg {
-    width: 17px;
-    height: 17px;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-width: 2.4;
 }
 
 .admin-events-columns {
@@ -1028,34 +1013,73 @@
     }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 760px) {
     .admin-events-heading {
-        padding: 15px 18px;
+        padding: 12px 14px;
+    }
+
+    .admin-events-heading h1 {
+        font-size: 20px;
+    }
+
+    .admin-events-heading p {
+        font-size: 12px;
+        line-height: 1.4;
     }
 
     .admin-events-workspace {
-        padding: 20px 16px;
+        padding: 14px 12px;
     }
 
     .admin-events-toolbar {
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 20px;
+        min-height: auto;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
     }
 
     .admin-events-search-controls {
-        width: 100%;
-        flex: 1 1 100%;
+        flex: 1 1 0;
+        gap: 8px;
     }
 
     .admin-events-search {
         width: 100%;
         flex-basis: 0;
+        height: 40px;
+        gap: 6px;
+        padding: 0 9px;
     }
 
-    .admin-events-create {
-        margin-left: auto;
+    .admin-events-search input {
+        font-size: 12px;
+    }
+
+    .admin-events-filter-button,
+    .admin-events-toolbar .admin-create-event {
+        box-sizing: border-box;
+        width: 40px;
+        min-height: 40px;
+        flex: 0 0 40px;
+        gap: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .admin-events-filter-button {
+        position: relative;
+    }
+
+    .admin-events-filter-count {
+        position: absolute;
+        top: -6px;
+        right: -5px;
+        box-sizing: border-box;
+    }
+
+    .admin-events-workspace .admin-event-action-label,
+    .admin-events-toolbar .admin-create-event-label {
+        display: none;
     }
 
     .admin-events-filters {
@@ -1075,10 +1099,74 @@
 
     .admin-events-list {
         grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+        padding-right: 0;
     }
 
     .admin-events-all-list .admin-events-list {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-events-all-list > h2 {
+        gap: 8px;
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+
+    .admin-events-all-list .admin-event-card {
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .admin-events-all-list .admin-event-title-row {
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .admin-events-all-list .admin-event-title-row h3 {
+        flex-basis: 0;
+        font-size: 14px;
+    }
+
+    .admin-events-all-list .admin-event-status {
+        gap: 4px;
+        padding: 3px 7px;
+        font-size: 10px;
+    }
+
+    .admin-events-all-list .admin-event-description {
+        margin-bottom: 8px;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .admin-events-all-list .admin-event-detail {
+        gap: 7px;
+        margin-top: 5px;
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .admin-events-all-list .admin-event-detail > span {
+        min-width: 0;
+    }
+
+    .admin-events-all-list .admin-event-detail:last-of-type {
+        margin-bottom: 10px;
+    }
+
+    .admin-events-all-list .admin-event-actions {
+        gap: 8px;
+        padding-top: 10px;
+    }
+
+    .admin-events-all-list .admin-event-action {
+        box-sizing: border-box;
+        width: 34px;
+        min-height: 34px;
+        flex: 0 0 34px;
+        gap: 0;
+        padding: 0;
     }
 
     .admin-event-modal-backdrop {
