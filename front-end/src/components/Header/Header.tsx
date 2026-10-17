@@ -1,6 +1,6 @@
 import './Header.css'
 import { useEffect, useRef, useState } from 'react'
-import logo from '../../assets/brotando_feiras_logo.png'
+import logo from '../../assets/logo_extenso.png'
 import Icon from '../Icon'
 import { restoreAdminProfile } from '../../services/api'
 import {
@@ -14,7 +14,7 @@ const navigationLinks = [
     { href: '#inicio', label: 'Início' },
     { href: '#/calendario', label: 'Calendário' },
     { href: '#contato', label: 'Fale Conosco' },
-    { href: '#calculadora', label: 'Calculadora de Preços' },
+    { href: '#/calculadora', label: 'Calculadora de Preços' },
     { href: '#/admin', label: 'Área administrativa' },
 ]
 

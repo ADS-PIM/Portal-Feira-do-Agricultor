@@ -7,10 +7,22 @@ import CalendarPage from './pages/calendarPage/CalendarPage'
 import AdminArea from './pages/adminArea/AdminArea'
 import EventPage from './pages/eventPage/EventPage'
 import AccountPage from './pages/accountPage/AccountPage'
+import PricingCalculatorPage from './pages/pricingCalculatorPage/PricingCalculatorPage'
 
 type AppRoute =
-  | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' }
+  | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' | 'calculator' }
   | { page: 'event'; eventId: string }
+
+const pageTitles: Record<AppRoute['page'], string> = {
+  home: 'Início',
+  login: 'Entrar na área administrativa',
+  admin: 'Área administrativa',
+  contact: 'Fale conosco',
+  calendar: 'Calendário de feiras',
+  account: 'Minha conta',
+  calculator: 'Calculadora de precificação',
+  event: 'Detalhes do evento',
+}
 
 function getCurrentRoute(): AppRoute {
   const hash = window.location.hash || '#inicio'
@@ -20,6 +32,7 @@ function getCurrentRoute(): AppRoute {
   if (hash === '#/admin') return { page: 'admin' }
   if (hash === '#contato' || hash === '#/contato') return { page: 'contact' }
   if (hash === '#/calendario') return { page: 'calendar' }
+  if (hash === '#/calculadora' || hash === '#calculadora') return { page: 'calculator' }
 
   const eventRoute = /^#\/evento\/([^/?#]+)$/.exec(hash)
   if (eventRoute) {
@@ -46,6 +59,10 @@ function App() {
     window.scrollTo(0, 0)
   }, [route])
 
+  useEffect(() => {
+    document.title = `${pageTitles[route.page]} | Brotando Feiras`
+  }, [route.page])
+
   if (route.page === 'login') {
     return <LoginPage onLoginSuccess={() => { window.location.hash = '#/admin' }} />
   }
@@ -55,6 +72,7 @@ function App() {
   }
 
   if (route.page === 'account') return <AccountPage />
+  if (route.page === 'calculator') return <PricingCalculatorPage />
 
   if (route.page === 'contact') {
     return <ContactUsPage />
