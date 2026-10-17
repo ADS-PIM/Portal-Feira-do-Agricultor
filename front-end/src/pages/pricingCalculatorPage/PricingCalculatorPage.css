@@ -1,87 +1,150 @@
 .markup-page {
-    background: #fffdf8;
-    color: var(--brand-charcoal);
-    line-height: 1.6;
+    --calculator-green: #07832e;
+    --calculator-text: #3f5144;
+    --calculator-muted: #607467;
+    --calculator-border: #dce6dd;
+    --calculator-soft: #eff7f0;
+    background: #fcfaf7;
+    color: var(--calculator-text);
+    line-height: 1.5;
 }
 
 .markup-page *,
 .markup-page *::before,
 .markup-page *::after { box-sizing: border-box; }
+.markup-page :is(h1, h2, h3) { zoom: 1; }
+.markup-shell { max-width: 1352px; margin: 0 auto; padding: 48px 32px 56px; }
+.markup-heading { display: flex; align-items: center; gap: 18px; margin-bottom: 30px; }
+.markup-heading-icon { display: flex; flex: 0 0 62px; align-items: center; justify-content: center; width: 62px; height: 62px; border-radius: 20px; background: var(--calculator-soft); color: var(--calculator-green); font-size: 27px; }
+.markup-heading h1 { color: var(--calculator-green); font-size: clamp(26px, 3.1vw, 36px); font-weight: 700; line-height: 1.2; letter-spacing: -0.035em; }
+.markup-heading p { margin-top: 7px; color: var(--calculator-muted); font-size: 17px; }
+.markup-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: start; gap: 26px; }
 
-.markup-shell { max-width: 1200px; margin: 0 auto; padding: 32px 28px 72px; }
-.markup-back { display: inline-flex; align-items: center; gap: 8px; color: #536157; font-size: 13px; text-decoration: none; }
-.markup-back:hover { color: var(--brand-green-dark); }
-.markup-heading { max-width: 740px; margin: 32px 0; }
-.markup-heading h1 { margin: 10px 0 14px; color: var(--brand-green-dark); font-size: clamp(30px, 4vw, 46px); line-height: 1.15; letter-spacing: -0.035em; }
-.markup-heading > p { color: #536157; font-size: 16px; }
-.markup-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; align-items: start; }
-.markup-form-panel { padding: 28px; border: 1px solid #dfe6dc; border-radius: 20px; background: #fff; }
-.markup-panel-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
-.markup-step { color: #58655a; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; }
-.markup-panel-heading h2 { margin-top: 5px; color: var(--brand-green-dark); font-size: 25px; line-height: 1.25; }
-.markup-page button { min-height: 44px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
-.markup-example { padding: 8px 14px; border: 1px solid #bddbc5; border-radius: 999px; background: var(--brand-green-soft); color: var(--brand-green-dark); }
-.markup-example:hover { background: var(--brand-green-light); }
-.markup-intro { margin-bottom: 24px; color: #536157; font-size: 13px; }
-.markup-form { display: flex; flex-direction: column; gap: 10px; }
-.markup-field { margin-bottom: 10px; }
+.markup-form-panel,
+.markup-breakdown { border: 1px solid var(--calculator-border); border-radius: 18px; background: #fff; }
+.markup-form-panel { min-width: 0; padding: 30px; }
+.markup-panel-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+.markup-panel-heading h2 { color: var(--calculator-green); font-size: 24px; line-height: 1.3; letter-spacing: -0.025em; }
+.markup-page button { font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.markup-example { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 8px 15px 6px; border: 1px solid transparent; border-radius: 999px; background: var(--calculator-green); color: #fff; transition: background-color 150ms ease; }
+.markup-page .markup-example { line-height: 1; }
+.markup-example:hover { background: #076f28; }
+.markup-form { display: flex; flex-direction: column; gap: 22px; }
+.markup-field-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+.markup-field-group legend { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 14px; padding: 0; color: var(--calculator-green); font-size: 16px; font-weight: 700; }
+.markup-field-group legend svg { flex-shrink: 0; font-size: 18px; }
+.markup-field + .markup-field { margin-top: 16px; }
 .markup-field label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 700; }
-.markup-field label > span { color: #536157; font-weight: 400; }
-.markup-input-wrap { display: flex; align-items: center; gap: 12px; padding-left: 14px; border: 1px solid #bdcbbf; border-radius: 10px; background: #fff; }
-.markup-input-wrap > span { color: var(--brand-green-dark); font-size: 14px; font-weight: 700; }
-.markup-input-wrap input { width: 100%; min-width: 0; min-height: 48px; padding: 10px 14px 10px 0; border: 0; border-radius: 10px; background: transparent; color: var(--brand-charcoal); font: inherit; font-size: 16px; outline: none; }
-.markup-input-wrap:focus-within { border-color: var(--brand-green); box-shadow: 0 0 0 3px rgb(10 145 52 / 12%); }
+.markup-input-wrap { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border: 1px solid var(--calculator-border); border-radius: 9px; background: #fcfefd; transition: border-color 150ms ease, box-shadow 150ms ease; }
+.markup-input-wrap > span { flex-shrink: 0; color: var(--calculator-muted); font-size: 14px; }
+.markup-input-wrap input { width: 100%; min-width: 0; min-height: 46px; padding: 9px 0; border: 0; border-radius: 8px; outline: none; background: transparent; color: var(--calculator-text); font: inherit; font-size: 17px; font-variant-numeric: tabular-nums; }
+.markup-input-wrap input::placeholder { color: #7a8c80; opacity: 1; }
+.markup-input-wrap:focus-within { border-color: var(--calculator-green); box-shadow: 0 0 0 3px rgb(7 131 46 / 13%); }
 .markup-input-wrap.has-error { border-color: #b53d2d; }
-.markup-hint { margin-top: 7px; color: #59645c; font-size: 12px; line-height: 1.6; }
-.markup-error { margin-top: 6px; color: #a73324; font-size: 13px; }
-.markup-total { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; border-radius: 10px; background: var(--brand-green-soft); color: var(--brand-green-dark); font-size: 13px; }
-.markup-total strong { font-size: 17px; overflow-wrap: anywhere; }
-.markup-total.has-error { background: #fff0eb; color: #a73324; }
-.markup-total + .markup-hint { margin-top: 0; }
-.markup-reset { align-self: flex-start; padding: 8px 0; border: 0; background: transparent; color: #536157; text-decoration: underline; text-underline-offset: 4px; }
-.markup-reset:hover { color: var(--brand-green-dark); }
-.markup-result-panel { min-width: 0; }
-.markup-result-card { padding: 30px; border-radius: 20px; background: var(--brand-green-dark); color: #fff; }
-.markup-result-card .markup-step { color: #d4edda; }
-.markup-result-card h2 { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-size: 17px; font-weight: 500; }
-.markup-result-card h2 svg { flex-shrink: 0; }
-.markup-price-area { margin: 18px 0 24px; }
-.markup-price { display: block; font-size: clamp(32px, 4.2vw, 52px); line-height: 1.2; letter-spacing: -0.04em; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
-.markup-price-area p { margin-top: 10px; color: #e0f3e5; font-size: 13px; }
-.markup-multiplier { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 16px 0; border-top: 1px solid rgb(255 255 255 / 25%); border-bottom: 1px solid rgb(255 255 255 / 25%); font-size: 14px; }
-.markup-multiplier strong { overflow-wrap: anywhere; }
-.markup-result-note { margin-top: 14px; font-size: 11px; color: #e0f3e5; }
-.markup-breakdown { margin-top: 20px; padding: 24px; border: 1px solid #dfe6dc; border-radius: 18px; background: #fff; }
-.markup-breakdown h3 { color: var(--brand-green-dark); font-size: 16px; line-height: 1.5; }
-.markup-bar { display: flex; height: 10px; margin: 20px 0; overflow: hidden; border-radius: 99px; }
-.markup-breakdown .cost { background: #718976; }
-.markup-breakdown .expenses { background: #ff9d2e; }
-.markup-breakdown .taxes { background: #d76c85; }
-.markup-breakdown .profit { background: var(--brand-green); }
-.markup-breakdown dl > div { display: flex; justify-content: space-between; gap: 16px; margin: 12px 0; font-size: 13px; }
-.markup-breakdown dt { display: flex; align-items: center; gap: 9px; }
-.markup-breakdown dd { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
-.markup-dot { width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; }
-.markup-local-note { display: flex; align-items: baseline; gap: 8px; margin: 18px 8px; color: #59645c; font-size: 12px; }
-.markup-local-note svg { flex-shrink: 0; }
-.markup-guide { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; margin-top: 32px; padding: 28px; border: 1px solid #dfe6dc; border-radius: 18px; background: var(--brand-green-soft); }
-.markup-guide h2 { margin: 6px 0 12px; color: var(--brand-green-dark); font-size: 22px; line-height: 1.3; }
-.markup-guide p { margin-top: 12px; color: #536157; font-size: 13px; }
-.markup-guide .markup-formula { color: #2c4933; font-size: 12px; line-height: 2; overflow-wrap: anywhere; }
-.markup-guide-tips { border-left: 1px solid #d0dfd2; padding-left: 28px; }
-.markup-guide-tips h3 { color: var(--brand-green-dark); font-size: 15px; }
-.markup-page button:focus-visible,
-.markup-page a:focus-visible { outline: 3px solid var(--brand-orange); outline-offset: 4px; }
+.markup-hint { margin-top: 7px; color: var(--calculator-muted); font-size: 12px; line-height: 1.6; }
+.markup-error { margin-top: 6px; color: #a73324; font-size: 13px; line-height: 1.5; }
+.markup-fixed-percentage { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 15px; padding: 10px 13px; border-radius: 9px; background: var(--calculator-soft); color: #176b33; font-size: 12px; }
+.markup-fixed-percentage strong { flex-shrink: 0; color: var(--calculator-green); font-size: 15px; }
+.markup-total-section { margin-top: 2px; }
+.markup-total { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 13px; }
+.markup-total strong { color: var(--calculator-green); font-size: 18px; overflow-wrap: anywhere; }
+.markup-total.has-error,
+.markup-total.has-error strong { color: #a73324; }
+.markup-total + .markup-hint { margin-top: 4px; }
+.markup-form-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; }
+.markup-clear { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 200px; min-height: 58px; padding: 16px 24px; border: 1px solid var(--calculator-border); border-radius: 9px; background: #fff; color: var(--calculator-green); transition: background-color 150ms ease; }
+.markup-clear svg { flex-shrink: 0; font-size: 18px; }
+.markup-clear:hover { background: var(--calculator-soft); }
+.markup-submit { display: inline-flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 53px; padding: 13px 18px; border: 0; border-radius: 9px; background: var(--calculator-green); color: #fff; transition: background-color 150ms ease; }
+.markup-page .markup-submit,
+.markup-page .markup-clear { font-size: 16px; }
+.markup-submit:hover { background: #076f28; }
+.markup-submit svg { flex-shrink: 0; font-size: 18px; }
 
-@media (max-width: 800px) {
-    .markup-layout, .markup-guide { grid-template-columns: minmax(0, 1fr); }
-    .markup-guide-tips { padding: 22px 0 0; border-left: 0; border-top: 1px solid #d0dfd2; }
+.markup-result-panel { min-width: 0; }
+.markup-result-card { padding: 30px; border-radius: 18px; background: #07812c; color: #fff; }
+.markup-result-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; min-height: 25px; }
+.markup-step { color: #dcf0e0; font-size: 11px; font-weight: 700; }
+.markup-example-badge { padding: 4px 10px; border-radius: 999px; background: rgb(255 255 255 / 10%); color: #f0fff3; font-size: 11px; font-weight: 700; }
+.markup-result-card h2 { margin-top: 21px; font-size: 17px; font-weight: 500; line-height: 1.5; }
+.markup-price-area { margin: 9px 0 21px; }
+.markup-price { display: block; font-size: clamp(34px, 4.2vw, 56px); font-weight: 700; line-height: 1.2; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.markup-price-area p { margin-top: 13px; color: #d2ecd8; font-size: 12px; line-height: 1.7; }
+.markup-multiplier { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / 25%); font-size: 13px; }
+.markup-multiplier strong { font-size: 19px; overflow-wrap: anywhere; }
+
+.markup-breakdown { margin-top: 20px; padding: 28px; }
+.markup-breakdown h3 { color: var(--calculator-green); font-size: 20px; line-height: 1.4; letter-spacing: -0.025em; }
+.markup-breakdown h3 + .markup-hint { margin-top: 3px; }
+.markup-bar { display: flex; height: 12px; margin: 20px 0; overflow: hidden; border-radius: 99px; }
+.markup-bar > span { min-width: 0; }
+.markup-bar > span + span { border-left: 2px solid #fff; }
+.markup-breakdown .materials { background: #7f9787; }
+.markup-breakdown .labor { background: #a7bda9; }
+.markup-breakdown .fixed { background: #ffaf48; }
+.markup-breakdown .variable { background: #ff794c; }
+.markup-breakdown .profit { background: #10923d; }
+.markup-breakdown dl > div { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 16px 0; font-size: 14px; }
+.markup-breakdown dt { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.markup-breakdown-label { display: block; font-weight: 500; }
+.markup-breakdown-label small { display: block; margin-top: 1px; color: var(--calculator-muted); font-size: 11px; font-weight: 400; line-height: 1.6; }
+.markup-breakdown dd { flex-shrink: 0; max-width: 50%; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.markup-dot { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; }
+.markup-breakdown-total { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 21px; padding-top: 15px; border-top: 1px solid var(--calculator-border); color: var(--calculator-green); font-size: 15px; font-weight: 700; }
+.markup-breakdown-total strong { max-width: 55%; font-size: 17px; text-align: right; overflow-wrap: anywhere; }
+.markup-breakdown-total + .markup-hint { margin-top: 20px; font-size: 11px; }
+.markup-local-note { display: flex; align-items: flex-start; gap: 11px; margin: 20px 7px 0; color: var(--calculator-muted); font-size: 12px; line-height: 1.7; }
+.markup-local-note svg { flex-shrink: 0; margin-top: 3px; color: #7f9f86; font-size: 17px; }
+.markup-empty { margin-top: 16px; font-size: 14px; line-height: 1.7; }
+.markup-breakdown .markup-empty { color: var(--calculator-muted); }
+
+.markup-guide { margin-top: 30px; padding: 27px; border-radius: 18px; background: var(--calculator-soft); }
+.markup-guide h2 { display: flex; align-items: center; gap: 12px; color: var(--calculator-green); font-size: 18px; line-height: 1.4; }
+.markup-guide h2 svg { flex-shrink: 0; font-size: 19px; }
+.markup-formula { margin-top: 19px; font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
+.markup-guide-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 25px; margin-top: 18px; }
+.markup-guide-steps h3 { color: var(--calculator-green); font-size: 12px; line-height: 1.5; }
+.markup-guide-steps p { margin-top: 4px; font-size: 13px; overflow-wrap: anywhere; }
+.markup-guide-steps strong { display: block; margin-top: 3px; color: var(--calculator-green); font-size: 21px; overflow-wrap: anywhere; }
+.markup-guide-steps .markup-hint { margin-top: 4px; font-size: 12px; }
+.markup-disclaimer { margin-top: 27px; color: var(--calculator-muted); font-size: 12px; line-height: 1.7; text-align: center; }
+.markup-page button:focus-visible,
+.markup-page a:focus-visible { outline: 3px solid #ff9d2e; outline-offset: 4px; }
+
+@media (max-width: 1050px) {
+    .markup-form-panel, .markup-result-card, .markup-breakdown { padding: 24px; }
+    .markup-layout { gap: 20px; }
+    .markup-result-heading { gap: 8px; }
+}
+
+@media (max-width: 850px) {
+    .markup-layout { grid-template-columns: minmax(0, 1fr); }
+    .markup-shell { padding-top: 32px; }
+    .markup-heading p { font-size: 15px; }
+    .markup-price { font-size: 48px; }
+    .markup-guide-steps { gap: 18px; }
+}
+
+@media (max-width: 600px) {
+    .markup-guide-steps { grid-template-columns: minmax(0, 1fr); gap: 20px; }
 }
 
 @media (max-width: 480px) {
-    .markup-shell { padding: 24px 16px 48px; }
-    .markup-heading { margin: 24px 0; }
-    .markup-heading > p { font-size: 14px; }
-    .markup-form-panel, .markup-result-card, .markup-breakdown, .markup-guide { padding: 22px 18px; }
-    .markup-layout { gap: 20px; }
+    .markup-form-actions { grid-template-columns: minmax(0, 1fr); }
+    .markup-shell { padding: 26px 16px 40px; }
+    .markup-heading { align-items: flex-start; gap: 12px; margin-bottom: 24px; }
+    .markup-heading-icon { flex-basis: 46px; width: 46px; height: 46px; border-radius: 14px; font-size: 22px; }
+    .markup-heading h1 { font-size: 25px; }
+    .markup-heading p { margin-top: 8px; font-size: 13px; }
+    .markup-form-panel, .markup-result-card, .markup-breakdown, .markup-guide { padding: 22px 18px; border-radius: 15px; }
+    .markup-panel-heading h2 { font-size: 22px; }
+    .markup-example { padding-inline: 11px; }
+    .markup-field-group legend { gap: 8px; font-size: 14px; }
+    .markup-fixed-percentage, .markup-total { gap: 10px; }
+    .markup-price { font-size: clamp(34px, 11vw, 48px); }
+    .markup-breakdown h3 { font-size: 19px; }
+    .markup-breakdown dl > div { gap: 9px; font-size: 13px; }
+    .markup-breakdown dt { gap: 8px; }
+    .markup-guide { margin-top: 24px; }
+    .markup-guide h2 { gap: 9px; font-size: 16px; }
 }
