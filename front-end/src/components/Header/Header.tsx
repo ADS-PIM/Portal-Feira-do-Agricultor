@@ -52,7 +52,8 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
                 closeMenu()
             }
         }
-        const mobileViewport = window.matchMedia('(max-width: 680px)')
+        // Keep this breakpoint in sync with the compact layout in Header.css.
+        const compactViewport = window.matchMedia('(max-width: 1200px)')
         const handleViewportChange = (event: MediaQueryListEvent) => {
             if (!event.matches) closeMenu()
         }
@@ -60,12 +61,12 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
         document.addEventListener('keydown', handleKeyDown)
         document.addEventListener('pointerdown', handlePointerDown)
         window.addEventListener('hashchange', closeMenu)
-        mobileViewport.addEventListener('change', handleViewportChange)
+        compactViewport.addEventListener('change', handleViewportChange)
         return () => {
             document.removeEventListener('keydown', handleKeyDown)
             document.removeEventListener('pointerdown', handlePointerDown)
             window.removeEventListener('hashchange', closeMenu)
-            mobileViewport.removeEventListener('change', handleViewportChange)
+            compactViewport.removeEventListener('change', handleViewportChange)
         }
     }, [isMenuOpen])
 
