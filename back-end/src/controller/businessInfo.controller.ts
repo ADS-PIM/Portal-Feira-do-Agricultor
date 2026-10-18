@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { BusinessInfoCreateDTO, BusinessInfoUpdateDTO } from '../dto/businessInfo.dto';
+import { BusinessInfoCreateDTO, BusinessInfoUpdateDTO, BUSINESS_DESCRIPTION_TOO_LONG } from '../dto/businessInfo.dto';
 import { BusinessInfoService } from '../service/businessInfo.service';
 import { AuthRequest } from '../../authMiddleware';
 
@@ -15,6 +15,9 @@ export class BusinessInfoController {
             const errors = await validate(businessInfoCreateDTO);
 
             if (errors.length > 0) {
+                if (errors.some(error => error.property === 'description' && error.constraints?.maxLength)) {
+                    return res.status(400).json({ code: 'BUSINESS_DESCRIPTION_TOO_LONG', message: BUSINESS_DESCRIPTION_TOO_LONG });
+                }
                 return res.status(400).json({ errors });
             }
 
@@ -53,6 +56,9 @@ export class BusinessInfoController {
             const businessInfoUpdateDTO = plainToInstance(BusinessInfoUpdateDTO, req.body);
             const errors = await validate(businessInfoUpdateDTO);
             if (errors.length > 0) {
+                if (errors.some(error => error.property === 'description' && error.constraints?.maxLength)) {
+                    return res.status(400).json({ code: 'BUSINESS_DESCRIPTION_TOO_LONG', message: BUSINESS_DESCRIPTION_TOO_LONG });
+                }
                 return res.status(400).json({ errors })
             }
 

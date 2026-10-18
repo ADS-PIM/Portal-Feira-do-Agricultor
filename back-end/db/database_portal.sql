@@ -46,7 +46,7 @@ create table `businessInfo` (
     `whatsappNumber` varchar(20) default null,
     `businessEmail` varchar(320) default null,
     `businessHours` varchar(255) not null,
-    `description` varchar(1000) default null, 
+    `description` varchar(2000) default null, 
     `updatedAt` date not null,
     primary key (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;

@@ -113,7 +113,14 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     }
 
     if (!response.ok) {
-        throw new ApiRequestError(response.status, path)
+        let code: string | undefined
+        if (response.status === 400 && /^business-info(?:\/|$|\?)/.test(path)) {
+            const payload: unknown = await response.json().catch(() => null)
+            if (payload && typeof payload === 'object' && 'code' in payload && typeof payload.code === 'string') {
+                code = payload.code
+            }
+        }
+        throw new ApiRequestError(response.status, path, code)
     }
 
     const contentType = response.headers.get('content-type') ?? ''

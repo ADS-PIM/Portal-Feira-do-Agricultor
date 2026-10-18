@@ -1,7 +1,11 @@
+import { businessDescriptionTooLong } from '../utils/businessDescription'
+
 export class ApiRequestError extends Error {
     readonly status: number
-    constructor(status: number, endpoint: string) {
-        super(getApiErrorMessage(status, endpoint))
+    constructor(status: number, endpoint: string, code?: string) {
+        super(status === 400 && /^business-info(?:\/|$|\?)/.test(endpoint) && code === 'BUSINESS_DESCRIPTION_TOO_LONG'
+            ? businessDescriptionTooLong
+            : getApiErrorMessage(status, endpoint))
         this.name = 'ApiRequestError'
         this.status = status
     }

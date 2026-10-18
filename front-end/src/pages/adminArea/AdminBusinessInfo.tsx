@@ -2,7 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import Icon from '../../components/Icon'
 import { getBusinessInfo, type BusinessInfo, upsertBusinessInfo } from '../../services/businessInfoService'
 import { getUserFacingError } from '../../services/errors'
-import { defaultBusinessDescription } from '../../utils/businessDescription'
+import { businessDescriptionMaxLength, businessDescriptionTooLong, defaultBusinessDescription } from '../../utils/businessDescription'
 import {
     createEmptyWeeklyBusinessHours,
     formatWeeklyBusinessHours,
@@ -59,6 +59,8 @@ function BusinessInfoFieldIcon({ type }: { type: 'whatsapp' | 'instagram' | 'ema
 
 const AdminBusinessInfo = () => {
     const [values, setValues] = useState<BusinessInfoFormValues>(emptyValues)
+    const descriptionLength = Array.from(values.description).length
+    const descriptionExceedsLimit = descriptionLength > businessDescriptionMaxLength
     const [businessInfo, setBusinessInfo] = useState<BusinessInfo | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
@@ -157,6 +159,12 @@ const AdminBusinessInfo = () => {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
+        if (descriptionExceedsLimit) {
+            setError(businessDescriptionTooLong)
+            setStatusMessage(null)
+            return
+        }
+
         if (!legacyHours) {
             const hoursError = validateWeeklyBusinessHours(weeklyHours)
             if (hoursError) {
@@ -226,7 +234,17 @@ const AdminBusinessInfo = () => {
                                     value={values.description}
                                     onChange={handleFieldChange}
                                     placeholder={defaultBusinessDescription}
+                                    aria-invalid={descriptionExceedsLimit}
+                                    aria-describedby={descriptionExceedsLimit ? 'businessInfo-description-count businessInfo-description-error' : 'businessInfo-description-count'}
                                 />
+                                <span id="businessInfo-description-count" className={`admin-business-info-character-count${descriptionExceedsLimit ? ' is-over-limit' : ''}`}>
+                                    {descriptionLength.toLocaleString('pt-BR')} / {businessDescriptionMaxLength.toLocaleString('pt-BR')} caracteres
+                                </span>
+                                {descriptionExceedsLimit && (
+                                    <span id="businessInfo-description-error" className="admin-business-info-field-error" role="alert">
+                                        {businessDescriptionTooLong}
+                                    </span>
+                                )}
                             </label>
 
                             <div className="admin-business-info-contact-heading">

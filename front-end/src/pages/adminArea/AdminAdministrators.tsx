@@ -73,7 +73,7 @@ const AdminAdministrators = () => {
             setIsLoading(true)
             const data = await getAdmins()
             setAdmins(data)
-        } catch (loadingError) {
+        } catch {
             setError('Não foi possível carregar os administradores.')
         } finally {
             setIsLoading(false)
@@ -81,7 +81,23 @@ const AdminAdministrators = () => {
     }
 
     useEffect(() => {
-        void loadAdmins()
+        let active = true
+
+        // The initial render is already loading; only update after the request settles.
+        void getAdmins()
+            .then(data => {
+                if (active) setAdmins(data)
+            })
+            .catch(() => {
+                if (active) setError('Não foi possível carregar os administradores.')
+            })
+            .finally(() => {
+                if (active) setIsLoading(false)
+            })
+
+        return () => {
+            active = false
+        }
     }, [])
 
     const activeAdmins = admins.filter(admin => admin.active).length
@@ -203,7 +219,7 @@ const AdminAdministrators = () => {
 
                     <div className="admin-managers-stat-card is-compact">
                         <span className="admin-managers-stat-label">Último cadastro administrativo</span>
-                        <strong>{latestAdmin ? latestAdmin.name : 'Nenhum registro'}</strong>
+                        <strong title={latestAdmin?.name}>{latestAdmin ? latestAdmin.name : 'Nenhum registro'}</strong>
                         <small>
                             {latestAdmin ? `Registrado em ${formatDate(latestAdmin.createdAt ?? null)}` : 'Ainda não há registros'}
                         </small>
@@ -224,11 +240,11 @@ const AdminAdministrators = () => {
                         ) : (
                             <div className="admin-managers-table" role="table" aria-label="Lista de administradores">
                                 <div className="admin-managers-table-head" role="row">
-                                    <span>Nome</span>
-                                    <span>E-mail</span>
-                                    <span>Cargo</span>
-                                    <span>Status</span>
-                                    {canManageAdmins && <span>Ações</span>}
+                                    <span className="admin-managers-column-name" role="columnheader">Nome</span>
+                                    <span role="columnheader">E-mail</span>
+                                    <span role="columnheader">Cargo</span>
+                                    <span className="admin-managers-column-status" role="columnheader">Status</span>
+                                    {canManageAdmins && <span className="admin-managers-column-actions" role="columnheader">Ações</span>}
                                 </div>
 
                                 {admins.map(admin => (

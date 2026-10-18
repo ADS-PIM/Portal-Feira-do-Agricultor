@@ -315,7 +315,31 @@ const AdminEvents = ({
         const controller = new AbortController()
         void loadEvents(controller.signal)
             .then(result => {
-                if (!controller.signal.aborted) setEvents(result ?? [])
+                if (controller.signal.aborted) return
+
+                const loadedEvents = result ?? []
+                setEvents(loadedEvents)
+
+                if (!initialEventAction) return
+                const requestKey = `${initialEventAction.action}:${initialEventAction.eventId}`
+                if (handledInitialAction.current === requestKey) return
+                handledInitialAction.current = requestKey
+
+                const requestedEvent = loadedEvents.find(event => event.id === initialEventAction.eventId)
+                if (!requestedEvent) {
+                    setLoadError('O evento selecionado não foi encontrado na agenda.')
+                    return
+                }
+
+                setActionMessage(null)
+                if (initialEventAction.action === 'edit') {
+                    setIsCreating(false)
+                    setNewEventDate('')
+                    setFormError(null)
+                    setEditingEvent(requestedEvent)
+                } else {
+                    setEventPendingDeletion(requestedEvent)
+                }
             })
             .catch(error => {
                 if (!controller.signal.aborted) {
@@ -326,31 +350,7 @@ const AdminEvents = ({
                 if (!controller.signal.aborted) setIsLoading(false)
             })
         return () => controller.abort()
-    }, [loadEvents])
-
-    useEffect(() => {
-        if (!initialEventAction || isLoading) return
-
-        const requestKey = `${initialEventAction.action}:${initialEventAction.eventId}`
-        if (handledInitialAction.current === requestKey) return
-        handledInitialAction.current = requestKey
-
-        const requestedEvent = events.find(event => event.id === initialEventAction.eventId)
-        if (!requestedEvent) {
-            setLoadError('O evento selecionado não foi encontrado na agenda.')
-            return
-        }
-
-        setActionMessage(null)
-        if (initialEventAction.action === 'edit') {
-            setIsCreating(false)
-            setNewEventDate('')
-            setFormError(null)
-            setEditingEvent(requestedEvent)
-        } else {
-            setEventPendingDeletion(requestedEvent)
-        }
-    }, [events, initialEventAction, isLoading])
+    }, [loadEvents, initialEventAction])
 
     const availableYears = useMemo(
         () => [...new Set(events.map(event => getDateKey(event.date).slice(0, 4)))]

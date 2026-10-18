@@ -269,7 +269,10 @@ function AdminUsersMessages() {
                     <section className="admin-user-message-stats" aria-label="Resumo das mensagens">
                         <article>
                             <span className="admin-message-stat-icon"><Icon name="email" /></span>
-                            <h2>Mensagens recebidas</h2>
+                            <h2 aria-label="Mensagens recebidas">
+                                <span className="admin-message-stat-label-full">Mensagens recebidas</span>
+                                <span className="admin-message-stat-label-compact">Recebidas</span>
+                            </h2>
                             <strong>{isLoading ? '—' : messages.length}</strong>
                             <p>Total de contatos pelo portal</p>
                         </article>
@@ -348,9 +351,9 @@ function AdminUsersMessages() {
                             <p className="admin-user-messages-empty">Não há mensagens nesta categoria.</p>
                         ) : (
                             <div className="admin-user-messages-table-wrap">
-                                <table className="admin-user-messages-table">
-                                    <thead>
-                                        <tr>
+                                <table className="admin-user-messages-table" role="table" aria-label="Mensagens recebidas">
+                                    <thead role="rowgroup">
+                                        <tr role="row">
                                             <th scope="col">Remetente</th>
                                             <th scope="col">Título</th>
                                             <th scope="col">Assunto</th>
@@ -360,24 +363,24 @@ function AdminUsersMessages() {
                                             <th scope="col">Ações</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody role="rowgroup">
                                         {filteredMessages.map(message => (
-                                            <tr key={message.id} className={!message.isRead ? 'is-unread' : undefined}>
-                                                <td>
+                                            <tr key={message.id} className={!message.isRead ? 'is-unread' : undefined} role="row">
+                                                <td role="cell">
                                                     <strong>{displayValue(message.name)}</strong>
                                                     {message.phone?.trim() && <span>{message.phone}</span>}
                                                 </td>
-                                                <td className="admin-message-title-cell">{displayValue(message.title)}</td>
-                                                <td>{formatSubject(message.subject)}</td>
-                                                <td>{displayValue(message.email)}</td>
-                                                <td>{formatSubmittedAt(message.submitDate)}</td>
-                                                <td>
+                                                <td className="admin-message-title-cell" role="cell" data-label="Título">{displayValue(message.title)}</td>
+                                                <td role="cell" data-label="Assunto">{formatSubject(message.subject)}</td>
+                                                <td role="cell" data-label="E-mail">{displayValue(message.email)}</td>
+                                                <td role="cell" data-label="Enviado em">{formatSubmittedAt(message.submitDate)}</td>
+                                                <td role="cell">
                                                     <span className={`admin-user-message-status${!message.isRead ? ' is-unread' : ''}`}>
                                                         <Icon name={message.isRead ? 'eye' : 'email'} />
                                                         {message.isRead ? 'Lida' : 'Não lida'}
                                                     </span>
                                                 </td>
-                                                <td className="admin-user-message-actions-cell">
+                                                <td className="admin-user-message-actions-cell" role="cell">
                                                     <div className="admin-user-message-row-actions">
                                                         <button type="button" className="is-primary" onClick={() => void openMessage(message)} aria-label={`Abrir mensagem: ${displayValue(message.title)}`}>
                                                             <Icon name="eye" />

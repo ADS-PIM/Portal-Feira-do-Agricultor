@@ -1,4 +1,7 @@
-import {IsNotEmpty, IsString, IsEmail, IsOptional} from 'class-validator'
+import {IsNotEmpty, IsString, IsEmail, IsOptional, MaxLength} from 'class-validator'
+
+export const BUSINESS_DESCRIPTION_MAX_LENGTH = 2000
+export const BUSINESS_DESCRIPTION_TOO_LONG = 'O campo Sobre a feira ultrapassa o limite de 2.000 caracteres.'
 
 export class BusinessInfoCreateDTO {
     @IsOptional()
@@ -22,6 +25,7 @@ export class BusinessInfoCreateDTO {
 
     @IsOptional()
     @IsString()
+    @MaxLength(BUSINESS_DESCRIPTION_MAX_LENGTH, { message: BUSINESS_DESCRIPTION_TOO_LONG })
     description?: string
 }
 
@@ -44,5 +48,6 @@ export class BusinessInfoUpdateDTO {
 
     @IsOptional()
     @IsString()
+    @MaxLength(BUSINESS_DESCRIPTION_MAX_LENGTH, { message: BUSINESS_DESCRIPTION_TOO_LONG })
     description?: string
 }

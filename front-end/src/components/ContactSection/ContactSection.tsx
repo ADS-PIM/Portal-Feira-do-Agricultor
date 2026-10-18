@@ -44,11 +44,11 @@ function ContactCard({
 
     return (
         <article className="contact-card">
-            <span className="contact-card-icon">
+            <span className="contact-card-icon" aria-hidden="true">
                 <ContactIcon type={type} />
             </span>
             <h3>{title}</h3>
-            <p>{availableValue || unavailableMessage}</p>
+            {availableValue && <p>{availableValue}</p>}
             {availableValue && href ? (
                 <a href={href} target="_blank" rel="noreferrer">
                     {action}

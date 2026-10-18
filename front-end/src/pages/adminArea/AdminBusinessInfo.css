@@ -1,4 +1,5 @@
 .admin-business-info-page {
+    container: business-info / inline-size;
     min-width: 0;
     color: #30332e;
     font-family: "Now", "Segoe UI", sans-serif;
@@ -33,6 +34,7 @@
 }
 
 .admin-business-info-card {
+    box-sizing: border-box;
     width: 100%;
     max-width: 100%;
     border: 1px solid #e2ded9;
@@ -107,6 +109,28 @@
 
 .admin-business-info-summary {
     margin-top: 4px;
+}
+
+.admin-business-info-character-count {
+    align-self: flex-end;
+    color: #70796b;
+    font-size: 11px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-business-info-character-count.is-over-limit,
+.admin-business-info-field-error {
+    color: #b42318;
+}
+
+.admin-business-info-field-error {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.admin-business-info-field textarea[aria-invalid="true"] {
+    border-color: #b42318;
 }
 
 .admin-business-info-subtitle {
@@ -520,32 +544,204 @@
 .admin-business-info-updateStamp svg { width: 14px; height: 14px; flex-shrink: 0; }
 .admin-business-info-page button:focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 3px; }
 
-@media (max-width: 1100px) {
+@container business-info (max-width: 900px) {
     .admin-business-info-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
-@media (max-width: 700px) {
-    .admin-business-info-page {
-        padding: 0;
+@container business-info (max-width: 760px) {
+    .admin-business-info-header {
+        padding: 14px 18px;
     }
 
-    .admin-business-info-workspace { padding: 20px 16px; }
-    .admin-business-info-buttons { flex-wrap: wrap; }
+    .admin-business-info-header p {
+        line-height: 1.5;
+    }
+
+    .admin-business-info-workspace {
+        padding: 16px;
+    }
 
     .admin-business-info-form {
-        padding: 14px 14px 18px;
+        padding: 16px;
+        gap: 14px;
+    }
+
+    .admin-business-info-contact-heading,
+    .admin-business-hours {
+        margin-top: 2px;
+        padding-top: 14px;
+    }
+
+    .admin-business-hours-list {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+        gap: 10px;
+    }
+
+    .admin-business-hours-day {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 9px;
+    }
+
+    .admin-business-hours-dayHeader {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 4px 10px;
+        padding-bottom: 0;
+    }
+
+    .admin-business-hours-dayHeader > strong {
+        font-size: 14px;
+    }
+
+    .admin-business-hours-availability {
+        min-height: 32px;
+    }
+
+    .admin-business-hours-availability::before {
+        content: '';
+        position: absolute;
+        inset: -6px 0;
+    }
+
+    .admin-business-hours-time {
+        min-width: 0;
+        gap: 2px;
+    }
+
+    .admin-business-info-field textarea,
+    .admin-business-info-row input,
+    .admin-business-hours-time input {
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    .admin-business-info-field textarea {
+        min-height: 120px;
+        line-height: 1.5;
+    }
+
+    .admin-business-hours-time input {
+        padding: 8px 6px;
+    }
+
+    .admin-business-hours-time input::-webkit-calendar-picker-indicator {
+        margin: 0;
+        padding: 0;
     }
 
     .admin-business-info-actions {
         align-items: flex-start;
+        margin-top: 2px;
+    }
+
+    .admin-business-info-updateStamp,
+    .admin-business-info-alert,
+    .admin-business-hours-legacy {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        line-height: 1.5;
     }
 
     .admin-business-info-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
         width: 100%;
         margin-left: 0;
     }
 
     .admin-business-info-button {
-        flex: 1;
+        min-width: 0;
+        min-height: 44px;
+        padding: 10px 8px;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .admin-business-hours-legacy button {
+        max-width: 100%;
+        min-height: 44px;
+    }
+}
+
+@container business-info (max-width: 520px) {
+    .admin-business-info-header {
+        padding: 12px;
+    }
+
+    .admin-business-info-header h1 {
+        font-size: 18px;
+    }
+
+    .admin-business-info-header p {
+        font-size: 12px;
+    }
+
+    .admin-business-info-workspace {
+        padding: 12px 8px;
+    }
+
+    .admin-business-info-form {
+        padding: 12px 10px;
+        gap: 12px;
+    }
+
+    .admin-business-info-sectionTitle {
+        font-size: 16px;
+    }
+
+    .admin-business-info-intro p,
+    .admin-business-info-contact-heading p {
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .admin-business-info-grid {
+        gap: 10px;
+    }
+
+    .admin-business-info-row {
+        position: relative;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 10px;
+    }
+
+    .admin-business-info-iconWrap {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .admin-business-contact-field {
+        gap: 10px;
+    }
+
+    .admin-business-contact-field > span {
+        display: flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 48px 0 36px;
+        font-size: 12px;
+    }
+
+    .admin-business-info-toggle {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+    }
+
+    /* Enlarge the touch target without enlarging the visible switch. */
+    .admin-business-info-toggle::before {
+        content: '';
+        position: absolute;
+        inset: -13px -5px;
     }
 }
