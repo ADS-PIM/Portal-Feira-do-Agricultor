@@ -6,6 +6,10 @@ import { EventImage } from '../model/eventImage';
 export class EventImageService {
     public constructor(private eventImageDAO: EventImageDAO) {}
 
+    public async isImageReferenced(url: string): Promise<boolean> {
+        return this.eventImageDAO.isImageReferenced(url);
+    }
+
     public async searchByEventId(eventId: string): Promise<EventImageSearchByEventId[] | null> {
         const eventDAO = new EventDAO()
         if (!await eventDAO.searchById(eventId)) {

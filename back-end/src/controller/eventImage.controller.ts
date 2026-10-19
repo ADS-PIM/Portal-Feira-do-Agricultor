@@ -1,41 +1,63 @@
-import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
-import path from 'node:path';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { EventImageService } from '../service/eventImage.service'
 import { AuthRequest } from '../../authMiddleware'
 import { Response } from 'express';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { EventImageCreateDTO, EventImageUpdateDTO } from '../dto/eventImage.dto';
+import { ImageStorageService, ImageUploadError, isEventImagePathname } from '../service/imageStorage.service';
 
 export class EventImageController {
-    public constructor(private eventImageService: EventImageService) {}
+    public constructor(
+        private eventImageService: EventImageService,
+        private imageStorage = new ImageStorageService(),
+    ) {}
 
     public async upload(req: AuthRequest, res: Response) {
-        const contentType = req.get('content-type');
-        const extension = contentType === 'image/jpeg' ? 'jpg' : contentType === 'image/png' ? 'png' : null;
-        const image = req.body;
-        if (!extension || !Buffer.isBuffer(image) || image.length === 0) {
-            return res.status(400).json({ error: 'Selecione uma imagem JPG ou PNG.' });
-        }
-
-        const hasValidSignature = extension === 'jpg'
-            ? image[0] === 0xff && image[1] === 0xd8 && image[2] === 0xff
-            : image.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
-        if (!hasValidSignature) {
-            return res.status(400).json({ error: 'O arquivo não corresponde a uma imagem JPG ou PNG válida.' });
-        }
-
-        const filename = `${randomUUID()}.${extension}`;
-        const uploadDirectory = path.resolve(__dirname, '../../uploads');
         try {
-            await mkdir(uploadDirectory, { recursive: true });
-            await writeFile(path.join(uploadDirectory, filename), image, { flag: 'wx' });
-            const apiOrigin = (process.env.PUBLIC_API_URL || `${req.protocol}://${req.get('host')}`).replace(/\/+$/, '');
-            return res.status(201).json({ url: `${apiOrigin}/uploads/${filename}` });
+            const blob = await this.imageStorage.upload(req.body, req.get('content-type'));
+            return res.status(201).json(blob);
         } catch (error) {
-            console.error('Failed to store event banner image:', error);
+            if (error instanceof ImageUploadError) {
+                return res.status(error.status).json({ error: error.message });
+            }
+            console.error('Failed to store event image in Vercel Blob.');
             return res.status(500).json({ error: 'Não foi possível armazenar a imagem. Tente novamente.' });
+        }
+    }
+
+    public async file(req: AuthRequest, res: Response) {
+        const pathname = req.query.pathname;
+        if (!isEventImagePathname(pathname)) {
+            return res.status(400).json({ error: 'Caminho de imagem inválido.' });
+        }
+
+        try {
+            const url = this.imageStorage.urlForPathname(pathname);
+            // Events and their galleries are public. Only expose files attached to
+            // those records, never arbitrary objects from the private store.
+            if (!await this.eventImageService.isImageReferenced(url)) {
+                return res.status(404).json({ error: 'Imagem não encontrada.' });
+            }
+            const result = await this.imageStorage.read(pathname, req.get('if-none-match'));
+            if (!result) {
+                return res.status(404).json({ error: 'Imagem não encontrada.' });
+            }
+            res.setHeader('Cache-Control', 'private, no-cache');
+            res.setHeader('ETag', result.blob.etag);
+            res.setHeader('X-Content-Type-Options', 'nosniff');
+            if (result.statusCode === 304) {
+                return res.status(304).end();
+            }
+            res.setHeader('Content-Type', result.blob.contentType);
+            await pipeline(Readable.fromWeb(result.stream), res);
+        } catch {
+            console.error('Failed to read event image from Vercel Blob.');
+            if (!res.headersSent && !res.destroyed) {
+                return res.status(500).json({ error: 'Não foi possível carregar a imagem.' });
+            }
+            res.destroy();
         }
     }
 

@@ -3,12 +3,13 @@ import { EventImageController } from '../controller/eventImage.controller'
 import { EventImageDAO } from "../dao/eventImage.dao";
 import { EventImageService } from "../service/eventImage.service";
 import authToken from "../../authMiddleware";
+import { MAX_IMAGE_BYTES } from '../service/imageStorage.service';
 
 const eventImageRoutes = Router();
 const eventImageDAO = new EventImageDAO();
 const eventImageService = new EventImageService(eventImageDAO)
 const eventImageController = new EventImageController(eventImageService)
-const parseImageUpload = express.raw({ type: ['image/jpeg', 'image/png'], limit: '5mb' })
+const parseImageUpload = express.raw({ type: ['image/jpeg', 'image/png'], limit: MAX_IMAGE_BYTES })
 
 eventImageRoutes
     .route('/upload')
@@ -21,10 +22,14 @@ eventImageRoutes
 
             const status = 'status' in error && typeof error.status === 'number' ? error.status : 400;
             return res.status(status).json({
-                error: status === 413 ? 'A imagem deve ter no máximo 5 MB.' : 'Não foi possível ler o arquivo de imagem.',
+                error: status === 413 ? 'A imagem deve ter no máximo 4 MB.' : 'Não foi possível ler o arquivo de imagem.',
             });
         });
     }, async (req, res) => eventImageController.upload(req, res));
+
+eventImageRoutes
+    .route('/file')
+    .get(async (req, res) => eventImageController.file(req, res));
 
 eventImageRoutes
     .route('/:eventId')

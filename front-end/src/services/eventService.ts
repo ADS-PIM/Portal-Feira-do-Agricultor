@@ -59,8 +59,8 @@ export function getEvents(signal?: AbortSignal): Promise<AdminEvent[] | null> {
 
 export const getAdminEvents = getEvents
 
-export function createAdminEvent(event: AdminEventInput): Promise<{ message: string }> {
-    return apiFetch<{ message: string }>('event/create', {
+export function createAdminEvent(event: AdminEventInput): Promise<{ id: string; message: string }> {
+    return apiFetch<{ id: string; message: string }>('event/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(event),
@@ -97,4 +97,18 @@ export function getEventDetails(id: string, signal?: AbortSignal): Promise<Event
 
 export function getEventImages(id: string, signal?: AbortSignal): Promise<EventImage[] | null> {
     return apiFetch<EventImage[] | null>(`event/image/${encodeURIComponent(id)}`, { signal })
+}
+
+export function createEventImage(eventId: string, imageURL: string, description: string): Promise<{ message: string }> {
+    return apiFetch<{ message: string }>('event/image/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId, imageURL, description }),
+    })
+}
+
+export function deleteEventImage(id: string): Promise<{ message: string }> {
+    return apiFetch<{ message: string }>(`event/image/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+    })
 }

@@ -1,6 +1,7 @@
 import './NearestEventPainel.css'
 import Icon from '../Icon'
 import type { NearestEvent } from '../../services/eventService'
+import { getEventImageUrl } from '../../services/eventImageUrl'
 
 interface NearestEventPainelProps {
     event: NearestEvent | null
@@ -33,7 +34,7 @@ const NearestEventPainel = ({ event }: NearestEventPainelProps) => {
                 <div className='panel-body'>
                     <div className={`event-image${event.bannerImage ? '' : ' is-missing'}`}>
                         {event.bannerImage
-                            ? <img src={event.bannerImage} alt={event.title} />
+                            ? <img src={getEventImageUrl(event.bannerImage)} alt={event.title} />
                             : <p>Evento sem banner</p>}
                     </div>
                     <div className='event-info'>

@@ -17,8 +17,8 @@ export class EventController {
                 return res.status(400).json({ errors });
             }
 
-            await this.eventService.create(eventCreateDTO)
-            return res.status(201).json({  message: 'Event creating successfully' })
+            const id = await this.eventService.create(eventCreateDTO)
+            return res.status(201).json({ id, message: 'Event creating successfully' })
         } catch (error: any) {
             return res.status(500).json({  error: error.message })
         }

@@ -8,20 +8,12 @@ import {
     type AdminProfile,
 } from './authToken'
 import { ApiRequestError } from './errors'
-
-const API_BASE_URL = import.meta.env.DEV
-    ? ''
-    : (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/+$/, '')
-
-const makeUrl = (endpoint: string) => {
-    const path = endpoint.replace(/^\/+/, '')
-    return `${API_BASE_URL}/${path}`
-}
+import { makeApiUrl } from './apiUrl'
 
 const isSessionEndpoint = (endpoint: string) => /^admin\/(?:login|refresh|logout)(?:\/|$|\?)/.test(endpoint)
 
 async function refreshAccessToken(): Promise<string | null> {
-    const response = await fetch(makeUrl('admin/refresh'), {
+    const response = await fetch(makeApiUrl('admin/refresh'), {
         method: 'POST',
         credentials: 'include',
     })
@@ -101,13 +93,13 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
         headers,
         credentials: 'include',
     }
-    let response = await fetch(makeUrl(path), requestOptions)
+    let response = await fetch(makeApiUrl(path), requestOptions)
 
     if (response.status === 401 && token && !sessionEndpoint) {
         const refreshedToken = await getRefreshedAccessToken()
         if (refreshedToken) {
             headers.set('Authorization', `Bearer ${refreshedToken}`)
-            response = await fetch(makeUrl(path), requestOptions)
+            response = await fetch(makeApiUrl(path), requestOptions)
             if (response.status === 401) clearAccessToken()
         }
     }

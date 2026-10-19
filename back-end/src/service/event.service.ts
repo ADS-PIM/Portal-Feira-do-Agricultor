@@ -6,7 +6,7 @@ import { EventImageDAO } from '../dao/eventImage.dao';
 export class EventService {
     public constructor(private eventDAO: EventDAO) {}
 
-    public async create(eventCreateDTO: EventCreateDTO): Promise<void> {
+    public async create(eventCreateDTO: EventCreateDTO): Promise<string> {
         try {
             if (eventCreateDTO.startAt >= eventCreateDTO.endAt) {
                 throw new Error('startAt must be before endAt');
@@ -14,6 +14,7 @@ export class EventService {
 
             const event = Event.construct(eventCreateDTO);
             await this.eventDAO.create(event)
+            return event.id;
         } catch (error: any) {
             throw new Error('Error creating Event: ' + error.message);
         }

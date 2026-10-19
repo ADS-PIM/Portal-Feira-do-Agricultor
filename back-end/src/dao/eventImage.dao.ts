@@ -8,6 +8,15 @@ export type EventImageUpdateData = {
 }
 
 export class EventImageDAO {
+    public async isImageReferenced(url: string): Promise<boolean> {
+        const [rows]: any = await connection.query(
+            `SELECT 1 FROM events WHERE bannerImage = ?
+             UNION ALL SELECT 1 FROM images WHERE imageUrl = ? LIMIT 1`,
+            [url, url],
+        );
+        return rows.length > 0;
+    }
+
     public async create(eventImage: EventImage): Promise <void> {
         try{
             await connection.query('INSERT INTO images (id, imageURL, description, eventId) VALUES (?, ?, ?, ?)', [eventImage.id, eventImage.imageURL,  eventImage.description, eventImage.eventId])

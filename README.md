@@ -53,6 +53,8 @@ PORT=8080
 FRONTEND_URL=http://localhost:5173
 JWT_ACCESS_SECRET=configure_um_segredo_aleatorio
 JWT_REFRESH_SECRET=configure_outro_segredo_aleatorio
+BLOB_STORE_ID=store_seu_id
+BLOB_READ_WRITE_TOKEN=token_do_seu_store_privado
 ```
 
 Gere valores diferentes para os dois segredos JWT. Por exemplo, execute duas
@@ -65,6 +67,38 @@ Para usar o MySQL do Aiven, configure `DB_HOST`, `DB_PORT`, `DB_NAME`,
 Se o certificado CA do serviço não for confiável por padrão no ambiente,
 configure também `DB_SSL_CA` com o conteúdo PEM do certificado (use `\n` para
 representar as quebras de linha ao cadastrar a variável).
+
+### Imagens no Vercel Blob
+
+Crie um store **privado** no Vercel Blob e configure `BLOB_STORE_ID` e
+`BLOB_READ_WRITE_TOKEN` no `back-end/.env` e no projeto **backend** da Vercel.
+O ID tem o formato `store_...`. O token pertence a esse mesmo store e nunca
+deve usar o prefixo `VITE_` nem ser enviado ao frontend. Após configurar as
+variáveis em produção, publique novamente o backend e o frontend atualizado.
+
+O upload autenticado em `POST /event/image/upload` aceita JPG/PNG de até
+**4 MB**, valida a assinatura do arquivo e o salva em `event-images/` no Blob.
+O limite fica abaixo dos [4,5 MB das funções da Vercel](https://vercel.com/docs/functions/limitations).
+A resposta contém `{ "url": "https://...private.blob.vercel-storage.com/..." }`.
+Ao salvar o evento, essa URL é gravada em `events.bannerImage` e sincronizada
+com `images.imageUrl` pela transação que já existe. O upload sozinho não cria
+um evento nem um registro de imagem. Nenhuma nova migration SQL é necessária.
+
+Como o store é privado, o frontend exibe essas URLs por meio de
+`GET /event/image/file?pathname=event-images/...`. O backend busca o arquivo
+com sua credencial e transmite a imagem. A leitura é pública para manter o
+acesso dos visitantes aos eventos, mas só permite os caminhos de imagens
+gerados pela aplicação que estejam vinculados a `events` ou `images` no
+banco configurado. Outros objetos do store não são expostos por essa rota.
+O cache do navegador é revalidado com ETag, usando `private, no-cache`.
+Consulte a [documentação de armazenamento privado](https://vercel.com/docs/vercel-blob/private-storage).
+
+Novos uploads não dependem do disco local. Links externos continuam aceitos;
+imagens antigas em `/uploads` precisam ser reenviadas pelo painel para serem
+copiadas ao Blob e terem suas URLs atualizadas. A rota local foi mantida para
+compatibilidade durante essa transição. Excluir ou substituir um vínculo no
+banco não remove automaticamente o arquivo do Blob; uploads abandonados
+também permanecem no store.
 
 ### Publicação na Vercel
 
@@ -154,6 +188,7 @@ Execute os comandos do backend dentro de `back-end`:
 | Comando | Descrição |
 | --- | --- |
 | `npm run dev` | Inicia o backend em modo de desenvolvimento. |
+| `npm test` | Verifica upload, leitura privada e persistência das URLs com dependências simuladas. |
 | `npm run db:migrate:status` | Lista migrations aplicadas e pendentes. |
 | `npm run db:migrate` | Aplica as migrations pendentes. |
 | `npm run db:migrate:undo` | Reverte a migration aplicada mais recentemente. |

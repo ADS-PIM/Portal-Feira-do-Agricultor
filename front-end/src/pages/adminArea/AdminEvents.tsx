@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Icon from '../../components/Icon'
 import {
     createAdminEvent,
@@ -13,6 +13,8 @@ import { getUserFacingError } from '../../services/errors'
 import { matchesEventTimeRange } from './eventTimeFilter'
 import CreateEventButton from './CreateEventButton'
 import './AdminEvents.css'
+import AdminEventForm, { type EventFormValues, type EventSaveSession } from './AdminEventForm'
+import { STATE_LABELS } from './eventFormLabels'
 
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
 const WEEKDAY_OPTIONS = [
@@ -25,25 +27,6 @@ const WEEKDAY_OPTIONS = [
     { value: '5', label: 'Sexta-feira' },
     { value: '6', label: 'Sábado' },
 ]
-const STATE_LABELS: Record<AdminEvent['state'], string> = {
-    PENDING: 'Agendado',
-    HAPPENING: 'Em andamento',
-    CONCLUDED: 'Concluído',
-    CANCELED: 'Cancelado',
-    RESCHEDULED: 'Reagendado',
-}
-
-type EventFormValues = {
-    title: string
-    description: string
-    date: string
-    startAt: string
-    endAt: string
-    localAddress: string
-    state: AdminEvent['state']
-    bannerImage: string | null
-}
-
 const emptyForm: EventFormValues = {
     title: '',
     description: '',
@@ -85,199 +68,6 @@ function toFormValues(event: AdminEvent): EventFormValues {
         state: event.state,
         bannerImage: event.bannerImage,
     }
-}
-
-function AdminEventForm({
-    initialValues,
-    isSaving,
-    error,
-    onClose,
-    onSubmit,
-}: {
-    initialValues: EventFormValues
-    isSaving: boolean
-    error: string | null
-    onClose: () => void
-    onSubmit: (values: EventFormValues, bannerFile: File | null) => void
-}) {
-    const [values, setValues] = useState(initialValues)
-    const [bannerFile, setBannerFile] = useState<File | null>(null)
-    const [filePreview, setFilePreview] = useState<string | null>(null)
-    const [fileError, setFileError] = useState<string | null>(null)
-
-    useEffect(() => () => {
-        if (filePreview) URL.revokeObjectURL(filePreview)
-    }, [filePreview])
-
-    const submit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        onSubmit(values, bannerFile)
-    }
-
-    const chooseBanner = (file: File | undefined) => {
-        setFileError(null)
-        if (!file) return
-        if (!['image/jpeg', 'image/png'].includes(file.type)) {
-            setFileError('Selecione uma imagem JPG ou PNG.')
-            return
-        }
-        if (file.size > 5 * 1024 * 1024) {
-            setFileError('A imagem deve ter no máximo 5 MB.')
-            return
-        }
-        setBannerFile(file)
-        setFilePreview(URL.createObjectURL(file))
-        setValues(current => ({ ...current, bannerImage: null }))
-    }
-
-    return (
-        <div className="admin-event-modal-backdrop" role="presentation" onMouseDown={event => {
-            if (event.target === event.currentTarget && !isSaving) onClose()
-        }}>
-            <section className="admin-event-modal" role="dialog" aria-modal="true" aria-labelledby="admin-event-form-title">
-                <header className="admin-event-modal-header">
-                    <h2 id="admin-event-form-title">Detalhes da Agenda</h2>
-                    <button type="button" className="admin-event-modal-close" onClick={onClose} aria-label="Fechar" disabled={isSaving}>
-                        <Icon name="close" />
-                    </button>
-                </header>
-                <form className="admin-event-form" onSubmit={submit}>
-                    {error && <p className="admin-events-alert is-error" role="alert">{error}</p>}
-                    <div className="admin-event-form-grid is-two">
-                        <label>
-                            Nome do Evento
-                            <input
-                                required
-                                value={values.title}
-                                onChange={event => setValues(current => ({ ...current, title: event.target.value }))}
-                            />
-                        </label>
-                        <label>
-                            Data do Encontro
-                            <input
-                                required
-                                type="date"
-                                value={values.date}
-                                onChange={event => setValues(current => ({ ...current, date: event.target.value }))}
-                            />
-                        </label>
-                    </div>
-                    <div className="admin-event-form-grid is-three">
-                        <label>
-                            Horário de Início
-                            <input
-                                required
-                                type="time"
-                                value={values.startAt}
-                                onChange={event => setValues(current => ({ ...current, startAt: event.target.value }))}
-                            />
-                        </label>
-                        <label>
-                            Horário de Término
-                            <input
-                                required
-                                type="time"
-                                value={values.endAt}
-                                onChange={event => setValues(current => ({ ...current, endAt: event.target.value }))}
-                            />
-                        </label>
-                        <label>
-                            Local / Endereço
-                            <input
-                                required
-                                value={values.localAddress}
-                                onChange={event => setValues(current => ({ ...current, localAddress: event.target.value }))}
-                            />
-                        </label>
-                    </div>
-                    <div className="admin-event-form-grid is-description-banner">
-                        <label>
-                            Descrição do Evento
-                            <textarea
-                                rows={3}
-                                value={values.description}
-                                onChange={event => setValues(current => ({ ...current, description: event.target.value }))}
-                            />
-                        </label>
-                        <div className="admin-event-banner-field">
-                            <span className="admin-event-form-label">Imagem de Capa (Opcional)</span>
-                            <div className="admin-event-banner-upload">
-                                {filePreview || values.bannerImage ? (
-                                    <img
-                                        className="admin-event-banner-preview"
-                                        src={filePreview ?? values.bannerImage ?? ''}
-                                        alt="Pré-visualização do banner do evento"
-                                    />
-                                ) : (
-                                    <span className="admin-event-banner-placeholder" aria-hidden="true" />
-                                )}
-                                <div className="admin-event-banner-upload-content">
-                                    <label className="admin-event-banner-upload-button" htmlFor="admin-event-banner-file">
-                                        Fazer Upload
-                                    </label>
-                                    <input
-                                        id="admin-event-banner-file"
-                                        className="admin-event-banner-file-input"
-                                        type="file"
-                                        accept="image/jpeg,image/png"
-                                        disabled={isSaving}
-                                        onChange={event => {
-                                            chooseBanner(event.target.files?.[0])
-                                            event.currentTarget.value = ''
-                                        }}
-                                    />
-                                    <small>Formatos JPG ou PNG · até 5 MB</small>
-                                </div>
-                                {(filePreview || values.bannerImage) && (
-                                    <button
-                                        type="button"
-                                        className="admin-event-banner-remove"
-                                        aria-label="Remover imagem de capa"
-                                        disabled={isSaving}
-                                        onClick={() => {
-                                            setBannerFile(null)
-                                            setFilePreview(null)
-                                            setValues(current => ({ ...current, bannerImage: null }))
-                                            setFileError(null)
-                                        }}
-                                    >
-                                        <Icon name="close" />
-                                    </button>
-                                )}
-                            </div>
-                            {fileError && <small className="admin-event-banner-error" role="alert">{fileError}</small>}
-                        </div>
-                    </div>
-                    <fieldset className="admin-event-status-field">
-                        <legend>Status</legend>
-                        <div className="admin-event-status-options">
-                            {EVENT_STATES.map(state => (
-                                <button
-                                    type="button"
-                                    key={state}
-                                    className={`admin-event-status-option${values.state === state ? ' is-selected' : ''}`}
-                                    aria-pressed={values.state === state}
-                                    onClick={() => setValues(current => ({ ...current, state }))}
-                                >
-                                    <span aria-hidden="true" />
-                                    {state === 'PENDING' ? 'Agendado (Aparece na Agenda)' : STATE_LABELS[state]}
-                                </button>
-                            ))}
-                        </div>
-                    </fieldset>
-                    <footer className="admin-event-form-actions">
-                        <p>Este evento será publicado de imediato no mural público.</p>
-                        <div>
-                            <button type="button" className="admin-event-button is-secondary" onClick={onClose} disabled={isSaving}>Cancelar</button>
-                            <button type="submit" className="admin-event-button is-primary" disabled={isSaving || Boolean(fileError)}>
-                                {isSaving ? 'Salvando...' : 'Confirmar Evento'}
-                            </button>
-                        </div>
-                    </footer>
-                </form>
-            </section>
-        </div>
-    )
 }
 
 const AdminEvents = ({
@@ -402,7 +192,8 @@ const AdminEvents = ({
         setFormError(null)
     }
 
-    const saveEvent = async (values: EventFormValues, bannerFile: File | null) => {
+    const saveEvent = async (values: EventFormValues, bannerFile: File | null, session: EventSaveSession, saveGallery: (id: string) => Promise<void>) => {
+        if (isSaving) return
         if (values.startAt >= values.endAt) {
             setFormError('O horário de término deve ser posterior ao horário de início.')
             return
@@ -410,20 +201,30 @@ const AdminEvents = ({
 
         setIsSaving(true)
         setFormError(null)
+        let eventSaved = false
         try {
-            const bannerImage = bannerFile ? (await uploadEventBanner(bannerFile)).url : values.bannerImage
+            if (bannerFile && session.banner?.file !== bannerFile) {
+                session.banner = { file: bannerFile, url: (await uploadEventBanner(bannerFile)).url }
+            }
+            const bannerImage = bannerFile ? session.banner!.url : values.bannerImage
             const eventInput: AdminEventInput = {
                 ...values,
                 description: values.description || null,
                 bannerImage,
             }
-            if (editingEvent) {
-                await updateAdminEvent(editingEvent.id, eventInput)
-                setActionMessage('Evento atualizado com sucesso.')
+            if (session.eventId) {
+                await updateAdminEvent(session.eventId, eventInput)
             } else {
-                await createAdminEvent(eventInput)
-                setActionMessage('Evento criado com sucesso.')
+                const result = await createAdminEvent(eventInput)
+                session.eventId = result.id
             }
+            eventSaved = true
+            const savedEvent: AdminEvent = { ...eventInput, id: session.eventId, createdAt: editingEvent?.createdAt ?? new Date().toISOString() }
+            setEvents(current => current.some(event => event.id === savedEvent.id)
+                ? current.map(event => event.id === savedEvent.id ? savedEvent : event)
+                : [...current, savedEvent])
+            await saveGallery(session.eventId)
+            setActionMessage(editingEvent ? 'Evento atualizado com sucesso.' : 'Evento criado com sucesso.')
             setIsCreating(false)
             setNewEventDate('')
             setEditingEvent(null)
@@ -438,7 +239,9 @@ const AdminEvents = ({
                 setIsLoading(false)
             }
         } catch (error) {
-            setFormError(getUserFacingError(error, 'Não foi possível salvar o evento.'))
+            setFormError(eventSaved
+                ? `O evento foi salvo, mas algumas fotos ainda estão pendentes. ${getUserFacingError(error, 'Não foi possível enviar todas as fotos.')} Clique em salvar novamente para retomar o envio.`
+                : getUserFacingError(error, 'Não foi possível salvar o evento.'))
         } finally {
             setIsSaving(false)
         }
@@ -626,11 +429,13 @@ const AdminEvents = ({
 
             {(isCreating || editingEvent) && (
                 <AdminEventForm
+                    key={editingEvent?.id ?? 'new-event'}
                     initialValues={editingEvent ? toFormValues(editingEvent) : { ...emptyForm, date: newEventDate }}
+                    eventId={editingEvent?.id ?? null}
                     isSaving={isSaving}
                     error={formError}
                     onClose={closeForm}
-                    onSubmit={(values, bannerFile) => void saveEvent(values, bannerFile)}
+                    onSubmit={saveEvent}
                 />
             )}
             {eventPendingDeletion && (

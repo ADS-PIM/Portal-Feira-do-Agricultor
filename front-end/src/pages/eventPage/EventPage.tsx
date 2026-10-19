@@ -4,6 +4,7 @@ import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import { getEvents, getEventDetails, getEventImages, type AdminEvent, type EventDetails, type EventImage } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
+import { getEventImageUrl } from '../../services/eventImageUrl'
 import { getAdjacentEvents } from './eventNavigation'
 import './EventPage.css'
 
@@ -60,7 +61,7 @@ function EventPhoto({ image }: { image: EventImage }) {
                 </div>
             ) : (
                 <img
-                    src={image.imageURL}
+                    src={getEventImageUrl(image.imageURL)}
                     alt={description || 'Foto do evento'}
                     loading="lazy"
                     onError={() => setHasError(true)}
@@ -276,7 +277,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                     </div>
 
                                     {event.bannerImage?.trim() ? (
-                                        <img className="event-page-cover" src={event.bannerImage} alt={event.title} />
+                                        <img className="event-page-cover" src={getEventImageUrl(event.bannerImage)} alt={event.title} />
                                     ) : (
                                         <div className="event-page-cover-empty" role="status">
                                             Este evento não possui uma imagem de capa.
