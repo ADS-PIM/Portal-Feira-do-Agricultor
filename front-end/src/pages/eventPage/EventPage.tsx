@@ -79,6 +79,7 @@ function EventPage({ eventId }: { eventId: string }) {
     const [eventError, setEventError] = useState<string | null>(null)
     const [imagesError, setImagesError] = useState<string | null>(null)
     const [showAllPhotos, setShowAllPhotos] = useState(false)
+    const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null)
     const [reloadKey, setReloadKey] = useState(0)
     const [navigation, setNavigation] = useState<{
         events: AdminEvent[]; loading: boolean; error: boolean
@@ -146,6 +147,7 @@ function EventPage({ eventId }: { eventId: string }) {
             ? [{ id: 'event-banner', imageURL: event.bannerImage, description: 'Imagem do evento' }]
             : []
     const visiblePhotos = showAllPhotos ? photos : photos.slice(0, 5)
+    const selectedPhoto = selectedPhotoIndex !== null ? photos[selectedPhotoIndex] ?? null : null
     const mapCoordinates = event ? getMapCoordinates(event) : null
     const hasAddress = Boolean(event?.localAddress?.trim())
     const mapUrl = mapCoordinates
@@ -163,6 +165,48 @@ function EventPage({ eventId }: { eventId: string }) {
             marker: `${mapCoordinates.latitude},${mapCoordinates.longitude}`,
         })}`
         : null
+
+    const openPhoto = (index: number) => {
+        if (photos.length === 0) return
+        setSelectedPhotoIndex((index + photos.length) % photos.length)
+    }
+
+    const movePhoto = (direction: -1 | 1) => {
+        if (selectedPhotoIndex === null || photos.length === 0) return
+        setSelectedPhotoIndex((current) => {
+            const nextIndex = ((current ?? 0) + direction + photos.length) % photos.length
+            return nextIndex
+        })
+    }
+
+    useEffect(() => {
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setSelectedPhotoIndex(null)
+            }
+        }
+
+        if (selectedPhotoIndex !== null) {
+            window.addEventListener('keydown', handleEscape)
+            document.body.style.overflow = 'hidden'
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleEscape)
+            document.body.style.overflow = ''
+        }
+    }, [selectedPhotoIndex])
+
+    useEffect(() => {
+        const handleKey = (event: KeyboardEvent) => {
+            if (selectedPhotoIndex === null) return
+            if (event.key === 'ArrowRight') movePhoto(1)
+            if (event.key === 'ArrowLeft') movePhoto(-1)
+        }
+
+        window.addEventListener('keydown', handleKey)
+        return () => window.removeEventListener('keydown', handleKey)
+    }, [selectedPhotoIndex, photos.length])
 
     return (
         <>
@@ -277,7 +321,14 @@ function EventPage({ eventId }: { eventId: string }) {
                                     </div>
 
                                     {event.bannerImage?.trim() ? (
-                                        <img className="event-page-cover" src={getEventImageUrl(event.bannerImage)} alt={event.title} />
+                                        <button
+                                            type="button"
+                                            className="event-page-cover-button"
+                                            onClick={() => openPhoto(photos.findIndex(photo => photo.id === 'event-banner') >= 0 ? photos.findIndex(photo => photo.id === 'event-banner') : 0)}
+                                            aria-label={`Ampliar imagem do evento ${event.title}`}
+                                        >
+                                            <img className="event-page-cover" src={getEventImageUrl(event.bannerImage)} alt={event.title} />
+                                        </button>
                                     ) : (
                                         <div className="event-page-cover-empty" role="status">
                                             Este evento não possui uma imagem de capa.
@@ -301,7 +352,24 @@ function EventPage({ eventId }: { eventId: string }) {
                                     ) : (
                                         <>
                                             <div className="event-page-photos">
-                                                {visiblePhotos.map(image => <EventPhoto key={image.id} image={image} />)}
+                                                {visiblePhotos.map((image, index) => (
+                                                    <div
+                                                        key={image.id}
+                                                        className="event-page-photo-button"
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        onClick={() => openPhoto(photos.findIndex(photo => photo.id === image.id))}
+                                                        onKeyDown={(event) => {
+                                                            if (event.key === 'Enter' || event.key === ' ') {
+                                                                event.preventDefault()
+                                                                openPhoto(photos.findIndex(photo => photo.id === image.id))
+                                                            }
+                                                        }}
+                                                        aria-label={`Ampliar foto ${index + 1} de ${visiblePhotos.length}`}
+                                                    >
+                                                        <EventPhoto image={image} />
+                                                    </div>
+                                                ))}
                                             </div>
                                             {photos.length > 5 && (
                                                 <button
@@ -351,6 +419,28 @@ function EventPage({ eventId }: { eventId: string }) {
                     )}
                 </div>
             </main>
+
+            {selectedPhoto && (
+                <div className="event-page-lightbox" role="dialog" aria-modal="true" aria-label="Visualização da foto do evento">
+                    <button type="button" className="event-page-lightbox-close" onClick={() => setSelectedPhotoIndex(null)} aria-label="Fechar visualização da imagem">
+                        <Icon name="close" />
+                    </button>
+
+                    <button type="button" className="event-page-lightbox-nav is-prev" onClick={() => movePhoto(-1)} aria-label="Foto anterior">
+                        <Icon name="arrowLeft" />
+                    </button>
+
+                    <div className="event-page-lightbox-panel">
+                        <img src={getEventImageUrl(selectedPhoto.imageURL)} alt={selectedPhoto.description || 'Foto do evento'} />
+                        {selectedPhoto.description && <p>{selectedPhoto.description}</p>}
+                    </div>
+
+                    <button type="button" className="event-page-lightbox-nav is-next" onClick={() => movePhoto(1)} aria-label="Próxima foto">
+                        <Icon name="arrowRight" />
+                    </button>
+                </div>
+            )}
+
             <Footer />
         </>
     )

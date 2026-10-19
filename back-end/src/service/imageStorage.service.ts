@@ -1,5 +1,24 @@
 import { randomUUID } from 'node:crypto';
-import { get, put } from '@vercel/blob';
+
+// Load Vercel Blob lazily to avoid crashing the whole backend if the package or
+// storage configuration is not available at boot time.
+type BlobModule = typeof import('@vercel/blob');
+
+let blobModule: BlobModule | undefined;
+try {
+    blobModule = require('@vercel/blob') as BlobModule;
+} catch {
+    blobModule = undefined;
+}
+
+const missingBlobClient = {
+    put: async () => {
+        throw new ImageUploadError(500, 'O armazenamento de imagens não está configurado. Configure BLOB_STORE_ID e BLOB_READ_WRITE_TOKEN.');
+    },
+    get: async () => {
+        throw new ImageUploadError(500, 'O armazenamento de imagens não está configurado. Configure BLOB_STORE_ID e BLOB_READ_WRITE_TOKEN.');
+    },
+};
 
 // Leave room below the 4.5 MB request limit of Vercel Functions.
 export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
@@ -26,7 +45,7 @@ function getBlobConfig() {
 
 export class ImageStorageService {
     constructor(
-        private readonly client = { put, get },
+        private readonly client = blobModule ? { put: blobModule.put, get: blobModule.get } : missingBlobClient,
         private readonly getConfig = getBlobConfig,
     ) {}
 

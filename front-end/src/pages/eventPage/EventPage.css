@@ -86,7 +86,11 @@
 .event-page-location-caption a:focus-visible,
 .event-page-feedback-actions a:focus-visible,
 .event-page-feedback-actions button:focus-visible,
-.event-page-gallery-more:focus-visible {
+.event-page-gallery-more:focus-visible,
+.event-page-cover-button:focus-visible,
+.event-page-photo-button:focus-visible,
+.event-page-lightbox-close:focus-visible,
+.event-page-lightbox-nav:focus-visible {
     outline: 2px solid var(--brand-orange);
     outline-offset: 3px;
 }
@@ -226,6 +230,15 @@
     background: #f5f1e8;
 }
 
+.event-page-cover-button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
 .event-page-cover {
     object-fit: cover;
 }
@@ -285,6 +298,16 @@
     margin: 0;
     border-radius: 12px;
     background: #f5f1e8;
+}
+
+.event-page-photo-button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
 }
 
 .event-page-photo img,
@@ -423,6 +446,81 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 1.8;
+}
+
+.event-page-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 18px;
+    padding: 24px;
+    background: rgba(18, 21, 18, 0.82);
+    backdrop-filter: blur(4px);
+}
+
+.event-page-lightbox-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: min(100%, 980px);
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.event-page-lightbox-panel img {
+    display: block;
+    width: 100%;
+    max-height: 78vh;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #111;
+}
+
+.event-page-lightbox-panel p {
+    margin: 12px 0 0;
+    color: #f3f5f0;
+    font-size: 14px;
+    text-align: center;
+}
+
+.event-page-lightbox-close,
+.event-page-lightbox-nav {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    cursor: pointer;
+}
+
+.event-page-lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.event-page-lightbox-close svg,
+.event-page-lightbox-nav svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.event-page-lightbox-nav:hover,
+.event-page-lightbox-close:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .event-page-feedback {

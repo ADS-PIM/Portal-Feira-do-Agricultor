@@ -8,9 +8,12 @@ import AdminArea from './pages/adminArea/AdminArea'
 import EventPage from './pages/eventPage/EventPage'
 import AccountPage from './pages/accountPage/AccountPage'
 import PricingCalculatorPage from './pages/pricingCalculatorPage/PricingCalculatorPage'
+import ProducersPage from './pages/producersPage/ProducersPage'
+import ProducerProfilePage from './pages/producersPage/ProducerProfilePage'
 
 type AppRoute =
-  | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' | 'calculator' }
+  | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' | 'calculator' | 'producers' }
+  | { page: 'producer'; producerSlug: string }
   | { page: 'event'; eventId: string }
 
 const pageTitles: Record<AppRoute['page'], string> = {
@@ -21,18 +24,30 @@ const pageTitles: Record<AppRoute['page'], string> = {
   calendar: 'Calendário de feiras',
   account: 'Minha conta',
   calculator: 'Calculadora de precificação',
+  producers: 'Produtores',
+  producer: 'Perfil do produtor',
   event: 'Detalhes do evento',
 }
 
 function getCurrentRoute(): AppRoute {
-  const hash = window.location.hash || '#inicio'
+  const hash = (window.location.hash || '#inicio').replace(/\/+$/, '')
 
   if (hash === '#/admin/login') return { page: 'login' }
   if (hash === '#/minha-conta') return { page: 'account' }
   if (hash === '#/admin') return { page: 'admin' }
+  if (hash === '#/produtores') return { page: 'producers' }
   if (hash === '#contato' || hash === '#/contato') return { page: 'contact' }
   if (hash === '#/calendario') return { page: 'calendar' }
   if (hash === '#/calculadora' || hash === '#calculadora') return { page: 'calculator' }
+
+  const producerRoute = /^#\/produtor\/([^/?#]+)\/?$/.exec(hash)
+  if (producerRoute) {
+    try {
+      return { page: 'producer', producerSlug: decodeURIComponent(producerRoute[1]) }
+    } catch {
+      return { page: 'producers' }
+    }
+  }
 
   const eventRoute = /^#\/evento\/([^/?#]+)$/.exec(hash)
   if (eventRoute) {
@@ -73,6 +88,8 @@ function App() {
 
   if (route.page === 'account') return <AccountPage />
   if (route.page === 'calculator') return <PricingCalculatorPage />
+  if (route.page === 'producers') return <ProducersPage />
+  if (route.page === 'producer') return <ProducerProfilePage producerSlug={route.producerSlug} />
 
   if (route.page === 'contact') {
     return <ContactUsPage />
