@@ -83,6 +83,7 @@
     background: #fff;
     color: var(--brand-charcoal);
     font: inherit;
+    font-weight: 400;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -231,6 +232,7 @@
     background: #fff;
     color: var(--brand-charcoal);
     font: inherit;
+    font-weight: 400;
     font-size: 14px;
     font-variant-numeric: tabular-nums;
     box-sizing: border-box;
@@ -473,8 +475,12 @@
 
 .admin-business-info-button.is-primary {
     border-color: transparent;
-    background: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
+    background: var(--brand-green-dark);
     color: #fff;
+}
+
+.admin-business-info-button.is-primary:hover:not(:disabled) {
+    background: var(--brand-green-hover);
 }
 
 .admin-business-info-alert {
@@ -525,7 +531,7 @@
 
 .admin-business-contact-field input::placeholder,
 .admin-business-info-field textarea::placeholder {
-    color: var(--text-muted);
+    color: var(--text-placeholder);
     opacity: 1;
 }
 

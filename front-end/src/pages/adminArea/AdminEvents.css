@@ -82,11 +82,12 @@
     background: transparent;
     color: var(--brand-charcoal);
     font: inherit;
+    font-weight: 400;
     font-size: 13px;
 }
 
 .admin-events-search input::placeholder {
-    color: var(--text-muted);
+    color: var(--text-placeholder);
 }
 
 .admin-events-filter-button {
@@ -171,6 +172,7 @@
     background: #fff;
     color: var(--text-secondary);
     font: inherit;
+    font-weight: 400;
     font-size: 12px;
 }
 
@@ -375,7 +377,7 @@
 
 .admin-events-day-button.has-events.is-selected,
 .admin-events-day-button.has-events:hover {
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
 }
 
@@ -721,9 +723,10 @@
     padding: 8px;
     border: 1px solid #e4e0dc;
     border-radius: 6px;
-    background: #f7f5f3;
+    background: var(--surface-input);
     color: var(--brand-charcoal);
     font: inherit;
+    font-weight: 400;
     font-size: 11px;
 }
 
@@ -773,7 +776,7 @@
     padding: 9px;
     border: 1px solid #e4e0dc;
     border-radius: 6px;
-    background: #f7f5f3;
+    background: var(--surface-input);
 }
 
 .admin-event-banner-preview,

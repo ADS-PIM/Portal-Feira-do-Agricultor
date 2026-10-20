@@ -172,7 +172,7 @@
 .admin-user-messages-filters button:focus-visible,
 .admin-user-messages-filters button.is-active {
     border-color: var(--brand-green-dark);
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
 }
 

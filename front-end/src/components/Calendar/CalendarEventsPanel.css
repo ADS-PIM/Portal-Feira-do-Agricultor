@@ -48,11 +48,12 @@
     background: transparent;
     color: var(--brand-charcoal);
     font: inherit;
+    font-weight: 400;
     font-size: 13px;
 }
 
 .calendar-events-search input::placeholder {
-    color: #8b9087;
+    color: var(--text-placeholder);
 }
 
 .calendar-events-filter-button {
@@ -133,6 +134,7 @@
     background: #fff;
     color: var(--brand-charcoal);
     font: inherit;
+    font-weight: 400;
     font-size: 12px;
 }
 
@@ -321,7 +323,7 @@
 
 .calendar-event-details-button:hover,
 .calendar-event-details-button:focus-visible {
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
 }
 

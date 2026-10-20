@@ -62,7 +62,7 @@
 .admin-side-nav-item.is-active,
 .admin-side-nav-item.is-active:hover,
 .admin-side-nav-item.is-active:focus-visible {
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
     font-weight: 600;
 }

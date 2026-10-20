@@ -183,7 +183,7 @@
 
 .event-agenda-calendar-button:hover,
 .event-agenda-calendar-button:focus-visible {
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
 }
 

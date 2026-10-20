@@ -176,7 +176,7 @@
 
 .calendar-day-button.has-events:hover,
 .calendar-day-button.has-events.is-selected {
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
 }
 

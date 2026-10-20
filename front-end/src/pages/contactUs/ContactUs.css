@@ -82,12 +82,13 @@
     background: #fff;
     color: #2b4038;
     font: inherit;
+    font-weight: 400;
     transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .contact-field input::placeholder,
 .contact-field textarea::placeholder {
-    color: #7c867f;
+    color: var(--text-placeholder);
 }
 
 .contact-field input:focus,

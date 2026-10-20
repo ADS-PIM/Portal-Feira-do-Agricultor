@@ -41,6 +41,7 @@
 }
 
 .producers-search {
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -73,12 +74,13 @@
     background: transparent;
     color: var(--brand-charcoal);
     font: inherit;
+    font-weight: 400;
     font-size: 1rem;
     outline: none;
 }
 
 .producers-search input::placeholder {
-    color: #7b847b;
+    color: var(--text-placeholder);
 }
 
 .producers-search input:focus-visible,

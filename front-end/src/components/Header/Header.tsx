@@ -1,6 +1,6 @@
 import './Header.css'
 import { useEffect, useId, useRef, useState } from 'react'
-import logo from '../../assets/logo_extenso.png'
+import logo from '../../assets/brotando-feiras-alinhada-direita-tons.png'
 import Icon from '../Icon'
 import { restoreAdminProfile } from '../../services/api'
 import {

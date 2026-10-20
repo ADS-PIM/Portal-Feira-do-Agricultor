@@ -357,9 +357,10 @@
     padding: 0 12px;
     border: 1px solid #dedbd7;
     border-radius: 8px;
-    background: #f5f3f0;
+    background: var(--surface-input);
     color: var(--brand-charcoal);
     font: inherit;
+    font-weight: 400;
     font-size: 13px;
     box-sizing: border-box;
 }
@@ -375,12 +376,16 @@
     min-height: 44px;
     border: 0;
     border-radius: 9px;
-    background: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
+    background: var(--brand-green-dark);
     color: #fff;
     font: inherit;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
+}
+
+.admin-managers-submit-button:hover:not(:disabled) {
+    background: var(--brand-green-hover);
 }
 
 .admin-managers-cancel-button {
@@ -593,6 +598,7 @@
     }
 
     .admin-managers-summary {
+        grid-template-columns: minmax(0, 1fr);
         gap: 8px;
     }
 
