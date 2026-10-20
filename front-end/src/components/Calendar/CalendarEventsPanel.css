@@ -279,7 +279,7 @@
     height: 16px;
     flex: 0 0 16px;
     margin-top: 1px;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
     stroke: currentColor;
     stroke-linecap: round;
     stroke-linejoin: round;

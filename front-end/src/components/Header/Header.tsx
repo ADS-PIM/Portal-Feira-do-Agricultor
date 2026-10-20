@@ -1,5 +1,5 @@
 import './Header.css'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import logo from '../../assets/brotando-feiras-alinhada-direita-tons.png'
 import Icon from '../Icon'
 import { restoreAdminProfile } from '../../services/api'
@@ -37,6 +37,26 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     const [hasCheckedSession, setHasCheckedSession] = useState(false)
     const lastVisibilityChangeY = useRef(0);
     const hasInitializedScrollPosition = useRef(false)
+
+    useLayoutEffect(() => {
+        const header = headerRef.current
+        if (!header) return
+
+        // Measure the actual gutter: viewport units can already exclude reserved scrollbars.
+        const updateScrollbarOffset = () => {
+            const gutter = Math.max(0, window.innerWidth - header.getBoundingClientRect().width)
+            header.style.setProperty('--header-scrollbar-offset', `${gutter / 2}px`)
+        }
+
+        updateScrollbarOffset()
+        const observer = new ResizeObserver(updateScrollbarOffset)
+        observer.observe(header)
+        window.addEventListener('resize', updateScrollbarOffset)
+        return () => {
+            observer.disconnect()
+            window.removeEventListener('resize', updateScrollbarOffset)
+        }
+    }, [])
 
     useEffect(() => {
         if (!isMenuOpen) return

@@ -97,8 +97,8 @@
 .markup-range:focus-visible { outline: 3px solid var(--brand-orange); outline-offset: 3px; }
 .markup-range[aria-invalid="true"] { --range-color: #a73324; }
 .markup-page .markup-help-button { display: inline-flex; flex: 0 0 36px; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--calculator-green); font-size: 14px; }
-/* Compensate for the Now glyph's baseline while preserving its original style. */
-.markup-help-button span { display: grid; place-items: center; width: 22px; height: 22px; padding-top: 1px; border: 1.5px solid currentColor; border-radius: 50%; line-height: 1; }
+.markup-help-button span { display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 1.5px solid currentColor; border-radius: 50%; line-height: 1; }
+.markup-help-button span svg { display: block; width: 9px; height: 14px; }
 .markup-help-button:hover { background: var(--calculator-soft); }
 .markup-help-dialog { position: fixed; inset: 0; width: min(520px, calc(100% - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 26px; overflow-y: auto; border: 1px solid var(--calculator-border); border-radius: 18px; background: #fff; color: var(--calculator-text); box-shadow: 0 16px 60px #0003; }
 .markup-help-dialog::backdrop { background: rgb(20 36 25 / 48%); }

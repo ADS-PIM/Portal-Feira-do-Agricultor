@@ -95,7 +95,7 @@ function FieldHelp({ name, label }: { name: Field; label: string }) {
   return (
     <>
       <button type="button" className="markup-help-button" aria-label={`Entenda: ${label}`} aria-haspopup="dialog" onClick={() => dialogRef.current?.showModal()}>
-        <span aria-hidden="true">?</span>
+        <span aria-hidden="true"><Icon name="question" /></span>
       </button>
       <dialog ref={dialogRef} className="markup-help-dialog" aria-labelledby={`markup-help-${name}`} onClick={(event) => {
         if (event.target === event.currentTarget) {

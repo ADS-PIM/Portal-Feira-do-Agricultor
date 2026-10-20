@@ -64,7 +64,7 @@
     box-shadow: 0 3px 12px rgb(28 61 37 / 3%);
 }
 
-.dashboard-metric.is-orange { --metric-color: #ac601e; --metric-background: #fff3e7; }
+.dashboard-metric.is-orange { --metric-color: var(--brand-orange); --metric-background: #fff3e7; }
 .dashboard-metric.is-blue { --metric-color: #38689e; --metric-background: #edf4fc; }
 .dashboard-metric.is-purple { --metric-color: #7c5aa2; --metric-background: #f4effa; }
 
@@ -253,13 +253,14 @@
     border: 1px solid #ece9df;
     border-radius: 9px;
     background: #fcfaf5;
-    color: #706045;
+    color: var(--brand-orange);
     text-align: left;
     font-size: 11px !important;
     cursor: pointer;
 }
 
 .dashboard-quality-item > svg { width: 13px; height: 13px; }
+.dashboard-quality-item:not(:disabled) > svg { color: var(--brand-orange); }
 .dashboard-quality-item > svg:last-child { width: 9px; height: 9px; }
 .dashboard-quality-item strong { margin-left: auto; font-size: 14px; }
 .dashboard-quality-item:hover:not(:disabled) { border-color: #b6a27e; background: #f8f2e5; }

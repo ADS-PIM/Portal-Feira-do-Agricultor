@@ -490,7 +490,7 @@
 
 .admin-event-status.is-canceled {
     background: #fff0e1;
-    color: #a44a00;
+    color: var(--brand-orange);
 }
 
 .admin-event-status.is-concluded {
@@ -500,7 +500,7 @@
 
 .admin-event-status.is-rescheduled {
     background: #fff3df;
-    color: #915800;
+    color: var(--brand-orange);
 }
 
 .admin-event-status.is-happening {
@@ -604,7 +604,7 @@
 }
 
 .admin-event-action.is-delete {
-    color: #ac4b23;
+    color: #d94a32;
 }
 
 .admin-event-action:hover,

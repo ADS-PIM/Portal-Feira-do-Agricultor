@@ -72,6 +72,7 @@
 }
 
 .admin-dashboard-agenda-list .admin-event-card {
+    container: dashboard-event / inline-size;
     padding: 16px;
 }
 
@@ -106,6 +107,19 @@
     min-width: 0;
     min-height: 36px;
     padding: 0;
+}
+
+.admin-dashboard-agenda-list .admin-event-action-label {
+    display: none;
+    white-space: nowrap;
+}
+
+@media (min-width: 761px) {
+    @container dashboard-event (min-width: 340px) {
+        .admin-dashboard-agenda-list .admin-event-action-label {
+            display: inline;
+        }
+    }
 }
 
 @container dashboard (min-width: 680px) {
@@ -381,12 +395,12 @@
 
 .admin-dashboard-stat-action {
     background: rgba(245, 152, 83, 0.18);
-    color: #b86712;
+    color: var(--brand-orange);
 }
 
 .admin-dashboard-stat-action.is-warning {
     background: rgba(245, 152, 83, 0.18);
-    color: #b86712;
+    color: var(--brand-orange);
 }
 
 .admin-dashboard-stat-meta {

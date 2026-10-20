@@ -272,6 +272,7 @@ const AdminDashboard = ({
                                                 title="Ver evento"
                                             >
                                                 <Icon name="eye" />
+                                                <span className="admin-event-action-label">Ver Evento</span>
                                             </a>
                                             <button
                                                 type="button"
@@ -281,6 +282,7 @@ const AdminDashboard = ({
                                                 onClick={() => onEditEvent(event.id)}
                                             >
                                                 <Icon name="edit" />
+                                                <span className="admin-event-action-label">Editar</span>
                                             </button>
                                             <button
                                                 type="button"
@@ -290,6 +292,7 @@ const AdminDashboard = ({
                                                 onClick={() => onDeleteEvent(event.id)}
                                             >
                                                 <Icon name="trash" />
+                                                <span className="admin-event-action-label">Excluir</span>
                                             </button>
                                         </div>
                                     </li>

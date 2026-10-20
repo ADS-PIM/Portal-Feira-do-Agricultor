@@ -91,6 +91,7 @@
     justify-self: center;
     gap: clamp(12px, 1.6vw, 24px);
     min-width: 0;
+    transform: translateX(var(--header-scrollbar-offset, 0px));
     white-space: nowrap;
 }
 
@@ -132,6 +133,7 @@
 }
 
 .site-header-account {
+    min-width: 77px;
     justify-self: end;
 }
 
@@ -234,6 +236,7 @@
     .site-header-navigation {
         box-sizing: border-box;
         display: none;
+        transform: none;
         position: absolute;
         top: 100%;
         right: 0;

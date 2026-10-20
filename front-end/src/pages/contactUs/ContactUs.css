@@ -160,7 +160,7 @@
     border: 1px solid #efc7a6;
     border-radius: 50%;
     background: rgba(231, 121, 50, 0.08);
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
     flex-shrink: 0;
 }
 

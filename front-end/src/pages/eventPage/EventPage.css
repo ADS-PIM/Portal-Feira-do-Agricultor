@@ -162,7 +162,7 @@
 
 .event-page-status.is-rescheduled {
     background: #fff5e7;
-    color: #9b5b14;
+    color: var(--brand-orange);
 }
 
 .event-page-meta {
@@ -187,7 +187,7 @@
     place-items: center;
     border-radius: 11px;
     background: #fff0e4;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
 }
 
 .event-page-meta-icon svg {

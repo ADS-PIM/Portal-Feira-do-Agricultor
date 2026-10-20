@@ -308,7 +308,7 @@
     margin-bottom: 20px;
     border-radius: 50%;
     background: #fff0dc;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
 }
 
 .admin-area-error-icon svg {

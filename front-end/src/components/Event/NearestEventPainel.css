@@ -32,7 +32,7 @@
 
 .panel-header p {
     margin: 10px 0 0;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
     font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
@@ -61,7 +61,7 @@
     margin-bottom: 20px;
     border-radius: 50%;
     background: #fff0dc;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
 }
 
 .event-empty-icon svg {
@@ -180,7 +180,7 @@
     place-items: center;
     border-radius: 50%;
     background: #fff0dc;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
 }
 
 .event-detail-icon svg {

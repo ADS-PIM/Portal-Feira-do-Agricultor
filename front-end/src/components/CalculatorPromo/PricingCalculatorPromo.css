@@ -61,12 +61,11 @@
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-    transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    transition: box-shadow 160ms ease, transform 160ms ease;
 }
 
 .pricing-calculator-button:hover {
     transform: translateY(-2px);
-    background: var(--brand-orange-dark);
     box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
 }
 

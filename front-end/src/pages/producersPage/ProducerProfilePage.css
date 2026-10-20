@@ -25,7 +25,7 @@
 .producer-profile-category {
     display: inline-block;
     margin-bottom: 18px;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -177,7 +177,7 @@
 .producer-profile-section-tag {
     display: inline-block;
     margin-bottom: 18px;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
     font-size: 0.74rem;
     font-weight: 700;
     letter-spacing: 0.08em;

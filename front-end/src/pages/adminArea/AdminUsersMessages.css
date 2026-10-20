@@ -99,7 +99,7 @@
 }
 
 .admin-message-stat-icon svg { width: 17px; height: 17px; }
-.admin-user-message-stats .is-attention .admin-message-stat-icon { background: #fff2df; color: #a36720; }
+.admin-user-message-stats .is-attention .admin-message-stat-icon { background: #fff2df; color: var(--brand-orange); }
 .admin-user-message-stats article:last-child .admin-message-stat-icon { background: #edf3fa; color: #5276a1; }
 
 .admin-user-messages-list {

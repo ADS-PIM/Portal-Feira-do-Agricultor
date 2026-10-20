@@ -20,7 +20,7 @@
 
 .contact-section-eyebrow {
     margin: 0 0 12px;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
     font-size: 13px;
     font-weight: 700;
 }
@@ -102,7 +102,7 @@
 .contact-card a,
 .contact-card-unavailable {
     margin-top: 21px;
-    color: var(--brand-orange-dark);
+    color: var(--brand-orange);
     font-size: 14px;
     font-weight: 700;
 }
