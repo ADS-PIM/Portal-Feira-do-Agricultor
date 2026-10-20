@@ -1,4 +1,5 @@
 import { useRef, useState, type CSSProperties, type FormEvent } from 'react'
+import { faQuestion } from '@fortawesome/free-solid-svg-icons'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import Icon, { type IconName } from '../../components/Icon'
@@ -88,6 +89,10 @@ const fieldHelp: Record<Field, { explanation: string; example: string; effect: s
   },
 }
 
+const helpQuestionPaths = [faQuestion.icon[4]].flat()
+const helpQuestionScale = 12 / faQuestion.icon[1]
+const helpQuestionOffsetX = (22 - faQuestion.icon[0] * helpQuestionScale) / 2
+
 function FieldHelp({ name, label }: { name: Field; label: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const help = fieldHelp[name]
@@ -95,7 +100,12 @@ function FieldHelp({ name, label }: { name: Field; label: string }) {
   return (
     <>
       <button type="button" className="markup-help-button" aria-label={`Entenda: ${label}`} aria-haspopup="dialog" onClick={() => dialogRef.current?.showModal()}>
-        <span aria-hidden="true"><Icon name="question" /></span>
+        <svg className="markup-help-icon" viewBox="0 0 22 22" aria-hidden="true" focusable="false">
+          <circle cx="11" cy="11" r="10.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <g transform={`translate(${helpQuestionOffsetX} 5) scale(${helpQuestionScale})`}>
+            {helpQuestionPaths.map((path, index) => <path key={index} d={path} fill="currentColor" />)}
+          </g>
+        </svg>
       </button>
       <dialog ref={dialogRef} className="markup-help-dialog" aria-labelledby={`markup-help-${name}`} onClick={(event) => {
         if (event.target === event.currentTarget) {
@@ -168,6 +178,11 @@ export default function PricingCalculatorPage() {
     { label: 'Lucro desejado', detail: `${formatPercentage(result.profit)}% do preço`, amount: result.profitAmount, className: 'profit' },
   ] : []
 
+  function updateValue(name: Field, value: string) {
+    setValues((previous) => ({ ...previous, [name]: value }))
+    setResult(null)
+  }
+
   function calculate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSubmitted(true)
@@ -232,31 +247,63 @@ export default function PricingCalculatorPage() {
                       return (
                         <div className="markup-field" key={name}>
                           <div className="markup-field-heading">
-                            <label htmlFor={`markup-${name}`}>{label}</label>
+                            <label htmlFor={`markup-${name}${isSlider ? '-value' : ''}`}>{label}</label>
                             <FieldHelp name={name} label={label} />
                             {isSlider && (
-                              <output className={`markup-range-value${error || hasTotalError ? ' has-error' : ''}`} htmlFor={`markup-${name}`}>
-                                {formatPercentage(sliderValue)}%
-                              </output>
+                              <label className={`markup-range-value${error || hasTotalError ? ' has-error' : ''}`} htmlFor={`markup-${name}-value`}>
+                                <input
+                                  id={`markup-${name}-value`}
+                                  name={name}
+                                  type="text"
+                                  inputMode="decimal"
+                                  enterKeyHint="done"
+                                  maxLength={20}
+                                  value={values[name]}
+                                  aria-label={`${label} (%)`}
+                                  aria-invalid={Boolean(error) || hasTotalError}
+                                  aria-describedby={`markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
+                                  onFocus={(event) => event.currentTarget.select()}
+                                  onChange={(event) => updateValue(name, event.currentTarget.value)}
+                                  onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
+                                  onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                      event.preventDefault()
+                                      event.currentTarget.blur()
+                                    }
+                                  }}
+                                  required
+                                />
+                                <span aria-hidden="true">%</span>
+                              </label>
                             )}
                           </div>
                           {isSlider ? (
                             <input
                               className="markup-range"
                               id={`markup-${name}`}
-                              name={name}
+                              name={`${name}-range`}
                               type="range"
                               min={0}
-                              max={99.9}
-                              step={0.1}
-                              value={sliderValue}
-                              style={{ '--range-fill': `${sliderValue / 99.9 * 100}%` } as CSSProperties}
+                              max={100}
+                              step="any"
+                              value={Math.min(100, sliderValue)}
+                              style={{ '--range-fill': `${Math.min(100, sliderValue)}%` } as CSSProperties}
+                              aria-label={label}
                               aria-valuetext={`${formatPercentage(sliderValue)}%`}
                               aria-invalid={Boolean(error) || hasTotalError}
                               aria-describedby={`markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
+                              onPointerDown={(event) => event.currentTarget.focus({ preventScroll: true })}
                               onChange={(event) => {
-                                setValues((previous) => ({ ...previous, [name]: event.target.value }))
-                                setResult(null)
+                                updateValue(name, String(Number(Number(event.currentTarget.value).toFixed(1))))
+                              }}
+                              onKeyDown={(event) => {
+                                const direction = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? 1
+                                  : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -1 : 0
+                                if (direction) {
+                                  event.preventDefault()
+                                  const nextValue = Math.max(0, Math.min(100, sliderValue + direction * 0.1))
+                                  updateValue(name, String(Number(nextValue.toFixed(10))))
+                                }
                               }}
                               onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
                             />
@@ -275,8 +322,7 @@ export default function PricingCalculatorPage() {
                               aria-invalid={Boolean(error) || hasTotalError}
                               aria-describedby={`markup-${name}-unit markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
                               onChange={(event) => {
-                                setValues((previous) => ({ ...previous, [name]: event.target.value }))
-                                setResult(null)
+                                updateValue(name, event.currentTarget.value)
                               }}
                               onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
                             />

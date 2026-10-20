@@ -34,6 +34,7 @@
 }
 
 .home-producers-section {
+    box-sizing: border-box;
     width: min(100% - 32px, 1280px);
     margin: 28px auto 0;
     padding: 42px 20px 16px;
@@ -51,7 +52,6 @@
 
 .home-producers-kicker {
     margin: 0;
-    color: var(--brand-green-dark);
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -71,6 +71,10 @@
     color: var(--text-secondary);
     font-size: 1.04rem;
     line-height: 1.65;
+}
+
+.home-producers-header .home-producers-kicker {
+    color: var(--brand-orange);
 }
 
 .home-producers-grid {

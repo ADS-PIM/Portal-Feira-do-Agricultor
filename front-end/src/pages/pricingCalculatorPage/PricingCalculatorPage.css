@@ -37,15 +37,40 @@
 .markup-help-intro { margin: -4px 0 22px; color: var(--calculator-muted); font-size: 14px; line-height: 1.6; }
 .markup-field-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
 .markup-field-heading label { margin-bottom: 0; }
-.markup-range-value {
+.markup-field-heading .markup-range-value {
+    display: inline-flex;
     flex-shrink: 0;
+    align-items: center;
+    gap: 2px;
+    min-height: 36px;
     margin-left: auto;
+    padding: 2px 5px;
+    border: 1px solid var(--calculator-border);
+    border-radius: 7px;
+    background: var(--surface-input);
     color: var(--calculator-green);
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
+    cursor: text;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.markup-range-value.has-error { color: #a73324; }
+.markup-range-value input {
+    width: 5ch;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: right;
+}
+.markup-range-value:focus-within {
+    border-color: var(--calculator-green);
+    box-shadow: 0 0 0 3px rgb(10 145 52 / 12%);
+}
+.markup-field-heading .markup-range-value.has-error { border-color: #a73324; color: #a73324; }
 .markup-range {
     --range-color: var(--calculator-green);
     display: block;
@@ -59,6 +84,7 @@
     border-radius: 8px;
     background: transparent;
     cursor: pointer;
+    touch-action: none;
 }
 .markup-range::-webkit-slider-runnable-track {
     height: 8px;
@@ -97,8 +123,7 @@
 .markup-range:focus-visible { outline: 3px solid var(--brand-orange); outline-offset: 3px; }
 .markup-range[aria-invalid="true"] { --range-color: #a73324; }
 .markup-page .markup-help-button { display: inline-flex; flex: 0 0 36px; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--calculator-green); font-size: 14px; }
-.markup-help-button span { display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 1.5px solid currentColor; border-radius: 50%; line-height: 1; }
-.markup-help-button span svg { display: block; width: 9px; height: 14px; }
+.markup-help-button .markup-help-icon { display: block; flex: none; width: 22px; height: 22px; }
 .markup-help-button:hover { background: var(--calculator-soft); }
 .markup-help-dialog { position: fixed; inset: 0; width: min(520px, calc(100% - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 26px; overflow-y: auto; border: 1px solid var(--calculator-border); border-radius: 18px; background: #fff; color: var(--calculator-text); box-shadow: 0 16px 60px #0003; }
 .markup-help-dialog::backdrop { background: rgb(20 36 25 / 48%); }

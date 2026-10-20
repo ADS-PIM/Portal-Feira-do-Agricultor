@@ -10,7 +10,7 @@ const MainBanner = () => {
             <p>{defaultBusinessDescription}</p>
             <div className="MainBanner-buttons">
                 <a href="#/calendario">Ver Eventos</a>
-                <a href="#sobre">Conhecer Agricultores</a>
+                <a href="#/produtores">Conhecer Agricultores</a>
             </div>
         </div>
     )

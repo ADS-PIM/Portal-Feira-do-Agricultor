@@ -118,9 +118,6 @@ textarea {
     --surface-input: #f8faf7;
 }
 
-html {
-    scrollbar-gutter: stable;
-}
 .font-awesome-icon {
     width: 1em;
     height: 1em;

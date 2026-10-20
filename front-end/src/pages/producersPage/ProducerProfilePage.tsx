@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
+import ProducerProductCard from './ProducerProductCard'
 import { getProducerBySlug } from './producersData'
 import './ProducerProfilePage.css'
 
@@ -96,9 +97,9 @@ const ProducerProfilePage = ({ producerSlug }: ProducerProfilePageProps) => {
             <section id="producer-products" className="producer-profile-products" aria-label="Produtos que leva à feira" hidden={activeTab !== 'products'}>
               <h2>O que você encontra na feira</h2>
               <p>Conheça alguns dos produtos de {producer.name}.</p>
-              <ul>
-                {producer.specialities.map((product) => (
-                  <li key={product}>{product}</li>
+              <ul className="producer-profile-product-grid">
+                {producer.products.map((product) => (
+                  <ProducerProductCard key={product.name} product={product} />
                 ))}
               </ul>
             </section>
