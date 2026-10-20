@@ -35,6 +35,20 @@
 .markup-field-group legend svg { flex-shrink: 0; font-size: 18px; }
 .markup-field + .markup-field { margin-top: 16px; }
 .markup-field label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 700; }
+.markup-help-intro { margin: -4px 0 22px; color: var(--calculator-muted); font-size: 14px; line-height: 1.6; }
+.markup-field-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.markup-field-heading label { margin-bottom: 0; }
+.markup-page .markup-help-button { display: inline-flex; flex: 0 0 36px; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--calculator-green); font-size: 14px; }
+.markup-help-button span { display: grid; place-items: center; width: 22px; height: 22px; border: 1.5px solid currentColor; border-radius: 50%; line-height: 1; }
+.markup-help-button:hover { background: var(--calculator-soft); }
+.markup-help-dialog { position: fixed; inset: 0; width: min(520px, calc(100% - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 26px; overflow-y: auto; border: 1px solid var(--calculator-border); border-radius: 18px; background: #fff; color: var(--calculator-text); box-shadow: 0 16px 60px #0003; }
+.markup-help-dialog::backdrop { background: rgb(20 36 25 / 48%); }
+.markup-help-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.markup-help-heading h2 { color: var(--calculator-green); font-size: 21px; line-height: 1.4; }
+.markup-page .markup-help-close { display: grid; flex: 0 0 36px; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--calculator-soft); color: var(--calculator-green); font-size: 26px; line-height: 1; }
+.markup-help-dialog h3 { margin: 20px 0 6px; color: var(--calculator-green); font-size: 16px; }
+.markup-help-dialog p { font-size: 16px; line-height: 1.7; }
+.markup-page .markup-help-understood { min-height: 44px; margin-top: 24px; padding-inline: 24px; font-size: 15px; }
 .markup-input-wrap { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border: 1px solid var(--calculator-border); border-radius: 9px; background: #fcfefd; transition: border-color 150ms ease, box-shadow 150ms ease; }
 .markup-input-wrap > span { flex-shrink: 0; color: var(--calculator-muted); font-size: 14px; }
 .markup-input-wrap input { width: 100%; min-width: 0; min-height: 46px; padding: 9px 0; border: 0; border-radius: 8px; outline: none; background: transparent; color: var(--calculator-text); font: inherit; font-size: 17px; font-variant-numeric: tabular-nums; }

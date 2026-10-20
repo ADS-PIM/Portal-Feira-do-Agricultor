@@ -50,6 +50,74 @@ const fieldGroups: { title: string; icon: IconName; fields: FieldDefinition[] }[
 const fields = fieldGroups.flatMap((group) => group.fields)
 const percentageFields: Field[] = ['monthlyFixedExpenses', 'monthlyRevenue', 'variableExpenses', 'profit']
 
+const fieldHelp: Record<Field, { explanation: string; example: string; effect: string }> = {
+  materialCost: {
+    explanation: 'Some o que você gasta com ingredientes, materiais e embalagem para preparar apenas uma unidade do produto. Não inclua seu tempo de trabalho aqui.',
+    example: 'Se os ingredientes de um pote de doce custam R$ 4 e o pote custa R$ 1, preencha R$ 5.',
+    effect: 'Quanto maior esse gasto, maior precisa ser o preço de venda para pagar os materiais e ainda cobrir as despesas e o lucro.',
+  },
+  productionHours: {
+    explanation: 'Informe quantas horas de trabalho são necessárias para fazer uma unidade. Se você faz vários produtos juntos, divida o tempo pela quantidade produzida.',
+    example: 'Se você leva 2 horas para fazer 10 potes de doce, cada pote usa 0,2 hora. Meia hora é 0,5 e 15 minutos são 0,25.',
+    effect: 'Esse tempo é multiplicado pelo valor da sua hora. Quanto mais tempo por unidade, maior o custo do trabalho e o preço calculado.',
+  },
+  hourlyRate: {
+    explanation: 'Informe quanto você quer receber por uma hora do seu trabalho. Seu trabalho também tem um custo, mesmo quando é você quem produz.',
+    example: 'Se sua hora vale R$ 20 e uma unidade leva meia hora para ficar pronta, o custo do trabalho dessa unidade é R$ 10.',
+    effect: 'Quanto maior o valor da hora, maior o preço calculado. Esse pagamento pelo trabalho é separado do lucro do negócio.',
+  },
+  monthlyFixedExpenses: {
+    explanation: 'Some as contas do negócio que você paga por mês, mesmo quando vende pouco, como aluguel e internet. Se uma conta também é da sua casa, inclua só a parte usada no negócio. Não repita os materiais nem o trabalho já informados.',
+    example: 'Com R$ 1.000 de contas e R$ 10.000 de vendas no mês, a calculadora reserva 10% do preço de cada venda para essas contas.',
+    effect: 'Mantendo as vendas mensais iguais, contas maiores aumentam a parte reservada para despesas e o preço calculado. Se não tiver essas despesas, informe 0.',
+  },
+  monthlyRevenue: {
+    explanation: 'Informe quanto seu negócio costuma receber com todas as vendas em um mês, antes de pagar qualquer conta. Esse é o faturamento, não o dinheiro que sobra.',
+    example: 'Se você vende 100 produtos por R$ 10 cada durante o mês, seu faturamento é R$ 1.000, mesmo que parte desse dinheiro vá para as contas.',
+    effect: 'Esse valor ajuda a dividir as contas fixas entre as vendas. Com as mesmas contas, um faturamento maior reduz a parte reservada por venda e pode diminuir o preço calculado. Use uma média realista e maior que zero.',
+  },
+  variableExpenses: {
+    explanation: 'Informe a porcentagem da venda que vai para taxas ou comissões. Some as porcentagens que se aplicam à venda. Não inclua custos que você já colocou nos outros campos.',
+    example: 'Se a taxa da maquininha é 3% e a comissão é 2%, preencha 5. Em uma venda de R$ 20, esses 5% representam R$ 1.',
+    effect: 'Quanto maiores as taxas, maior precisa ser o preço para cobri-las. Se não pagar taxas nem comissões, informe 0.',
+  },
+  profit: {
+    explanation: 'Escolha a porcentagem do preço de venda que você quer que sobre para o negócio depois de pagar os materiais, o trabalho e as despesas.',
+    example: 'Com lucro de 20%, em uma venda de R$ 10 a calculadora reserva R$ 2 como lucro. Não é apenas somar 20% ao custo.',
+    effect: 'Quanto maior o lucro desejado, maior o preço calculado. A soma do lucro com as porcentagens das despesas fixas e variáveis precisa ficar abaixo de 100%.',
+  },
+}
+
+function FieldHelp({ name, label }: { name: Field; label: string }) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const help = fieldHelp[name]
+
+  return (
+    <>
+      <button type="button" className="markup-help-button" aria-label={`Entenda: ${label}`} aria-haspopup="dialog" onClick={() => dialogRef.current?.showModal()}>
+        <span aria-hidden="true">?</span>
+      </button>
+      <dialog ref={dialogRef} className="markup-help-dialog" aria-labelledby={`markup-help-${name}`} onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          const bounds = event.currentTarget.getBoundingClientRect()
+          if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) event.currentTarget.close()
+        }
+      }}>
+        <div className="markup-help-heading">
+          <h2 id={`markup-help-${name}`}>{label}</h2>
+          <button type="button" className="markup-help-close" aria-label="Fechar explicação" onClick={() => dialogRef.current?.close()}>×</button>
+        </div>
+        <p>{help.explanation}</p>
+        <h3>Por exemplo</h3>
+        <p>{help.example}</p>
+        <h3>Como muda o preço?</h3>
+        <p>{help.effect}</p>
+        <button type="button" className="markup-example markup-help-understood" onClick={() => dialogRef.current?.close()}>Entendi</button>
+      </dialog>
+    </>
+  )
+}
+
 export default function PricingCalculatorPage() {
   const [values, setValues] = useState<FormValues>(initialValues)
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({})
@@ -151,6 +219,7 @@ export default function PricingCalculatorPage() {
                 <button className="markup-example" type="button" onClick={useExample}>Usar exemplo</button>
               </div>
 
+              <p className="markup-help-intro">Tem dúvida? Toque no botão de interrogação (?) ao lado de cada campo para ver uma explicação e um exemplo.</p>
               <form ref={formRef} className="markup-form" onSubmit={calculate} autoComplete="off" noValidate>
                 {fieldGroups.map((group) => (
                   <fieldset className="markup-field-group" key={group.title}>
@@ -160,7 +229,10 @@ export default function PricingCalculatorPage() {
                       const hasTotalError = percentageFields.includes(name) && invalidTotal
                       return (
                         <div className="markup-field" key={name}>
-                          <label htmlFor={`markup-${name}`}>{label}</label>
+                          <div className="markup-field-heading">
+                            <label htmlFor={`markup-${name}`}>{label}</label>
+                            <FieldHelp name={name} label={label} />
+                          </div>
                           <div className={`markup-input-wrap${error ? ' has-error' : ''}`}>
                             {unit === 'R$' && <span id={`markup-${name}-unit`}>R$</span>}
                             <input
