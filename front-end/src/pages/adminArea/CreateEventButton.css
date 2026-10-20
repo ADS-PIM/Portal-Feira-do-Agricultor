@@ -7,11 +7,11 @@ button.admin-create-event {
     min-height: 42px;
     margin-left: auto;
     padding: 0 16px;
-    border: 1px solid #19683b;
+    border: 1px solid var(--brand-green-dark);
     border-radius: 10px;
-    background: #19683b;
+    background: var(--brand-green-dark);
     color: #fff;
-    font-family: "Now", "Segoe UI", sans-serif;
+    font-family: var(--font-family-base);
     font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
@@ -19,11 +19,11 @@ button.admin-create-event {
 }
 
 button.admin-create-event:hover {
-    background: #12502d;
+    background: var(--brand-green-hover);
 }
 
 button.admin-create-event:focus-visible {
-    outline: 3px solid #e5a141;
+    outline: 3px solid var(--brand-orange);
     outline-offset: 4px;
 }
 

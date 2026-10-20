@@ -3,7 +3,7 @@
     display: flex;
     flex-direction: column;
     background: transparent;
-    font-family: "Now", sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .login-page input,
@@ -22,5 +22,5 @@
 
 html:has(.login-page) {
     scrollbar-gutter: auto;
-    background: radial-gradient(circle at top, #f3faf4 0%, #e5f3e8 100%);
+    background: radial-gradient(circle at top, var(--brand-green-soft) 0%, #e5f3e8 100%);
 }

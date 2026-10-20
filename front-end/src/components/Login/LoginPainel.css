@@ -29,7 +29,7 @@
 .login-painel-subtitle {
     margin: 0;
     font-size: 0.85rem;
-    color: #767d73;
+    color: var(--text-muted);
     line-height: 1.4;
 }
 
@@ -57,7 +57,7 @@
 .login-painel-field label {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #3a3f38;
+    color: var(--brand-charcoal);
 }
 
 .login-painel-field-header {
@@ -72,7 +72,7 @@
     padding: 0;
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--brand-green);
+    color: var(--brand-green-dark);
     cursor: pointer;
 }
 
@@ -85,15 +85,15 @@
     box-sizing: border-box;
     padding: 0.7rem 0.85rem;
     border-radius: 10px;
-    border: 1px solid #e4e2dc;
-    background: #f6f5f1;
+    border: 1px solid var(--border-default);
+    background: var(--surface-input);
     font-size: 0.95rem;
-    color: #1f2421;
+    color: var(--brand-charcoal);
 }
 
 .login-painel input:focus {
     outline: none;
-    border-color: var(--brand-green);
+    border-color: var(--brand-green-dark);
     box-shadow: 0 0 0 3px rgb(10 145 52 / 15%);
 }
 
@@ -116,7 +116,7 @@
     background: none;
     border: none;
     padding: 0.25rem;
-    color: #767d73;
+    color: var(--text-muted);
     cursor: pointer;
 }
 
@@ -131,7 +131,7 @@
     padding: 0.85rem;
     border: none;
     border-radius: 12px;
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #ffffff;
     font-size: 0.95rem;
     font-weight: 600;
@@ -140,7 +140,7 @@
 }
 
 .login-painel-submit:hover:not(:disabled) {
-    background: var(--brand-green-dark);
+    background: var(--brand-green-hover);
 }
 
 .login-painel-submit:disabled {
@@ -152,6 +152,6 @@
     margin: 0;
     text-align: center;
     font-size: 0.75rem;
-    color: #9a9f94;
+    color: var(--text-muted);
     line-height: 1.4;
 }

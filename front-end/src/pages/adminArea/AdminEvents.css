@@ -1,12 +1,12 @@
 .admin-events {
     min-width: 0;
-    color: #30332e;
-    font-family: "Now", sans-serif;
+    color: var(--brand-charcoal);
+    font-family: var(--font-family-base);
 }
 
 .admin-events-heading {
     padding: 15px 30px 13px;
-    border-bottom: 1px solid #e5e1dc;
+    border-bottom: 1px solid var(--border-default);
     background: #fff;
 }
 
@@ -19,7 +19,7 @@
 
 .admin-events-heading p {
     margin: 4px 0 0;
-    color: #77736f;
+    color: var(--text-muted);
     font-size: 13px;
 }
 
@@ -53,14 +53,14 @@
     align-items: center;
     gap: 10px;
     padding: 0 13px;
-    border: 1px solid #dce3d9;
+    border: 1px solid var(--border-default);
     border-radius: 10px;
     background: #fff;
     color: #698064;
 }
 
 .admin-events-search:focus-within {
-    border-color: var(--brand-green);
+    border-color: var(--brand-green-dark);
     box-shadow: 0 0 0 2px rgb(10 145 52 / 12%);
 }
 
@@ -80,13 +80,13 @@
     border: 0;
     outline: 0;
     background: transparent;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font: inherit;
     font-size: 13px;
 }
 
 .admin-events-search input::placeholder {
-    color: #747b70;
+    color: var(--text-muted);
 }
 
 .admin-events-filter-button {
@@ -100,7 +100,7 @@
     border: 1px solid #dedbd7;
     border-radius: 9px;
     background: #fff;
-    color: #57534e;
+    color: var(--text-secondary);
     font: inherit;
     font-size: 13px;
     font-weight: 600;
@@ -111,7 +111,7 @@
 .admin-events-filter-button:hover,
 .admin-events-filter-button:focus-visible,
 .admin-events-filter-button.is-open {
-    border-color: var(--brand-green);
+    border-color: var(--brand-green-dark);
     background: var(--brand-green-light);
     color: var(--brand-green-dark);
 }
@@ -132,7 +132,7 @@
     place-items: center;
     padding: 0 4px;
     border-radius: 999px;
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
     font-size: 10px;
     line-height: 1;
@@ -156,7 +156,7 @@
     gap: 8px;
     color: #50634b;
     font-size: 12px;
-    font-weight: 650;
+    font-weight: 600;
 }
 
 .admin-events-filters select,
@@ -169,14 +169,14 @@
     border: 1px solid #dedbd7;
     border-radius: 7px;
     background: #fff;
-    color: #393632;
+    color: var(--text-secondary);
     font: inherit;
     font-size: 12px;
 }
 
 .admin-events-filters select:focus,
 .admin-events-filters input:focus {
-    border-color: var(--brand-green);
+    border-color: var(--brand-green-dark);
     outline: 2px solid rgb(10 145 52 / 12%);
 }
 
@@ -185,10 +185,10 @@
     padding: 0 8px;
     border: 0;
     background: transparent;
-    color: var(--brand-green);
+    color: var(--brand-green-dark);
     font: inherit;
     font-size: 11px;
-    font-weight: 650;
+    font-weight: 600;
     white-space: nowrap;
     cursor: pointer;
 }
@@ -212,11 +212,11 @@
     padding: 0 18px;
     border: 0;
     border-radius: 9px;
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
     font: inherit;
     font-size: 13px;
-    font-weight: 650;
+    font-weight: 600;
     white-space: nowrap;
     cursor: pointer;
     transition: background-color 150ms ease;
@@ -224,7 +224,7 @@
 
 .admin-event-button.is-primary:hover,
 .admin-event-button.is-primary:focus-visible {
-    background: var(--brand-green-dark);
+    background: var(--brand-green-hover);
 }
 
 .admin-events-columns {
@@ -238,7 +238,7 @@
     box-sizing: border-box;
     min-width: 0;
     padding: 21px 22px;
-    border: 1px solid #e2ded9;
+    border: 1px solid var(--border-default);
     border-radius: 17px;
     background: #fff;
 }
@@ -265,10 +265,10 @@
     width: calc(5ch + 2.75rem);
     min-width: calc(5ch + 2.75rem);
     padding: 2px 1.15rem 2px 0.45rem;
-    border: 1px solid #e2ded9;
+    border: 1px solid var(--border-default);
     border-radius: 7px;
     background: #fff;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font: inherit;
     font-size: 0.9em;
     cursor: pointer;
@@ -298,7 +298,7 @@
     border: 0;
     border-radius: 7px;
     background: #f4f2f0;
-    color: #716d68;
+    color: var(--text-muted);
     cursor: pointer;
 }
 
@@ -337,7 +337,7 @@
     min-width: 0;
     min-height: 44px;
     place-items: center;
-    color: #34322f;
+    color: var(--text-secondary);
     font-size: 13px;
 }
 
@@ -473,7 +473,7 @@
     background: var(--brand-green-light);
     color: var(--brand-green-dark);
     font-size: 11px;
-    font-weight: 650;
+    font-weight: 600;
     line-height: 1.4;
 }
 
@@ -493,7 +493,7 @@
 
 .admin-event-status.is-concluded {
     background: #efefed;
-    color: #6c6a66;
+    color: var(--text-muted);
 }
 
 .admin-event-status.is-rescheduled {
@@ -522,7 +522,7 @@
 .admin-event-description {
     max-width: 100%;
     margin: 0 0 14px;
-    color: #70766b;
+    color: var(--text-muted);
     font-size: 13px;
     line-height: 1.6;
     overflow-wrap: anywhere;
@@ -534,7 +534,7 @@
     align-items: flex-start;
     gap: 9px;
     margin: 8px 0 0;
-    color: #60695b;
+    color: var(--text-muted);
     font-size: 12px;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -577,7 +577,7 @@
     background: #fff;
     font: inherit;
     font-size: 12px;
-    font-weight: 650;
+    font-weight: 600;
     cursor: pointer;
 }
 
@@ -591,7 +591,7 @@
 }
 
 .admin-event-action.is-edit {
-    color: var(--brand-green);
+    color: var(--brand-green-dark);
 }
 
 .admin-event-action.is-view {
@@ -626,10 +626,10 @@
 .admin-events-alert {
     margin: 0;
     padding: 16px;
-    border: 1px solid #e2ded9;
+    border: 1px solid var(--border-default);
     border-radius: 11px;
     background: #fff;
-    color: #77736f;
+    color: var(--text-muted);
     font-size: 13px;
     line-height: 1.5;
 }
@@ -690,7 +690,7 @@
     border: 0;
     border-radius: 7px;
     background: #f3f1ef;
-    color: #625e59;
+    color: var(--text-secondary);
     font-size: 23px;
     line-height: 1;
     cursor: pointer;
@@ -707,7 +707,7 @@
     display: grid;
     min-width: 0;
     gap: 5px;
-    color: #4b4844;
+    color: var(--text-secondary);
     font-size: 11px;
     font-weight: 600;
 }
@@ -722,7 +722,7 @@
     border: 1px solid #e4e0dc;
     border-radius: 6px;
     background: #f7f5f3;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font: inherit;
     font-size: 11px;
 }
@@ -735,7 +735,7 @@
 .admin-event-form input:focus,
 .admin-event-form textarea:focus,
 .admin-event-form select:focus {
-    border-color: var(--brand-green);
+    border-color: var(--brand-green-dark);
     outline: 2px solid rgb(10 145 52 / 12%);
 }
 
@@ -870,7 +870,7 @@
     border: 1px solid #e4e0dc;
     border-radius: 6px;
     background: #fff;
-    color: #77716b;
+    color: var(--text-muted);
     font: inherit;
     font-size: 10px;
     cursor: pointer;
@@ -922,7 +922,7 @@
 .admin-event-button.is-secondary {
     border: 1px solid #dedbd7;
     background: #fff;
-    color: #5f5a55;
+    color: var(--text-secondary);
 }
 
 .admin-event-button.is-secondary:hover,
@@ -959,13 +959,13 @@
 
 .admin-event-delete-dialog h2 {
     margin: 0;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font-size: 19px;
 }
 
 .admin-event-delete-dialog > p {
     margin: 10px 0 0;
-    color: #77736f;
+    color: var(--text-muted);
     font-size: 13px;
     line-height: 1.55;
 }

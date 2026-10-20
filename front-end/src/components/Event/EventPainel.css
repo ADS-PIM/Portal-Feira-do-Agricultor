@@ -2,9 +2,9 @@
     box-sizing: border-box;
     width: 100%;
     padding: 96px 5.6% 94px;
-    background: #fffdf8;
-    color: #60645c;
-    font-family: "Now", sans-serif;
+    background: var(--surface-page);
+    color: var(--text-muted);
+    font-family: var(--font-family-base);
 }
 
 .event-agenda *,
@@ -23,7 +23,7 @@
     margin: 0;
     color: var(--brand-green-dark);
     font-size: clamp(30px, 3vw, 40px);
-    font-weight: 750;
+    font-weight: 700;
     line-height: 1.2;
 }
 
@@ -76,7 +76,7 @@
 
 .event-agenda-card:hover {
     transform: translateY(-4px);
-    border-color: var(--brand-green);
+    border-color: var(--brand-green-dark);
     background: #fff;
     box-shadow: 0 12px 26px rgb(8 117 43 / 12%);
 }
@@ -87,7 +87,7 @@
 }
 
 .event-agenda-card:hover .event-agenda-date {
-    background: var(--brand-green-dark);
+    background: var(--brand-green-hover);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -109,19 +109,19 @@
     align-items: center;
     justify-content: center;
     border-radius: 16px;
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
 }
 
 .event-agenda-date strong {
     font-size: 27px;
-    font-weight: 750;
+    font-weight: 700;
     line-height: 1.1;
 }
 
 .event-agenda-date span {
     margin-top: 7px;
-    color: #101b14;
+    color: var(--brand-charcoal);
     font-size: 12px;
     font-weight: 700;
 }
@@ -170,7 +170,7 @@
     border: 1.5px solid var(--brand-green);
     border-radius: 999px;
     background: #fff;
-    color: var(--brand-green);
+    color: var(--brand-green-dark);
     font: inherit;
     font-size: 14px;
     font-weight: 700;

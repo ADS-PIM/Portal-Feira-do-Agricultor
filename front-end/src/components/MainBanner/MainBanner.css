@@ -11,7 +11,7 @@
     padding: 64px 5.6%;
     background: var(--brand-green-dark);
     color: #fff;
-    font-family: "Now", sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .MainBanner::before {
@@ -36,7 +36,7 @@
     max-width: 720px;
     margin: 0 0 24px;
     font-size: 58px;
-    font-weight: 750;
+    font-weight: 700;
     line-height: 1.12;
 }
 
@@ -65,7 +65,7 @@
     border: 1px solid #fff;
     border-radius: 999px;
     background: #fff;
-    color: var(--brand-green);
+    color: var(--brand-green-dark);
     font: inherit;
     font-size: 14px;
     font-weight: 700;
@@ -75,14 +75,14 @@
 }
 
 .MainBanner-buttons a:first-child {
-    border-color: var(--brand-green);
-    background: var(--brand-green);
+    border-color: var(--brand-green-dark);
+    background: var(--brand-green-dark);
     color: #fff;
 }
 
 .MainBanner-buttons a:first-child:hover {
-    border-color: var(--brand-green-dark);
-    background: var(--brand-green-dark);
+    border-color: var(--brand-green-hover);
+    background: var(--brand-green-hover);
 }
 
 .MainBanner-buttons a:last-child:hover {

@@ -2,9 +2,9 @@
     box-sizing: border-box;
     min-height: 55vh;
     padding: 72px 5.6% 88px;
-    background: #fffdf8;
+    background: var(--surface-page);
     color: var(--brand-charcoal);
-    font-family: "Now", sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .calendar-page-header {
@@ -24,14 +24,14 @@
     margin: 0;
     color: var(--brand-green-dark);
     font-size: clamp(30px, 4vw, 42px);
-    font-weight: 750;
+    font-weight: 700;
     line-height: 1.2;
 }
 
 .calendar-page-header span {
     display: block;
     margin-top: 12px;
-    color: #60645c;
+    color: var(--text-muted);
     font-size: 16px;
     line-height: 1.5;
 }

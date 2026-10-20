@@ -52,7 +52,16 @@
 }
 
 body {
-    font-family: "Now", sans-serif;
+    font-family: var(--font-family-base);
+    color: var(--brand-charcoal);
+    background: var(--surface-page);
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
 }
 
 #root {
@@ -75,13 +84,11 @@ body {
     margin-top: auto;
 }
 
-:is(h1, h2, h3, h4, h5, h6) {
-    zoom: 0.94;
-}
-
 :root {
+    --font-family-base: "Now", sans-serif;
     --brand-green: #0a9134;
     --brand-green-dark: #08752b;
+    --brand-green-hover: #065d22;
     --brand-green-light: #e9f7ed;
     --brand-green-soft: #f3faf4;
     --brand-orange: #ff9d2e;
@@ -89,6 +96,13 @@ body {
     --brand-pink: #ff315a;
     --brand-charcoal: #242223;
     --brand-white: #fff;
+    --text-secondary: #496053;
+    --text-muted: #60645c;
+    --text-placeholder: #747b71;
+    --border-default: #dce6dd;
+    --surface-page: #fffdf8;
+    --surface-admin: #f4f8f4;
+    --surface-input: #f8faf7;
 }
 
 html {

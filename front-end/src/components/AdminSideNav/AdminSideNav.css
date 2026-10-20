@@ -8,7 +8,7 @@
     overflow: visible;
     background: var(--brand-charcoal);
     color: #d7d9d6;
-    font-family: "Now", sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .admin-side-nav > nav {

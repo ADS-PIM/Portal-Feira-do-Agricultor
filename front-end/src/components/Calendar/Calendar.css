@@ -17,7 +17,7 @@
     border-radius: 24px;
     background: #fff;
     color: var(--brand-charcoal);
-    font-family: "Now", sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .calendar *,
@@ -41,7 +41,7 @@
     margin: 0;
     color: var(--brand-charcoal);
     font-size: clamp(22px, 3vw, 30px);
-    font-weight: 750;
+    font-weight: 700;
     line-height: 1.2;
 }
 
@@ -73,7 +73,7 @@
 
 .calendar-event-count {
     margin: 7px 0 0;
-    color: #60645c;
+    color: var(--text-muted);
     font-size: 14px;
     line-height: 1.4;
 }
@@ -93,13 +93,13 @@
     border: 1px solid #e2eee4;
     border-radius: 10px;
     background: #fdfcf9;
-    color: #30332e;
+    color: var(--brand-charcoal);
     cursor: pointer;
     transition: background-color 150ms ease, border-color 150ms ease;
 }
 
 .calendar-navigation button:hover {
-    border-color: var(--brand-green);
+    border-color: var(--brand-green-dark);
     background: var(--brand-green-light);
 }
 
@@ -127,7 +127,7 @@
 
 .calendar-weekday {
     padding: 8px 4px;
-    color: #60645c;
+    color: var(--text-muted);
     font-size: 13px;
     font-weight: 700;
     text-align: center;
@@ -157,7 +157,7 @@
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font: inherit;
     font-size: 14px;
     cursor: pointer;
@@ -215,7 +215,7 @@
 
 .calendar-selected-events p {
     margin: 0;
-    color: #60645c;
+    color: var(--text-muted);
     font-size: 14px;
 }
 
@@ -232,7 +232,7 @@
     gap: 4px;
     padding-top: 12px;
     border-top: 1px solid #e2eee4;
-    color: #60645c;
+    color: var(--text-muted);
     font-size: 14px;
     line-height: 1.45;
 }
@@ -243,7 +243,7 @@
 }
 
 .calendar-selected-events li strong {
-    color: #30332e;
+    color: var(--brand-charcoal);
     font-size: 15px;
 }
 

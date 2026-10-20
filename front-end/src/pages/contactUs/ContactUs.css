@@ -1,7 +1,7 @@
 .contact-page {
-    background: #f3faf4;
+    background: var(--surface-page);
     color: var(--brand-charcoal);
-    font-family: "Now", sans-serif;
+    font-family: var(--font-family-base);
 }
 
 .contact-page-shell {
@@ -24,7 +24,7 @@
 
 .contact-page-header p {
     max-width: 980px;
-    color: #4d5850;
+    color: var(--text-secondary);
     font-size: 1.02rem;
     line-height: 1.6;
 }
@@ -38,7 +38,7 @@
 
 .contact-form-panel {
     padding: 28px 26px 22px;
-    border: 1px solid #dfe6dc;
+    border: 1px solid var(--border-default);
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.38);
     box-shadow: 0 8px 24px rgba(43, 73, 56, 0.03);
@@ -93,7 +93,7 @@
 .contact-field input:focus,
 .contact-field select:focus,
 .contact-field textarea:focus {
-    border-color: var(--brand-green);
+    border-color: var(--brand-green-dark);
     box-shadow: 0 0 0 3px rgb(10 145 52 / 14%);
     outline: none;
 }
@@ -135,7 +135,7 @@
     align-items: center;
     gap: 16px;
     padding: 14px 16px;
-    border: 1px solid #dfe6dc;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.26);
     color: var(--brand-green-dark);
@@ -193,7 +193,7 @@
 }
 
 .contact-side-text small {
-    color: #4f5c56;
+    color: var(--text-secondary);
     font-size: 0.85rem;
     line-height: 1.5;
 }
@@ -209,7 +209,7 @@
 
 .contact-side-hours {
     padding: 18px 16px;
-    border: 1px solid #dfe6dc;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.55);
     color: var(--brand-green-dark);
@@ -232,7 +232,7 @@
 .contact-side-hours li,
 .contact-side-hours p {
     margin: 0;
-    color: #4f5c56;
+    color: var(--text-secondary);
     font-size: 0.85rem;
     line-height: 1.5;
 }
@@ -248,7 +248,7 @@
 .contact-form-feedback.success {
     border: 1px solid #bfd9c7;
     background: rgba(92, 160, 112, 0.12);
-    color: #1f5a3b;
+    color: var(--brand-green-dark);
 }
 
 .contact-form-feedback.error {

@@ -1,5 +1,5 @@
 .producer-profile-page {
-    background: #f3efe7;
+    background: var(--surface-page);
     color: var(--brand-charcoal);
 }
 
@@ -27,7 +27,7 @@
     margin-bottom: 18px;
     color: var(--brand-orange-dark);
     font-size: 0.72rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
@@ -45,19 +45,19 @@
     align-items: center;
     gap: 8px;
     margin: 18px 0 0;
-    color: #47614c;
+    color: var(--brand-green-dark);
     font-size: 1.02rem;
     font-weight: 600;
 }
 
 .producer-profile-location span {
-    color: var(--brand-green);
+    color: var(--brand-green-dark);
 }
 
 .producer-profile-summary {
     max-width: 720px;
     margin: 18px 0 0;
-    color: #4b5c4f;
+    color: var(--text-secondary);
     font-size: 1.18rem;
     line-height: 1.5;
 }
@@ -94,7 +94,7 @@
 }
 
 .producer-profile-products p {
-    color: #496053;
+    color: var(--text-secondary);
     line-height: 1.7;
 }
 
@@ -128,7 +128,7 @@
     padding: 0 0 14px;
     border: 0;
     background: transparent;
-    color: #5a6b5f;
+    color: var(--text-muted);
     font: inherit;
     font-size: 0.95rem;
     font-weight: 700;
@@ -170,7 +170,7 @@
 
 .producer-profile-story-panel {
     min-width: 0;
-    color: #475c4e;
+    color: var(--text-secondary);
 }
 
 .producer-profile-section-tag {
@@ -178,7 +178,7 @@
     margin-bottom: 18px;
     color: var(--brand-orange-dark);
     font-size: 0.74rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
@@ -193,7 +193,7 @@
 
 .producer-profile-story-panel p {
     margin: 0 0 18px;
-    color: #496053;
+    color: var(--text-secondary);
     font-size: 1.04rem;
     line-height: 1.7;
 }
@@ -211,7 +211,7 @@
 
 .producer-profile-signature {
     margin-top: 8px;
-    color: #607163;
+    color: var(--text-muted);
     font-size: 0.9rem;
     font-weight: 700;
 }
@@ -238,7 +238,7 @@
     gap: 18px;
     padding-bottom: 12px;
     border-bottom: 1px solid rgba(11, 78, 43, 0.08);
-    color: #496053;
+    color: var(--text-secondary);
     font-size: 0.95rem;
     line-height: 1.5;
 }
@@ -276,7 +276,7 @@
 
 .producer-profile-highlight-box p {
     margin: 0;
-    color: #4a5d4c;
+    color: var(--text-secondary);
     font-size: 0.92rem;
     line-height: 1.6;
 }
@@ -298,7 +298,7 @@
 
 .producer-profile-empty p {
     margin: 0 0 18px;
-    color: #4b5a4f;
+    color: var(--text-secondary);
 }
 
 .producer-profile-empty a {
@@ -308,7 +308,7 @@
     min-height: 42px;
     padding: 0 16px;
     border-radius: 10px;
-    background: var(--brand-green);
+    background: var(--brand-green-dark);
     color: #fff;
     font-weight: 700;
     text-decoration: none;

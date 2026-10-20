@@ -2,9 +2,9 @@
     container: messages / inline-size;
     min-width: 0;
     min-height: calc(100vh - 68px);
-    background: #f6f8f4;
-    color: #30332e;
-    font-family: "Now", sans-serif;
+    background: var(--surface-admin);
+    color: var(--brand-charcoal);
+    font-family: var(--font-family-base);
 }
 
 .admin-user-messages *,
@@ -18,7 +18,7 @@
 
 .admin-user-messages-heading {
     padding: 15px 24px 13px;
-    border-bottom: 1px solid #e5e1dc;
+    border-bottom: 1px solid var(--border-default);
     background: #fff;
 }
 
@@ -31,7 +31,7 @@
 
 .admin-user-messages-heading p {
     margin: 4px 0 0;
-    color: #77736f;
+    color: var(--text-muted);
     font-size: 13px;
     line-height: 1.5;
 }
@@ -54,21 +54,21 @@
     position: relative;
     min-width: 0;
     padding: 20px;
-    border: 1px solid #e3e2dd;
+    border: 1px solid var(--border-default);
     border-radius: 14px;
     background: #fff;
 }
 
 .admin-user-message-stats h2 {
     margin: 0 48px 12px 0;
-    color: #74746e;
+    color: var(--text-muted);
     font-size: 12px;
     font-weight: 700;
 }
 
 .admin-user-message-stats strong {
     display: block;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 30px;
     font-variant-numeric: tabular-nums;
     line-height: 1.15;
@@ -80,7 +80,7 @@
 
 .admin-user-message-stats p {
     margin: 6px 0 0;
-    color: #72796f;
+    color: var(--text-muted);
     font-size: 11px;
     line-height: 1.4;
 }
@@ -105,7 +105,7 @@
 .admin-user-messages-list {
     min-width: 0;
     padding: 22px;
-    border: 1px solid #e3e2dd;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     background: #fff;
 }
@@ -123,9 +123,9 @@
     align-items: center;
     gap: 9px;
     margin: 0;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 17px;
-    font-weight: 750;
+    font-weight: 700;
 }
 
 .admin-user-messages-list-header h2 svg { width: 18px; height: 18px; }
@@ -134,7 +134,7 @@
 
 .admin-user-messages-list-header p {
     margin: 3px 0 0;
-    color: #777a72;
+    color: var(--text-muted);
     font-size: 12px;
 }
 
@@ -155,13 +155,13 @@
     justify-content: center;
     gap: 7px;
     padding: 0 12px;
-    border: 1px solid #e2e5de;
+    border: 1px solid var(--border-default);
     border-radius: 9px;
     background: #fff;
     color: #49634f;
     font: inherit;
     font-size: 12px;
-    font-weight: 650;
+    font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
@@ -171,7 +171,7 @@
 .admin-user-messages-filters button:hover,
 .admin-user-messages-filters button:focus-visible,
 .admin-user-messages-filters button.is-active {
-    border-color: var(--brand-green);
+    border-color: var(--brand-green-dark);
     background: var(--brand-green);
     color: #fff;
 }
@@ -198,8 +198,8 @@
 .admin-user-messages-table th {
     padding: 12px;
     background: #f5f7f2;
-    border-bottom: 1px solid #e7e7e2;
-    color: #73766e;
+    border-bottom: 1px solid var(--border-default);
+    color: var(--text-muted);
     font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
@@ -207,8 +207,8 @@
 
 .admin-user-messages-table td {
     padding: 16px 12px;
-    border-bottom: 1px solid #e7e7e2;
-    color: #555750;
+    border-bottom: 1px solid var(--border-default);
+    color: var(--text-secondary);
     font-size: 12px;
     line-height: 1.5;
     vertical-align: middle;
@@ -216,7 +216,7 @@
 
 .admin-user-messages-table tbody tr:hover { background: #fafbf8; }
 .admin-user-messages-table tbody tr.is-unread { background: #f3f9ee; }
-.admin-user-messages-table tr.is-unread .admin-message-title-cell { color: #315f47; font-weight: 700; }
+.admin-user-messages-table tr.is-unread .admin-message-title-cell { color: var(--brand-green-dark); font-weight: 700; }
 .admin-message-title-cell { min-width: 150px; max-width: 260px; overflow-wrap: anywhere; }
 .admin-user-messages-table td:nth-child(4) { max-width: 230px; overflow-wrap: anywhere; }
 .admin-user-messages-table td:nth-child(5) { white-space: nowrap; font-size: 11px; }
@@ -235,7 +235,7 @@
 }
 
 .admin-user-messages-table td:first-child strong {
-    color: #41433d;
+    color: var(--brand-charcoal);
     font-size: 12px;
     font-weight: 700;
 }
@@ -254,9 +254,9 @@
     padding: 0 9px;
     border-radius: 999px;
     background: #f0f1ee;
-    color: #777a72;
+    color: var(--text-muted);
     font-size: 10px;
-    font-weight: 650;
+    font-weight: 600;
     white-space: nowrap;
 }
 
@@ -306,8 +306,8 @@
 
 .admin-user-message-row-actions .is-primary:hover,
 .admin-user-message-dialog-actions a:hover {
-    border-color: #065d22;
-    background: #065d22;
+    border-color: var(--brand-green-hover);
+    background: var(--brand-green-hover);
 }
 
 .admin-user-message-row-actions .is-secondary:hover,
@@ -331,8 +331,8 @@
     place-items: center;
     margin: 0;
     padding: 20px;
-    border-top: 1px solid #e7e7e2;
-    color: #777a72;
+    border-top: 1px solid var(--border-default);
+    color: var(--text-muted);
     font-size: 13px;
     text-align: center;
 }
@@ -344,7 +344,7 @@
     align-items: center;
     justify-content: center;
     padding: 32px 24px;
-    border: 1px solid #e3e2dd;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     background: #fff;
     text-align: center;
@@ -360,7 +360,7 @@
     background: #edf5e9;
     color: var(--brand-green-dark);
     font-size: 23px;
-    font-weight: 750;
+    font-weight: 700;
 }
 
 .admin-user-messages-state-icon svg {
@@ -379,7 +379,7 @@
 
 .admin-user-messages-state h2 {
     margin: 0;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font-size: 19px;
     line-height: 1.35;
 }
@@ -387,7 +387,7 @@
 .admin-user-messages-state p {
     max-width: 480px;
     margin: 8px 0 0;
-    color: #777a72;
+    color: var(--text-muted);
     font-size: 13px;
     line-height: 1.55;
 }
@@ -411,7 +411,7 @@
 }
 
 .admin-user-messages-state button:hover {
-    background: #065d22;
+    background: var(--brand-green-hover);
 }
 
 .admin-user-messages-alert {
@@ -446,7 +446,7 @@
     justify-content: center;
     gap: 9px;
     padding: 0 16px;
-    border: 1px solid #e2e5de;
+    border: 1px solid var(--border-default);
     border-radius: 9px;
     background: #fff;
     color: #49634f;
@@ -488,8 +488,8 @@
 }
 
 .admin-user-message-back-button:hover {
-    border-color: #065d22;
-    background: #065d22;
+    border-color: var(--brand-green-hover);
+    background: var(--brand-green-hover);
 }
 
 .admin-user-message-delete-button:hover {
@@ -518,7 +518,7 @@
 .admin-user-message-detail-card {
     min-width: 0;
     padding: 22px 24px 24px;
-    border: 1px solid #e3e2dd;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     background: #fff;
 }
@@ -533,9 +533,9 @@
 
 .admin-user-message-detail-header h2 {
     margin: 0;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 19px;
-    font-weight: 750;
+    font-weight: 700;
 }
 
 .admin-user-message-read-status {
@@ -553,7 +553,7 @@
     padding: 5px 9px;
     border-radius: 999px;
     background: #f0f1ee;
-    color: #777a72;
+    color: var(--text-muted);
     font-size: 11px;
     font-weight: 700;
 }
@@ -569,7 +569,7 @@
     gap: 17px 24px;
     margin: 0;
     padding: 0 0 18px;
-    border-bottom: 1px solid #e7e7e2;
+    border-bottom: 1px solid var(--border-default);
 }
 
 .admin-user-message-detail-metadata div {
@@ -578,14 +578,14 @@
 
 .admin-user-message-detail-metadata dt {
     margin-bottom: 5px;
-    color: #73766e;
+    color: var(--text-muted);
     font-size: 11px;
-    font-weight: 650;
+    font-weight: 600;
 }
 
 .admin-user-message-detail-metadata dd {
     margin: 0;
-    color: #3d403a;
+    color: var(--brand-charcoal);
     font-size: 13px;
     line-height: 1.45;
     overflow-wrap: anywhere;
@@ -597,14 +597,14 @@
 
 .admin-user-message-detail-body h3 {
     margin: 0 0 10px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 14px;
-    font-weight: 750;
+    font-weight: 700;
 }
 
 .admin-user-message-detail-body p {
     margin: 0;
-    color: #4c4f48;
+    color: var(--text-secondary);
     font-size: 13px;
     line-height: 1.7;
     overflow-wrap: anywhere;
@@ -625,7 +625,7 @@
 .admin-user-message-confirm {
     width: min(100%, 420px);
     padding: 22px;
-    border: 1px solid #e3e2dd;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     background: #fff;
     box-shadow: 0 24px 70px rgb(0 0 0 / 20%);
@@ -642,18 +642,18 @@
     background: #fff0eb;
     color: #a4472f;
     font-size: 22px;
-    font-weight: 750;
+    font-weight: 700;
 }
 
 .admin-user-message-confirm h2 {
     margin: 0;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font-size: 19px;
 }
 
 .admin-user-message-confirm > p {
     margin: 8px 0 0;
-    color: #777a72;
+    color: var(--text-muted);
     font-size: 13px;
     line-height: 1.5;
 }
@@ -771,7 +771,7 @@
 
     .admin-user-messages-table td[data-label]::before {
         content: attr(data-label) ': ';
-        color: #73766e;
+        color: var(--text-muted);
         font-size: 11px;
         font-weight: 400;
     }

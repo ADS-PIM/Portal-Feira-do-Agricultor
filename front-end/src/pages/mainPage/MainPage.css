@@ -4,7 +4,7 @@
 }
 
 .main-page-sections.has-event-error {
-    background: #fffdf8;
+    background: var(--surface-page);
 }
 
 .main-page-error {
@@ -52,13 +52,13 @@
     margin: 0;
     color: var(--brand-green-dark);
     font-size: 0.78rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.18em;
 }
 
 .home-producers-header h2 {
     margin: 0;
-    color: #214d32;
+    color: var(--brand-green-dark);
     font-size: clamp(2.1rem, 3vw, 3.1rem);
     line-height: 1.08;
     letter-spacing: -0.06em;
@@ -67,7 +67,7 @@
 .home-producers-header p {
     max-width: 760px;
     margin: 0;
-    color: #54665a;
+    color: var(--text-secondary);
     font-size: 1.04rem;
     line-height: 1.65;
 }
@@ -115,7 +115,7 @@
     background: rgba(255, 255, 255, 0.72);
     color: var(--brand-green-dark);
     font-size: 0.62rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
@@ -137,7 +137,7 @@
 
 .home-producer-card-body p {
     margin: 0;
-    color: #4d5951;
+    color: var(--text-secondary);
     font-size: 0.93rem;
     line-height: 1.65;
 }

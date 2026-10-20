@@ -2,9 +2,9 @@
     box-sizing: border-box;
     min-height: 60vh;
     padding: 28px 5.6% 64px;
-    background: #fffdf8;
-    color: #30332e;
-    font-family: "Now", sans-serif;
+    background: var(--surface-page);
+    color: var(--brand-charcoal);
+    font-family: var(--font-family-base);
 }
 
 .event-page *,
@@ -38,7 +38,7 @@
     width: 44px;
     height: 44px;
     place-items: center;
-    border: 1px solid #e9e7df;
+    border: 1px solid var(--border-default);
     border-radius: 50%;
     background: #fff;
     color: var(--brand-green-dark);
@@ -115,7 +115,7 @@
 .event-page-gallery,
 .event-page-location {
     min-width: 0;
-    border: 1px solid #e9e7df;
+    border: 1px solid var(--border-default);
     border-radius: 18px;
     background: #fff;
 }
@@ -134,9 +134,9 @@
 
 .event-page-title-row h1 {
     margin: 0;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font-size: clamp(24px, 2.6vw, 34px);
-    font-weight: 750;
+    font-weight: 700;
     line-height: 1.2;
 }
 
@@ -204,7 +204,7 @@
     min-width: 0;
     gap: 2px;
     margin: 0;
-    color: #34362f;
+    color: var(--brand-charcoal);
     font-size: 12px;
     line-height: 1.35;
 }
@@ -216,7 +216,7 @@
 }
 
 .event-page-meta-item p span {
-    color: #7a7c74;
+    color: var(--text-muted);
     font-size: 11px;
 }
 
@@ -247,7 +247,7 @@
     display: grid;
     place-items: center;
     padding: 24px;
-    color: #777a72;
+    color: var(--text-muted);
     font-size: 14px;
     text-align: center;
 }
@@ -259,15 +259,15 @@
 .event-page-about h2,
 .event-page-gallery h2 {
     margin: 0 0 10px;
-    color: #315f47;
+    color: var(--brand-green-dark);
     font-size: 18px;
-    font-weight: 750;
+    font-weight: 700;
     line-height: 1.3;
 }
 
 .event-page-about p {
     margin: 0;
-    color: #484b44;
+    color: var(--text-secondary);
     font-size: 14px;
     line-height: 1.65;
     overflow-wrap: anywhere;
@@ -275,7 +275,7 @@
 }
 
 .event-page-about .event-page-missing-info {
-    color: #777a72;
+    color: var(--text-muted);
     font-style: italic;
 }
 
@@ -322,14 +322,14 @@
     display: grid;
     place-items: center;
     padding: 18px;
-    color: #777a72;
+    color: var(--text-muted);
     font-size: 13px;
     text-align: center;
 }
 
 .event-page-photo figcaption {
     padding: 9px 11px;
-    color: #62655d;
+    color: var(--text-muted);
     font-size: 12px;
     line-height: 1.4;
 }
@@ -342,7 +342,7 @@
     padding: 22px;
     border-radius: 12px;
     background: #faf8f2;
-    color: #777a72;
+    color: var(--text-muted);
     font-size: 14px;
     line-height: 1.5;
     text-align: center;
@@ -368,7 +368,7 @@
 }
 
 .event-page-gallery-more:hover {
-    background: #065d22;
+    background: var(--brand-green-hover);
 }
 
 .event-page-location {
@@ -396,7 +396,7 @@
 .event-page-map > p {
     margin: 0;
     padding: 24px;
-    color: #777a72;
+    color: var(--text-muted);
     font-size: 14px;
     text-align: center;
 }
@@ -411,14 +411,14 @@
 
 .event-page-location-caption h2 {
     margin: 0 0 4px;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font-size: 14px;
-    font-weight: 750;
+    font-weight: 700;
 }
 
 .event-page-location-caption p {
     margin: 0;
-    color: #6f7169;
+    color: var(--text-muted);
     font-size: 12px;
     line-height: 1.5;
 }
@@ -530,7 +530,7 @@
     align-items: center;
     justify-content: center;
     padding: 44px 24px;
-    border: 1px solid #e9e7df;
+    border: 1px solid var(--border-default);
     border-radius: 18px;
     background: #fff;
     text-align: center;
@@ -565,7 +565,7 @@
 
 .event-page-feedback h1 {
     margin: 0;
-    color: #30332e;
+    color: var(--brand-charcoal);
     font-size: clamp(22px, 3vw, 30px);
     line-height: 1.3;
 }
@@ -573,7 +573,7 @@
 .event-page-feedback > p {
     max-width: 520px;
     margin: 10px 0 0;
-    color: #6f7169;
+    color: var(--text-muted);
     font-size: 15px;
     line-height: 1.6;
 }
@@ -610,11 +610,11 @@
 }
 
 .event-page-feedback-actions button:hover {
-    background: #065d22;
+    background: var(--brand-green-hover);
 }
 
 .event-page-feedback-actions a:hover {
-    background: #f3faf4;
+    background: var(--brand-green-soft);
 }
 
 @media (max-width: 850px) {

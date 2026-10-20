@@ -1,10 +1,10 @@
 .markup-page {
-    --calculator-green: #07832e;
-    --calculator-text: #3f5144;
-    --calculator-muted: #607467;
-    --calculator-border: #dce6dd;
-    --calculator-soft: #eff7f0;
-    background: #fcfaf7;
+    --calculator-green: var(--brand-green-dark);
+    --calculator-text: var(--text-secondary);
+    --calculator-muted: var(--text-muted);
+    --calculator-border: var(--border-default);
+    --calculator-soft: var(--brand-green-soft);
+    background: var(--surface-page);
     color: var(--calculator-text);
     line-height: 1.5;
 }
@@ -12,7 +12,6 @@
 .markup-page *,
 .markup-page *::before,
 .markup-page *::after { box-sizing: border-box; }
-.markup-page :is(h1, h2, h3) { zoom: 1; }
 .markup-shell { max-width: 1352px; margin: 0 auto; padding: 48px 32px 56px; }
 .markup-heading { display: flex; align-items: center; gap: 18px; margin-bottom: 30px; }
 .markup-heading-icon { display: flex; flex: 0 0 62px; align-items: center; justify-content: center; width: 62px; height: 62px; border-radius: 20px; background: var(--calculator-soft); color: var(--calculator-green); font-size: 27px; }
@@ -28,7 +27,7 @@
 .markup-page button { font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
 .markup-example { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 8px 15px 6px; border: 1px solid transparent; border-radius: 999px; background: var(--calculator-green); color: #fff; transition: background-color 150ms ease; }
 .markup-page .markup-example { line-height: 1; }
-.markup-example:hover { background: #076f28; }
+.markup-example:hover { background: var(--brand-green-hover); }
 .markup-form { display: flex; flex-direction: column; gap: 22px; }
 .markup-field-group { min-width: 0; margin: 0; padding: 0; border: 0; }
 .markup-field-group legend { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 14px; padding: 0; color: var(--calculator-green); font-size: 16px; font-weight: 700; }
@@ -72,11 +71,11 @@
 .markup-submit { display: inline-flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 53px; padding: 13px 18px; border: 0; border-radius: 9px; background: var(--calculator-green); color: #fff; transition: background-color 150ms ease; }
 .markup-page .markup-submit,
 .markup-page .markup-clear { font-size: 16px; }
-.markup-submit:hover { background: #076f28; }
+.markup-submit:hover { background: var(--brand-green-hover); }
 .markup-submit svg { flex-shrink: 0; font-size: 18px; }
 
 .markup-result-panel { min-width: 0; }
-.markup-result-card { padding: 30px; border-radius: 18px; background: #07812c; color: #fff; }
+.markup-result-card { padding: 30px; border-radius: 18px; background: var(--brand-green-dark); color: #fff; }
 .markup-result-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; min-height: 25px; }
 .markup-step { color: #dcf0e0; font-size: 11px; font-weight: 700; }
 .markup-example-badge { padding: 4px 10px; border-radius: 999px; background: rgb(255 255 255 / 10%); color: #f0fff3; font-size: 11px; font-weight: 700; }
