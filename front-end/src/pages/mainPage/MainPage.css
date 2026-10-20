@@ -8,6 +8,7 @@
 }
 
 .main-page-error {
+    box-sizing: border-box;
     display: flex;
     width: min(100% - 32px, 1280px);
     align-items: center;

@@ -277,6 +277,7 @@
 }
 
 .admin-area-error-state {
+    box-sizing: border-box;
     display: grid;
     min-height: calc(100vh - 68px);
     place-items: center;
@@ -286,6 +287,8 @@
 }
 
 .admin-area-error-card {
+    box-sizing: border-box;
+    min-width: 0;
     display: flex;
     width: min(100%, 760px);
     flex-direction: column;

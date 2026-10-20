@@ -146,8 +146,8 @@
     color: var(--brand-green-dark);
 }
 
-.producer-profile-single-column {
-    grid-template-columns: 1fr;
+.producer-profile-detail-grid.producer-profile-single-column {
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .producer-profile-tabs button.is-active::after {
@@ -170,6 +170,7 @@
 
 .producer-profile-story-panel {
     min-width: 0;
+    max-width: 850px;
     color: var(--text-secondary);
 }
 
@@ -333,6 +334,10 @@
 
     .producer-profile-hero-image {
         height: 320px;
+    }
+
+    .producer-profile-visual {
+        min-height: clamp(220px, 65vw, 320px);
     }
 
     .producer-profile-tabs {

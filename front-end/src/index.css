@@ -55,6 +55,7 @@ body {
     font-family: var(--font-family-base);
     color: var(--brand-charcoal);
     background: var(--surface-page);
+    overflow-wrap: break-word;
 }
 
 button,
@@ -73,6 +74,18 @@ textarea {
 
 #root > * {
     flex-shrink: 0;
+    min-width: 0;
+}
+
+/* Keep form text readable and avoid automatic field zoom on mobile browsers. */
+@media (max-width: 760px) {
+    #root :where(
+        input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"], [type="button"], [type="submit"]),
+        select,
+        textarea
+    ) {
+        font-size: max(1rem, 1em);
+    }
 }
 
 #root > main,

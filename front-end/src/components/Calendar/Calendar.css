@@ -28,6 +28,7 @@
 
 .calendar-header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
@@ -36,6 +37,7 @@
 
 .calendar-heading h2 {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
     margin: 0;
@@ -266,10 +268,12 @@
 
     .calendar-header {
         align-items: flex-start;
+        gap: 12px;
         margin-bottom: 16px;
     }
 
     .calendar-navigation {
+        margin-left: auto;
         gap: 6px;
     }
 

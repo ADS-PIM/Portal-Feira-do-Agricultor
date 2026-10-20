@@ -624,6 +624,9 @@
 
 .admin-user-message-confirm {
     width: min(100%, 420px);
+    box-sizing: border-box;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
     padding: 22px;
     border: 1px solid var(--border-default);
     border-radius: 16px;
@@ -956,6 +959,7 @@
     }
 
     .admin-user-message-confirm {
+        max-height: calc(100dvh - 24px);
         padding: 18px 14px;
         overflow-wrap: anywhere;
     }

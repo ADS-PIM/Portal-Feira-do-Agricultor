@@ -54,3 +54,12 @@
 .account-page :is(button, a, input, select):focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 3px; }
 @media (max-width: 850px) { .account-layout { grid-template-columns: 240px minmax(0, 1fr); gap: 16px; } .account-card { padding: 22px; } .account-fields { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 640px) { .account-page { padding: 24px 16px 40px; } .account-layout { grid-template-columns: minmax(0, 1fr); } .account-info { grid-template-columns: minmax(0, 1fr); gap: 22px; } .account-form-actions > button { flex: 1; } }
+
+@media (max-width: 640px) {
+    .account-fields label { font-size: 14px; }
+    .account-fields small,
+    .account-password-heading p,
+    .account-access-note { font-size: 12px; }
+    .account-button,
+    .account-password-toggle { font-size: 14px; }
+}

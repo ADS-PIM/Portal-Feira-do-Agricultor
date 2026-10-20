@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import Icon, { type IconName } from '../../components/Icon'
@@ -190,7 +190,7 @@ export default function PricingCalculatorPage() {
   function clearFields() {
     setValues({
       materialCost: '', productionHours: '', hourlyRate: '', monthlyFixedExpenses: '',
-      monthlyRevenue: '', variableExpenses: '', profit: '',
+      monthlyRevenue: '', variableExpenses: '0', profit: '0',
     })
     setTouched({})
     setSubmitted(false)
@@ -227,12 +227,40 @@ export default function PricingCalculatorPage() {
                     {group.fields.map(({ name, label, unit, hint, placeholder }) => {
                       const error = touched[name] || submitted ? errors[name] : ''
                       const hasTotalError = percentageFields.includes(name) && invalidTotal
+                      const isSlider = unit === '%'
+                      const sliderValue = numbers[name] ?? 0
                       return (
                         <div className="markup-field" key={name}>
                           <div className="markup-field-heading">
                             <label htmlFor={`markup-${name}`}>{label}</label>
                             <FieldHelp name={name} label={label} />
+                            {isSlider && (
+                              <output className={`markup-range-value${error || hasTotalError ? ' has-error' : ''}`} htmlFor={`markup-${name}`}>
+                                {formatPercentage(sliderValue)}%
+                              </output>
+                            )}
                           </div>
+                          {isSlider ? (
+                            <input
+                              className="markup-range"
+                              id={`markup-${name}`}
+                              name={name}
+                              type="range"
+                              min={0}
+                              max={99.9}
+                              step={0.1}
+                              value={sliderValue}
+                              style={{ '--range-fill': `${sliderValue / 99.9 * 100}%` } as CSSProperties}
+                              aria-valuetext={`${formatPercentage(sliderValue)}%`}
+                              aria-invalid={Boolean(error) || hasTotalError}
+                              aria-describedby={`markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
+                              onChange={(event) => {
+                                setValues((previous) => ({ ...previous, [name]: event.target.value }))
+                                setResult(null)
+                              }}
+                              onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
+                            />
+                          ) : (
                           <div className={`markup-input-wrap${error ? ' has-error' : ''}`}>
                             {unit === 'R$' && <span id={`markup-${name}-unit`}>R$</span>}
                             <input
@@ -254,6 +282,7 @@ export default function PricingCalculatorPage() {
                             />
                             {unit !== 'R$' && <span id={`markup-${name}-unit`}>{unit}</span>}
                           </div>
+                          )}
                           <p id={`markup-${name}-hint`} className="markup-hint">{hint}</p>
                           {error && <p id={`markup-${name}-error`} className="markup-error">{error}</p>}
                         </div>

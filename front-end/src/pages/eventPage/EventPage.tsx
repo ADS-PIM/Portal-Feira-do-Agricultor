@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Icon from '../../components/Icon'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
@@ -171,13 +171,13 @@ function EventPage({ eventId }: { eventId: string }) {
         setSelectedPhotoIndex((index + photos.length) % photos.length)
     }
 
-    const movePhoto = (direction: -1 | 1) => {
-        if (selectedPhotoIndex === null || photos.length === 0) return
+    const photoCount = photos.length
+    const movePhoto = useCallback((direction: -1 | 1) => {
+        if (photoCount === 0) return
         setSelectedPhotoIndex((current) => {
-            const nextIndex = ((current ?? 0) + direction + photos.length) % photos.length
-            return nextIndex
+            return current === null ? null : (current + direction + photoCount) % photoCount
         })
-    }
+    }, [photoCount])
 
     useEffect(() => {
         const handleEscape = (event: KeyboardEvent) => {
@@ -206,7 +206,7 @@ function EventPage({ eventId }: { eventId: string }) {
 
         window.addEventListener('keydown', handleKey)
         return () => window.removeEventListener('keydown', handleKey)
-    }, [selectedPhotoIndex, photos.length])
+    }, [selectedPhotoIndex, movePhoto])
 
     return (
         <>
