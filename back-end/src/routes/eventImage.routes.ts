@@ -3,6 +3,7 @@ import { EventImageController } from '../controller/eventImage.controller'
 import { EventImageDAO } from "../dao/eventImage.dao";
 import { EventImageService } from "../service/eventImage.service";
 import authToken from "../../authMiddleware";
+import { authenticatedRateLimit, publicReadRateLimit } from '../rateLimit/middleware';
 import { MAX_IMAGE_BYTES } from '../service/imageStorage.service';
 
 const eventImageRoutes = Router();
@@ -13,7 +14,7 @@ const parseImageUpload = express.raw({ type: ['image/jpeg', 'image/png'], limit:
 
 eventImageRoutes
     .route('/upload')
-    .post(authToken, (req, res, next) => {
+    .post(authToken, authenticatedRateLimit, (req, res, next) => {
         parseImageUpload(req, res, error => {
             if (!error) {
                 next();
@@ -29,19 +30,19 @@ eventImageRoutes
 
 eventImageRoutes
     .route('/file')
-    .get(async (req, res) => eventImageController.file(req, res));
+    .get(publicReadRateLimit, async (req, res) => eventImageController.file(req, res));
 
 eventImageRoutes
     .route('/:eventId')
-    .get(async (req, res) => eventImageController.searchByEventId(req, res));
+    .get(publicReadRateLimit, async (req, res) => eventImageController.searchByEventId(req, res));
 
 eventImageRoutes
     .route('/create')
-    .post(authToken, async (req, res) => eventImageController.create(req, res));
+    .post(authToken, authenticatedRateLimit, async (req, res) => eventImageController.create(req, res));
 
 eventImageRoutes
     .route('/:id')
-    .patch(authToken, async (req, res) => eventImageController.update(req, res))
-    .delete(authToken, async (req, res) => eventImageController.delete(req, res));
+    .patch(authToken, authenticatedRateLimit, async (req, res) => eventImageController.update(req, res))
+    .delete(authToken, authenticatedRateLimit, async (req, res) => eventImageController.delete(req, res));
 
 export default eventImageRoutes;

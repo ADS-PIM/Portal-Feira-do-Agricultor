@@ -1,10 +1,12 @@
 #ignore node_module folder
 node_modules/
 
-/test
+# Keep regression tests versioned alongside the backend.
 
 #ignore .env file
 .env
+
+test
 
 #ignore uploaded event images
 /uploads/

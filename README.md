@@ -117,6 +117,64 @@ No backend, mantenha o middleware de autenticação do Express em
 `authMiddleware.ts`, não em `middleware.ts`: a Vercel reserva esse nome para o
 middleware da própria plataforma.
 
+### Limites de requisições da API
+
+Todas as rotas atuais da API usam **Token Bucket**. Cada requisição consome um
+token; o saldo é reposto continuamente e nunca ultrapassa a capacidade. Os valores
+abaixo são compartilhados pelas rotas do mesmo grupo, evitando que a troca de URL,
+ID do recurso ou token de acesso renove a cota.
+
+| Rotas/grupo | Identificação | Capacidade / reposição em 15 minutos |
+| --- | --- | --- |
+| `POST /admin/login` | IP **e**, separadamente, e-mail normalizado | 5 em cada bucket |
+| GET/HEAD públicos: eventos, imagens e informações da feira | IP | 300 |
+| Rotas protegidas por JWT | `adminId` do JWT validado | 300 |
+| `PATCH /admin/:id` com `password` | `adminId`, além da cota autenticada | 5 |
+| `POST /admin/register/force` | IP e e-mail | 5 em cada bucket |
+| `POST /message/create` | IP | 10 |
+| `POST /admin/refresh` e `/admin/logout` | `adminId` do refresh JWT válido; IP se ausente/inválido | 30 |
+| Acesso a rotas protegidas com credenciais ausentes/inválidas | IP | 60 |
+
+O login permite um pico inicial de 5 tentativas e repõe **1 tentativa a cada
+3 minutos**, até acumular 5. Isso não representa um máximo rígido de 5 em qualquer
+janela de 15 minutos. Tentativas bem-sucedidas e malsucedidas consomem tokens.
+E-mails têm espaços externos removidos e são convertidos para minúsculas apenas
+para identificar o bucket. IPv4 mapeado em IPv6 é normalizado; endereços IPv6 da
+mesma sub-rede `/64` compartilham a cota. A API ainda não possui recuperação de
+senha: quando essa rota for criada, aplique uma política crítica própria.
+
+O excesso retorna **429** com `code: RATE_LIMIT_EXCEEDED`, `retryAfter` em segundos
+e o cabeçalho `Retry-After`. `RateLimit-Limit`, `RateLimit-Remaining` e
+`RateLimit-Reset` também são expostos via CORS; `RateLimit-Reset` informa os segundos
+até o bucket ficar cheio. Nos grupos com dois buckets, os cabeçalhos descrevem o
+último avaliado ou aquele que bloqueou a requisição. `OPTIONS` não consome tokens.
+
+O armazenamento padrão é o **MySQL já configurado**, com uma transação e bloqueio
+de linha por consumo. Isso mantém o saldo compartilhado entre instâncias e
+reinicializações da Vercel. Apenas hashes dos identificadores são persistidos;
+registros inativos são removidos em lotes de até 500 durante o tráfego, no máximo
+uma vez por minuto por instância. Se o armazenamento falhar, a API retorna **503**
+com `code: RATE_LIMIT_UNAVAILABLE`; a proteção não é desativada silenciosamente.
+Esse controle acrescenta transações ao banco por requisição; em tráfego elevado,
+o contrato `TokenBucketStore` permite substituir o armazenamento por um serviço
+dedicado sem alterar as rotas.
+
+**Antes de iniciar ou publicar esta versão**, aplique a migration
+`20261021120000-create-rate-limit-buckets.js` com `npm run db:migrate` dentro de
+`back-end`. Ajuste as variáveis `RATE_LIMIT_*_CAPACITY` do `.env.example` para mudar
+as capacidades e reinicie/publique novamente a API. Alterar uma capacidade inicia
+novos buckets para a política modificada. `RATE_LIMIT_STORE=memory` é permitido
+somente no desenvolvimento com um processo ou em testes; não é aceito em produção
+nem na Vercel. Não é necessário instalar um novo serviço.
+
+Localmente, a API não confia em cabeçalhos de proxy por padrão. Na Vercel
+(`VERCEL=1`), confia em um salto: a plataforma sobrescreve `X-Forwarded-For`.
+Para outros ambientes, configure `TRUST_PROXY` com IPs/sub-redes confiáveis ou o
+número exato de saltos; `true` não é aceito. A configuração deve refletir o caminho
+real até a aplicação. Consulte as documentações de
+[proxies do Express](https://expressjs.com/en/guide/behind-proxies/) e
+[cabeçalhos da Vercel](https://vercel.com/docs/headers/request-headers).
+
 Instale as dependências e crie o banco e as tabelas:
 
 ```sh
@@ -188,11 +246,17 @@ Execute os comandos do backend dentro de `back-end`:
 | Comando | Descrição |
 | --- | --- |
 | `npm run dev` | Inicia o backend em modo de desenvolvimento. |
-| `npm test` | Verifica upload, leitura privada e persistência das URLs com dependências simuladas. |
+| `npm test` | Verifica limites, autenticação, upload, leitura privada e persistência das URLs com dependências simuladas. |
+| `npm run test:rate-limit:mysql` | Teste opcional de migration, concorrência e reposição no MySQL real; cria e remove um banco temporário próprio. |
 | `npm run db:migrate:status` | Lista migrations aplicadas e pendentes. |
 | `npm run db:migrate` | Aplica as migrations pendentes. |
 | `npm run db:migrate:undo` | Reverte a migration aplicada mais recentemente. |
 | `npx sequelize-cli migration:generate --name nome-da-alteracao` | Gera um arquivo para uma nova migration em `db/migrations`. |
+
+O teste MySQL usa as credenciais `DB_*` do backend e exige permissão para criar e
+remover bancos no servidor indicado. Execute-o somente em um servidor autorizado
+para testes. O nome temporário começa com `rate_limit_test_` e recebe um UUID;
+o banco da aplicação não recebe migrations nem dados desse teste.
 
 Execute os comandos do frontend dentro de `front-end`:
 

@@ -2,10 +2,12 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'node:path';
 import routes from './routes/index';
+import { configureRateLimiting, publicReadRateLimit } from './rateLimit/middleware';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
+configureRateLimiting(app);
 
 const allowedOrigins = new Set(
     (process.env.FRONTEND_URL || 'http://localhost:5173')
@@ -21,6 +23,7 @@ app.use((req, res, next) => {
         res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
         res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Expose-Headers', 'Retry-After, RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset');
         res.header('Vary', 'Origin');
     }
 
@@ -43,7 +46,7 @@ app.use((req, _res, next) => {
     next();
 });
 
-app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
+app.use('/uploads', publicReadRateLimit, express.static(path.resolve(__dirname, '../uploads')));
 
 app.use(routes);
 

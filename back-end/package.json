@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "tsx --test test/*.test.ts",
+    "test:rate-limit:mysql": "tsx --test test/rateLimitMysql.integration.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsc --noEmit --project ./tsconfig.json",
     "db:create": "sequelize-cli db:create",
@@ -31,6 +32,7 @@
     "class-validator": "^0.15.1",
     "dotenv": "^18.0.3",
     "express": "^5.2.1",
+    "ipaddr.js": "^2.5.0",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.24.4",
     "node": "^26.9.0",
