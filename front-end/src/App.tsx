@@ -71,6 +71,11 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (route.page === 'home' && window.location.hash === '#sobre') {
+      document.getElementById('sobre')?.scrollIntoView()
+      return
+    }
+
     window.scrollTo(0, 0)
   }, [route])
 
