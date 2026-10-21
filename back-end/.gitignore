@@ -7,6 +7,10 @@ node_modules/
 .env
 
 test
+!test/
+test/*
+!test/passwordRecovery.test.ts
+!test/passwordRecoveryMysql.integration.ts
 
 #ignore uploaded event images
 /uploads/

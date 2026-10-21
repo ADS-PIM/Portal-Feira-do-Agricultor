@@ -110,11 +110,12 @@ export class AdminController {
             if (!process.env.JWT_ACCESS_SECRET) throw new Error('JWT access secret is not configured');
             const newAccessToken = jwt.sign({ adminId, role: payload.role }, process.env.JWT_ACCESS_SECRET, { expiresIn: '5m' });
 
-            await refreshTokenDAO.deleteByToken(refreshToken);
             const newRefreshTokenId = crypto.randomUUID();
             const newRefreshToken = jwt.sign({ adminId, role: payload.role }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d', jwtid: newRefreshTokenId });
             const newRefreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-            await refreshTokenDAO.create(newRefreshTokenId, newRefreshToken, adminId, newRefreshExpiresAt);
+            if (!await refreshTokenDAO.rotate(refreshToken, newRefreshTokenId, newRefreshToken, adminId, newRefreshExpiresAt)) {
+                return res.status(401).json({ message: 'Invalid or expired refresh token' });
+            }
         
             res.cookie('refreshToken', newRefreshToken, refreshCookieOptions);
             res.status(200).json({ accessToken: newAccessToken, userId: adminId });

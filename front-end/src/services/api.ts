@@ -10,7 +10,7 @@ import {
 import { ApiRequestError } from './errors'
 import { makeApiUrl } from './apiUrl'
 
-const isSessionEndpoint = (endpoint: string) => /^admin\/(?:login|refresh|logout)(?:\/|$|\?)/.test(endpoint)
+const isSessionEndpoint = (endpoint: string) => /^admin\/(?:login|refresh|logout|forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)
 
 async function refreshAccessToken(): Promise<string | null> {
     const response = await fetch(makeApiUrl('admin/refresh'), {
@@ -106,7 +106,7 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
 
     if (!response.ok) {
         let code: string | undefined
-        if (response.status === 400 && /^business-info(?:\/|$|\?)/.test(path)) {
+        if (response.status === 400 && /^(?:business-info|admin\/(?:forgot-password|reset-password))(?:\/|$|\?)/.test(path)) {
             const payload: unknown = await response.json().catch(() => null)
             if (payload && typeof payload === 'object' && 'code' in payload && typeof payload.code === 'string') {
                 code = payload.code

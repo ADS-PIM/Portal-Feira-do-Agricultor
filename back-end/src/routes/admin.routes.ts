@@ -3,13 +3,18 @@ import { AdminController } from "../controller/admin.controller";
 import { AdminService } from "../service/admin.service";
 import { AdminDAO } from "../dao/admin.dao";
 import authToken, { isSuperAdmin } from "../../authMiddleware";
-import { authenticatedRateLimit, loginRateLimit, passwordRateLimit, registrationRateLimit, sessionRateLimit } from '../rateLimit/middleware';
+import { authenticatedRateLimit, loginRateLimit, passwordRateLimit, passwordRecoveryRateLimit, passwordResetRateLimit, registrationRateLimit, sessionRateLimit } from '../rateLimit/middleware';
+import { PasswordResetController } from '../controller/passwordReset.controller';
 
 
 const adminRoutes = Router();
 const adminDAO = new AdminDAO();
 const adminService = new AdminService(adminDAO);
 const adminController = new AdminController(adminService);
+const passwordResetController = new PasswordResetController();
+
+adminRoutes.post('/forgot-password', ...passwordRecoveryRateLimit, (req, res) => passwordResetController.request(req, res));
+adminRoutes.post('/reset-password', passwordResetRateLimit, (req, res) => passwordResetController.reset(req, res));
 
 adminRoutes
     .route('/')
@@ -19,9 +24,10 @@ adminRoutes
     .route('/register')
     .post(authToken, authenticatedRateLimit, isSuperAdmin, async (req, res) => adminController.register(req,res))
 
-adminRoutes//rota para forcar o registro de um admin, somente para fins de desenvolvimento
-    .route('/register/force')
-    .post(...registrationRateLimit, async (req, res) => adminController.register(req,res))
+// Rota usada para cadastrar o Root. Mantida desativada por permitir cadastro sem autenticação.
+// adminRoutes
+//     .route('/register/force')
+//     .post(...registrationRateLimit, async (req, res) => adminController.register(req,res))
 
 adminRoutes
     .route('/login')

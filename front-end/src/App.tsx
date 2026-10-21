@@ -2,6 +2,7 @@ import './App.css'
 import { useEffect, useState } from 'react'
 import MainPage from './pages/mainPage/MainPage'
 import LoginPage from './pages/loginPage/LoginPage'
+import PasswordRecoveryPage from './pages/loginPage/PasswordRecoveryPage'
 import ContactUsPage from './pages/contactUs/ContactUs'
 import CalendarPage from './pages/calendarPage/CalendarPage'
 import AdminArea from './pages/adminArea/AdminArea'
@@ -15,10 +16,14 @@ type AppRoute =
   | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' | 'calculator' | 'producers' }
   | { page: 'producer'; producerSlug: string }
   | { page: 'event'; eventId: string }
+  | { page: 'forgot-password' }
+  | { page: 'reset-password'; token: string }
 
 const pageTitles: Record<AppRoute['page'], string> = {
   home: 'Início',
   login: 'Entrar na área administrativa',
+  'forgot-password': 'Recuperar senha',
+  'reset-password': 'Redefinir senha',
   admin: 'Área administrativa',
   contact: 'Fale conosco',
   calendar: 'Calendário de feiras',
@@ -33,6 +38,11 @@ function getCurrentRoute(): AppRoute {
   const hash = (window.location.hash || '#inicio').replace(/\/+$/, '')
 
   if (hash === '#/admin/login') return { page: 'login' }
+  if (hash === '#/admin/esqueci-minha-senha') return { page: 'forgot-password' }
+  if (hash.split('?')[0] === '#/admin/redefinir-senha') {
+    const query = new URLSearchParams(hash.split('?')[1] || '')
+    return { page: 'reset-password', token: query.get('token') || '' }
+  }
   if (hash === '#/minha-conta') return { page: 'account' }
   if (hash === '#/admin') return { page: 'admin' }
   if (hash === '#/produtores') return { page: 'producers' }
@@ -90,6 +100,9 @@ function App() {
   if (route.page === 'admin') {
     return <AdminArea />
   }
+
+  if (route.page === 'forgot-password') return <PasswordRecoveryPage key="request" mode="request" />
+  if (route.page === 'reset-password') return <PasswordRecoveryPage key={route.token} mode="reset" token={route.token} />
 
   if (route.page === 'account') return <AccountPage />
   if (route.page === 'calculator') return <PricingCalculatorPage />

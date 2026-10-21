@@ -12,6 +12,7 @@ export const RATE_LIMIT_DEFAULTS = {
     PUBLIC: 300,
     AUTHENTICATED: 300,
     PASSWORD: 5,
+    PASSWORD_RECOVERY: 5,
     REGISTRATION: 5,
     MESSAGE: 10,
     SESSION: 30,
@@ -117,6 +118,11 @@ export function rateLimit(name: PolicyName, scope: string, identify: (req: AuthR
 }
 
 export const loginRateLimit = [rateLimit('LOGIN', 'login:ip', ipKey), rateLimit('LOGIN', 'login:email', emailKey)];
+export const passwordRecoveryRateLimit = [
+    rateLimit('PASSWORD_RECOVERY', 'password-recovery:ip', ipKey),
+    rateLimit('PASSWORD_RECOVERY', 'password-recovery:email', emailKey),
+];
+export const passwordResetRateLimit = rateLimit('PASSWORD_RECOVERY', 'password-reset:ip', ipKey);
 export const registrationRateLimit = [rateLimit('REGISTRATION', 'registration:ip', ipKey), rateLimit('REGISTRATION', 'registration:email', emailKey)];
 export const publicReadRateLimit = rateLimit('PUBLIC', 'public:ip', ipKey);
 export const authenticatedRateLimit = rateLimit('AUTHENTICATED', 'authenticated:user', adminKey);

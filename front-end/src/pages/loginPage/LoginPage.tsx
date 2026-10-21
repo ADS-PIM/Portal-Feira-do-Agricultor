@@ -82,6 +82,7 @@ const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
                 ) : (
                     <LoginPainel
                         onSubmit={handleSubmit}
+                        onForgotPassword={() => { window.location.hash = '#/admin/esqueci-minha-senha' }}
                         isLoading={isLoading}
                         errorMessage={errorMessage}
                     />

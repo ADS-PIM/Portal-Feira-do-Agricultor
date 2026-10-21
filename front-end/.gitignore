@@ -14,6 +14,9 @@ dist-ssr
 
 test
 tests
+!tests/
+tests/*
+!tests/passwordRecovery.browser.mjs
 
 # Editor directories and files
 .vscode/*

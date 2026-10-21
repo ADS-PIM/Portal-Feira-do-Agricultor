@@ -6,6 +6,7 @@
   "scripts": {
     "test": "tsx --test test/*.test.ts",
     "test:rate-limit:mysql": "tsx --test test/rateLimitMysql.integration.ts",
+    "test:password-recovery:mysql": "tsx --test test/passwordRecoveryMysql.integration.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsc --noEmit --project ./tsconfig.json",
     "db:create": "sequelize-cli db:create",

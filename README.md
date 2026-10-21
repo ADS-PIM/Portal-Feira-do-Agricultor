@@ -68,6 +68,65 @@ Se o certificado CA do serviço não for confiável por padrão no ambiente,
 configure também `DB_SSL_CA` com o conteúdo PEM do certificado (use `\n` para
 representar as quebras de linha ao cadastrar a variável).
 
+### Recuperação de senha com Resend
+
+O login oferece **Esqueci minha senha**. O formulário em
+`#/admin/esqueci-minha-senha` solicita o link; o e-mail abre a nova tela
+`#/admin/redefinir-senha?token=...` para cadastrar e confirmar a senha.
+
+Configure estas variáveis no `back-end/.env` e no projeto **backend** da Vercel:
+
+```dotenv
+RESEND_API_KEY=sua_nova_chave_resend
+EMAIL_FROM="Brotando Feiras <onboarding@resend.dev>"
+PASSWORD_RESET_FRONTEND_URL=https://seu-frontend.vercel.app
+RATE_LIMIT_PASSWORD_RECOVERY_CAPACITY=5
+```
+
+`PASSWORD_RESET_FRONTEND_URL` deve apontar para uma única URL estável e pública
+do **frontend**, sem `#`, parâmetros ou lista de endereços. Localmente use
+`http://localhost:5173`. Essa configuração é separada de `FRONTEND_URL`, que
+continua definindo as origens permitidas pelo CORS. Nenhuma chave usa `VITE_`.
+Se uma chave foi exposta em captura de tela ou no código, revogue-a e gere outra.
+
+Durante os testes sem domínio próprio, use `onboarding@resend.dev` como remetente
+e uma conta administrativa cujo e-mail seja o e-mail da sua conta Resend.
+Para enviar para outros destinatários, verifique um domínio de envio no Resend e
+atualize `EMAIL_FROM`. Referências: [API de envio](https://resend.com/docs/api-reference/emails/send-email)
+e [domínios verificados](https://resend.com/docs/dashboard/domains/introduction).
+
+Antes de iniciar/publicar, execute `npm run db:migrate` em `back-end` para criar
+`password_reset_tokens` pela migration `20261021150000-create-password-reset-tokens.js`.
+Depois, publique backend e frontend. O modelo HTML com estilos inline, assunto e
+versão em texto ficam em `back-end/src/service/passwordResetEmail.ts`.
+
+As rotas públicas são `POST /admin/forgot-password` (`{ "email": "..." }`) e
+`POST /admin/reset-password` (`{ "token": "...", "password": "..." }`). O link
+expira em **15 minutos**, só funciona uma vez e uma nova solicitação substitui o
+link anterior. O banco guarda apenas o SHA-256 do token aleatório de 32 bytes;
+o token original só vai no link, no fragmento da URL. Mudanças posteriores de
+e-mail/senha e contas inativas impedem o uso do link. A nova senha exige ao menos
+8 caracteres e no máximo 72 bytes UTF-8, evitando truncamento pelo bcrypt.
+
+A troca da senha, consumo do token e remoção dos refresh tokens ocorrem na mesma
+transação. Uma renovação concorrente não recria uma sessão revogada. JWTs de acesso
+já emitidos continuam válidos até sua expiração original (até 5 minutos).
+
+O pedido de recuperação retorna a mesma mensagem para contas existentes e
+inexistentes. Falhas do provedor também mantêm essa resposta e invalidam o link
+que não pôde ser enviado; consulte os logs de envio no Resend e o aviso genérico
+no backend para diagnosticar. Falhas de configuração/banco retornam 503.
+O envio é aguardado antes de encerrar a requisição, inclusive na Vercel.
+
+Validação local: `npm test` cobre validação, envio simulado, respostas e limites.
+`npm run test:password-recovery:mysql` verifica a migration, concorrência, expiração,
+revogação de sessões e rollback no MySQL, criando/removendo apenas um schema
+temporário `password_reset_test_<uuid>` com as credenciais `DB_*`.
+No frontend, `node tests/passwordRecovery.browser.mjs` executa o fluxo nas telas
+reais com respostas simuladas, verifica larguras de 320 a 1440 px e salva capturas
+em `output/password-recovery`. Usa o Edge sem janela no Windows; para outro
+navegador Chromium, informe o executável em `BROWSER_PATH`.
+
 ### Imagens no Vercel Blob
 
 Crie um store **privado** no Vercel Blob e configure `BLOB_STORE_ID` e
@@ -130,7 +189,8 @@ ID do recurso ou token de acesso renove a cota.
 | GET/HEAD públicos: eventos, imagens e informações da feira | IP | 300 |
 | Rotas protegidas por JWT | `adminId` do JWT validado | 300 |
 | `PATCH /admin/:id` com `password` | `adminId`, além da cota autenticada | 5 |
-| `POST /admin/register/force` | IP e e-mail | 5 em cada bucket |
+| `POST /admin/forgot-password` | IP e e-mail normalizado, em buckets próprios | 5 em cada bucket |
+| `POST /admin/reset-password` | IP, em bucket próprio | 5 |
 | `POST /message/create` | IP | 10 |
 | `POST /admin/refresh` e `/admin/logout` | `adminId` do refresh JWT válido; IP se ausente/inválido | 30 |
 | Acesso a rotas protegidas com credenciais ausentes/inválidas | IP | 60 |
@@ -140,8 +200,12 @@ O login permite um pico inicial de 5 tentativas e repõe **1 tentativa a cada
 janela de 15 minutos. Tentativas bem-sucedidas e malsucedidas consomem tokens.
 E-mails têm espaços externos removidos e são convertidos para minúsculas apenas
 para identificar o bucket. IPv4 mapeado em IPv6 é normalizado; endereços IPv6 da
-mesma sub-rede `/64` compartilham a cota. A API ainda não possui recuperação de
-senha: quando essa rota for criada, aplique uma política crítica própria.
+mesma sub-rede `/64` compartilham a cota. Recuperação e redefinição de senha usam
+`RATE_LIMIT_PASSWORD_RECOVERY_CAPACITY`, sem consumir os buckets do login.
+
+A rota inicial de cadastro do Root, `/admin/register/force`, permanece comentada
+no código e responde 404. O cadastro normal em `/admin/register` exige um
+SUPER_ADMIN autenticado.
 
 O excesso retorna **429** com `code: RATE_LIMIT_EXCEEDED`, `retryAfter` em segundos
 e o cabeçalho `Retry-After`. `RateLimit-Limit`, `RateLimit-Remaining` e

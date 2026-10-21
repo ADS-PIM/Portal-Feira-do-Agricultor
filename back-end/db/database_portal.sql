@@ -75,3 +75,15 @@ create table `refresh_tokens` (
     key `refreshTokens_administrators_FK` (`adminId`),
     constraint `refreshTokens_administrators_FK` foreign key (`adminId`) references `administrators` (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
+
+create table `password_reset_tokens` (
+    `adminId` char(36) not null,
+    `tokenHash` char(64) not null,
+    `passwordHashAtRequest` varchar(255) not null,
+    `emailAtRequest` varchar(320) not null,
+    `createdAt` datetime not null,
+    `expiresAt` datetime not null,
+    primary key (`adminId`),
+    unique key `password_reset_token_hash` (`tokenHash`),
+    constraint `passwordReset_administrators_FK` foreign key (`adminId`) references `administrators` (`id`) on delete cascade
+)engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
