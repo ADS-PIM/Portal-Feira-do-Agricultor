@@ -33,7 +33,7 @@
 .panel-header p {
     margin: 10px 0 0;
     color: var(--brand-orange);
-    font-size: 13px;
+    font-size: var(--home-section-label-font-size);
     font-weight: 700;
     text-transform: uppercase;
 }

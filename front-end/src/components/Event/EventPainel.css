@@ -30,7 +30,7 @@
 .event-agenda-eyebrow {
     margin: 12px 0 14px;
     color: var(--brand-orange);
-    font-size: 13px;
+    font-size: var(--home-section-label-font-size);
     font-weight: 700;
 }
 

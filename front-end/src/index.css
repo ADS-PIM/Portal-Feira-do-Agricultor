@@ -99,6 +99,7 @@ textarea {
 
 :root {
     --font-family-base: "Now", sans-serif;
+    --home-section-label-font-size: 1.04rem;
     --brand-green: #0a9134;
     --brand-green-dark: #08752b;
     --brand-green-hover: #065d22;

@@ -21,7 +21,7 @@
 .contact-section-eyebrow {
     margin: 0 0 12px;
     color: var(--brand-orange);
-    font-size: 13px;
+    font-size: var(--home-section-label-font-size);
     font-weight: 700;
 }
 
@@ -211,7 +211,6 @@
 
     .contact-section-eyebrow {
         margin-bottom: 8px;
-        font-size: 11px;
     }
 
     .contact-section-header h2 {

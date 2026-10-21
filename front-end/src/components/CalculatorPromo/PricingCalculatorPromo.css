@@ -124,7 +124,7 @@
 .pricing-calculator-kicker {
     margin: 0 0 4px;
     color: #ffc16e;
-    font-size: 12px;
+    font-size: var(--home-section-label-font-size);
     font-weight: 700;
     letter-spacing: 1px;
 }
@@ -234,7 +234,6 @@
     }
 
     .pricing-calculator-kicker {
-        font-size: 10px;
         letter-spacing: 0.6px;
     }
 

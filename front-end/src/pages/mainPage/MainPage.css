@@ -52,7 +52,6 @@
 
 .home-producers-kicker {
     margin: 0;
-    font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.18em;
 }
@@ -75,6 +74,7 @@
 
 .home-producers-header .home-producers-kicker {
     color: var(--brand-orange);
+    font-size: var(--home-section-label-font-size);
 }
 
 .home-producers-grid {
