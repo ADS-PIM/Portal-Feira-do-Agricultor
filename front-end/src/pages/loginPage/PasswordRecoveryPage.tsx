@@ -100,7 +100,7 @@ export default function PasswordRecoveryPage({ mode, token }: Props) {
                                             aria-describedby="recovery-password-hint" disabled={loading} />
                                         <button type="button" className="login-painel-toggle-visibility" onClick={() => setVisible(value => !value)}
                                             aria-label={visible ? 'Ocultar senhas' : 'Mostrar senhas'} title={visible ? 'Ocultar senhas' : 'Mostrar senhas'}>
-                                            <Icon name={visible ? 'eyeSlash' : 'eye'} />
+                                            <Icon name={visible ? 'eye' : 'eyeSlash'} />
                                         </button>
                                     </div>
                                     <p id="recovery-password-hint" className="password-recovery-hint">Use pelo menos 8 caracteres.</p>

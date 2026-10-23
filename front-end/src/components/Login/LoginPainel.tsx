@@ -82,7 +82,7 @@ const LoginPainel = ({ onSubmit, isLoading = false, errorMessage = null, onForgo
                             onClick={() => setIsPasswordVisible((visible) => !visible)}
                             aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
                         >
-                            <Icon name={isPasswordVisible ? 'eyeSlash' : 'eye'} />
+                            <Icon name={isPasswordVisible ? 'eye' : 'eyeSlash'} />
                         </button>
                     </div>
                 </div>
