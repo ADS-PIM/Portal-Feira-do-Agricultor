@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties, type FormEvent } from 'react'
+import { useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
 import { faQuestion } from '@fortawesome/free-solid-svg-icons'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
@@ -9,6 +9,12 @@ import './PricingCalculatorPage.css'
 type Field = keyof MarkupInput
 type FormValues = Record<Field, string>
 type FieldDefinition = { name: Field; label: string; unit: string; hint: string; placeholder: string }
+
+const calculatorMethods = [
+  { id: 'main', label: 'Principal', icon: 'calculator' },
+  { id: 'advanced', label: 'Avançada', icon: 'sliders' },
+] as const
+type CalculatorMethod = typeof calculatorMethods[number]['id']
 
 const initialValues: FormValues = {
   materialCost: '', productionHours: '', hourlyRate: '', monthlyFixedExpenses: '0',
@@ -129,6 +135,8 @@ function FieldHelp({ name, label }: { name: Field; label: string }) {
 }
 
 export default function PricingCalculatorPage() {
+  const [activeMethod, setActiveMethod] = useState<CalculatorMethod>('main')
+  const tabRefs = useRef<Partial<Record<CalculatorMethod, HTMLButtonElement | null>>>({})
   const [values, setValues] = useState<FormValues>(initialValues)
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({})
   const [submitted, setSubmitted] = useState(false)
@@ -177,6 +185,24 @@ export default function PricingCalculatorPage() {
     { label: 'Despesas variáveis', detail: `${formatPercentage(result.variableExpenses)}% do preço`, amount: result.variableExpensesAmount, className: 'variable' },
     { label: 'Lucro desejado', detail: `${formatPercentage(result.profit)}% do preço`, amount: result.profitAmount, className: 'profit' },
   ] : []
+
+  function selectMethod(method: CalculatorMethod) {
+    setActiveMethod(method)
+    tabRefs.current[method]?.focus()
+  }
+
+  function navigateMethods(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    let nextIndex: number
+    switch (event.key) {
+      case 'ArrowRight': nextIndex = (index + 1) % calculatorMethods.length; break
+      case 'ArrowLeft': nextIndex = (index - 1 + calculatorMethods.length) % calculatorMethods.length; break
+      case 'Home': nextIndex = 0; break
+      case 'End': nextIndex = calculatorMethods.length - 1; break
+      default: return
+    }
+    event.preventDefault()
+    selectMethod(calculatorMethods[nextIndex].id)
+  }
 
   function updateValue(name: Field, value: string) {
     setValues((previous) => ({ ...previous, [name]: value }))
@@ -227,203 +253,254 @@ export default function PricingCalculatorPage() {
             </div>
           </header>
 
-          <div className="markup-layout">
-            <section className="markup-form-panel" aria-labelledby="markup-form-title">
-              <div className="markup-panel-heading">
-                <h2 id="markup-form-title">Vamos calcular?</h2>
-                <button className="markup-example" type="button" onClick={useExample}>Usar exemplo</button>
-              </div>
-
-              <p className="markup-help-intro">Tem dúvida? Toque no botão de interrogação (?) ao lado de cada campo para ver uma explicação e um exemplo.</p>
-              <form ref={formRef} className="markup-form" onSubmit={calculate} autoComplete="off" noValidate>
-                {fieldGroups.map((group) => (
-                  <fieldset className="markup-field-group" key={group.title}>
-                    <legend><Icon name={group.icon} /> {group.title}</legend>
-                    {group.fields.map(({ name, label, unit, hint, placeholder }) => {
-                      const error = touched[name] || submitted ? errors[name] : ''
-                      const hasTotalError = percentageFields.includes(name) && invalidTotal
-                      const isSlider = unit === '%'
-                      const sliderValue = numbers[name] ?? 0
-                      return (
-                        <div className="markup-field" key={name}>
-                          <div className="markup-field-heading">
-                            <label htmlFor={`markup-${name}${isSlider ? '-value' : ''}`}>{label}</label>
-                            <FieldHelp name={name} label={label} />
-                            {isSlider && (
-                              <label className={`markup-range-value${error || hasTotalError ? ' has-error' : ''}`} htmlFor={`markup-${name}-value`}>
-                                <input
-                                  id={`markup-${name}-value`}
-                                  name={name}
-                                  type="text"
-                                  inputMode="decimal"
-                                  enterKeyHint="done"
-                                  maxLength={20}
-                                  value={values[name]}
-                                  aria-label={`${label} (%)`}
-                                  aria-invalid={Boolean(error) || hasTotalError}
-                                  aria-describedby={`markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
-                                  onFocus={(event) => event.currentTarget.select()}
-                                  onChange={(event) => updateValue(name, event.currentTarget.value)}
-                                  onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
-                                  onKeyDown={(event) => {
-                                    if (event.key === 'Enter') {
-                                      event.preventDefault()
-                                      event.currentTarget.blur()
-                                    }
-                                  }}
-                                  required
-                                />
-                                <span aria-hidden="true">%</span>
-                              </label>
-                            )}
-                          </div>
-                          {isSlider ? (
-                            <input
-                              className="markup-range"
-                              id={`markup-${name}`}
-                              name={`${name}-range`}
-                              type="range"
-                              min={0}
-                              max={100}
-                              step="any"
-                              value={Math.min(100, sliderValue)}
-                              style={{ '--range-fill': `${Math.min(100, sliderValue)}%` } as CSSProperties}
-                              aria-label={label}
-                              aria-valuetext={`${formatPercentage(sliderValue)}%`}
-                              aria-invalid={Boolean(error) || hasTotalError}
-                              aria-describedby={`markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
-                              onPointerDown={(event) => event.currentTarget.focus({ preventScroll: true })}
-                              onChange={(event) => {
-                                updateValue(name, String(Number(Number(event.currentTarget.value).toFixed(1))))
-                              }}
-                              onKeyDown={(event) => {
-                                const direction = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? 1
-                                  : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -1 : 0
-                                if (direction) {
-                                  event.preventDefault()
-                                  const nextValue = Math.max(0, Math.min(100, sliderValue + direction * 0.1))
-                                  updateValue(name, String(Number(nextValue.toFixed(10))))
-                                }
-                              }}
-                              onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
-                            />
-                          ) : (
-                          <div className={`markup-input-wrap${error ? ' has-error' : ''}`}>
-                            {unit === 'R$' && <span id={`markup-${name}-unit`}>R$</span>}
-                            <input
-                              id={`markup-${name}`}
-                              name={name}
-                              type="text"
-                              inputMode="decimal"
-                              maxLength={20}
-                              value={values[name]}
-                              placeholder={placeholder}
-                              required
-                              aria-invalid={Boolean(error) || hasTotalError}
-                              aria-describedby={`markup-${name}-unit markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
-                              onChange={(event) => {
-                                updateValue(name, event.currentTarget.value)
-                              }}
-                              onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
-                            />
-                            {unit !== 'R$' && <span id={`markup-${name}-unit`}>{unit}</span>}
-                          </div>
-                          )}
-                          <p id={`markup-${name}-hint`} className="markup-hint">{hint}</p>
-                          {error && <p id={`markup-${name}-error`} className="markup-error">{error}</p>}
-                        </div>
-                      )
-                    })}
-                    {group.icon === 'store' && (
-                      <div className="markup-fixed-percentage">
-                        <span>Despesas fixas ÷ faturamento × 100</span>
-                        <strong>{fixedPercentage !== null ? `${formatPercentage(fixedPercentage)}%` : '—'}</strong>
-                      </div>
-                    )}
-                  </fieldset>
-                ))}
-
-                <div className="markup-total-section">
-                  <div className={`markup-total${invalidTotal ? ' has-error' : ''}`}>
-                    <span>{totalPercentage !== null
-                      ? `Fixas ${formatPercentage(fixedPercentage!)}% + variáveis ${formatPercentage(variableExpenses!)}% + lucro ${formatPercentage(profit!)}%`
-                      : 'Despesas fixas + variáveis + lucro'}</span>
-                    <strong>{totalPercentage !== null ? `${formatPercentage(totalPercentage)}%` : '—'}</strong>
-                  </div>
-                  {invalidTotal ? (
-                    <p id="markup-total-error" className="markup-error" role="alert">A soma deve ficar abaixo de 100%. Revise as despesas, o faturamento ou o lucro desejado.</p>
-                  ) : <p className="markup-hint">A soma deve ficar abaixo de 100% para calcular o preço.</p>}
-                  {submitted && calculationError && <p className="markup-error" role="alert">{calculationError}</p>}
-                </div>
-                <div className="markup-form-actions">
-                  <button className="markup-submit" type="submit"><Icon name="calculator" /> Calcular preço de venda</button>
-                  <button className="markup-clear" type="button" onClick={clearFields}><Icon name="trash" /> Limpar campos</button>
-                </div>
-              </form>
-            </section>
-
-            <aside className="markup-result-panel" aria-labelledby="markup-result-title">
-              <div className="markup-result-card">
-                <div className="markup-result-heading">
-                  <span className="markup-step">SEU RESULTADO</span>
-                  {isExample && <span className="markup-example-badge">Exemplo preenchido</span>}
-                </div>
-                <h2 id="markup-result-title">Preço de venda por unidade</h2>
-                <div className="markup-price-area" role="status" aria-live="polite" aria-atomic="true">
-                  <strong className="markup-price">{result ? currency.format(result.price) : 'R$ —'}</strong>
-                  <p>{result ? 'Preço sugerido com os custos e percentuais informados.' : invalidTotal
-                    ? 'Ajuste os percentuais para calcular o preço.' : calculated
-                      ? 'Clique em calcular para atualizar o preço.' : 'Preencha os campos e clique em calcular para ver seu preço.'}</p>
-                </div>
-                <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${decimal.format(result.multiplier)}×` : '—'}</strong></div>
-              </div>
-
-              <section className="markup-breakdown" aria-labelledby="markup-breakdown-title">
-                <h3 id="markup-breakdown-title">Para onde vai cada parte do preço?</h3>
-                <p className="markup-hint">Distribuição do valor de uma unidade vendida.</p>
-                {result ? (
-                  <>
-                    <div className="markup-bar" aria-hidden="true">{breakdown.map((item) => <span key={item.className} className={item.className} style={{ width: `${item.amount / result.price * 100}%` }} />)}</div>
-                    <dl>{breakdown.map((item) => (
-                      <div key={item.className}>
-                        <dt><span className={`markup-dot ${item.className}`} /><span className="markup-breakdown-label">{item.label}<small>{item.detail}</small></span></dt>
-                        <dd>{currency.format(item.amount)}</dd>
-                      </div>
-                    ))}</dl>
-                    <div className="markup-breakdown-total"><span>Preço de venda</span><strong>{currency.format(result.price)}</strong></div>
-                    <p className="markup-hint">Valores arredondados para duas casas decimais.</p>
-                  </>
-                ) : <p className="markup-empty">Calcule seu preço para ver os materiais, a mão de obra, as despesas e o lucro de cada unidade.</p>}
-              </section>
-              <p className="markup-local-note"><Icon name="shieldCheck" /><span>Seus valores ajudam a planejar uma venda que remunera seu trabalho e mantém o negócio saudável.</span></p>
-            </aside>
+          <div className="markup-calculator-tabs" role="tablist" aria-label="Metodologia de precificação">
+            {calculatorMethods.map((method, index) => (
+              <button
+                key={method.id}
+                ref={(element) => { tabRefs.current[method.id] = element }}
+                className="markup-calculator-tab"
+                type="button"
+                role="tab"
+                id={`markup-tab-${method.id}`}
+                aria-controls={`markup-panel-${method.id}`}
+                aria-selected={activeMethod === method.id}
+                tabIndex={activeMethod === method.id ? 0 : -1}
+                onClick={() => selectMethod(method.id)}
+                onKeyDown={(event) => navigateMethods(event, index)}
+              >
+                <Icon name={method.icon} />
+                <span>{method.label}</span>
+                {method.id === 'advanced' && <span className="markup-coming-soon-badge">Em breve</span>}
+              </button>
+            ))}
           </div>
 
-          <section className="markup-guide" aria-labelledby="markup-guide-title">
-            <h2 id="markup-guide-title"><Icon name="information" /> Como chegamos a esse preço</h2>
-            <p className="markup-formula">Preço = [(material + horas × valor da hora) × 100] ÷ [100 − ((despesas fixas mensais ÷ faturamento mensal × 100) + variáveis % + lucro %)]</p>
-            <div className="markup-guide-steps">
-              <div>
-                <h3>Custo direto por unidade</h3>
-                <p>{result ? `${currency.format(result.materialCost)} + (${decimal.format(result.productionHours)} h × ${currency.format(result.hourlyRate)})` : 'Material + (horas × valor da hora)'}</p>
-                <strong>{result ? currency.format(result.directCost) : 'R$ —'}</strong>
-                <p className="markup-hint">Material + mão de obra, sem duplicar custos.</p>
-              </div>
-              <div>
-                <h3>Percentuais sobre a venda</h3>
-                <p>{result ? `${formatPercentage(result.fixedPercentage)}% fixas + ${formatPercentage(result.variableExpenses)}% variáveis + ${formatPercentage(result.profit)}% lucro` : 'Fixas % + variáveis % + lucro %'}</p>
-                <strong>{result ? `${formatPercentage(result.totalPercentage)}%` : '—'}</strong>
-                <p className="markup-hint">{result ? `Fixas = ${currency.format(result.monthlyFixedExpenses)} ÷ ${currency.format(result.monthlyRevenue)} × 100.` : 'Fixas = despesas fixas mensais ÷ faturamento mensal × 100.'}</p>
-              </div>
-              <div>
-                <h3>Preço de venda por unidade</h3>
-                <p>{result ? `(${currency.format(result.directCost)} × 100) ÷ (100 − ${formatPercentage(result.totalPercentage)})` : '(Custo direto × 100) ÷ (100 − percentuais)'}</p>
-                <strong>{result ? currency.format(result.price) : 'R$ —'}</strong>
-                <p className="markup-hint">{result ? `Divisor de ${formatPercentage(100 - result.totalPercentage)}%: a parcela que cobre o custo direto.` : 'A parcela restante do preço cobre o custo direto.'}</p>
-              </div>
+          <div
+            className="markup-calculator-panel"
+            role="tabpanel"
+            id="markup-panel-main"
+            aria-labelledby="markup-tab-main"
+            hidden={activeMethod !== 'main'}
+            tabIndex={0}
+          >
+            <div className="markup-layout">
+              <section className="markup-form-panel" aria-labelledby="markup-form-title">
+                <div className="markup-panel-heading">
+                  <h2 id="markup-form-title">Vamos calcular?</h2>
+                  <button className="markup-example" type="button" onClick={useExample}>Usar exemplo</button>
+                </div>
+
+                <p className="markup-help-intro">Tem dúvida? Toque no botão de interrogação (?) ao lado de cada campo para ver uma explicação e um exemplo.</p>
+                <form ref={formRef} className="markup-form" onSubmit={calculate} autoComplete="off" noValidate>
+                  {fieldGroups.map((group) => (
+                    <fieldset className="markup-field-group" key={group.title}>
+                      <legend><Icon name={group.icon} /> {group.title}</legend>
+                      {group.fields.map(({ name, label, unit, hint, placeholder }) => {
+                        const error = touched[name] || submitted ? errors[name] : ''
+                        const hasTotalError = percentageFields.includes(name) && invalidTotal
+                        const isSlider = unit === '%'
+                        const sliderValue = numbers[name] ?? 0
+                        return (
+                          <div className="markup-field" key={name}>
+                            <div className="markup-field-heading">
+                              <label htmlFor={`markup-${name}${isSlider ? '-value' : ''}`}>{label}</label>
+                              <FieldHelp name={name} label={label} />
+                              {isSlider && (
+                                <label className={`markup-range-value${error || hasTotalError ? ' has-error' : ''}`} htmlFor={`markup-${name}-value`}>
+                                  <input
+                                    id={`markup-${name}-value`}
+                                    name={name}
+                                    type="text"
+                                    inputMode="decimal"
+                                    enterKeyHint="done"
+                                    maxLength={20}
+                                    value={values[name]}
+                                    aria-label={`${label} (%)`}
+                                    aria-invalid={Boolean(error) || hasTotalError}
+                                    aria-describedby={`markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
+                                    onFocus={(event) => event.currentTarget.select()}
+                                    onChange={(event) => updateValue(name, event.currentTarget.value)}
+                                    onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
+                                    onKeyDown={(event) => {
+                                      if (event.key === 'Enter') {
+                                        event.preventDefault()
+                                        event.currentTarget.blur()
+                                      }
+                                    }}
+                                    required
+                                  />
+                                  <span aria-hidden="true">%</span>
+                                </label>
+                              )}
+                            </div>
+                            {isSlider ? (
+                              <input
+                                className="markup-range"
+                                id={`markup-${name}`}
+                                name={`${name}-range`}
+                                type="range"
+                                min={0}
+                                max={100}
+                                step="any"
+                                value={Math.min(100, sliderValue)}
+                                style={{ '--range-fill': `${Math.min(100, sliderValue)}%` } as CSSProperties}
+                                aria-label={label}
+                                aria-valuetext={`${formatPercentage(sliderValue)}%`}
+                                aria-invalid={Boolean(error) || hasTotalError}
+                                aria-describedby={`markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
+                                onPointerDown={(event) => event.currentTarget.focus({ preventScroll: true })}
+                                onChange={(event) => {
+                                  updateValue(name, String(Number(Number(event.currentTarget.value).toFixed(1))))
+                                }}
+                                onKeyDown={(event) => {
+                                  const direction = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? 1
+                                    : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -1 : 0
+                                  if (direction) {
+                                    event.preventDefault()
+                                    const nextValue = Math.max(0, Math.min(100, sliderValue + direction * 0.1))
+                                    updateValue(name, String(Number(nextValue.toFixed(10))))
+                                  }
+                                }}
+                                onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
+                              />
+                            ) : (
+                            <div className={`markup-input-wrap${error ? ' has-error' : ''}`}>
+                              {unit === 'R$' && <span id={`markup-${name}-unit`}>R$</span>}
+                              <input
+                                id={`markup-${name}`}
+                                name={name}
+                                type="text"
+                                inputMode="decimal"
+                                maxLength={20}
+                                value={values[name]}
+                                placeholder={placeholder}
+                                required
+                                aria-invalid={Boolean(error) || hasTotalError}
+                                aria-describedby={`markup-${name}-unit markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
+                                onChange={(event) => {
+                                  updateValue(name, event.currentTarget.value)
+                                }}
+                                onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
+                              />
+                              {unit !== 'R$' && <span id={`markup-${name}-unit`}>{unit}</span>}
+                            </div>
+                            )}
+                            <p id={`markup-${name}-hint`} className="markup-hint">{hint}</p>
+                            {error && <p id={`markup-${name}-error`} className="markup-error">{error}</p>}
+                          </div>
+                        )
+                      })}
+                      {group.icon === 'store' && (
+                        <div className="markup-fixed-percentage">
+                          <span>Despesas fixas ÷ faturamento × 100</span>
+                          <strong>{fixedPercentage !== null ? `${formatPercentage(fixedPercentage)}%` : '—'}</strong>
+                        </div>
+                      )}
+                    </fieldset>
+                  ))}
+
+                  <div className="markup-total-section">
+                    <div className={`markup-total${invalidTotal ? ' has-error' : ''}`}>
+                      <span>{totalPercentage !== null
+                        ? `Fixas ${formatPercentage(fixedPercentage!)}% + variáveis ${formatPercentage(variableExpenses!)}% + lucro ${formatPercentage(profit!)}%`
+                        : 'Despesas fixas + variáveis + lucro'}</span>
+                      <strong>{totalPercentage !== null ? `${formatPercentage(totalPercentage)}%` : '—'}</strong>
+                    </div>
+                    {invalidTotal ? (
+                      <p id="markup-total-error" className="markup-error" role="alert">A soma deve ficar abaixo de 100%. Revise as despesas, o faturamento ou o lucro desejado.</p>
+                    ) : <p className="markup-hint">A soma deve ficar abaixo de 100% para calcular o preço.</p>}
+                    {submitted && calculationError && <p className="markup-error" role="alert">{calculationError}</p>}
+                  </div>
+                  <div className="markup-form-actions">
+                    <button className="markup-submit" type="submit"><Icon name="calculator" /> Calcular preço de venda</button>
+                    <button className="markup-clear" type="button" onClick={clearFields}><Icon name="trash" /> Limpar campos</button>
+                  </div>
+                </form>
+              </section>
+
+              <aside className="markup-result-panel" aria-labelledby="markup-result-title">
+                <div className="markup-result-card">
+                  <div className="markup-result-heading">
+                    <span className="markup-step">SEU RESULTADO</span>
+                    {isExample && <span className="markup-example-badge">Exemplo preenchido</span>}
+                  </div>
+                  <h2 id="markup-result-title">Preço de venda por unidade</h2>
+                  <div className="markup-price-area" role="status" aria-live="polite" aria-atomic="true">
+                    <strong className="markup-price">{result ? currency.format(result.price) : 'R$ —'}</strong>
+                    <p>{result ? 'Preço sugerido com os custos e percentuais informados.' : invalidTotal
+                      ? 'Ajuste os percentuais para calcular o preço.' : calculated
+                        ? 'Clique em calcular para atualizar o preço.' : 'Preencha os campos e clique em calcular para ver seu preço.'}</p>
+                  </div>
+                  <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${decimal.format(result.multiplier)}×` : '—'}</strong></div>
+                </div>
+
+                <section className="markup-breakdown" aria-labelledby="markup-breakdown-title">
+                  <h3 id="markup-breakdown-title">Para onde vai cada parte do preço?</h3>
+                  <p className="markup-hint">Distribuição do valor de uma unidade vendida.</p>
+                  {result ? (
+                    <>
+                      <div className="markup-bar" aria-hidden="true">{breakdown.map((item) => <span key={item.className} className={item.className} style={{ width: `${item.amount / result.price * 100}%` }} />)}</div>
+                      <dl>{breakdown.map((item) => (
+                        <div key={item.className}>
+                          <dt><span className={`markup-dot ${item.className}`} /><span className="markup-breakdown-label">{item.label}<small>{item.detail}</small></span></dt>
+                          <dd>{currency.format(item.amount)}</dd>
+                        </div>
+                      ))}</dl>
+                      <div className="markup-breakdown-total"><span>Preço de venda</span><strong>{currency.format(result.price)}</strong></div>
+                      <p className="markup-hint">Valores arredondados para duas casas decimais.</p>
+                    </>
+                  ) : <p className="markup-empty">Calcule seu preço para ver os materiais, a mão de obra, as despesas e o lucro de cada unidade.</p>}
+                </section>
+                <p className="markup-local-note"><Icon name="shieldCheck" /><span>Seus valores ajudam a planejar uma venda que remunera seu trabalho e mantém o negócio saudável.</span></p>
+              </aside>
             </div>
-          </section>
-          <p className="markup-disclaimer">Simulação ilustrativa por unidade. Ajuste os valores à realidade do seu negócio.</p>
+
+            <section className="markup-guide" aria-labelledby="markup-guide-title">
+              <h2 id="markup-guide-title"><Icon name="information" /> Como chegamos a esse preço</h2>
+              <p className="markup-formula">Preço = [(material + horas × valor da hora) × 100] ÷ [100 − ((despesas fixas mensais ÷ faturamento mensal × 100) + variáveis % + lucro %)]</p>
+              <div className="markup-guide-steps">
+                <div>
+                  <h3>Custo direto por unidade</h3>
+                  <p>{result ? `${currency.format(result.materialCost)} + (${decimal.format(result.productionHours)} h × ${currency.format(result.hourlyRate)})` : 'Material + (horas × valor da hora)'}</p>
+                  <strong>{result ? currency.format(result.directCost) : 'R$ —'}</strong>
+                  <p className="markup-hint">Material + mão de obra, sem duplicar custos.</p>
+                </div>
+                <div>
+                  <h3>Percentuais sobre a venda</h3>
+                  <p>{result ? `${formatPercentage(result.fixedPercentage)}% fixas + ${formatPercentage(result.variableExpenses)}% variáveis + ${formatPercentage(result.profit)}% lucro` : 'Fixas % + variáveis % + lucro %'}</p>
+                  <strong>{result ? `${formatPercentage(result.totalPercentage)}%` : '—'}</strong>
+                  <p className="markup-hint">{result ? `Fixas = ${currency.format(result.monthlyFixedExpenses)} ÷ ${currency.format(result.monthlyRevenue)} × 100.` : 'Fixas = despesas fixas mensais ÷ faturamento mensal × 100.'}</p>
+                </div>
+                <div>
+                  <h3>Preço de venda por unidade</h3>
+                  <p>{result ? `(${currency.format(result.directCost)} × 100) ÷ (100 − ${formatPercentage(result.totalPercentage)})` : '(Custo direto × 100) ÷ (100 − percentuais)'}</p>
+                  <strong>{result ? currency.format(result.price) : 'R$ —'}</strong>
+                  <p className="markup-hint">{result ? `Divisor de ${formatPercentage(100 - result.totalPercentage)}%: a parcela que cobre o custo direto.` : 'A parcela restante do preço cobre o custo direto.'}</p>
+                </div>
+              </div>
+            </section>
+            <p className="markup-disclaimer">Simulação ilustrativa por unidade. Ajuste os valores à realidade do seu negócio.</p>
+          </div>
+
+          <div
+            className="markup-calculator-panel"
+            role="tabpanel"
+            id="markup-panel-advanced"
+            aria-labelledby="markup-tab-advanced"
+            hidden={activeMethod !== 'advanced'}
+            tabIndex={0}
+          >
+            <section className="markup-advanced-placeholder" aria-labelledby="markup-advanced-title">
+              <span className="markup-advanced-icon"><Icon name="sliders" /></span>
+              <span className="markup-coming-soon-badge">Em breve</span>
+              <h2 id="markup-advanced-title">Uma nova forma de calcular seu preço</h2>
+              <p>Este espaço está reservado para uma metodologia de precificação mais avançada. Ela estará disponível assim que o novo cálculo for definido.</p>
+              <p>Enquanto isso, use a calculadora principal para encontrar um preço que cubra seus custos e seu lucro.</p>
+              <button className="markup-advanced-back" type="button" onClick={() => selectMethod('main')}>
+                <Icon name="arrowLeft" /> Usar calculadora principal
+              </button>
+            </section>
+          </div>
         </div>
       </main>
       <Footer />

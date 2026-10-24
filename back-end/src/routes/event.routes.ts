@@ -27,6 +27,10 @@ eventRoutes
     .get(publicReadRateLimit, async (req, res) => eventController.searchAgenda(req, res));
 
 eventRoutes
+    .route('/admin')
+    .get(authToken, authenticatedRateLimit, async (req, res) => eventController.searchForAdmin(req, res));
+
+eventRoutes
     .route('/:id')
     .get(publicReadRateLimit, async (req, res) => eventController.searchById(req, res))
     .patch(authToken, authenticatedRateLimit, async (req, res) => eventController.update(req, res))

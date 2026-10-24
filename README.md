@@ -127,6 +127,40 @@ reais com respostas simuladas, verifica larguras de 320 a 1440 px e salva captur
 em `output/password-recovery`. Usa o Edge sem janela no Windows; para outro
 navegador Chromium, informe o executável em `BROWSER_PATH`.
 
+### Exclusão de administradores
+
+`DELETE /admin/:id` exige uma sessão de `SUPER_ADMIN`. A exclusão remove os
+refresh tokens e a conta na mesma transação; links de recuperação de senha
+são removidos pela chave estrangeira existente. A correção não exige migration.
+
+Contas inexistentes retornam `404` (`ADMIN_NOT_FOUND`), administradores principais
+retornam `403` (`SUPER_ADMIN_DELETE_FORBIDDEN`) e contas com eventos vinculados
+retornam `409` (`ADMIN_HAS_EVENTS`). Nesse último caso, desative o acesso para
+preservar o histórico dos eventos. O painel mostra uma mensagem específica
+para cada situação.
+
+`npm test` cobre as permissões e respostas da API.
+`npm run test:admin-deletion:mysql`, em `back-end`, reproduz a falha antiga de
+chave estrangeira e verifica exclusão, rollback e concorrência em um schema
+temporário `admin_delete_test_<uuid>`, removido ao final. No frontend,
+`node --test tests/adminDeletion.test.mjs` verifica as mensagens do painel.
+
+### Eventos por administrador
+
+O painel usa `GET /event/admin`, autenticado para administradores comuns e
+principais. A resposta inclui `administratorId`, `administratorName` e
+`administratorActive`, inclusive para criadores desativados. A listagem pública
+`GET /event` mantém seu contrato. Não é necessária migration.
+
+Em **Eventos > Filtros > Administrador**, selecione todos, seus eventos ou um
+criador específico. Os filtros são combinados no navegador. Os cards mostram
+quem cadastrou o evento; editar um evento não muda o criador.
+
+`npm test`, em `back-end`, verifica as permissões da rota.
+`node tests/eventAdministrators.browser.mjs`, em `front-end`, verifica os filtros,
+a preservação do criador e o layout de 320 a 1894 px com respostas simuladas.
+Capturas de tela ficam em `output/event-administrators`.
+
 ### Imagens no Vercel Blob
 
 Crie um store **privado** no Vercel Blob e configure `BLOB_STORE_ID` e

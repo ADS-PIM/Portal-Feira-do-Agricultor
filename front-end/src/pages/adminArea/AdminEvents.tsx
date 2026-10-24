@@ -6,9 +6,10 @@ import {
     getAdminEvents,
     uploadEventBanner,
     updateAdminEvent,
-    type AdminEvent,
+    type AdminEventWithAuthor as AdminEvent,
     type AdminEventInput,
 } from '../../services/eventService'
+import { getAdminProfile } from '../../services/authToken'
 import { getUserFacingError } from '../../services/errors'
 import { matchesEventTimeRange } from './eventTimeFilter'
 import CreateEventButton from './CreateEventButton'
@@ -89,6 +90,7 @@ const AdminEvents = ({
     const [weekdayFilter, setWeekdayFilter] = useState('')
     const [timeFromFilter, setTimeFromFilter] = useState('')
     const [timeToFilter, setTimeToFilter] = useState('')
+    const [administratorFilter, setAdministratorFilter] = useState('')
     const [newEventDate, setNewEventDate] = useState(initialEventDate ?? '')
     const [editingEvent, setEditingEvent] = useState<AdminEvent | null>(null)
     const [eventPendingDeletion, setEventPendingDeletion] = useState<AdminEvent | null>(null)
@@ -98,6 +100,8 @@ const AdminEvents = ({
     const [formError, setFormError] = useState<string | null>(null)
     const [actionMessage, setActionMessage] = useState<string | null>(null)
     const handledInitialAction = useRef<string | null>(null)
+    const currentAdmin = getAdminProfile()
+    const currentAdminId = currentAdmin?.id
 
     const loadEvents = useCallback((signal?: AbortSignal) => getAdminEvents(signal), [])
 
@@ -148,6 +152,16 @@ const AdminEvents = ({
         [events],
     )
 
+    const availableAdministrators = useMemo(() => {
+        const authors = new Map<string, { id: string; name: string; active: boolean }>()
+        events.forEach(event => authors.set(event.administratorId, {
+            id: event.administratorId,
+            name: event.administratorName,
+            active: event.administratorActive,
+        }))
+        return [...authors.values()].sort((first, second) => first.name.localeCompare(second.name, 'pt-BR'))
+    }, [events])
+
     const filteredEvents = useMemo(() => {
         const query = searchTerm.trim().toLocaleLowerCase('pt-BR')
         const now = new Date()
@@ -160,7 +174,10 @@ const AdminEvents = ({
                 const eventWeekday = new Date(`${getDateKey(event.date)}T12:00:00`).getDay().toString()
                 const matchesWeekday = !weekdayFilter || eventWeekday === weekdayFilter
                 const matchesTime = matchesEventTimeRange(event, timeFromFilter, timeToFilter)
-                return matchesSearch && matchesYear && matchesStatus && matchesWeekday && matchesTime
+                const matchesAdministrator = !administratorFilter || event.administratorId === (
+                    administratorFilter === 'mine' ? currentAdminId : administratorFilter
+                )
+                return matchesSearch && matchesYear && matchesStatus && matchesWeekday && matchesTime && matchesAdministrator
             })
             .sort((first, second) => {
                 const firstDate = `${getDateKey(first.date)}T${first.startAt.slice(0, 5)}`
@@ -172,9 +189,9 @@ const AdminEvents = ({
                     ? firstDate.localeCompare(secondDate)
                     : secondDate.localeCompare(firstDate)
             })
-    }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter])
+    }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter, administratorFilter, currentAdminId])
 
-    const activeFilterCount = [statusFilter, yearFilter, weekdayFilter, timeFromFilter, timeToFilter].filter(Boolean).length
+    const activeFilterCount = [statusFilter, yearFilter, weekdayFilter, timeFromFilter, timeToFilter, administratorFilter].filter(Boolean).length
 
     const clearFilters = () => {
         setStatusFilter('')
@@ -182,6 +199,7 @@ const AdminEvents = ({
         setWeekdayFilter('')
         setTimeFromFilter('')
         setTimeToFilter('')
+        setAdministratorFilter('')
     }
 
     const closeForm = () => {
@@ -219,7 +237,14 @@ const AdminEvents = ({
                 session.eventId = result.id
             }
             eventSaved = true
-            const savedEvent: AdminEvent = { ...eventInput, id: session.eventId, createdAt: editingEvent?.createdAt ?? new Date().toISOString() }
+            const savedEvent: AdminEvent = {
+                ...eventInput,
+                id: session.eventId,
+                createdAt: editingEvent?.createdAt ?? new Date().toISOString(),
+                administratorId: editingEvent?.administratorId ?? currentAdmin!.id,
+                administratorName: editingEvent?.administratorName ?? currentAdmin!.name,
+                administratorActive: editingEvent?.administratorActive ?? Boolean(currentAdmin!.active),
+            }
             setEvents(current => current.some(event => event.id === savedEvent.id)
                 ? current.map(event => event.id === savedEvent.id ? savedEvent : event)
                 : [...current, savedEvent])
@@ -311,6 +336,18 @@ const AdminEvents = ({
                 {isFiltersOpen && (
                     <section className="admin-events-filters" id="admin-events-filters" aria-label="Filtros de eventos">
                         <label>
+                            Administrador
+                            <select value={administratorFilter} onChange={event => setAdministratorFilter(event.target.value)}>
+                                <option value="">Todos os administradores</option>
+                                <option value="mine">Meus eventos</option>
+                                {availableAdministrators.map(admin => (
+                                    <option key={admin.id} value={admin.id}>
+                                        {admin.name}{admin.active ? '' : ' (desativado)'}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <label>
                             Ano
                             <select value={yearFilter} onChange={event => setYearFilter(event.target.value)}>
                                 <option value="">Ver todos</option>
@@ -378,6 +415,10 @@ const AdminEvents = ({
                                     <p className="admin-event-detail">
                                         <Icon name="location" />
                                         <span>{event.localAddress}</span>
+                                    </p>
+                                    <p className="admin-event-detail">
+                                        <Icon name="user" />
+                                        <span>Cadastrado por: {event.administratorName}</span>
                                     </p>
                                     <div className="admin-event-actions">
                                         <a

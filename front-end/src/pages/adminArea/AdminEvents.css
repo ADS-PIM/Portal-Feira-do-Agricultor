@@ -141,7 +141,7 @@
 
 .admin-events-filters {
     display: grid;
-    grid-template-columns: repeat(5, minmax(120px, 1fr)) auto;
+    grid-template-columns: minmax(170px, 1.5fr) repeat(5, minmax(100px, 1fr)) auto;
     align-items: end;
     gap: 12px;
     margin: -8px 0 26px;
@@ -995,6 +995,12 @@
 .admin-event-button.is-danger:hover,
 .admin-event-button.is-danger:focus-visible {
     background: #b93825;
+}
+
+@media (max-width: 1200px) {
+    .admin-events-filters {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 1050px) {

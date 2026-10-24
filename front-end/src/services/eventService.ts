@@ -28,6 +28,12 @@ export interface AdminEvent extends AgendaEvent {
     bannerImage: string | null
 }
 
+export interface AdminEventWithAuthor extends AdminEvent {
+    administratorId: string
+    administratorName: string
+    administratorActive: boolean
+}
+
 export interface EventDetails extends Omit<AdminEvent, 'createdAt' | 'localAddress'> {
     localAddress: string | null
     localLatitude: number | string | null
@@ -57,7 +63,9 @@ export function getEvents(signal?: AbortSignal): Promise<AdminEvent[] | null> {
     return apiFetch<AdminEvent[] | null>('event', { signal })
 }
 
-export const getAdminEvents = getEvents
+export function getAdminEvents(signal?: AbortSignal): Promise<AdminEventWithAuthor[]> {
+    return apiFetch<AdminEventWithAuthor[]>('event/admin', { signal })
+}
 
 export function createAdminEvent(event: AdminEventInput): Promise<{ id: string; message: string }> {
     return apiFetch<{ id: string; message: string }>('event/create', {

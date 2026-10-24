@@ -3,7 +3,7 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { PasswordCrypto } from '../service/passwordCrypto'
 import { AdminCreateDTO, AdminLoginDTO, AdminUpdateDTO } from '../dto/admin.dto';
-import { AdminService } from '../service/admin.service';
+import { AdminDeletionError, AdminService } from '../service/admin.service';
 import { RefreshTokenDAO } from '../dao/refreshToken.dao';
 import jwt from 'jsonwebtoken';
 import { AdminRole } from '../model/admin';
@@ -204,6 +204,9 @@ export class AdminController {
             await this.adminService.delete(targetAdminId);
             return res.status(200).json({ message: 'Admin deleted successfully' });
         } catch (error: any) {
+            if (error instanceof AdminDeletionError) {
+                return res.status(error.status).json({ error: error.message, code: error.code });
+            }
             console.error('Error deleting admin:', error);
             return res.status(500).json({ error: error.message || 'Error deleting admin' });
         }
