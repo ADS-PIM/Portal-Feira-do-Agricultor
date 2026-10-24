@@ -145,6 +145,22 @@ chave estrangeira e verifica exclusão, rollback e concorrência em um schema
 temporário `admin_delete_test_<uuid>`, removido ao final. No frontend,
 `node --test tests/adminDeletion.test.mjs` verifica as mensagens do painel.
 
+### Eventos por administrador
+
+O painel usa `GET /event/admin`, autenticado para administradores comuns e
+principais. A resposta inclui `administratorId`, `administratorName` e
+`administratorActive`, inclusive para criadores desativados. A listagem pública
+`GET /event` mantém seu contrato. Não é necessária migration.
+
+Em **Eventos > Filtros > Administrador**, selecione todos, seus eventos ou um
+criador específico. Os filtros são combinados no navegador. Os cards mostram
+quem cadastrou o evento; editar um evento não muda o criador.
+
+`npm test`, em `back-end`, verifica as permissões da rota.
+`node tests/eventAdministrators.browser.mjs`, em `front-end`, verifica os filtros,
+a preservação do criador e o layout de 320 a 1894 px com respostas simuladas.
+Capturas de tela ficam em `output/event-administrators`.
+
 ### Imagens no Vercel Blob
 
 Crie um store **privado** no Vercel Blob e configure `BLOB_STORE_ID` e

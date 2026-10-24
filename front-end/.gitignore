@@ -18,6 +18,7 @@ tests
 tests/*
 !tests/passwordRecovery.browser.mjs
 !tests/adminDeletion.test.mjs
+!tests/eventAdministrators.browser.mjs
 
 # Editor directories and files
 .vscode/*

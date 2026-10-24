@@ -103,6 +103,12 @@ export class EventSearchDTO {
     createdAt: Date;
 }
 
+export class AdminEventSearchDTO extends EventSearchDTO {
+    administratorId: string;
+    administratorName: string;
+    administratorActive: boolean;
+}
+
 export class EventNearestSearchDTO {
     id: string;
     title: string;

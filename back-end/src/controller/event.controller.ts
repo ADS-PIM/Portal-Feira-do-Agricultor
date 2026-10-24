@@ -65,6 +65,16 @@ export class EventController {
         }
     }
 
+    public async searchForAdmin(_req: AuthRequest, res: Response) {
+        try {
+            const events = await this.eventService.searchForAdmin();
+            return res.status(200).json(events);
+        } catch (error: any) {
+            console.error('Error listing administrative events:', error);
+            return res.status(500).json({ error: 'Error listing administrative events' });
+        }
+    }
+
     public async searchNearest(req: Request, res: Response) {
         const date = req.query.date;
         if (

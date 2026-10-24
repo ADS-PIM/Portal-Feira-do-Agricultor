@@ -13,6 +13,7 @@ test/*
 !test/passwordRecoveryMysql.integration.ts
 !test/adminDeletion.test.ts
 !test/adminDeletionMysql.integration.ts
+!test/eventAdministrators.test.ts
 
 #ignore uploaded event images
 /uploads/
