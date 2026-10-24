@@ -25,6 +25,21 @@
 .markup-panel-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
 .markup-panel-heading h2 { color: var(--calculator-green); font-size: 24px; line-height: 1.3; letter-spacing: -0.025em; }
 .markup-page button { font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.markup-calculator-tabs { display: flex; gap: 12px; margin-bottom: 28px; border-bottom: 1px solid var(--calculator-border); }
+.markup-page .markup-calculator-tab { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 58px; margin-bottom: -1px; padding: 14px 20px; border: 0; border-bottom: 3px solid transparent; border-radius: 10px 10px 0 0; background: transparent; color: var(--calculator-muted); font-size: 16px; transition: background-color 150ms ease, color 150ms ease; }
+.markup-calculator-tab > svg { flex-shrink: 0; font-size: 18px; }
+.markup-calculator-tab:hover { background: var(--calculator-soft); color: var(--calculator-green); }
+.markup-calculator-tab[aria-selected="true"] { border-bottom-color: var(--calculator-green); background: var(--calculator-soft); color: var(--calculator-green); }
+.markup-coming-soon-badge { display: inline-block; padding: 3px 8px; border-radius: 999px; background: #fff0db; color: var(--brand-orange-dark); font-size: 11px; font-weight: 700; line-height: 1.5; white-space: nowrap; }
+.markup-calculator-panel[hidden] { display: none; }
+.markup-calculator-panel:focus-visible { outline: 3px solid var(--brand-orange); outline-offset: 4px; border-radius: 18px; }
+.markup-advanced-placeholder { display: flex; flex-direction: column; align-items: center; min-height: 440px; padding: 56px 28px; border: 1px solid var(--calculator-border); border-radius: 18px; background: #fff; text-align: center; }
+.markup-advanced-icon { display: grid; place-items: center; width: 72px; height: 72px; margin-bottom: 20px; border-radius: 22px; background: var(--calculator-soft); color: var(--calculator-green); font-size: 30px; }
+.markup-advanced-placeholder h2 { max-width: 540px; margin-top: 16px; color: var(--calculator-green); font-size: clamp(22px, 3vw, 28px); line-height: 1.3; letter-spacing: -0.025em; }
+.markup-advanced-placeholder p { max-width: 540px; margin-top: 16px; color: var(--calculator-muted); font-size: 15px; line-height: 1.7; }
+.markup-page .markup-advanced-back { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; margin-top: 28px; padding: 12px 20px; border: 0; border-radius: 9px; background: var(--calculator-green); color: #fff; font-size: 15px; transition: background-color 150ms ease; }
+.markup-advanced-back:hover { background: var(--brand-green-hover); }
+.markup-advanced-back svg { flex-shrink: 0; }
 .markup-example { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 8px 15px 6px; border: 1px solid transparent; border-radius: 999px; background: var(--calculator-green); color: #fff; transition: background-color 150ms ease; }
 .markup-page .markup-example { line-height: 1; }
 .markup-example:hover { background: var(--brand-green-hover); }
@@ -235,6 +250,13 @@
     .markup-heading-icon { flex-basis: 46px; width: 46px; height: 46px; border-radius: 14px; font-size: 22px; }
     .markup-heading h1 { font-size: 25px; }
     .markup-heading p { margin-top: 8px; font-size: 13px; }
+    .markup-calculator-tabs { gap: 6px; margin-bottom: 22px; }
+    .markup-page .markup-calculator-tab { flex: 1; flex-wrap: wrap; gap: 6px; min-width: 0; padding: 12px 8px; font-size: 14px; }
+    .markup-calculator-tab > svg { font-size: 16px; }
+    .markup-calculator-tab .markup-coming-soon-badge { font-size: 10px; }
+    .markup-advanced-placeholder { min-height: 0; padding: 36px 20px; border-radius: 15px; }
+    .markup-advanced-placeholder p { font-size: 14px; }
+    .markup-page .markup-advanced-back { width: 100%; padding-inline: 12px; font-size: 14px; }
     .markup-form-panel, .markup-result-card, .markup-breakdown, .markup-guide { padding: 22px 18px; border-radius: 15px; }
     .markup-panel-heading h2 { font-size: 22px; }
     .markup-example { padding-inline: 11px; }

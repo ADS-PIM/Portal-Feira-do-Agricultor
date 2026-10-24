@@ -106,7 +106,9 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
 
     if (!response.ok) {
         let code: string | undefined
-        if (response.status === 400 && /^(?:business-info|admin\/(?:forgot-password|reset-password))(?:\/|$|\?)/.test(path)) {
+        const hasValidationCode = response.status === 400 && /^(?:business-info|admin\/(?:forgot-password|reset-password))(?:\/|$|\?)/.test(path)
+        const isAdminResource = !sessionEndpoint && /^admin\/[^/?]+\/?(?:\?|$)/.test(path)
+        if (hasValidationCode || isAdminResource) {
             const payload: unknown = await response.json().catch(() => null)
             if (payload && typeof payload === 'object' && 'code' in payload && typeof payload.code === 'string') {
                 code = payload.code

@@ -14,6 +14,11 @@ export class ApiRequestError extends Error {
 }
 
 function getApiErrorMessage(status: number, endpoint: string, code?: string): string {
+    if (/^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)) {
+        if (status === 404 && code === 'ADMIN_NOT_FOUND') return 'Administrador não encontrado. Atualize a lista e tente novamente.'
+        if (status === 403 && code === 'SUPER_ADMIN_DELETE_FORBIDDEN') return 'Não é possível excluir o administrador principal.'
+        if (status === 409 && code === 'ADMIN_HAS_EVENTS') return 'Este administrador possui eventos vinculados. Desative o acesso para manter o histórico.'
+    }
     if (status === 400 && /^admin\/(?:forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)) {
         if (code === 'INVALID_EMAIL') return 'Informe um e-mail válido.'
         if (code === 'INVALID_PASSWORD') return 'Use pelo menos 8 caracteres. Se a senha for muito longa, reduza a quantidade de caracteres ou símbolos.'

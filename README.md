@@ -127,6 +127,24 @@ reais com respostas simuladas, verifica larguras de 320 a 1440 px e salva captur
 em `output/password-recovery`. Usa o Edge sem janela no Windows; para outro
 navegador Chromium, informe o executável em `BROWSER_PATH`.
 
+### Exclusão de administradores
+
+`DELETE /admin/:id` exige uma sessão de `SUPER_ADMIN`. A exclusão remove os
+refresh tokens e a conta na mesma transação; links de recuperação de senha
+são removidos pela chave estrangeira existente. A correção não exige migration.
+
+Contas inexistentes retornam `404` (`ADMIN_NOT_FOUND`), administradores principais
+retornam `403` (`SUPER_ADMIN_DELETE_FORBIDDEN`) e contas com eventos vinculados
+retornam `409` (`ADMIN_HAS_EVENTS`). Nesse último caso, desative o acesso para
+preservar o histórico dos eventos. O painel mostra uma mensagem específica
+para cada situação.
+
+`npm test` cobre as permissões e respostas da API.
+`npm run test:admin-deletion:mysql`, em `back-end`, reproduz a falha antiga de
+chave estrangeira e verifica exclusão, rollback e concorrência em um schema
+temporário `admin_delete_test_<uuid>`, removido ao final. No frontend,
+`node --test tests/adminDeletion.test.mjs` verifica as mensagens do painel.
+
 ### Imagens no Vercel Blob
 
 Crie um store **privado** no Vercel Blob e configure `BLOB_STORE_ID` e

@@ -4,6 +4,17 @@ import { Admin } from "../model/admin";
 import { PasswordCrypto } from './passwordCrypto';
 import { AdminUpdateData } from '../dao/admin.dao';
 
+export class AdminDeletionError extends Error {
+    constructor(
+        public readonly status: 403 | 404 | 409,
+        public readonly code: 'ADMIN_NOT_FOUND' | 'SUPER_ADMIN_DELETE_FORBIDDEN' | 'ADMIN_HAS_EVENTS',
+        message: string,
+    ) {
+        super(message);
+        this.name = 'AdminDeletionError';
+    }
+}
+
 export class AdminService {
     public constructor(private adminDAO: AdminDAO) {}
 
@@ -27,15 +38,15 @@ export class AdminService {
     }
 
     public async delete(id: string): Promise<void> {
-        const admin = await this.searchById(id);
-        if (!admin) {
-            throw new Error('Admin not found');
+        const result = await this.adminDAO.delete(id);
+        switch (result) {
+            case 'not_found':
+                throw new AdminDeletionError(404, 'ADMIN_NOT_FOUND', 'Admin not found');
+            case 'super_admin':
+                throw new AdminDeletionError(403, 'SUPER_ADMIN_DELETE_FORBIDDEN', 'Cannot delete SUPER_ADMIN');
+            case 'has_events':
+                throw new AdminDeletionError(409, 'ADMIN_HAS_EVENTS', 'Admin has linked events; deactivate the account to preserve event history');
         }
-
-        if (admin.role === 'SUPER_ADMIN') {
-            throw new Error('Cannot delete SUPER_ADMIN');
-        }
-        await this.adminDAO.delete(id);
     }
 
     public async searchByEmail(email: string): Promise <Admin | null> {

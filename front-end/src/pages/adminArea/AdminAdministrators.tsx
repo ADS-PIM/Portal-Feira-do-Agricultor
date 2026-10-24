@@ -309,7 +309,7 @@ const AdminAdministrators = () => {
                     </div>
 
                     {canManageAdmins && <aside className="admin-managers-form-panel">
-                        <h2>Cadastrar Novo Admin</h2>
+                        <h2>{editingAdminId ? 'Editar Admin' : 'Cadastrar Novo Admin'}</h2>
 
                         <form className="admin-managers-form" onSubmit={handleSubmit}>
                             <label>
