@@ -9,6 +9,36 @@
     padding: 28px 24px 72px;
 }
 
+.producer-profile-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 24px;
+    color: var(--brand-green-dark);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.producer-profile-back:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.producer-profile-back:focus-visible {
+    outline: 2px solid var(--brand-orange);
+    outline-offset: 3px;
+}
+
+.producer-profile-back svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
 .producer-profile-hero {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);

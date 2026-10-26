@@ -388,7 +388,7 @@ function AdminUsersMessages() {
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            className="is-secondary"
+                                                            className="is-delete"
                                                             aria-label={`Excluir mensagem: ${displayValue(message.title)}`}
                                                             onClick={() => {
                                                                 setActionError(null)

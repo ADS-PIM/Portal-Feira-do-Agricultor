@@ -310,20 +310,34 @@
     background: var(--brand-green-hover);
 }
 
-.admin-user-message-row-actions .is-secondary:hover,
 .admin-user-message-dialog-actions button:hover,
 .admin-user-message-confirm-actions .is-secondary:hover {
     border-color: #cbd5cb;
     background: #f3f7f3;
 }
 
-.admin-user-message-row-actions .is-secondary {
-    padding: 0 9px;
-    color: #a34c3c;
-    border-color: #ebddd6;
+.admin-user-message-row-actions .is-delete {
+    min-height: 36px;
+    gap: 6px;
+    padding: 0 12px;
+    border-color: #e1ddd8;
+    border-radius: 7px;
+    background: #fff;
+    color: #d94a32;
 }
 
-.admin-user-message-row-actions .is-secondary:hover { background: #fff3ed; border-color: #d4a393; }
+.admin-user-message-row-actions .is-delete svg {
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.admin-user-message-row-actions .is-delete:hover,
+.admin-user-message-row-actions .is-delete:focus-visible {
+    background: #f8f7f5;
+    border-color: currentColor;
+}
 
 .admin-user-messages-empty {
     display: grid;

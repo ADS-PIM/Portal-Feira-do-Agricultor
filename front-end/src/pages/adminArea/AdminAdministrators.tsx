@@ -1,8 +1,10 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
+import { createPortal } from 'react-dom'
 import Icon from '../../components/Icon'
 import { createAdmin, deleteAdmin, getAdmins, updateAdmin, type AdminRecord } from '../../services/adminService'
 import { AUTH_STATE_CHANGE_EVENT, getAdminId, getAdminProfile } from '../../services/authToken'
 import './AdminAdministrators.css'
+import './AdminEvents.css'
 
 type AdminFormState = {
     name: string
@@ -67,6 +69,19 @@ const AdminAdministrators = () => {
     const [editingAdminId, setEditingAdminId] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
+    const [adminPendingDeletion, setAdminPendingDeletion] = useState<AdminRecord | null>(null)
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [deleteError, setDeleteError] = useState<string | null>(null)
+    const deleteDialogRef = useRef<HTMLElement>(null)
+
+    useEffect(() => {
+        if (!adminPendingDeletion) return
+        const previousFocus = document.activeElement
+        deleteDialogRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+        return () => {
+            if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus()
+        }
+    }, [adminPendingDeletion])
 
     const loadAdmins = async () => {
         try {
@@ -181,7 +196,7 @@ const AdminAdministrators = () => {
         }
     }
 
-    const handleDelete = async (admin: AdminRecord) => {
+    const handleDelete = (admin: AdminRecord) => {
         if (!canManageAdmins) return
         const currentUserId = getAdminId()
         if (admin.id === currentUserId) {
@@ -189,16 +204,28 @@ const AdminAdministrators = () => {
             return
         }
 
-        const confirmed = window.confirm(`Deseja remover ${admin.name} da lista de administradores?`)
-        if (!confirmed) return
+        setDeleteError(null)
+        setAdminPendingDeletion(admin)
+    }
+
+    const confirmDelete = async () => {
+        if (!adminPendingDeletion || isDeleting || !canManageAdmins) return
+        if (adminPendingDeletion.id === getAdminId()) return
 
         try {
-            await deleteAdmin(admin.id)
+            setIsDeleting(true)
+            setDeleteError(null)
+            setError(null)
+            setSuccess(null)
+            await deleteAdmin(adminPendingDeletion.id)
+            setAdminPendingDeletion(null)
             setSuccess('Administrador removido com sucesso.')
             await loadAdmins()
         } catch (deleteError) {
             const message = deleteError instanceof Error ? deleteError.message : 'Não foi possível remover o administrador.'
-            setError(message)
+            setDeleteError(message)
+        } finally {
+            setIsDeleting(false)
         }
     }
 
@@ -375,6 +402,67 @@ const AdminAdministrators = () => {
                     </aside>}
                 </div>
             </div>
+            {adminPendingDeletion && createPortal(
+                <div
+                    className="admin-event-modal-backdrop"
+                    role="presentation"
+                    onMouseDown={event => {
+                        if (event.target === event.currentTarget && !isDeleting) setAdminPendingDeletion(null)
+                    }}
+                >
+                    <section
+                        ref={deleteDialogRef}
+                        className="admin-event-modal admin-event-delete-dialog"
+                        role="alertdialog"
+                        aria-modal="true"
+                        aria-labelledby="admin-manager-delete-title"
+                        aria-describedby="admin-manager-delete-description"
+                        aria-busy={isDeleting}
+                        onKeyDown={event => {
+                            if (event.key === 'Escape' && !isDeleting) setAdminPendingDeletion(null)
+                            if (event.key !== 'Tab') return
+                            const buttons = event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')
+                            const first = buttons[0]
+                            const last = buttons[buttons.length - 1]
+                            if (!first || (event.shiftKey && document.activeElement === first)) {
+                                event.preventDefault()
+                                last?.focus()
+                            } else if (!event.shiftKey && document.activeElement === last) {
+                                event.preventDefault()
+                                first.focus()
+                            }
+                        }}
+                    >
+                        <span className="admin-event-delete-icon" aria-hidden="true">
+                            <Icon name="error" />
+                        </span>
+                        <h2 id="admin-manager-delete-title">Excluir administrador?</h2>
+                        <p id="admin-manager-delete-description">
+                            Tem certeza de que deseja excluir <strong>{adminPendingDeletion.name}</strong>? Esta ação não pode ser desfeita.
+                        </p>
+                        {deleteError && <p className="admin-events-alert is-error" role="alert">{deleteError}</p>}
+                        <footer className="admin-event-delete-actions">
+                            <button
+                                type="button"
+                                className="admin-event-button is-secondary"
+                                onClick={() => setAdminPendingDeletion(null)}
+                                disabled={isDeleting}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className="admin-event-button is-danger"
+                                onClick={() => void confirmDelete()}
+                                disabled={isDeleting || !canManageAdmins}
+                            >
+                                {isDeleting ? 'Excluindo...' : 'Excluir administrador'}
+                            </button>
+                        </footer>
+                    </section>
+                </div>,
+                document.body,
+            )}
         </section>
     )
 }

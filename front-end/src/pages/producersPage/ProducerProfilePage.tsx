@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
+import Icon from '../../components/Icon'
 import ProducerProductCard from './ProducerProductCard'
 import { getProducerBySlug } from './producersData'
 import './ProducerProfilePage.css'
@@ -19,6 +20,10 @@ const ProducerProfilePage = ({ producerSlug }: ProducerProfilePageProps) => {
         <Header initialActiveLink="#/produtores" />
         <main className="producer-profile-page">
           <div className="producer-profile-shell">
+            <a className="producer-profile-back" href="#/produtores">
+              <Icon name="arrowLeft" />
+              Voltar para Produtores
+            </a>
             <section className="producer-profile-empty" role="alert">
               <h1>Produtor não encontrado</h1>
               <p>Não foi possível localizar este perfil no momento.</p>
@@ -36,6 +41,10 @@ const ProducerProfilePage = ({ producerSlug }: ProducerProfilePageProps) => {
 
       <main className="producer-profile-page">
         <div className="producer-profile-shell">
+          <a className="producer-profile-back" href="#/produtores">
+            <Icon name="arrowLeft" />
+            Voltar para Produtores
+          </a>
           <section className="producer-profile-hero">
             <div className="producer-profile-copy">
               <span className="producer-profile-category">
