@@ -11,18 +11,18 @@ export class ImageUploadError extends Error {
 }
 
 type CloudinaryClient = Pick<typeof cloudinary.uploader, 'upload_stream'>;
-let cloudinaryClient: CloudinaryClient | undefined;
+let cloudinarySdk: typeof cloudinary | undefined;
 
-function loadCloudinaryClient(): CloudinaryClient {
-    if (cloudinaryClient) return cloudinaryClient;
+export function loadCloudinarySdk(): typeof cloudinary {
+    if (cloudinarySdk) return cloudinarySdk;
     // The SDK parses CLOUDINARY_URL at import time, even when it is empty.
     // Load only on upload and use our validated, per-request credentials.
     // require is synchronous; restore the environment before yielding control.
     const environmentUrl = process.env.CLOUDINARY_URL;
     try {
         delete process.env.CLOUDINARY_URL;
-        cloudinaryClient = (require('cloudinary') as typeof import('cloudinary')).v2.uploader;
-        return cloudinaryClient;
+        cloudinarySdk = (require('cloudinary') as typeof import('cloudinary')).v2;
+        return cloudinarySdk;
     } finally {
         if (environmentUrl !== undefined) process.env.CLOUDINARY_URL = environmentUrl;
     }
@@ -95,7 +95,7 @@ export class ImageStorageService {
 
         let result: UploadApiResponse;
         try {
-            const client = this.client ?? loadCloudinaryClient();
+            const client = this.client ?? loadCloudinarySdk().uploader;
             result = await new Promise<UploadApiResponse>((resolve, reject) => {
                 const stream = client.upload_stream(options, (error, uploaded) => {
                     if (error) reject(error);

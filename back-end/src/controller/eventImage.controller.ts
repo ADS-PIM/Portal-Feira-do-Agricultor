@@ -8,13 +8,37 @@ import { validate } from 'class-validator';
 import { EventImageCreateDTO, EventImageUpdateDTO } from '../dto/eventImage.dto';
 import { ImageStorageService, ImageUploadError } from '../service/imageStorage.service';
 import { LegacyBlobStorageService, isEventImagePathname } from '../service/legacyBlobStorage.service';
+import { DirectImageUploadService } from '../service/directImageUpload.service';
 
 export class EventImageController {
     public constructor(
         private eventImageService: EventImageService,
         private imageStorage = new ImageStorageService(),
         private legacyStorage = new LegacyBlobStorageService(),
+        private directUpload = new DirectImageUploadService(),
     ) {}
+
+    public async authorizeUpload(req: AuthRequest, res: Response) {
+        res.setHeader('Cache-Control', 'no-store');
+        try {
+            return res.json(this.directUpload.authorize(req.admin!.adminId!, req.body?.size, req.body?.contentType));
+        } catch (error) {
+            return res.status(error instanceof ImageUploadError ? error.status : 500).json({
+                error: error instanceof ImageUploadError ? error.message : 'Não foi possível autorizar o envio da foto.',
+            });
+        }
+    }
+
+    public async completeUpload(req: AuthRequest, res: Response) {
+        res.setHeader('Cache-Control', 'no-store');
+        try {
+            return res.status(201).json(await this.directUpload.complete(req.admin!.adminId!, req.body?.ticket));
+        } catch (error) {
+            return res.status(error instanceof ImageUploadError ? error.status : 500).json({
+                error: error instanceof ImageUploadError ? error.message : 'Não foi possível confirmar o envio da foto.',
+            });
+        }
+    }
 
     public async upload(req: AuthRequest, res: Response) {
         try {

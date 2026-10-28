@@ -1,4 +1,5 @@
 import { businessDescriptionTooLong } from '../utils/businessDescription'
+import { EVENT_IMAGE_MAX_MB, EVENT_IMAGE_TOO_LARGE } from '../utils/eventImageUpload'
 
 export class ApiRequestError extends Error {
     readonly status: number
@@ -14,6 +15,10 @@ export class ApiRequestError extends Error {
 }
 
 function getApiErrorMessage(status: number, endpoint: string, code?: string): string {
+    if (/^event\/image\/upload(?:\/|$|\?)/.test(endpoint)) {
+        if (status === 413) return EVENT_IMAGE_TOO_LARGE
+        if (status === 400) return `Não foi possível validar a foto. Selecione novamente uma imagem JPG ou PNG de até ${EVENT_IMAGE_MAX_MB} MB.`
+    }
     if (/^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)) {
         if (status === 404 && code === 'ADMIN_NOT_FOUND') return 'Administrador não encontrado. Atualize a lista e tente novamente.'
         if (status === 403 && code === 'SUPER_ADMIN_DELETE_FORBIDDEN') return 'Não é possível excluir o administrador principal.'

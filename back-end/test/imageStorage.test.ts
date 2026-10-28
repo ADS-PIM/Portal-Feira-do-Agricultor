@@ -11,6 +11,7 @@ import { EventImageService } from '../src/service/eventImage.service';
 import app from '../src/app';
 import { MemoryTokenBucketStore } from '../src/rateLimit/tokenBucket';
 import { readPolicies } from '../src/rateLimit/middleware';
+import { DirectImageUploadService } from '../src/service/directImageUpload.service';
 
 const config = { cloud_name: 'test-cloud', api_key: '123456', api_secret: 'test-secret', secure: true as const };
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aG1cAAAAASUVORK5CYII=', 'base64');
@@ -96,6 +97,22 @@ test('HTTP uploads require authentication, keep the size limit and return the Cl
     const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
     const token = jwt.sign({ adminId: 'test-admin', role: 'ADMIN' }, process.env.JWT_ACCESS_SECRET!);
     const headers = { 'Content-Type': 'image/png', Authorization: `Bearer ${token}` };
+    const authorize = context.mock.method(DirectImageUploadService.prototype, 'authorize', () => ({ ticket: 'test-ticket' }) as any);
+    const complete = context.mock.method(DirectImageUploadService.prototype, 'complete', async () => ({ url }));
+    for (const endpoint of ['authorize', 'complete']) {
+        assert.equal((await fetch(`${origin}/event/image/upload/${endpoint}`, { method: 'POST' })).status, 401);
+    }
+    assert.equal(authorize.mock.callCount(), 0);
+    assert.equal(complete.mock.callCount(), 0);
+    const directHeaders = { ...headers, 'Content-Type': 'application/json' };
+    const authResponse = await fetch(`${origin}/event/image/upload/authorize`, { method: 'POST', headers: directHeaders, body: JSON.stringify({ size: 10 * 1024 * 1024, contentType: 'image/png' }) });
+    assert.equal(authResponse.status, 200);
+    assert.equal(authResponse.headers.get('cache-control'), 'no-store');
+    assert.deepEqual(authorize.mock.calls[0].arguments, ['test-admin', 10 * 1024 * 1024, 'image/png']);
+    const completed = await fetch(`${origin}/event/image/upload/complete`, { method: 'POST', headers: directHeaders, body: JSON.stringify({ ticket: 'test-ticket' }) });
+    assert.equal(completed.status, 201);
+    assert.deepEqual(await completed.json(), { url });
+    assert.deepEqual(complete.mock.calls[0].arguments, ['test-admin', 'test-ticket']);
     assert.equal((await fetch(`${origin}/event/image/upload`, { method: 'POST', body: png })).status, 401);
     assert.equal(upload.mock.callCount(), 0);
     const response = await fetch(`${origin}/event/image/upload`, { method: 'POST', headers, body: png });

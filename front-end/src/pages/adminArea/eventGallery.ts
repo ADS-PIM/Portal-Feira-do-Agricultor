@@ -1,3 +1,5 @@
+export { validateEventImage } from '../../utils/eventImageUpload'
+
 export type PendingEventPhoto = {
     id: string
     file: File
@@ -5,13 +7,6 @@ export type PendingEventPhoto = {
     description: string
     uploadedUrl?: string
     saved?: boolean
-}
-
-export function validateEventImage(file: Pick<File, 'type' | 'size'>): string | null {
-    if (!['image/jpeg', 'image/png'].includes(file.type)) return 'Selecione uma imagem JPG ou PNG.'
-    if (file.size === 0) return 'O arquivo está vazio. Selecione outra imagem.'
-    if (file.size > 4 * 1024 * 1024) return 'Cada imagem deve ter no máximo 4 MB.'
-    return null
 }
 
 // Keep confirmed uploads and links when a later photo fails, so a retry resumes

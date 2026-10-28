@@ -5,6 +5,7 @@ import { getEventImageProps } from '../../services/eventImageUrl'
 import { getUserFacingError } from '../../services/errors'
 import { savePendingEventPhotos, validateEventImage, type PendingEventPhoto } from './eventGallery'
 import { STATE_LABELS } from './eventFormLabels'
+import { EVENT_IMAGE_MAX_MB } from '../../utils/eventImageUpload'
 import './AdminEventForm.css'
 import '../../components/Calendar/CalendarStatus.css'
 
@@ -257,7 +258,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                         </div>
                                         <div className="admin-event-upload-row">
                                             <button type="button" className="admin-event-upload-button" onClick={() => bannerInput.current?.click()}><Icon name="image" />{cover ? 'Trocar capa' : 'Selecionar capa'}</button>
-                                            <small>JPG ou PNG · até 4 MB</small>
+                                            <small>JPG ou PNG · até {EVENT_IMAGE_MAX_MB} MB</small>
                                         </div>
                                         <input ref={bannerInput} hidden type="file" accept="image/jpeg,image/png" aria-label="Selecionar imagem de capa" onChange={event => { chooseBanner(event.target.files?.[0]); event.currentTarget.value = '' }} />
                                     </section>
@@ -265,7 +266,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                         <div className="admin-event-gallery-heading"><h3 id="event-gallery-title">Galeria de fotos <span>{existingPhotos.length + photos.length}</span></h3>
                                             <button ref={addPhotosButton} type="button" className="admin-event-upload-button" onClick={() => galleryInput.current?.click()}><Icon name="plus" />Adicionar fotos</button>
                                         </div>
-                                        <p className="admin-event-help">Selecione várias fotos. JPG ou PNG, até 4 MB por imagem. As novas fotos serão publicadas ao salvar o evento.</p>
+                                        <p className="admin-event-help">Selecione várias fotos. JPG ou PNG, até {EVENT_IMAGE_MAX_MB} MB por imagem. As novas fotos serão publicadas ao salvar o evento.</p>
                                         <input ref={galleryInput} hidden type="file" multiple accept="image/jpeg,image/png" aria-label="Selecionar fotos para a galeria" onChange={event => { choosePhotos(event.target.files); event.currentTarget.value = '' }} />
                                         {galleryLoading && <p className="admin-event-help" role="status">Carregando fotos...</p>}
                                         {galleryMessage && <p className="admin-event-help" role="status">{galleryMessage}</p>}

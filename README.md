@@ -182,9 +182,21 @@ usa prefixo `VITE_`. Reinicie o backend local ou publique novamente o backend
 e frontend após configurar a produção. Não é necessário instalar SDK React
 nem criar um preset de upload sem assinatura.
 
-`POST /event/image/upload` continua autenticado, aceita JPG/PNG de até **4 MB**
-e verifica MIME e assinatura antes de enviar o arquivo. O Cloudinary também
-valida a imagem. A resposta mantém o contrato `{ "url": "https://res.cloudinary.com/..." }`.
+Na criação e edição, capas e fotos da galeria aceitam JPG/PNG de até **10 MB
+por imagem**. O frontend solicita uma autorização autenticada em
+`POST /event/image/upload/authorize`, envia o arquivo diretamente ao Cloudinary
+com os parâmetros assinados e confirma em `POST /event/image/upload/complete`.
+Assim, o arquivo não passa pelo limite de corpo das funções da Vercel.
+O API Secret permanece somente no backend; o navegador recebe a API Key pública,
+uma assinatura e um ticket com validade de uma hora, vinculado ao administrador.
+O backend consulta os metadados no Cloudinary e verifica formato e tamanho real
+antes de devolver a URL. Tentativas acima de 10 MB são rejeitadas, com remoção
+do arquivo excedente quando possível. Falhas na confirmação podem ser repetidas
+sem reenviar a foto. Não é necessário configurar um preset adicional.
+
+A rota antiga `POST /event/image/upload` permanece em **4 MB** para clientes
+anteriores; o formulário atualizado usa o novo fluxo direto de 10 MB.
+A resposta final mantém o contrato `{ "url": "https://res.cloudinary.com/..." }`.
 As fotos dos eventos são públicas, entregues diretamente pela CDN. As URLs
 originais permanecem em `events.bannerImage` e `images.imageUrl`; os arquivos
 ficam no Cloudinary. Nenhuma alteração de esquema MySQL é necessária.
@@ -247,7 +259,7 @@ MySQL não apaga automaticamente o arquivo no Cloudinary; uploads abandonados
 também permanecem na conta, como ocorria no armazenamento anterior.
 
 Validação local: `npm.cmd test` e `npm.cmd run build` em `back-end`;
-`node --test tests/eventImageUrl.test.mjs`, `npm.cmd run build` e
+`node --test tests/eventImage*.test.mjs`, `npm.cmd run build` e
 `npm.cmd run lint` em `front-end`. Os testes simulam os provedores e o MySQL;
 um upload real e a migração real precisam das credenciais configuradas.
 

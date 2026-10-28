@@ -16,6 +16,7 @@ test/*
 !test/eventAdministrators.test.ts
 !test/imageStorage.test.ts
 !test/imageMigration.test.ts
+!test/directImageUpload.test.ts
 
 #ignore uploaded event images
 /uploads/
