@@ -370,7 +370,7 @@ export default function AdvancedPricingCalculator() {
               ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
             </dl>
           </section>
-          <p className="markup-local-note"><Icon name="shieldCheck" /><span>Os cálculos são feitos neste navegador. Seus dados não são enviados ao portal.</span></p>
+          <p className="markup-local-note"><Icon name="shieldCheck" /><span>Seus valores ajudam a planejar uma venda que remunera seu trabalho e mantém o negócio saudável.</span></p>
           {isExample && <p className="markup-hint advanced-example-note">Exemplo ilustrativo: gás a R$ 125,00 por botijão, duração de 320 horas e uso de 4 horas por receita. Ajuste esses dados à sua realidade.</p>}
         </aside>
       </div>
