@@ -26,7 +26,7 @@ export function CalculatorStepActions({ current, count, onBack, onClear }: {
   return <div className="markup-step-actions">
     <div className="markup-step-navigation">
       {current > 0 && <button className="markup-step-back" type="button" onClick={onBack}><Icon name="arrowLeft" /> Voltar</button>}
-      <button className="markup-submit" type="submit"><Icon name={last ? 'calculator' : 'arrowRight'} /> {last ? 'Calcular preço de venda' : 'Próximo'}</button>
+      {!last && <button className="markup-submit" type="submit"><Icon name="arrowRight" /> Próximo</button>}
     </div>
     <button className="markup-clear" type="button" onClick={onClear}><Icon name="trash" /> Limpar campos</button>
   </div>

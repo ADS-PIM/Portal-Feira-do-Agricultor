@@ -36,7 +36,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 let socket
 try {
     let port
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 300; i++) {
         try { port = (await readFile(join(profile, 'DevToolsActivePort'), 'utf8')).split('\n')[0]; break } catch { await pause(100) }
     }
     if (!port) throw new Error('Browser did not start')
@@ -146,9 +146,8 @@ try {
     assert.equal(await simpleStep(), '2')
     await setControl('markup-variableExpenses-value', '5')
     await setControl('markup-profit-value', '30')
-    assert.equal(await evaluate(`document.querySelector('#markup-panel-main .markup-price').textContent.replaceAll(String.fromCharCode(160),'').replaceAll(' ','')`), 'R$—')
-    await simpleNext()
     assert.equal(await evaluate(`document.querySelector('#markup-panel-main .markup-price').textContent.replaceAll(String.fromCharCode(160),'').replaceAll(' ','')`), 'R$127,27')
+    assert.equal(await evaluate(`document.querySelectorAll('#markup-panel-main button[type=submit]').length`), 0)
     await evaluate(`document.querySelector('#markup-panel-main .markup-clear').click()`)
     await settle()
     assert.equal(await simpleStep(), '0')
@@ -230,6 +229,7 @@ try {
     await goTo(5)
     assert.equal(await visibleStep(), '5')
     assert.equal(await evaluate(`document.querySelectorAll('.advanced-calculator fieldset:not([hidden]) input[type=range]').length`), 3)
+    assert.equal(await evaluate(`document.querySelectorAll('.advanced-calculator button[type=submit]').length`), 0)
     await fill('monthlyRevenue', '20.000,00')
     assert.equal(await price(), 'R$31,94')
     assert.match(await evaluate(`document.getElementById('advanced-revenue-effect').textContent`), /5%/)
@@ -321,6 +321,28 @@ try {
     assert.equal(await evaluate(`document.querySelectorAll('.advanced-rows > .advanced-item').length`), 1)
     await submit()
     assert.equal(await evaluate('document.activeElement.name'), 'productName')
+    // Complete the empty form without an example or a final calculation action.
+    await fill('productName', 'Bolo caseiro')
+    await fill('producedQuantity', '2')
+    await fill('productionTime', '2')
+    await next()
+    const firstIngredient = await evaluate(`document.querySelector('.advanced-rows input').name.slice(0,-5)`)
+    for (const [field, value] of Object.entries({ name: 'Farinha', purchasedQuantity: '1', purchaseValue: '10,00', usedQuantity: '500' })) {
+        await fill(`${firstIngredient}.${field}`, value)
+    }
+    await next()
+    await fill('monthlyPay', '1.600,00')
+    await fill('hoursPerDay', '8')
+    await fill('daysPerMonth', '20')
+    await next()
+    await next()
+    await next()
+    assert.equal(await visibleStep(), '5')
+    await fill('monthlyRevenue', '10.000,00')
+    assert.equal(await price(), 'R$12,50')
+    assert.equal(await evaluate(`document.querySelectorAll('.advanced-calculator button[type=submit]').length`), 0)
+    await fill('profit', '20')
+    assert.equal(await price(), 'R$15,63')
     await evaluate(`document.querySelector('.advanced-calculator .markup-example').click()`)
     assert.equal(await visibleStep(), '0')
     await evaluate(`document.fonts.ready.then(()=>true)`)
@@ -361,7 +383,7 @@ try {
     }
     assert.equal(await evaluate('window.calls.some(call=>call.body!==null)'), false)
     assert.equal(errors.length, 0, JSON.stringify(errors))
-    console.log('Browser passed: steps/back/validation in both calculators, contextual help for every advanced calculation field, modal focus/Escape, live calculations, percentage controls, and responsive pages/dialogs at 320–1440px.')
+    console.log('Browser passed: automatic first results without a calculation button, steps/back/validation in both calculators, contextual help, modal focus/Escape, percentages, and responsive pages/dialogs at 320–1440px.')
 } finally {
     socket?.close()
     browser.kill()

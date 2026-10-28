@@ -83,17 +83,23 @@ function RemoveRow({ label, onClick, disabled }: { label: string; onClick: () =>
 
 export default function AdvancedPricingCalculator() {
   const [values, setValues] = useState<AdvancedFormValues>(emptyAdvancedForm)
-  const [submitted, setSubmitted] = useState(false)
-  const [hasCalculated, setHasCalculated] = useState(false)
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({})
   const [isExample, setIsExample] = useState(false)
   const [step, setStep] = useState(0)
   const [attemptedSteps, setAttemptedSteps] = useState<number[]>([])
   const formRef = useRef<HTMLFormElement>(null)
-  const resultRef = useRef<HTMLHeadingElement>(null)
   const validation = evaluateAdvancedForm(values)
-  const result = hasCalculated ? validation.result : null
-  const error = (name: string) => hasCalculated || attemptedSteps.includes(stepForField(name)) ? validation.errors[name] : undefined
+  const result = validation.result
+  const error = (name: string) => touchedFields[name] || attemptedSteps.includes(stepForField(name)) ? validation.errors[name] : undefined
   const currentErrors = Object.keys(validation.errors).filter(name => stepForField(name) === step)
+
+  function touchField(event: FormEvent<HTMLFormElement>) {
+    const control = event.target
+    if (control instanceof HTMLInputElement || control instanceof HTMLSelectElement) {
+      const name = control.name || control.closest('.markup-field')?.querySelector<HTMLInputElement>('input[name]')?.name
+      if (name) setTouchedFields(previous => previous[name] ? previous : { ...previous, [name]: true })
+    }
+  }
 
   function showStep(target: number, fieldName?: string) {
     setStep(target)
@@ -133,23 +139,18 @@ export default function AdvancedPricingCalculator() {
   function useExample() {
     const example = exampleAdvancedForm()
     setValues(example)
-    setSubmitted(false)
+    setTouchedFields({})
     setIsExample(true)
     setStep(0)
     setAttemptedSteps([])
-    setHasCalculated(true)
   }
-  function calculate(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (step < steps.length - 1) {
       goToStep(step + 1)
       return
     }
-    setSubmitted(true)
-    if (validation.result) {
-      setHasCalculated(true)
-      requestAnimationFrame(() => resultRef.current?.focus())
-    } else {
+    if (!validation.result) {
       const name = Object.keys(validation.errors).sort((a, b) => stepForField(a) - stepForField(b))[0]
       const invalidStep = stepForField(name)
       setAttemptedSteps(previous => [...new Set([...previous, invalidStep])])
@@ -158,8 +159,7 @@ export default function AdvancedPricingCalculator() {
   }
   function clear() {
     setValues(emptyAdvancedForm())
-    setSubmitted(false)
-    setHasCalculated(false)
+    setTouchedFields({})
     setIsExample(false)
     setStep(0)
     setAttemptedSteps([])
@@ -186,7 +186,7 @@ export default function AdvancedPricingCalculator() {
             <button className="markup-example" type="button" onClick={useExample}>Usar exemplo</button>
           </div>
           <p className="markup-help-intro">Preencha um tópico por vez. Use Voltar e Próximo para revisar seus custos e toque na interrogação (?) para entender os campos e ver exemplos. Os valores ficam preservados entre as etapas.</p>
-          <form ref={formRef} className="markup-form" onSubmit={calculate} noValidate autoComplete="off">
+          <form ref={formRef} className="markup-form" onSubmit={handleSubmit} onChangeCapture={touchField} onBlurCapture={touchField} noValidate autoComplete="off">
             <CalculatorSteps steps={steps} current={step} onSelect={goToStep} />
             <fieldset className="markup-field-group" data-step="0" hidden={step !== 0}>
               <legend tabIndex={-1}><Icon name="box" /> 1. Seu produto e a receita</legend>
@@ -325,7 +325,7 @@ export default function AdvancedPricingCalculator() {
               </div>
               <p className="markup-hint">A soma precisa ficar abaixo de 100% para calcular o markup.</p>
             </fieldset>
-            {((attemptedSteps.includes(step) && currentErrors.length > 0) || (submitted && validation.errors.calculation))
+            {((attemptedSteps.includes(step) && currentErrors.length > 0) || validation.errors.calculation)
               && <p className="markup-error" role="alert">{validation.errors.calculation || 'Revise os campos indicados nesta etapa antes de continuar.'}</p>}
             <CalculatorStepActions current={step} count={steps.length} onBack={() => showStep(step - 1)} onClear={clear} />
           </form>
@@ -334,12 +334,12 @@ export default function AdvancedPricingCalculator() {
         <aside className="markup-result-panel" aria-labelledby="advanced-result-title">
           <div className="markup-result-card">
             <div className="markup-result-heading"><span className="markup-step">SEU RESULTADO</span>{isExample && <span className="markup-example-badge">Exemplo preenchido</span>}</div>
-            <h2 id="advanced-result-title" ref={resultRef} tabIndex={-1}>Preço de venda por unidade</h2>
+            <h2 id="advanced-result-title">Preço de venda por unidade</h2>
             <div className="markup-price-area" role="status" aria-live="polite" aria-atomic="true">
               <strong className="markup-price">{result ? money(result.price) : 'R$ —'}</strong>
               <p>{result ? `${result.productName} · ${numeric(result.producedQuantity)} ${result.producedQuantity === 1 ? 'unidade produzida' : 'unidades produzidas'} por receita.`
-                : hasCalculated ? 'Revise os campos indicados para atualizar o preço sugerido.' : 'Preencha os dados do produto e calcule para ver o preço sugerido.'}</p>
-              <p>Após o primeiro cálculo, o resultado é atualizado automaticamente ao editar os valores.</p>
+                : 'Preencha ou corrija os campos necessários para ver o preço sugerido.'}</p>
+              <p>O resultado é atualizado automaticamente conforme você preenche os campos.</p>
             </div>
             <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${numeric(result.multiplier)}×` : '—'}</strong></div>
             <div className="markup-multiplier advanced-batch-price"><span>Venda de toda a receita</span><strong>{result ? money(result.batchPrice) : 'R$ —'}</strong></div>

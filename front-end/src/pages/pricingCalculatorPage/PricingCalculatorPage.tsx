@@ -106,11 +106,8 @@ export default function PricingCalculatorPage() {
   const tabRefs = useRef<Partial<Record<CalculatorMethod, HTMLButtonElement | null>>>({})
   const [values, setValues] = useState<FormValues>(initialValues)
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({})
-  const [submitted, setSubmitted] = useState(false)
-  const [hasCalculated, setHasCalculated] = useState(false)
   const [step, setStep] = useState(0)
   const formRef = useRef<HTMLFormElement>(null)
-  const resultRef = useRef<HTMLHeadingElement>(null)
   const numbers = {
     materialCost: parsePricingNumber(values.materialCost),
     productionHours: parsePricingNumber(values.productionHours),
@@ -144,7 +141,7 @@ export default function PricingCalculatorPage() {
     && monthlyRevenue !== null && variableExpenses !== null && profit !== null
     ? calculateMarkup({ materialCost, productionHours, hourlyRate, monthlyFixedExpenses, monthlyRevenue, variableExpenses, profit }) : null
   const hasFieldErrors = fields.some(({ name }) => Boolean(errors[name]))
-  const result = hasCalculated && !hasFieldErrors ? calculated : null
+  const result = !hasFieldErrors ? calculated : null
   const calculationError = !hasFieldErrors && !invalidTotal && !calculated
     ? 'Os valores informados são grandes demais para calcular. Reduza os valores e tente novamente.' : ''
   const isExample = result !== null && fields.every(({ name }) => values[name] === exampleValues[name])
@@ -176,6 +173,7 @@ export default function PricingCalculatorPage() {
 
   function updateValue(name: Field, value: string) {
     setValues((previous) => ({ ...previous, [name]: value }))
+    setTouched(previous => ({ ...previous, [name]: true }))
   }
 
   function showStep(target: number, name?: Field) {
@@ -198,26 +196,23 @@ export default function PricingCalculatorPage() {
     showStep(target)
   }
 
-  function calculate(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (step < steps.length - 1) {
       goToStep(step + 1)
       return
     }
-    setSubmitted(true)
-    if (calculated) setHasCalculated(true)
     const firstInvalid = fields.find(({ name }) => errors[name])?.name
       ?? (invalidTotal ? 'profit' : calculationError ? 'materialCost' : null)
     if (firstInvalid) {
+      setTouched(previous => ({ ...previous, [firstInvalid]: true }))
       showStep(stepForField(firstInvalid), firstInvalid)
-    } else requestAnimationFrame(() => resultRef.current?.focus())
+    }
   }
 
   function useExample() {
     setValues(exampleValues)
     setTouched({})
-    setSubmitted(false)
-    setHasCalculated(true)
     setStep(0)
   }
 
@@ -227,8 +222,6 @@ export default function PricingCalculatorPage() {
       monthlyRevenue: '', variableExpenses: '0', profit: '0',
     })
     setTouched({})
-    setSubmitted(false)
-    setHasCalculated(false)
     showStep(0, 'materialCost')
   }
 
@@ -282,13 +275,13 @@ export default function PricingCalculatorPage() {
                 </div>
 
                 <p className="markup-help-intro">Preencha um tópico por vez e use Voltar e Próximo para revisar. Toque na interrogação (?) para entender cada campo e ver um exemplo.</p>
-                <form ref={formRef} className="markup-form" onSubmit={calculate} autoComplete="off" noValidate>
+                <form ref={formRef} className="markup-form" onSubmit={handleSubmit} autoComplete="off" noValidate>
                   <CalculatorSteps steps={steps} current={step} onSelect={goToStep} label="Etapas da calculadora simples" />
                   {fieldGroups.map((group, index) => (
                     <fieldset className="markup-field-group" key={group.title} data-step={index} hidden={step !== index}>
                       <legend tabIndex={-1}><Icon name={group.icon} /> {index + 1}. {group.title}</legend>
                       {group.fields.map(({ name, label, unit, hint, placeholder }) => {
-                        const error = touched[name] || submitted || hasCalculated ? errors[name] : ''
+                        const error = touched[name] ? errors[name] : ''
                         const hasTotalError = percentageFields.includes(name) && invalidTotal
                         if (unit === '%') return <PercentageField key={name} id={`markup-${name}`} name={name}
                           label={label} value={values[name]} onChange={value => updateValue(name, value)}
@@ -349,7 +342,7 @@ export default function PricingCalculatorPage() {
                     {invalidTotal ? (
                       <p id="markup-total-error" className="markup-error" role="alert">A soma deve ficar abaixo de 100%. Revise as despesas, o faturamento ou o lucro desejado.</p>
                     ) : <p className="markup-hint">A soma deve ficar abaixo de 100% para calcular o preço.</p>}
-                    {submitted && calculationError && <p className="markup-error" role="alert">{calculationError}</p>}
+                    {calculationError && <p className="markup-error" role="alert">{calculationError}</p>}
                   </div>
                   <CalculatorStepActions current={step} count={steps.length} onBack={() => showStep(step - 1)} onClear={clearFields} />
                 </form>
@@ -361,13 +354,12 @@ export default function PricingCalculatorPage() {
                     <span className="markup-step">SEU RESULTADO</span>
                     {isExample && <span className="markup-example-badge">Exemplo preenchido</span>}
                   </div>
-                  <h2 id="markup-result-title" ref={resultRef} tabIndex={-1}>Preço de venda por unidade</h2>
+                  <h2 id="markup-result-title">Preço de venda por unidade</h2>
                   <div className="markup-price-area" role="status" aria-live="polite" aria-atomic="true">
                     <strong className="markup-price">{result ? currency.format(result.price) : 'R$ —'}</strong>
                     <p>{result ? 'Preço atualizado com os custos e percentuais informados.' : invalidTotal
-                      ? 'Ajuste os percentuais para calcular o preço.' : calculated
-                        ? 'Clique em calcular para ver o preço.' : hasCalculated ? 'Revise os campos indicados para atualizar o preço.' : 'Preencha os campos e clique em calcular para ver seu preço.'}</p>
-                    <p>Após o primeiro cálculo, o resultado é atualizado automaticamente ao editar os valores.</p>
+                      ? 'Ajuste os percentuais para ver o preço.' : 'Preencha ou corrija os campos necessários para ver seu preço.'}</p>
+                    <p>O resultado é atualizado automaticamente conforme você preenche os campos.</p>
                   </div>
                   <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${decimal.format(result.multiplier)}×` : '—'}</strong></div>
                 </div>
@@ -387,7 +379,7 @@ export default function PricingCalculatorPage() {
                       <div className="markup-breakdown-total"><span>Preço de venda</span><strong>{currency.format(result.price)}</strong></div>
                       <p className="markup-hint">Valores arredondados para duas casas decimais.</p>
                     </>
-                  ) : <p className="markup-empty">Calcule seu preço para ver os materiais, a mão de obra, as despesas e o lucro de cada unidade.</p>}
+                  ) : <p className="markup-empty">Preencha os dados para ver os materiais, a mão de obra, as despesas e o lucro de cada unidade.</p>}
                 </section>
                 <p className="markup-local-note"><Icon name="shieldCheck" /><span>Seus valores ajudam a planejar uma venda que remunera seu trabalho e mantém o negócio saudável.</span></p>
               </aside>
