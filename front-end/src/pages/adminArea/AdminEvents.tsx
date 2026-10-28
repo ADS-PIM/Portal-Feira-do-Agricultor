@@ -14,6 +14,7 @@ import { getUserFacingError } from '../../services/errors'
 import { matchesEventTimeRange } from './eventTimeFilter'
 import CreateEventButton from './CreateEventButton'
 import './AdminEvents.css'
+import '../../components/Calendar/CalendarStatus.css'
 import AdminEventForm, { type EventFormValues, type EventSaveSession } from './AdminEventForm'
 import { STATE_LABELS } from './eventFormLabels'
 
@@ -401,7 +402,7 @@ const AdminEvents = ({
                                 <li className="admin-event-card" key={event.id}>
                                     <div className="admin-event-title-row">
                                         <h3>{event.title}</h3>
-                                        <span className={`admin-event-status is-${event.state.toLowerCase()}`}>{STATE_LABELS[event.state]}</span>
+                                        <span className={`admin-event-status calendar-status--${event.state}`}>{STATE_LABELS[event.state]}</span>
                                     </div>
                                     {event.description && <p className="admin-event-description">{event.description}</p>}
                                     <p className="admin-event-detail">

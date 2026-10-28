@@ -1,5 +1,6 @@
 import type { AgendaEvent } from '../../services/eventService'
 import Icon from '../Icon'
+import { getCalendarStatusLabel } from './calendarEvents'
 import './CalendarEventsPanel.css'
 
 type CalendarEventsPanelProps = {
@@ -7,9 +8,6 @@ type CalendarEventsPanelProps = {
     loading: boolean
     error: string | null
     monthLabel: string
-    todayEvents: AgendaEvent[]
-    todayLoading: boolean
-    todayError: string | null
     searchTerm: string
     onSearchTermChange: (value: string) => void
     isFiltersOpen: boolean
@@ -43,11 +41,11 @@ function formatTime(value: string): string {
     return value.slice(0, 5)
 }
 
-function CalendarEventCard({ event, isTodayEvent = false }: { event: AgendaEvent; isTodayEvent?: boolean }) {
+function CalendarEventCard({ event }: { event: AgendaEvent }) {
     const { day, month, weekday } = formatEventDate(event.date)
 
     return (
-        <li className={`calendar-event-card${isTodayEvent ? ' is-today-event' : ''}`} key={event.id}>
+        <li className={`calendar-event-card calendar-status--${event.state}`} key={event.id}>
             <div className="calendar-event-card-heading">
                 <time className="calendar-event-date" dateTime={event.date.slice(0, 10)}>
                     <strong>{day}</strong>
@@ -55,6 +53,7 @@ function CalendarEventCard({ event, isTodayEvent = false }: { event: AgendaEvent
                 </time>
                 <div className="calendar-event-card-content">
                     <h3>{event.title}</h3>
+                    <span className="calendar-event-status">{getCalendarStatusLabel(event.state)}</span>
                     <p className="calendar-event-detail">
                         <Icon name="clock" />
                         <span>{weekday}, {formatTime(event.startAt)} às {formatTime(event.endAt)}</span>
@@ -80,9 +79,6 @@ function CalendarEventsPanel({
     loading,
     error,
     monthLabel,
-    todayEvents,
-    todayLoading,
-    todayError,
     searchTerm,
     onSearchTermChange,
     isFiltersOpen,
@@ -100,24 +96,10 @@ function CalendarEventsPanel({
     weekdayOptions,
     statusOptions,
 }: CalendarEventsPanelProps) {
-    const todayEventIds = new Set(todayEvents.map(event => event.id))
-    const otherMonthEvents = events.filter(event => !todayEventIds.has(event.id))
-    const hasTodayEvents = !todayLoading && todayEvents.length > 0
     const hasActiveSearchOrFilters = Boolean(searchTerm.trim()) || activeFilterCount > 0
 
     return (
         <aside className="calendar-events-panel" aria-labelledby="calendar-events-title">
-            {todayError && <p className="calendar-events-panel-message is-error" role="alert">Erro ao carregar os eventos de hoje: {todayError}</p>}
-            {todayLoading && <p className="calendar-events-panel-message" role="status">Verificando eventos de hoje...</p>}
-            {hasTodayEvents && (
-                <section className="calendar-events-today" aria-labelledby="calendar-events-today-title">
-                    <h2 id="calendar-events-today-title">Acontecendo hoje</h2>
-                    <ul className="calendar-events-list">
-                        {todayEvents.map(event => <CalendarEventCard event={event} isTodayEvent key={event.id} />)}
-                    </ul>
-                </section>
-            )}
-
             <div className="calendar-events-toolbar">
                 <label className="calendar-events-search">
                     <Icon name="magnifyingGlass" />
@@ -172,19 +154,19 @@ function CalendarEventsPanel({
 
             <header className="calendar-events-panel-header">
                 <h2 id="calendar-events-title">{hasActiveSearchOrFilters ? 'Resultados dos eventos' : 'Eventos do mês'}</h2>
-                <p>{searchTerm.trim() ? `A partir de ${monthLabel}` : monthLabel}</p>
+                <p>{monthLabel}</p>
             </header>
 
             {loading && <p className="calendar-events-panel-message" role="status">Carregando eventos...</p>}
             {error && <p className="calendar-events-panel-message is-error" role="alert">Erro ao carregar os eventos: {error}</p>}
-            {!loading && !error && !todayError && otherMonthEvents.length === 0 && todayEvents.length === 0 && !todayLoading && (
+            {!loading && !error && events.length === 0 && (
                 <p className="calendar-events-panel-message">
                     {hasActiveSearchOrFilters ? 'Nenhum evento corresponde à busca e aos filtros selecionados.' : 'Não há eventos programados para este mês.'}
                 </p>
             )}
-            {!loading && !error && otherMonthEvents.length > 0 && (
+            {!loading && !error && events.length > 0 && (
                 <ul className="calendar-events-list">
-                    {otherMonthEvents.map(event => <CalendarEventCard event={event} key={event.id} />)}
+                    {events.map(event => <CalendarEventCard event={event} key={event.id} />)}
                 </ul>
             )}
         </aside>

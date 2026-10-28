@@ -12,6 +12,9 @@ const eventImageService = new EventImageService(eventImageDAO)
 const eventImageController = new EventImageController(eventImageService)
 const parseImageUpload = express.raw({ type: ['image/jpeg', 'image/png'], limit: MAX_IMAGE_BYTES })
 
+eventImageRoutes.post('/upload/authorize', authToken, authenticatedRateLimit, (req, res) => eventImageController.authorizeUpload(req, res));
+eventImageRoutes.post('/upload/complete', authToken, authenticatedRateLimit, (req, res) => eventImageController.completeUpload(req, res));
+
 eventImageRoutes
     .route('/upload')
     .post(authToken, authenticatedRateLimit, (req, res, next) => {

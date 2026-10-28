@@ -198,26 +198,9 @@
     min-width: 0;
     padding: 16px 18px;
     border: 1px solid #e2e2d9;
+    border-left: 4px solid var(--calendar-status-color);
     border-radius: 18px;
     background: #fff;
-}
-
-.calendar-event-card.is-today-event {
-    border-color: var(--brand-green-dark);
-    background: var(--brand-green-soft);
-    box-shadow: 0 4px 14px rgb(10 145 52 / 10%);
-}
-
-.calendar-events-today {
-    margin-bottom: 26px;
-}
-
-.calendar-events-today h2 {
-    margin: 0 0 12px;
-    color: var(--brand-green-dark);
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1.25;
 }
 
 .calendar-event-card-heading {
@@ -236,8 +219,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 13px;
-    background: var(--brand-green-dark);
-    color: #fff;
+    background: var(--calendar-status-color);
+    color: var(--calendar-status-on-color);
 }
 
 .calendar-event-date strong {

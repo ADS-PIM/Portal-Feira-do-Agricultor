@@ -1,0 +1,46 @@
+.calendar-status--PENDING {
+    --calendar-status-color: #eab308;
+    --calendar-status-soft: #fef9c3;
+    --calendar-status-text: #713f12;
+    --calendar-status-on-color: #422006;
+}
+
+.calendar-status--HAPPENING {
+    --calendar-status-color: #2563eb;
+    --calendar-status-soft: #dbeafe;
+    --calendar-status-text: #1e40af;
+    --calendar-status-on-color: #fff;
+}
+
+.calendar-status--CONCLUDED {
+    --calendar-status-color: #15803d;
+    --calendar-status-soft: #dcfce7;
+    --calendar-status-text: #166534;
+    --calendar-status-on-color: #fff;
+}
+
+.calendar-status--CANCELED {
+    --calendar-status-color: #dc2626;
+    --calendar-status-soft: #fee2e2;
+    --calendar-status-text: #991b1b;
+    --calendar-status-on-color: #fff;
+}
+
+.calendar-status--RESCHEDULED {
+    --calendar-status-color: #f97316;
+    --calendar-status-soft: #ffedd5;
+    --calendar-status-text: #9a3412;
+    --calendar-status-on-color: #431407;
+}
+
+.calendar-event-status {
+    display: inline-block;
+    width: fit-content;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--calendar-status-soft);
+    color: var(--calendar-status-text);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+}

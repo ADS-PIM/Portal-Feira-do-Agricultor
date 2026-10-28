@@ -63,6 +63,54 @@
     height: 32px;
 }
 
+.admin-dashboard-agenda .admin-events-day-button.has-events {
+    background: var(--calendar-status-soft, #f1f3ef);
+    color: var(--calendar-status-text, var(--brand-charcoal));
+}
+
+.admin-dashboard-agenda .admin-events-day-button:hover,
+.admin-dashboard-agenda .admin-events-day-button:focus-visible,
+.admin-dashboard-agenda .admin-events-day-button.is-selected {
+    box-shadow: inset 0 0 0 2px var(--calendar-status-color, #64748b);
+}
+
+.admin-dashboard-day-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+}
+
+.admin-dashboard-status-dot {
+    width: 5px;
+    height: 5px;
+    flex: 0 0 5px;
+    border-radius: 50%;
+    background: var(--calendar-status-color);
+}
+
+.admin-dashboard-status-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.admin-dashboard-status-legend li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.admin-dashboard-status-legend .admin-dashboard-status-dot {
+    width: 7px;
+    height: 7px;
+    flex-basis: 7px;
+}
+
 .admin-dashboard-agenda-list .admin-events-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-height: none;
@@ -74,6 +122,7 @@
 .admin-dashboard-agenda-list .admin-event-card {
     container: dashboard-event / inline-size;
     padding: 16px;
+    border-left: 4px solid var(--calendar-status-color);
 }
 
 .admin-dashboard-agenda-list .admin-event-card h3,

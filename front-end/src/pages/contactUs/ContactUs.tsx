@@ -6,7 +6,8 @@ import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoS
 import { getUserFacingError } from '../../services/errors'
 import { createMessage, type MessageSubject } from '../../services/messageService'
 import { getBusinessHoursLines } from '../../utils/businessHours'
-import { CONTACT_EMAIL_ERROR, getContactEmailError, getContactPhoneError } from '../../utils/contactValidation'
+import { CONTACT_EMAIL_ERROR, CONTACT_PHONE_ERROR, getContactEmailError, getContactPhoneError } from '../../utils/contactValidation'
+import { formatPhoneInput, PHONE_PATTERN } from '../../utils/phone'
 import './ContactUs.css'
 
 type ContactFormState = {
@@ -89,12 +90,49 @@ const ContactUsPage = () => {
     const { name, value } = event.target
     if (event.target instanceof HTMLInputElement) {
       if (name === 'email') event.target.setCustomValidity(getContactEmailError(value))
-      if (name === 'phone') event.target.setCustomValidity(getContactPhoneError(value))
     }
     setFormData((previous) => ({ ...previous, [name]: value }))
     if (submitFeedback) {
       setSubmitFeedback(null)
     }
+  }
+
+  const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget
+    const cursor = input.selectionStart ?? input.value.length
+    let value = input.value
+    let digitsBeforeCursor = value.slice(0, cursor).replace(/\D/g, '').length
+
+    // Deleting a mask separator also deletes the adjacent digit.
+    const inputType = (event.nativeEvent as InputEvent).inputType
+    const previousDigits = formData.phone.replace(/\D/g, '')
+    if (inputType?.startsWith('delete') && value !== formData.phone
+      && value.replace(/\D/g, '') === previousDigits) {
+      const index = inputType === 'deleteContentBackward' ? digitsBeforeCursor - 1 : digitsBeforeCursor
+      if (index >= 0) {
+        value = previousDigits.slice(0, index) + previousDigits.slice(index + 1)
+        digitsBeforeCursor = index
+      }
+    }
+
+    const formatted = formatPhoneInput(value)
+    if (formatted === null) {
+      input.value = formData.phone
+      input.setCustomValidity(CONTACT_PHONE_ERROR)
+      return
+    }
+
+    input.setCustomValidity(getContactPhoneError(formatted))
+    setFormData((previous) => ({ ...previous, phone: formatted }))
+    setSubmitFeedback(null)
+
+    let position = 0
+    let count = 0
+    while (position < formatted.length && count < digitsBeforeCursor) {
+      if (/\d/.test(formatted[position])) count += 1
+      position += 1
+    }
+    requestAnimationFrame(() => input.setSelectionRange(position, position))
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -210,9 +248,12 @@ const ContactUsPage = () => {
                       type="tel"
                       name="phone"
                       value={formData.phone}
-                      onChange={handleChange}
+                      onChange={handlePhoneChange}
+                      inputMode="tel"
+                      autoComplete="tel-national"
+                      pattern={PHONE_PATTERN}
+                      title="Informe um telefone com DDD: (88) 3333-4444 ou (88) 99999-9999, sem letras."
                       placeholder="(88) 99999-9999"
-                      autoComplete="tel"
                     />
                   </label>
                 </div>

@@ -1,4 +1,6 @@
 import { apiFetch } from './api'
+import { ApiRequestError } from './errors'
+import { validateEventImage, EVENT_IMAGE_MAX_BYTES } from '../utils/eventImageUpload'
 
 export interface NearestEvent {
     id: string
@@ -51,12 +53,51 @@ export type AdminEventInput = Pick<
     'title' | 'description' | 'date' | 'startAt' | 'endAt' | 'localAddress' | 'state' | 'bannerImage'
 >
 
-export function uploadEventBanner(file: File): Promise<{ url: string }> {
-    return apiFetch<{ url: string }>('event/image/upload', {
+type ImageUploadSession = {
+    uploadUrl: string
+    fields: Record<string, string>
+    ticket: string
+    expiresAt: number
+    uploaded?: boolean
+    url?: string
+}
+const imageUploadSessions = new WeakMap<File, ImageUploadSession>()
+
+export async function uploadEventBanner(file: File): Promise<{ url: string }> {
+    if (validateEventImage(file)) throw new ApiRequestError(file.size > EVENT_IMAGE_MAX_BYTES ? 413 : 400, 'event/image/upload')
+    let session = imageUploadSessions.get(file)
+    if (session?.url) return { url: session.url }
+    if (!session || session.expiresAt <= Date.now()) {
+        session = await apiFetch<ImageUploadSession>('event/image/upload/authorize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ size: file.size, contentType: file.type }),
+        })
+        imageUploadSessions.set(file, session)
+    }
+    if (!session.uploaded) {
+        const form = new FormData()
+        Object.entries(session.fields).forEach(([key, value]) => form.append(key, value))
+        form.append('file', file)
+        // Send only the signed Cloudinary fields. Never forward application
+        // cookies or the administrator's Bearer token to the storage provider.
+        let response: Response
+        try {
+            response = await fetch(session.uploadUrl, { method: 'POST', body: form, credentials: 'omit' })
+        } catch {
+            throw new ApiRequestError(502, 'event/image/upload')
+        }
+        if (!response.ok) throw new ApiRequestError(response.status === 413 ? 413 : 502, 'event/image/upload')
+        session.uploaded = true
+    }
+    // A retry after confirmation fails reuses the upload already completed.
+    const result = await apiFetch<{ url: string }>('event/image/upload/complete', {
         method: 'POST',
-        headers: { 'Content-Type': file.type },
-        body: file,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticket: session.ticket }),
     })
+    session.url = result.url
+    return result
 }
 
 export function getEvents(signal?: AbortSignal): Promise<AdminEvent[] | null> {
@@ -94,8 +135,8 @@ export function getNearestEvent(date: string, signal?: AbortSignal): Promise<Nea
     return apiFetch<NearestEvent | null>(`event/nearest?${query}`, { signal })
 }
 
-export function getEventAgenda(date: string, signal?: AbortSignal): Promise<AgendaEvent[]> {
-    const query = new URLSearchParams({ date })
+export function getEventAgenda(date: string, signal?: AbortSignal, scope: 'upcoming' | 'month' = 'upcoming'): Promise<AgendaEvent[]> {
+    const query = new URLSearchParams({ date, scope })
     return apiFetch<AgendaEvent[]>(`event/agenda?${query}`, { signal })
 }
 

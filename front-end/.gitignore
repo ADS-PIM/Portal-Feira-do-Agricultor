@@ -20,6 +20,8 @@ tests/*
 !tests/adminDeletion.test.mjs
 !tests/eventAdministrators.browser.mjs
 !tests/contactValidation.browser.mjs
+!tests/eventImageUrl.test.mjs
+!tests/eventImageUpload.test.mjs
 
 # Editor directories and files
 .vscode/*

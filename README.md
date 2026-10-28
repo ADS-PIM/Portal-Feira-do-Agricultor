@@ -53,8 +53,9 @@ PORT=8080
 FRONTEND_URL=http://localhost:5173
 JWT_ACCESS_SECRET=configure_um_segredo_aleatorio
 JWT_REFRESH_SECRET=configure_outro_segredo_aleatorio
-BLOB_STORE_ID=store_seu_id
-BLOB_READ_WRITE_TOKEN=token_do_seu_store_privado
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
 ```
 
 Gere valores diferentes para os dois segredos JWT. Por exemplo, execute duas
@@ -161,37 +162,106 @@ quem cadastrou o evento; editar um evento não muda o criador.
 a preservação do criador e o layout de 320 a 1894 px com respostas simuladas.
 Capturas de tela ficam em `output/event-administrators`.
 
-### Imagens no Vercel Blob
+### Imagens no Cloudinary
 
-Crie um store **privado** no Vercel Blob e configure `BLOB_STORE_ID` e
-`BLOB_READ_WRITE_TOKEN` no `back-end/.env` e no projeto **backend** da Vercel.
-O ID tem o formato `store_...`. O token pertence a esse mesmo store e nunca
-deve usar o prefixo `VITE_` nem ser enviado ao frontend. Após configurar as
-variáveis em produção, publique novamente o backend e o frontend atualizado.
+Novos uploads usam o [SDK Node.js do Cloudinary](https://cloudinary.com/documentation/node_integration).
+Preencha as **Product Environment Credentials** em `back-end/.env` e nas
+variáveis do projeto **backend** da Vercel:
 
-O upload autenticado em `POST /event/image/upload` aceita JPG/PNG de até
-**4 MB**, valida a assinatura do arquivo e o salva em `event-images/` no Blob.
-O limite fica abaixo dos [4,5 MB das funções da Vercel](https://vercel.com/docs/functions/limitations).
-A resposta contém `{ "url": "https://...private.blob.vercel-storage.com/..." }`.
-Ao salvar o evento, essa URL é gravada em `events.bannerImage` e sincronizada
-com `images.imageUrl` pela transação que já existe. O upload sozinho não cria
-um evento nem um registro de imagem. Nenhuma nova migration SQL é necessária.
+```dotenv
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
 
-Como o store é privado, o frontend exibe essas URLs por meio de
-`GET /event/image/file?pathname=event-images/...`. O backend busca o arquivo
-com sua credencial e transmite a imagem. A leitura é pública para manter o
-acesso dos visitantes aos eventos, mas só permite os caminhos de imagens
-gerados pela aplicação que estejam vinculados a `events` ou `images` no
-banco configurado. Outros objetos do store não são expostos por essa rota.
-O cache do navegador é revalidado com ETag, usando `private, no-cache`.
-Consulte a [documentação de armazenamento privado](https://vercel.com/docs/vercel-blob/private-storage).
+Alternativamente, deixe os três campos vazios e preencha somente
+`CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME`, copiando a **API
+environment variable** do Cloudinary. Os campos separados têm prioridade;
+um conjunto incompleto gera erro de configuração. Nenhuma dessas credenciais
+usa prefixo `VITE_`. Reinicie o backend local ou publique novamente o backend
+e frontend após configurar a produção. Não é necessário instalar SDK React
+nem criar um preset de upload sem assinatura.
 
-Novos uploads não dependem do disco local. Links externos continuam aceitos;
-imagens antigas em `/uploads` precisam ser reenviadas pelo painel para serem
-copiadas ao Blob e terem suas URLs atualizadas. A rota local foi mantida para
-compatibilidade durante essa transição. Excluir ou substituir um vínculo no
-banco não remove automaticamente o arquivo do Blob; uploads abandonados
-também permanecem no store.
+Na criação e edição, capas e fotos da galeria aceitam JPG/PNG de até **10 MB
+por imagem**. O frontend solicita uma autorização autenticada em
+`POST /event/image/upload/authorize`, envia o arquivo diretamente ao Cloudinary
+com os parâmetros assinados e confirma em `POST /event/image/upload/complete`.
+Assim, o arquivo não passa pelo limite de corpo das funções da Vercel.
+O API Secret permanece somente no backend; o navegador recebe a API Key pública,
+uma assinatura e um ticket com validade de uma hora, vinculado ao administrador.
+O backend consulta os metadados no Cloudinary e verifica formato e tamanho real
+antes de devolver a URL. Tentativas acima de 10 MB são rejeitadas, com remoção
+do arquivo excedente quando possível. Falhas na confirmação podem ser repetidas
+sem reenviar a foto. Não é necessário configurar um preset adicional.
+
+A rota antiga `POST /event/image/upload` permanece em **4 MB** para clientes
+anteriores; o formulário atualizado usa o novo fluxo direto de 10 MB.
+A resposta final mantém o contrato `{ "url": "https://res.cloudinary.com/..." }`.
+As fotos dos eventos são públicas, entregues diretamente pela CDN. As URLs
+originais permanecem em `events.bannerImage` e `images.imageUrl`; os arquivos
+ficam no Cloudinary. Nenhuma alteração de esquema MySQL é necessária.
+
+#### Qualidade e versões menores (mipmaps/downsampling)
+
+O original é armazenado intacto, sem uma transformação destrutiva no upload.
+Na exibição, uma pirâmide de larguras **160, 320, 640, 1280 e 2560 px** é
+oferecida por `srcset`/`sizes` nas capas, galerias, editor e foto ampliada.
+O navegador escolhe a versão conforme o espaço disponível e a densidade da
+tela. Cada versão deriva diretamente do original, preserva a proporção e usa
+`c_limit`, que reduz sem ampliar imagens pequenas. Não há recodificação em
+cascata, nem corte gravado no arquivo; o enquadramento visual continua no CSS.
+
+`q_auto:best` prioriza qualidade visual e `f_auto` negocia o formato suportado
+pelo navegador (por exemplo, WebP/AVIF quando disponíveis na conta).
+Redimensionamento e compressão não são matematicamente sem perdas: a garantia
+de preservação é do original. As versões menores buscam manter a aparência
+na resolução exibida. Elas são geradas sob demanda e ficam em cache no
+Cloudinary, evitando pré-gerar formatos/tamanhos que ninguém usa. Derivados
+também consomem armazenamento e transformações na conta; preservar o original
+é uma escolha de qualidade, não uma promessa de menor armazenamento total.
+
+Mantenha as transformações dinâmicas habilitadas no Cloudinary (Strict
+Transformations desativado, ou as transformações usadas pelo projeto
+explicitamente permitidas). `f_auto` é aplicado apenas na entrega, pois depende
+do navegador. Referências: [otimização](https://cloudinary.com/documentation/image_optimization),
+[redimensionamento](https://cloudinary.com/documentation/resizing_and_cropping) e
+[transformações derivadas](https://cloudinary.com/documentation/eager_and_incoming_transformations).
+
+#### Migrar as fotos que já estão no Blob
+
+Durante a transição, mantenha `BLOB_STORE_ID` e `BLOB_READ_WRITE_TOKEN` do
+store antigo no backend. O pacote `@vercel/blob` permanece somente para leitura
+legada e migração; novos uploads sempre usam Cloudinary, sem fallback para Blob.
+A rota antiga `/event/image/file` mantém a verificação de vínculo no MySQL e
+a revalidação por ETag/304, para as fotos existentes continuarem aparecendo.
+
+Após preencher as credenciais, execute em `back-end` (PowerShell):
+
+```powershell
+# Somente consulta o MySQL e conta as fotos pendentes; não grava nem faz upload.
+npm.cmd run images:migrate:cloudinary
+
+# Copia os arquivos e atualiza capas/galerias no MySQL.
+npm.cmd run images:migrate:cloudinary -- --apply
+```
+
+A migração considera URLs privadas geradas pela aplicação e exige o mesmo
+store configurado. Cada URL compartilhada é copiada uma vez, e seus vínculos
+em ambas as tabelas são atualizados na mesma transação. Se falhar, a URL antiga
+permanece; a execução retorna código de erro e pode ser repetida. Um ID estável
+no Cloudinary evita cópias duplicadas após falhas de SQL. Arquivos do Blob não
+são apagados. Só remova as credenciais antigas após confirmar zero fotos Blob
+pendentes e conferir as fotos migradas no site.
+
+Links externos e previews locais permanecem compatíveis. Fotos antigas em
+`/uploads` devem ser reenviadas pelo painel. Excluir/substituir um vínculo no
+MySQL não apaga automaticamente o arquivo no Cloudinary; uploads abandonados
+também permanecem na conta, como ocorria no armazenamento anterior.
+
+Validação local: `npm.cmd test` e `npm.cmd run build` em `back-end`;
+`node --test tests/eventImage*.test.mjs`, `npm.cmd run build` e
+`npm.cmd run lint` em `front-end`. Os testes simulam os provedores e o MySQL;
+um upload real e a migração real precisam das credenciais configuradas.
 
 ### Publicação na Vercel
 

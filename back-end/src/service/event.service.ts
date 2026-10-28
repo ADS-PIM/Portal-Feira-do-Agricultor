@@ -69,7 +69,7 @@ export class EventService {
         return this.eventDAO.searchNearest(date);
     }
 
-    public async searchAgenda(date: string): Promise<EventAgendaSearchDTO[]> {
-        return this.eventDAO.searchAgenda(date);
+    public async searchAgenda(date: string, scope: 'upcoming' | 'month' = 'upcoming'): Promise<EventAgendaSearchDTO[]> {
+        return this.eventDAO.searchAgenda(date, scope);
     }
 }

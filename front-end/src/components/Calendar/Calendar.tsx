@@ -3,7 +3,9 @@ import { getEventAgenda, type AgendaEvent } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
 import Icon from '../Icon'
 import CalendarEventsPanel from './CalendarEventsPanel'
+import { CALENDAR_EVENT_STATES, compareCalendarEvents, getCalendarStatusLabel } from './calendarEvents'
 import './Calendar.css'
+import './CalendarStatus.css'
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 const WEEKDAY_OPTIONS = [
@@ -15,10 +17,6 @@ const WEEKDAY_OPTIONS = [
     { value: '4', label: 'Quinta-feira' },
     { value: '5', label: 'Sexta-feira' },
     { value: '6', label: 'Sábado' },
-]
-const PUBLIC_EVENT_STATES: Array<{ value: AgendaEvent['state']; label: string }> = [
-    { value: 'PENDING', label: 'Agendado' },
-    { value: 'HAPPENING', label: 'Em andamento' },
 ]
 
 function getDateKey(date: Date): string {
@@ -59,12 +57,9 @@ function Calendar() {
         return new Date(today.getFullYear(), today.getMonth(), 1)
     })
     const [events, setEvents] = useState<AgendaEvent[]>([])
-    const [todayEvents, setTodayEvents] = useState<AgendaEvent[]>([])
     const [selectedDate, setSelectedDate] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [todayLoading, setTodayLoading] = useState(true)
-    const [todayError, setTodayError] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [isFiltersOpen, setIsFiltersOpen] = useState(false)
     const [statusFilter, setStatusFilter] = useState<AgendaEvent['state'] | ''>('')
@@ -75,7 +70,6 @@ function Calendar() {
     const year = visibleMonth.getFullYear()
     const month = visibleMonth.getMonth()
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`
-    const todayDateKey = getDateKey(new Date())
 
     useEffect(() => {
         const controller = new AbortController()
@@ -86,7 +80,7 @@ function Calendar() {
             setError(null)
 
             try {
-                const agenda = await getEventAgenda(firstDayOfMonth, controller.signal)
+                const agenda = await getEventAgenda(firstDayOfMonth, controller.signal, 'month')
                 setEvents(agenda)
             } catch (requestError) {
                 if (!controller.signal.aborted) {
@@ -104,36 +98,12 @@ function Calendar() {
         return () => controller.abort()
     }, [monthKey])
 
-    useEffect(() => {
-        const controller = new AbortController()
-
-        const loadTodayEvents = async () => {
-            setTodayLoading(true)
-            setTodayError(null)
-
-            try {
-                const agenda = await getEventAgenda(todayDateKey, controller.signal)
-                setTodayEvents(agenda.filter(event => event.date.slice(0, 10) === todayDateKey))
-            } catch (requestError) {
-                if (!controller.signal.aborted) {
-                    setTodayEvents([])
-                    setTodayError(getUserFacingError(requestError, 'Não foi possível carregar os eventos de hoje. Tente novamente mais tarde.'))
-                }
-            } finally {
-                if (!controller.signal.aborted) {
-                    setTodayLoading(false)
-                }
-            }
-        }
-
-        void loadTodayEvents()
-        return () => controller.abort()
-    }, [todayDateKey])
-
     const query = searchTerm.trim().toLocaleLowerCase('pt-BR')
     const matchingEvents = useMemo(
-        () => events.filter(event => matchesFilters(event, query, statusFilter, weekdayFilter, timeFromFilter, timeToFilter)),
-        [events, query, statusFilter, timeFromFilter, timeToFilter, weekdayFilter],
+        () => events
+            .filter(event => event.date.slice(0, 7) === monthKey && matchesFilters(event, query, statusFilter, weekdayFilter, timeFromFilter, timeToFilter))
+            .sort(compareCalendarEvents),
+        [events, monthKey, query, statusFilter, timeFromFilter, timeToFilter, weekdayFilter],
     )
 
     const eventsByDate = useMemo(() => {
@@ -147,18 +117,10 @@ function Calendar() {
         return grouped
     }, [matchingEvents])
 
-    const currentDayEvents = todayEvents.length > 0
-        ? todayEvents
-        : events.filter(event => event.date.slice(0, 10) === todayDateKey)
-    const calendarEvents = matchingEvents.filter(event => event.date.slice(0, 7) === monthKey)
+    const calendarEvents = matchingEvents
     const visibleEvents = selectedDate
         ? matchingEvents.filter(event => event.date.slice(0, 10) === selectedDate)
-        : query
-            ? matchingEvents
-            : calendarEvents
-    const visibleTodayEvents = currentDayEvents.filter(
-        event => matchesFilters(event, query, statusFilter, weekdayFilter, timeFromFilter, timeToFilter),
-    )
+        : calendarEvents
 
     const calendarDays = useMemo(() => {
         const firstWeekday = new Date(year, month, 1).getDay()
@@ -184,11 +146,8 @@ function Calendar() {
     const monthLabel = `${monthName} ${year}`
     const availableYears = Array.from({ length: 101 }, (_, index) => year - 50 + index)
     const selectedEvents = selectedDate
-        ? selectedDate === todayDateKey
-            ? visibleTodayEvents
-            : eventsByDate.get(selectedDate) ?? []
+        ? eventsByDate.get(selectedDate) ?? []
         : []
-    const selectedEventsLoading = selectedDate === todayDateKey ? todayLoading : loading
     const selectedDateLabel = selectedDate
         ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(new Date(`${selectedDate}T12:00:00`))
         : ''
@@ -266,9 +225,10 @@ function Calendar() {
                         const dateKey = getDateKey(cell.date)
                         const dayEvents = eventsByDate.get(dateKey)?.filter(event => event.date.slice(0, 7) === monthKey) ?? []
                         const hasEvents = dayEvents.length > 0
+                        const dayStates = CALENDAR_EVENT_STATES.filter(status => dayEvents.some(event => event.state === status.value))
                         const isToday = dateKey === getDateKey(new Date())
                         const isSelected = dateKey === selectedDate
-                        const dayLabel = `${cell.day}${hasEvents ? `, ${dayEvents.length} ${dayEvents.length === 1 ? 'evento' : 'eventos'}` : ''}`
+                        const dayLabel = `${cell.day}${hasEvents ? `, ${dayEvents.length} ${dayEvents.length === 1 ? 'evento' : 'eventos'}: ${dayStates.map(status => status.label).join(', ')}` : ''}`
 
                         return (
                             <div className="calendar-day" role="gridcell" key={dateKey}>
@@ -277,33 +237,48 @@ function Calendar() {
                                     className={[
                                         'calendar-day-button',
                                         hasEvents ? 'has-events' : '',
+                                        dayStates.length === 1 ? `calendar-status--${dayStates[0].value}` : '',
                                         isToday ? 'is-today' : '',
                                         isSelected ? 'is-selected' : '',
                                     ].filter(Boolean).join(' ')}
-                                    onClick={() => setSelectedDate(dateKey)}
+                                    onClick={() => setSelectedDate(current => current === dateKey ? null : dateKey)}
                                     aria-label={dayLabel}
                                     aria-pressed={isSelected}
                                     aria-current={isToday ? 'date' : undefined}
-                                    title={hasEvents ? dayEvents.map(event => event.title).join(', ') : undefined}
+                                    title={hasEvents ? dayEvents.map(event => `${event.title} (${getCalendarStatusLabel(event.state)})`).join(', ') : undefined}
                                 >
                                     <span>{cell.day}</span>
-                                    {hasEvents && <span className="calendar-day-indicator" aria-hidden="true" />}
+                                    {hasEvents && (
+                                        <span className="calendar-day-indicators" aria-hidden="true">
+                                            {dayStates.map(status => <span key={status.value} className={`calendar-day-indicator calendar-status--${status.value}`} />)}
+                                        </span>
+                                    )}
                                 </button>
                             </div>
                         )
                     })}
                 </div>
 
+                <ul className="calendar-status-legend" aria-label="Legenda dos status dos eventos">
+                    {CALENDAR_EVENT_STATES.map(status => (
+                        <li key={status.value}>
+                            <span className={`calendar-day-indicator calendar-status--${status.value}`} aria-hidden="true" />
+                            {status.label}
+                        </li>
+                    ))}
+                </ul>
+
                 {selectedDate && (
                     <section className="calendar-selected-events" aria-live="polite">
                         <h3>{selectedDateLabel}</h3>
-                        {selectedEventsLoading ? (
+                        {loading ? (
                             <p role="status">Carregando eventos...</p>
                         ) : selectedEvents.length > 0 ? (
                             <ul>
                                 {selectedEvents.map(event => (
                                     <li key={event.id}>
                                         <strong>{event.title}</strong>
+                                        <span className={`calendar-event-status calendar-status--${event.state}`}>{getCalendarStatusLabel(event.state)}</span>
                                         <span>{formatTime(event.startAt)} às {formatTime(event.endAt)}</span>
                                         <span>{event.localAddress}</span>
                                     </li>
@@ -320,9 +295,6 @@ function Calendar() {
                 loading={loading}
                 error={error}
                 monthLabel={monthLabel}
-                todayEvents={visibleTodayEvents}
-                todayLoading={todayLoading && currentDayEvents.length === 0}
-                todayError={todayError}
                 searchTerm={searchTerm}
                 onSearchTermChange={value => {
                     setSearchTerm(value)
@@ -341,7 +313,7 @@ function Calendar() {
                 activeFilterCount={activeFilterCount}
                 onClearFilters={clearFilters}
                 weekdayOptions={WEEKDAY_OPTIONS}
-                statusOptions={PUBLIC_EVENT_STATES}
+                statusOptions={CALENDAR_EVENT_STATES}
             />
         </div>
     )

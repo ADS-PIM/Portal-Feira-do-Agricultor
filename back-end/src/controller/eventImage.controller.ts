@@ -6,23 +6,49 @@ import { Response } from 'express';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { EventImageCreateDTO, EventImageUpdateDTO } from '../dto/eventImage.dto';
-import { ImageStorageService, ImageUploadError, isEventImagePathname } from '../service/imageStorage.service';
+import { ImageStorageService, ImageUploadError } from '../service/imageStorage.service';
+import { LegacyBlobStorageService, isEventImagePathname } from '../service/legacyBlobStorage.service';
+import { DirectImageUploadService } from '../service/directImageUpload.service';
 
 export class EventImageController {
     public constructor(
         private eventImageService: EventImageService,
         private imageStorage = new ImageStorageService(),
+        private legacyStorage = new LegacyBlobStorageService(),
+        private directUpload = new DirectImageUploadService(),
     ) {}
+
+    public async authorizeUpload(req: AuthRequest, res: Response) {
+        res.setHeader('Cache-Control', 'no-store');
+        try {
+            return res.json(this.directUpload.authorize(req.admin!.adminId!, req.body?.size, req.body?.contentType));
+        } catch (error) {
+            return res.status(error instanceof ImageUploadError ? error.status : 500).json({
+                error: error instanceof ImageUploadError ? error.message : 'Não foi possível autorizar o envio da foto.',
+            });
+        }
+    }
+
+    public async completeUpload(req: AuthRequest, res: Response) {
+        res.setHeader('Cache-Control', 'no-store');
+        try {
+            return res.status(201).json(await this.directUpload.complete(req.admin!.adminId!, req.body?.ticket));
+        } catch (error) {
+            return res.status(error instanceof ImageUploadError ? error.status : 500).json({
+                error: error instanceof ImageUploadError ? error.message : 'Não foi possível confirmar o envio da foto.',
+            });
+        }
+    }
 
     public async upload(req: AuthRequest, res: Response) {
         try {
-            const blob = await this.imageStorage.upload(req.body, req.get('content-type'));
-            return res.status(201).json(blob);
+            const image = await this.imageStorage.upload(req.body, req.get('content-type'));
+            return res.status(201).json(image);
         } catch (error) {
             if (error instanceof ImageUploadError) {
                 return res.status(error.status).json({ error: error.message });
             }
-            console.error('Failed to store event image in Vercel Blob.');
+            console.error('Failed to store event image in Cloudinary.');
             return res.status(500).json({ error: 'Não foi possível armazenar a imagem. Tente novamente.' });
         }
     }
@@ -34,13 +60,13 @@ export class EventImageController {
         }
 
         try {
-            const url = this.imageStorage.urlForPathname(pathname);
+            const url = this.legacyStorage.urlForPathname(pathname);
             // Events and their galleries are public. Only expose files attached to
             // those records, never arbitrary objects from the private store.
             if (!await this.eventImageService.isImageReferenced(url)) {
                 return res.status(404).json({ error: 'Imagem não encontrada.' });
             }
-            const result = await this.imageStorage.read(pathname, req.get('if-none-match'));
+            const result = await this.legacyStorage.read(pathname, req.get('if-none-match'));
             if (!result) {
                 return res.status(404).json({ error: 'Imagem não encontrada.' });
             }

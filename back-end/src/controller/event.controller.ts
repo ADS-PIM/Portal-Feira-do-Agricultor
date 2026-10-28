@@ -96,6 +96,10 @@ export class EventController {
 
     public async searchAgenda(req: Request, res: Response) {
         const date = req.query.date;
+        const scope = req.query.scope ?? 'upcoming';
+        if (scope !== 'upcoming' && scope !== 'month') {
+            return res.status(400).json({ error: 'A valid scope (upcoming or month) is required' });
+        }
         if (
             typeof date !== 'string' ||
             !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
@@ -106,7 +110,7 @@ export class EventController {
         }
 
         try {
-            const events = await this.eventService.searchAgenda(date);
+            const events = await this.eventService.searchAgenda(date, scope);
             return res.status(200).json(events);
         } catch (error: any) {
             return res.status(500).json({ error: error.message });

@@ -472,8 +472,8 @@
     flex: 0 0 auto;
     padding: 5px 9px;
     border-radius: 20px;
-    background: var(--brand-green-light);
-    color: var(--brand-green-dark);
+    background: var(--calendar-status-soft);
+    color: var(--calendar-status-text);
     font-size: 11px;
     font-weight: 600;
     line-height: 1.4;
@@ -485,27 +485,7 @@
     height: 5px;
     flex-shrink: 0;
     border-radius: 50%;
-    background: currentColor;
-}
-
-.admin-event-status.is-canceled {
-    background: #fff0e1;
-    color: var(--brand-orange);
-}
-
-.admin-event-status.is-concluded {
-    background: #efefed;
-    color: var(--text-muted);
-}
-
-.admin-event-status.is-rescheduled {
-    background: #fff3df;
-    color: var(--brand-orange);
-}
-
-.admin-event-status.is-happening {
-    background: #e7f1ff;
-    color: #2761a6;
+    background: var(--calendar-status-color);
 }
 
 .admin-event-id {
@@ -887,13 +867,13 @@
 }
 
 .admin-event-status-option.is-selected {
-    border-color: #288238;
-    background: #eff8ef;
-    color: #247530;
+    border-color: var(--calendar-status-color);
+    background: var(--calendar-status-soft);
+    color: var(--calendar-status-text);
 }
 
 .admin-event-status-option.is-selected > span {
-    background: #288238;
+    background: var(--calendar-status-color);
 }
 
 .admin-event-form-actions {

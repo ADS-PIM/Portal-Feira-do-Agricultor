@@ -110,10 +110,11 @@ try {
     assert.equal(await evaluate('window.messages.length'), 0)
 
     await fill('phone', '+55 (88) 99999-9999')
+    assert.equal(await evaluate(`document.querySelector('[name=phone]').value`), '(88) 99999-9999')
     await submit()
     await until(`Boolean(document.querySelector('.contact-form-feedback.success'))`)
     assert.deepEqual(await evaluate('window.messages[0]'), {
-        name: 'Ana Silva', email: 'ffffsf@gmail.com', phone: '+55 (88) 99999-9999',
+        name: 'Ana Silva', email: 'ffffsf@gmail.com', phone: '(88) 99999-9999',
         subject: 'DOUBT', title: 'Contato', message: 'Gostaria de saber mais sobre a feira.',
     })
     assert.equal(await evaluate(`document.querySelector('[name=email]').value`), '')
