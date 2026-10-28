@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Icon from '../../components/Icon'
 import { createEventImage, deleteEventImage, getEventImages, uploadEventBanner, type AdminEvent, type EventImage } from '../../services/eventService'
-import { getEventImageUrl } from '../../services/eventImageUrl'
+import { getEventImageProps } from '../../services/eventImageUrl'
 import { getUserFacingError } from '../../services/errors'
 import { savePendingEventPhotos, validateEventImage, type PendingEventPhoto } from './eventGallery'
 import { STATE_LABELS } from './eventFormLabels'
 import './AdminEventForm.css'
+import '../../components/Calendar/CalendarStatus.css'
 
 export type EventFormValues = {
     title: string
@@ -235,7 +236,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                         <div className="admin-event-status-options">
                                             {(Object.keys(STATE_LABELS) as AdminEvent['state'][]).map(state => (
                                                 <button type="button" key={state} aria-pressed={values.state === state}
-                                                    className={`admin-event-status-option${values.state === state ? ' is-selected' : ''}`}
+                                                    className={`admin-event-status-option calendar-status--${state}${values.state === state ? ' is-selected' : ''}`}
                                                     onClick={() => setValues(current => ({ ...current, state }))}>
                                                     <span aria-hidden="true" />{STATE_LABELS[state]}
                                                 </button>
@@ -248,7 +249,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                     <section className="admin-event-editor-section" aria-labelledby="event-cover-title">
                                         <div><h3 id="event-cover-title">Imagem de capa <span>Opcional</span></h3><p className="admin-event-help">Imagem principal exibida na divulgação do evento.</p></div>
                                         <div className={`admin-event-cover${cover ? ' has-image' : ''}`}>
-                                            {cover ? <img src={getEventImageUrl(cover)} alt="Prévia da capa do evento" /> : <div className="admin-event-cover-empty"><Icon name="image" /><span>Adicione uma capa ao evento</span></div>}
+                                            {cover ? <img {...getEventImageProps(cover, '(max-width: 680px) 90vw, 560px')} alt="Prévia da capa do evento" /> : <div className="admin-event-cover-empty"><Icon name="image" /><span>Adicione uma capa ao evento</span></div>}
                                             {cover && <button type="button" className="admin-event-photo-remove" title="Remover capa" aria-label="Remover imagem de capa" onClick={() => {
                                                 revokePreview(bannerPreview); setBannerFile(null); setBannerPreview(null)
                                                 setValues(current => ({ ...current, bannerImage: null }))
@@ -272,7 +273,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                         {!galleryLoading && !galleryError && !existingPhotos.length && !photos.length && <div className="admin-event-gallery-empty"><Icon name="image" /><p>Ainda não há fotos na galeria.</p></div>}
                                         {(existingPhotos.length > 0 || photos.length > 0) && <div className="admin-event-gallery-grid">
                                             {existingPhotos.map((photo, index) => <figure key={photo.id} className="admin-event-photo">
-                                                <img src={getEventImageUrl(photo.imageURL)} alt={photo.description || 'Foto do evento'} />
+                                                <img {...getEventImageProps(photo.imageURL, '(max-width: 680px) 45vw, 240px', 320)} loading="lazy" alt={photo.description || 'Foto do evento'} />
                                                 <button type="button" className="admin-event-photo-remove is-delete" title="Excluir foto da galeria"
                                                     aria-label={`Excluir foto ${index + 1}: ${photo.description || 'Foto do evento'}`}
                                                     aria-expanded={photoToDelete === photo.id}

@@ -4,7 +4,7 @@ import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import { getEvents, getEventDetails, getEventImages, type AdminEvent, type EventDetails, type EventImage } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
-import { getEventImageUrl } from '../../services/eventImageUrl'
+import { getEventImageProps } from '../../services/eventImageUrl'
 import { getAdjacentEvents } from './eventNavigation'
 import './EventPage.css'
 
@@ -61,7 +61,7 @@ function EventPhoto({ image }: { image: EventImage }) {
                 </div>
             ) : (
                 <img
-                    src={getEventImageUrl(image.imageURL)}
+                    {...getEventImageProps(image.imageURL, '(max-width: 420px) calc(100vw - 80px), (max-width: 680px) 44vw, 320px', 640)}
                     alt={description || 'Foto do evento'}
                     loading="lazy"
                     onError={() => setHasError(true)}
@@ -327,7 +327,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                             onClick={() => openPhoto(photos.findIndex(photo => photo.id === 'event-banner') >= 0 ? photos.findIndex(photo => photo.id === 'event-banner') : 0)}
                                             aria-label={`Ampliar imagem do evento ${event.title}`}
                                         >
-                                            <img className="event-page-cover" src={getEventImageUrl(event.bannerImage)} alt={event.title} />
+                                            <img className="event-page-cover" {...getEventImageProps(event.bannerImage, '(max-width: 680px) calc(100vw - 80px), (max-width: 1200px) 60vw, 760px')} alt={event.title} />
                                         </button>
                                     ) : (
                                         <div className="event-page-cover-empty" role="status">
@@ -431,7 +431,7 @@ function EventPage({ eventId }: { eventId: string }) {
                     </button>
 
                     <div className="event-page-lightbox-panel">
-                        <img src={getEventImageUrl(selectedPhoto.imageURL)} alt={selectedPhoto.description || 'Foto do evento'} />
+                        <img {...getEventImageProps(selectedPhoto.imageURL, '(max-width: 680px) calc(100vw - 56px), (max-width: 1400px) 90vw, 1200px', 2560)} alt={selectedPhoto.description || 'Foto do evento'} />
                         {selectedPhoto.description && <p>{selectedPhoto.description}</p>}
                     </div>
 

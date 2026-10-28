@@ -103,14 +103,17 @@ export class EventDAO {
         }
     }
 
-    public async searchAgenda(date: string): Promise<EventAgendaSearchDTO[]> {
+    public async searchAgenda(date: string, scope: 'upcoming' | 'month' = 'upcoming'): Promise<EventAgendaSearchDTO[]> {
         try {
+            const monthStart = `${date.slice(0, 7)}-01`;
             const [events]: any = await connection.query(
                 `SELECT id, title, DATE_FORMAT(date, '%Y-%m-%d') AS date, startAt, endAt, localAddress, state
                 FROM events
-                WHERE date >= ? AND state IN (?, ?)
-                ORDER BY date ASC, startAt ASC`,
-                [date, EventState.HAPPENING, EventState.PENDING]
+                WHERE ${scope === 'month'
+                    ? 'date >= ? AND date < DATE_ADD(?, INTERVAL 1 MONTH)'
+                    : 'date >= ? AND state IN (?, ?)'}
+                ORDER BY date ASC, startAt ASC, id ASC`,
+                scope === 'month' ? [monthStart, monthStart] : [date, EventState.HAPPENING, EventState.PENDING]
             );
             return events;
         } catch (error: any) {

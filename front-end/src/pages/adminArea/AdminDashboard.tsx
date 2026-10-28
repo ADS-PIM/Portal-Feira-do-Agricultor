@@ -8,6 +8,8 @@ import './AdminDashboard.css'
 import './CreateEventButton.css'
 import Icon from '../../components/Icon'
 import AdminDashboardOverview, { type DashboardFailures } from './AdminDashboardOverview'
+import { CALENDAR_EVENT_STATES, compareCalendarEvents, getCalendarStatusLabel } from '../../components/Calendar/calendarEvents'
+import '../../components/Calendar/CalendarStatus.css'
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
@@ -127,11 +129,7 @@ const AdminDashboard = ({
             .filter(event => selectedCalendarDate
                 ? formatDateKey(event.date) === selectedCalendarDate
                 : formatDateKey(event.date).startsWith(monthKey))
-            .sort((first, second) => {
-                const firstDate = `${formatDateKey(first.date)}T${first.startAt}`
-                const secondDate = `${formatDateKey(second.date)}T${second.startAt}`
-                return firstDate.localeCompare(secondDate)
-            }),
+            .sort(compareCalendarEvents),
         [events, monthKey, selectedCalendarDate],
     )
 
@@ -207,23 +205,43 @@ const AdminDashboard = ({
                                 }
                                 const dateEvents = eventsByDate.get(cell.date) ?? []
                                 const hasEvents = dateEvents.length > 0
+                                const dayStates = CALENDAR_EVENT_STATES.filter(status => dateEvents.some(event => event.state === status.value))
                                 return (
                                     <div className="admin-events-day" role="gridcell" key={cell.date}>
                                         <button
                                             type="button"
-                                            className={`admin-events-day-button${hasEvents ? ' has-events' : ''}${selectedCalendarDate === cell.date ? ' is-selected' : ''}`}
+                                            className={[
+                                                'admin-events-day-button',
+                                                hasEvents ? 'has-events' : '',
+                                                dayStates.length === 1 ? `calendar-status--${dayStates[0].value}` : '',
+                                                selectedCalendarDate === cell.date ? 'is-selected' : '',
+                                            ].filter(Boolean).join(' ')}
                                             aria-pressed={selectedCalendarDate === cell.date}
-                                            aria-label={`${cell.day}${hasEvents ? ', contém eventos' : ''}`}
-                                            title={hasEvents ? dateEvents.map(event => event.title).join(', ') : undefined}
+                                            aria-label={`${cell.day}${hasEvents ? `, ${dateEvents.length} eventos: ${dayStates.map(status => status.label).join(', ')}` : ''}`}
+                                            title={hasEvents ? dateEvents.map(event => `${event.title} (${getCalendarStatusLabel(event.state)})`).join(', ') : undefined}
                                             onClick={() => setSelectedCalendarDate(selectedCalendarDate === cell.date ? null : cell.date)}
                                         >
                                             <span>{cell.day}</span>
-                                            {hasEvents && <span className="admin-events-day-indicator" aria-hidden="true" />}
+                                            {hasEvents && (
+                                                <span className="admin-dashboard-day-indicators" aria-hidden="true">
+                                                    {dayStates.map(status => (
+                                                        <span key={status.value} className={`admin-dashboard-status-dot calendar-status--${status.value}`} />
+                                                    ))}
+                                                </span>
+                                            )}
                                         </button>
                                     </div>
                                 )
                             })}
                         </div>
+                        <ul className="admin-dashboard-status-legend" aria-label="Legenda dos status dos eventos">
+                            {CALENDAR_EVENT_STATES.map(status => (
+                                <li key={status.value}>
+                                    <span className={`admin-dashboard-status-dot calendar-status--${status.value}`} aria-hidden="true" />
+                                    {status.label}
+                                </li>
+                            ))}
+                        </ul>
                     </section>
 
                     <section className="admin-events-agenda admin-dashboard-agenda-list" aria-labelledby="dashboard-agenda-title">
@@ -249,8 +267,9 @@ const AdminDashboard = ({
                         ) : agendaEvents.length ? (
                             <ul className="admin-events-list">
                                 {agendaEvents.map(event => (
-                                    <li className="admin-event-card" key={event.id}>
+                                    <li className={`admin-event-card calendar-status--${event.state}`} key={event.id}>
                                             <h3>{event.title}</h3>
+                                            <span className="calendar-event-status">{getCalendarStatusLabel(event.state)}</span>
                                             {event.description && <p className="admin-event-description">{event.description}</p>}
                                         <p className="admin-event-detail">
                                             <Icon name="calendar" />

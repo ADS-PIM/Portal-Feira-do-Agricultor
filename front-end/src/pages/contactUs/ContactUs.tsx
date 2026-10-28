@@ -6,6 +6,7 @@ import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoS
 import { getUserFacingError } from '../../services/errors'
 import { createMessage, type MessageSubject } from '../../services/messageService'
 import { getBusinessHoursLines } from '../../utils/businessHours'
+import { formatPhoneInput, isValidPhone, PHONE_PATTERN } from '../../utils/phone'
 import './ContactUs.css'
 
 type ContactFormState = {
@@ -92,6 +93,39 @@ const ContactUsPage = () => {
     }
   }
 
+  const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget
+    const cursor = input.selectionStart ?? input.value.length
+    let value = input.value
+    let digitsBeforeCursor = value.slice(0, cursor).replace(/\D/g, '').length
+
+    // Deleting a mask separator also deletes the adjacent digit.
+    const inputType = (event.nativeEvent as InputEvent).inputType
+    const previousDigits = formData.phone.replace(/\D/g, '')
+    if (inputType?.startsWith('delete') && value !== formData.phone
+      && value.replace(/\D/g, '') === previousDigits) {
+      const index = inputType === 'deleteContentBackward' ? digitsBeforeCursor - 1 : digitsBeforeCursor
+      if (index >= 0) {
+        value = previousDigits.slice(0, index) + previousDigits.slice(index + 1)
+        digitsBeforeCursor = index
+      }
+    }
+
+    const formatted = formatPhoneInput(value)
+    if (formatted === null) return
+
+    setFormData((previous) => ({ ...previous, phone: formatted }))
+    setSubmitFeedback(null)
+
+    let position = 0
+    let count = 0
+    while (position < formatted.length && count < digitsBeforeCursor) {
+      if (/\d/.test(formatted[position])) count += 1
+      position += 1
+    }
+    requestAnimationFrame(() => input.setSelectionRange(position, position))
+  }
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -107,6 +141,11 @@ const ContactUsPage = () => {
         type: 'error',
         message: 'Preencha seu nome, e-mail, assunto, título e mensagem antes de enviar.',
       })
+      return
+    }
+
+    if (!isValidPhone(trimmedPhone)) {
+      setSubmitFeedback({ type: 'error', message: 'Informe um telefone com DDD e 10 ou 11 números, sem letras.' })
       return
     }
 
@@ -188,7 +227,11 @@ const ContactUsPage = () => {
                       type="tel"
                       name="phone"
                       value={formData.phone}
-                      onChange={handleChange}
+                      onChange={handlePhoneChange}
+                      inputMode="tel"
+                      autoComplete="tel-national"
+                      pattern={PHONE_PATTERN}
+                      title="Informe um telefone com DDD: (88) 3333-4444 ou (88) 99999-9999, sem letras."
                       placeholder="(88) 99999-9999"
                     />
                   </label>

@@ -14,6 +14,8 @@ test/*
 !test/adminDeletion.test.ts
 !test/adminDeletionMysql.integration.ts
 !test/eventAdministrators.test.ts
+!test/imageStorage.test.ts
+!test/imageMigration.test.ts
 
 #ignore uploaded event images
 /uploads/

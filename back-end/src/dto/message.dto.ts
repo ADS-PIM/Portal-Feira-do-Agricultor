@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator";
 import { MessageSubject } from "../model/message";
 
 export class MessageCreateDTO {// phone, subject, message
@@ -12,6 +12,9 @@ export class MessageCreateDTO {// phone, subject, message
 
     @IsOptional()
     @IsString()
+    @Matches(/^(?:[0-9]{10,11}|\([0-9]{2}\) [0-9]{4,5}-[0-9]{4})$/, {
+        message: 'Informe um telefone com DDD e 10 ou 11 números, sem letras.',
+    })
     phone?: string;
 
     @IsNotEmpty()
