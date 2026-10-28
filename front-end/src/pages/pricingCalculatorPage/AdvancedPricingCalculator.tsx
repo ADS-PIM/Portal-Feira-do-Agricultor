@@ -9,6 +9,7 @@ import PercentageField from './PercentageField'
 import { CalculatorSteps, CalculatorStepActions } from './CalculatorSteps'
 import CalculatorFieldHelp from './CalculatorFieldHelp'
 import { getAdvancedFieldHelp } from './advancedFieldHelp'
+import ProductionTimeUnitField from './ProductionTimeUnitField'
 
 const steps = ['Produto', 'Insumos', 'Trabalho', 'Gastos fixos', 'Equipamentos', 'Taxas e lucro'] as const
 function stepForField(name: string) {
@@ -193,10 +194,12 @@ export default function AdvancedPricingCalculator() {
               <div className="advanced-field-grid">
                 {baseField('productName', 'Nome do produto', { text: true, placeholder: 'Ex.: pão recheado' })}
                 {baseField('producedQuantity', 'Quantidade produzida por receita', { placeholder: 'Ex.: 2', hint: 'Quantidade pronta para vender, depois das perdas.' })}
-                {baseField('productionTime', 'Tempo total de trabalho na receita', { placeholder: 'Ex.: 2', hint: 'Informe o tempo de trabalho dedicado a todo o lote.' })}
-                <AdvancedSelect name="timeUnit" label="Medida do tempo de produção" value={values.timeUnit}
-                  options={[{ value: 'hour', label: 'Horas' }, { value: 'minute', label: 'Minutos' }]}
-                  onChange={value => update('timeUnit', value as 'hour' | 'minute')} />
+                {baseField('productionTime', 'Tempo total de trabalho na receita', {
+                  unit: values.timeUnit === 'minute' ? 'minutos' : 'horas',
+                  placeholder: values.timeUnit === 'minute' ? 'Ex.: 30' : 'Ex.: 2',
+                  hint: `Informe o tempo de trabalho dedicado a todo o lote, em ${values.timeUnit === 'minute' ? 'minutos' : 'horas'}.`,
+                })}
+                <ProductionTimeUnitField id="advanced-timeUnit" value={values.timeUnit} onChange={value => update('timeUnit', value)} />
               </div>
             </fieldset>
 
@@ -217,6 +220,7 @@ export default function AdvancedPricingCalculator() {
                         placeholder="Ex.: farinha de trigo" onChange={name => updateIngredient(row.id, { name })} />
                       <div className="advanced-field-grid">
                         <AdvancedField name={`${key}.purchasedQuantity`} label="Quantidade comprada" value={row.purchasedQuantity} error={error(`${key}.purchasedQuantity`)}
+                          unit={row.purchasedUnit === 'package' ? 'pacote/botijão' : PRICING_UNITS[row.purchasedUnit].label}
                           placeholder="Ex.: 1" onChange={purchasedQuantity => updateIngredient(row.id, { purchasedQuantity })} />
                         <AdvancedSelect name={`${key}.purchasedUnit`} label="Medida da compra" value={row.purchasedUnit}
                           options={[...unitOptions, { value: 'package', label: 'Pacote / botijão' }]}
@@ -229,6 +233,7 @@ export default function AdvancedPricingCalculator() {
                           <p className="markup-hint">Quanto vem ou quanto dura cada pacote/botijão? Para gás, informe a duração estimada nas mesmas condições de uso, como 320 horas por botijão.</p>
                           <div className="advanced-field-grid">
                             <AdvancedField name={`${key}.packageQuantity`} label="Conteúdo ou duração de cada pacote" value={row.packageQuantity} error={error(`${key}.packageQuantity`)}
+                              unit={PRICING_UNITS[row.packageUnit].label}
                               onChange={packageQuantity => updateIngredient(row.id, { packageQuantity })} />
                             <AdvancedSelect name={`${key}.packageUnit`} label="Medida do conteúdo ou duração" value={row.packageUnit} options={unitOptions}
                               onChange={packageUnit => updateIngredient(row.id, { packageUnit: packageUnit as PricingUnit })} />
@@ -237,6 +242,7 @@ export default function AdvancedPricingCalculator() {
                       )}
                       <div className="advanced-field-grid">
                         <AdvancedField name={`${key}.usedQuantity`} label="Quantidade usada na receita" value={row.usedQuantity} error={error(`${key}.usedQuantity`)}
+                          unit={PRICING_UNITS[row.usedUnit].label}
                           placeholder="Ex.: 500" onChange={usedQuantity => updateIngredient(row.id, { usedQuantity })} />
                         <AdvancedSelect name={`${key}.usedUnit`} label="Medida usada na receita" value={row.usedUnit} options={unitOptions} error={error(`${key}.usedUnit`)}
                           onChange={usedUnit => updateIngredient(row.id, { usedUnit: usedUnit as PricingUnit })} />

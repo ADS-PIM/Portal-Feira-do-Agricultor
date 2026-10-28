@@ -6,9 +6,24 @@ const server = await createServer({ server: { middlewareMode: true, hmr: false }
 after(() => server.close())
 const { calculateIngredient, calculateAdvancedPricing } = await server.ssrLoadModule('/src/utils/advancedPricingCalculator.ts')
 const { emptyAdvancedForm, exampleAdvancedForm, evaluateAdvancedForm } = await server.ssrLoadModule('/src/pages/pricingCalculatorPage/advancedPricingForm.ts')
-const { calculateMarkup } = await server.ssrLoadModule('/src/utils/pricingCalculator.ts')
+const { calculateMarkup, parseProductionHours } = await server.ssrLoadModule('/src/utils/pricingCalculator.ts')
 const almost = (actual, expected) => assert.ok(Math.abs(actual - expected) <= Math.max(1, Math.abs(expected)) * 1e-12, `${actual} != ${expected}`)
 const example = () => evaluateAdvancedForm(exampleAdvancedForm())
+
+test('simple calculator converts production minutes to hours before calculating labor and markup', () => {
+    const base = { materialCost: 30, hourlyRate: 20, monthlyFixedExpenses: 1000, monthlyRevenue: 10000, variableExpenses: 5, profit: 30 }
+    const hours = calculateMarkup({ ...base, productionHours: parseProductionHours('2', 'hour') })
+    const minutes = calculateMarkup({ ...base, productionHours: parseProductionHours('120', 'minute') })
+    assert.deepEqual(minutes, hours)
+    const halfHour = calculateMarkup({ ...base, productionHours: parseProductionHours('30', 'minute') })
+    assert.equal(halfHour.productionHours, 0.5)
+    assert.equal(halfHour.laborCost, 10)
+    almost(halfHour.price, 40 / 0.55)
+    assert.equal(parseProductionHours('1,5', 'hour'), parseProductionHours('90', 'minute'))
+    assert.equal(parseProductionHours('0', 'minute'), 0)
+    for (const value of ['', 'abc', '-30']) assert.equal(parseProductionHours(value, 'minute'), null)
+    assert.equal(parseProductionHours('30', 'day'), null)
+})
 
 test('the photographed recipe converts purchase/use quantities and keeps precision until display', () => {
     const { result, errors } = example()

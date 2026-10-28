@@ -2,15 +2,16 @@ import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import Icon, { type IconName } from '../../components/Icon'
-import { calculateMarkup, parsePricingNumber, type MarkupInput } from '../../utils/pricingCalculator'
+import { calculateMarkup, parsePricingNumber, parseProductionHours, type MarkupInput, type ProductionTimeUnit } from '../../utils/pricingCalculator'
 import AdvancedPricingCalculator from './AdvancedPricingCalculator'
 import PercentageField from './PercentageField'
 import CalculatorFieldHelp from './CalculatorFieldHelp'
 import { CalculatorSteps, CalculatorStepActions } from './CalculatorSteps'
+import ProductionTimeUnitField from './ProductionTimeUnitField'
 import './PricingCalculatorPage.css'
 
 type Field = keyof MarkupInput
-type FormValues = Record<Field, string>
+type FormValues = Record<Field, string> & { timeUnit: ProductionTimeUnit }
 type FieldDefinition = { name: Field; label: string; unit: string; hint: string; placeholder: string }
 
 const calculatorMethods = [
@@ -21,11 +22,11 @@ type CalculatorMethod = typeof calculatorMethods[number]['id']
 
 const initialValues: FormValues = {
   materialCost: '', productionHours: '', hourlyRate: '', monthlyFixedExpenses: '0',
-  monthlyRevenue: '', variableExpenses: '0', profit: '0',
+  monthlyRevenue: '', variableExpenses: '0', profit: '0', timeUnit: 'hour',
 }
 const exampleValues: FormValues = {
   materialCost: '30,00', productionHours: '2', hourlyRate: '20,00', monthlyFixedExpenses: '1.000,00',
-  monthlyRevenue: '10.000,00', variableExpenses: '5', profit: '30',
+  monthlyRevenue: '10.000,00', variableExpenses: '5', profit: '30', timeUnit: 'hour',
 }
 const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 4 })
@@ -67,9 +68,9 @@ const fieldHelp: Record<Field, { explanation: string; example: string; effect: s
     effect: 'Quanto maior esse gasto, maior precisa ser o preço de venda para pagar os materiais e ainda cobrir as despesas e o lucro.',
   },
   productionHours: {
-    explanation: 'Informe quantas horas de trabalho são necessárias para fazer uma unidade. Se você faz vários produtos juntos, divida o tempo pela quantidade produzida.',
-    example: 'Se você leva 2 horas para fazer 10 potes de doce, cada pote usa 0,2 hora. Meia hora é 0,5 e 15 minutos são 0,25.',
-    effect: 'Esse tempo é multiplicado pelo valor da sua hora. Quanto mais tempo por unidade, maior o custo do trabalho e o preço calculado.',
+    explanation: 'Informe o tempo de trabalho necessário para fazer uma unidade e escolha horas ou minutos. Se você faz vários produtos juntos, divida o tempo total pela quantidade produzida.',
+    example: 'Se você leva 2 horas para fazer 10 potes de doce, cada pote usa 0,2 hora ou 12 minutos. Meia hora pode ser informada como 0,5 hora ou 30 minutos.',
+    effect: 'Os minutos são divididos por 60 antes de multiplicar pelo valor da sua hora. Com a hora a R$ 20, uma unidade que leva 30 minutos tem R$ 10 de mão de obra.',
   },
   hourlyRate: {
     explanation: 'Informe quanto você quer receber por uma hora do seu trabalho. Seu trabalho também tem um custo, mesmo quando é você quem produz.',
@@ -110,7 +111,7 @@ export default function PricingCalculatorPage() {
   const formRef = useRef<HTMLFormElement>(null)
   const numbers = {
     materialCost: parsePricingNumber(values.materialCost),
-    productionHours: parsePricingNumber(values.productionHours),
+    productionHours: parseProductionHours(values.productionHours, values.timeUnit),
     hourlyRate: parsePricingNumber(values.hourlyRate),
     monthlyFixedExpenses: parsePricingNumber(values.monthlyFixedExpenses),
     monthlyRevenue: parsePricingNumber(values.monthlyRevenue),
@@ -144,7 +145,7 @@ export default function PricingCalculatorPage() {
   const result = !hasFieldErrors ? calculated : null
   const calculationError = !hasFieldErrors && !invalidTotal && !calculated
     ? 'Os valores informados são grandes demais para calcular. Reduza os valores e tente novamente.' : ''
-  const isExample = result !== null && fields.every(({ name }) => values[name] === exampleValues[name])
+  const isExample = result !== null && values.timeUnit === exampleValues.timeUnit && fields.every(({ name }) => values[name] === exampleValues[name])
   const breakdown = result ? [
     { label: 'Materiais', detail: 'Por unidade', amount: result.materialCost, className: 'materials' },
     { label: 'Mão de obra', detail: `${decimal.format(result.productionHours)} ${result.productionHours === 1 ? 'hora' : 'horas'} × ${currency.format(result.hourlyRate)}`, amount: result.laborCost, className: 'labor' },
@@ -219,7 +220,7 @@ export default function PricingCalculatorPage() {
   function clearFields() {
     setValues({
       materialCost: '', productionHours: '', hourlyRate: '', monthlyFixedExpenses: '',
-      monthlyRevenue: '', variableExpenses: '0', profit: '0',
+      monthlyRevenue: '', variableExpenses: '0', profit: '0', timeUnit: 'hour',
     })
     setTouched({})
     showStep(0, 'materialCost')
@@ -289,7 +290,7 @@ export default function PricingCalculatorPage() {
                           hint={hint} error={error} invalid={hasTotalError}
                           describedBy={hasTotalError ? 'markup-total-error' : undefined}
                           help={<CalculatorFieldHelp label={label} help={fieldHelp[name]} />} />
-                        return (
+                        const inputField = (
                           <div className="markup-field" key={name}>
                             <div className="markup-field-heading">
                               <label htmlFor={`markup-${name}`}>{label}</label>
@@ -304,7 +305,7 @@ export default function PricingCalculatorPage() {
                                 inputMode="decimal"
                                 maxLength={20}
                                 value={values[name]}
-                                placeholder={placeholder}
+                                placeholder={name === 'productionHours' && values.timeUnit === 'minute' ? 'Ex.: 30' : placeholder}
                                 required
                                 aria-invalid={Boolean(error) || hasTotalError}
                                 aria-describedby={`markup-${name}-unit markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
@@ -313,12 +314,19 @@ export default function PricingCalculatorPage() {
                                 }}
                                 onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
                               />
-                              {unit !== 'R$' && <span id={`markup-${name}-unit`}>{unit}</span>}
+                              {unit !== 'R$' && <span id={`markup-${name}-unit`}>{name === 'productionHours' && values.timeUnit === 'minute' ? 'minutos' : unit}</span>}
                             </div>
-                            <p id={`markup-${name}-hint`} className="markup-hint">{hint}</p>
+                            <p id={`markup-${name}-hint`} className="markup-hint">{name === 'productionHours' ? `Tempo gasto para produzir uma unidade, em ${values.timeUnit === 'minute' ? 'minutos' : 'horas'}.` : hint}</p>
                             {error && <p id={`markup-${name}-error`} className="markup-error">{error}</p>}
                           </div>
                         )
+                        return name === 'productionHours' ? (
+                          <div className="markup-time-fields" key={name}>
+                            {inputField}
+                            <ProductionTimeUnitField id="markup-timeUnit" value={values.timeUnit}
+                              onChange={timeUnit => setValues(previous => ({ ...previous, timeUnit }))} />
+                          </div>
+                        ) : inputField
                       })}
                       {group.icon === 'store' && (
                         <>

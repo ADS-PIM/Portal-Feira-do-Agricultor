@@ -2,9 +2,6 @@
 .advanced-calculator .markup-field-heading { min-height: 36px; }
 .advanced-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .advanced-field-grid .markup-field + .markup-field { margin-top: 0; }
-.advanced-calculator .markup-field select { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid var(--calculator-border); border-radius: 9px; background: var(--surface-input); color: var(--calculator-text); font: inherit; font-size: 16px; }
-.advanced-calculator .markup-field select:focus { outline: none; border-color: var(--calculator-green); box-shadow: 0 0 0 3px rgb(7 131 46 / 13%); }
-.advanced-calculator .markup-field select[aria-invalid="true"] { border-color: #a73324; }
 .advanced-section-hint { margin: 0 0 16px; }
 .advanced-rows { display: grid; gap: 18px; }
 .advanced-item { min-width: 0; margin-bottom: 16px; padding: 18px; border: 1px solid var(--calculator-border); border-radius: 12px; background: var(--surface-page); }

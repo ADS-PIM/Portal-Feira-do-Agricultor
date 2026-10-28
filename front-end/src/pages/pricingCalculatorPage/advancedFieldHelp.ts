@@ -11,11 +11,6 @@ const help = {
     example: 'Se você trabalha 2 horas para preparar 10 potes, cada pote usa 0,2 hora. Com a hora a R$ 20, a mão de obra é R$ 4 por pote.',
     effect: 'Esse tempo é dividido pela quantidade produzida e multiplicado pelo valor da sua hora. Mais tempo de trabalho aumenta o custo de mão de obra por unidade.',
   },
-  timeUnit: {
-    explanation: 'Escolha se o tempo de produção foi informado em horas ou minutos. A calculadora converte os minutos para horas antes de calcular a mão de obra.',
-    example: '2 horas e 120 minutos representam o mesmo tempo. Para informar uma hora e meia, use 1,5 hora ou 90 minutos.',
-    effect: 'A medida determina a duração usada no cálculo. Ao trocar horas por minutos, ajuste também o número para representar o mesmo tempo.',
-  },
   purchasedQuantity: {
     explanation: 'Informe toda a quantidade comprada à qual o valor pago se refere. Escolha a medida correspondente: kg, g, litros, unidades ou pacote/botijão.',
     example: 'Se comprou 1 kg de farinha por R$ 4,80 e usa 500 g, preencha quantidade 1, medida kg e valor R$ 4,80. Essa compra rende 2 receitas.',

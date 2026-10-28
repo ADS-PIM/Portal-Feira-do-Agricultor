@@ -49,13 +49,22 @@
 .markup-field-group legend svg { flex-shrink: 0; font-size: 18px; }
 .markup-field + .markup-field { margin-top: 16px; }
 .markup-field-group[hidden] { display: none; }
-.markup-percentage-field .markup-field-heading { flex-wrap: wrap; }
+.markup-percentage-field .markup-field-heading { display: flex; flex-wrap: wrap; }
 .markup-percentage-field .markup-field-label { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-width: 0; }
 .markup-percentage-field .markup-field-label > label { min-width: 0; }
 .markup-field label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 700; }
 .markup-help-intro { margin: -4px 0 22px; color: var(--calculator-muted); font-size: 14px; line-height: 1.6; }
-.markup-field-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.markup-field-heading { display: block; margin-bottom: 7px; text-wrap: balance; }
 .markup-field-heading label { margin-bottom: 0; }
+.markup-field-heading > label { display: inline; }
+.markup-field-heading > .markup-help-button { margin-left: 4px; vertical-align: middle; }
+.markup-page .markup-field select { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid var(--calculator-border); border-radius: 9px; background: var(--surface-input); color: var(--calculator-text); font: inherit; font-size: 16px; }
+.markup-page .markup-field select:focus { outline: none; border-color: var(--calculator-green); box-shadow: 0 0 0 3px rgb(7 131 46 / 13%); }
+.markup-page .markup-field select[aria-invalid="true"] { border-color: #a73324; }
+.markup-time-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
+.markup-time-fields > .markup-field { min-width: 0; }
+.markup-time-fields > .markup-field + .markup-field { margin-top: 0; }
+.markup-time-fields .markup-field-heading { min-height: 36px; }
 .markup-field-heading .markup-range-value {
     display: inline-flex;
     flex-shrink: 0;
@@ -264,6 +273,7 @@
 }
 
 @media (max-width: 600px) {
+    .markup-time-fields { grid-template-columns: minmax(0, 1fr); }
     .markup-guide-steps { grid-template-columns: minmax(0, 1fr); gap: 20px; }
 }
 

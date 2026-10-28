@@ -8,6 +8,8 @@ export type MarkupInput = {
   profit: number
 }
 
+export type ProductionTimeUnit = 'hour' | 'minute'
+
 // A single dot is a decimal separator ("1.000" means 1). Brazilian thousands
 // grouping requires a decimal comma ("1.000,00" means 1000) to avoid ambiguity.
 export function parsePricingNumber(value: string): number | null {
@@ -20,6 +22,12 @@ export function parsePricingNumber(value: string): number | null {
     (isBrazilianGrouped ? normalized.replaceAll('.', '') : normalized).replace(',', '.'),
   )
   return Number.isFinite(number) ? number : null
+}
+
+export function parseProductionHours(value: string, unit: ProductionTimeUnit): number | null {
+  const time = parsePricingNumber(value)
+  if (time === null || !['hour', 'minute'].includes(unit)) return null
+  return unit === 'minute' ? time / 60 : time
 }
 
 export function calculateMarkup(input: MarkupInput) {
