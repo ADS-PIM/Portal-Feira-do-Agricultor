@@ -6,6 +6,7 @@ import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoS
 import { getUserFacingError } from '../../services/errors'
 import { createMessage, type MessageSubject } from '../../services/messageService'
 import { getBusinessHoursLines } from '../../utils/businessHours'
+import { CONTACT_EMAIL_ERROR, getContactEmailError, getContactPhoneError } from '../../utils/contactValidation'
 import './ContactUs.css'
 
 type ContactFormState = {
@@ -86,6 +87,10 @@ const ContactUsPage = () => {
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target
+    if (event.target instanceof HTMLInputElement) {
+      if (name === 'email') event.target.setCustomValidity(getContactEmailError(value))
+      if (name === 'phone') event.target.setCustomValidity(getContactPhoneError(value))
+    }
     setFormData((previous) => ({ ...previous, [name]: value }))
     if (submitFeedback) {
       setSubmitFeedback(null)
@@ -101,6 +106,20 @@ const ContactUsPage = () => {
     const trimmedTitle = formData.title.trim()
     const trimmedMessage = formData.message.trim()
     const selectedSubject = formData.subject
+
+    const contactErrors = [
+      { field: 'email', message: getContactEmailError(trimmedEmail) },
+      { field: 'phone', message: getContactPhoneError(trimmedPhone) },
+    ]
+    for (const { field, message } of contactErrors) {
+      const input = event.currentTarget.elements.namedItem(field) as HTMLInputElement
+      input.setCustomValidity(message)
+      if (message) {
+        setSubmitFeedback({ type: 'error', message })
+        input.reportValidity()
+        return
+      }
+    }
 
     if (!trimmedName || !trimmedEmail || !selectedSubject || !trimmedTitle || !trimmedMessage) {
       setSubmitFeedback({
@@ -177,7 +196,10 @@ const ContactUsPage = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
+                      onInvalid={(event) => event.currentTarget.setCustomValidity(CONTACT_EMAIL_ERROR)}
                       placeholder="seu-email@exemplo.com"
+                      autoComplete="email"
+                      maxLength={254}
                       required
                     />
                   </label>
@@ -190,6 +212,7 @@ const ContactUsPage = () => {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="(88) 99999-9999"
+                      autoComplete="tel"
                     />
                   </label>
                 </div>

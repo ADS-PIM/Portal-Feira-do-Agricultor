@@ -3,6 +3,7 @@ import Header from '../../components/Header/Header';
 import MainBanner from '../../components/MainBanner/MainBanner';
 import AboutSection from '../../components/AboutSection/AboutSection';
 import EventPainel from '../../components/Event/EventPainel';
+import EventLoading from '../../components/Event/EventLoading';
 import PricingCalculatorPromo from '../../components/CalculatorPromo/PricingCalculatorPromo';
 import NearestEventPainel from '../../components/Event/NearestEventPainel';
 import ContactSection from '../../components/ContactSection/ContactSection';
@@ -67,7 +68,7 @@ const MainPage = () => {
             <MainBanner/>
             <AboutSection />
             <div className={`main-page-sections${error ? ' has-event-error' : ''}`}>
-                {loading && <p role="status">Carregando próximo evento...</p>}
+                {loading && <EventLoading message="Carregando próximo evento..." />}
                 {error && <p className="main-page-error" role="alert">Erro ao carregar o próximo evento: {error}</p>}
                 {!loading && !error && <NearestEventPainel event={nearestEvent}/>}
                 <EventPainel />

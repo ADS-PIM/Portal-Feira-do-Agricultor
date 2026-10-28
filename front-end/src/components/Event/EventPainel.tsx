@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from '../Icon'
+import EventLoading from './EventLoading'
 import { getEventAgenda, type AgendaEvent } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
 import './EventPainel.css'
@@ -95,7 +96,7 @@ const EventPainel = () => {
                 </p>
             </header>
 
-            {loading && <p className='event-agenda-message' role='status'>Carregando agenda de eventos...</p>}
+            {loading && <EventLoading message="Carregando agenda de eventos..." />}
             {error && <p className='event-agenda-message is-error' role='alert'>Erro ao carregar a agenda: {error}</p>}
             {!loading && !error && events.length === 0 && (
                 <p className='event-agenda-message' role='status'>Ainda não há eventos futuros programados. Volte em breve para conferir as novidades.</p>
