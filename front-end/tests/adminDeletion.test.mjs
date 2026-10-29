@@ -12,6 +12,7 @@ test('admin API errors explain deletion restrictions without exposing server det
     const cases = [
         [404, 'ADMIN_NOT_FOUND', 'Administrador não encontrado. Atualize a lista e tente novamente.'],
         [403, 'SUPER_ADMIN_DELETE_FORBIDDEN', 'Não é possível excluir o administrador principal.'],
+        [409, 'ADMIN_ACTIVE', 'Desative o administrador antes de excluir a conta.'],
         [409, 'ADMIN_HAS_EVENTS', 'Este administrador possui eventos vinculados. Desative o acesso para manter o histórico.'],
         [403, 'UNKNOWN', 'Você não tem autorização para realizar esta ação.'],
         [500, 'UNKNOWN', 'O serviço está temporariamente indisponível. Tente novamente mais tarde.'],

@@ -3,7 +3,7 @@ import { Admin } from '../model/admin';
 import { AdminSearchByIdDTO, AdminSearchDTO } from '../dto/admin.dto';
 import type { Pool, RowDataPacket } from 'mysql2/promise';
 
-export type AdminDeleteResult = 'deleted' | 'not_found' | 'super_admin' | 'has_events';
+export type AdminDeleteResult = 'deleted' | 'not_found' | 'super_admin' | 'active' | 'has_events';
 
 export type AdminUpdateData = {
     name?: string;
@@ -127,7 +127,7 @@ export class AdminDAO {
             await db.beginTransaction();
             // Use the same lock order as refresh and password recovery.
             const [admins] = await db.execute<RowDataPacket[]>(
-                'SELECT role FROM administrators WHERE id = ? FOR UPDATE', [id]);
+                'SELECT role, active FROM administrators WHERE id = ? FOR UPDATE', [id]);
             if (!admins[0]) {
                 await db.rollback();
                 return 'not_found';
@@ -135,6 +135,10 @@ export class AdminDAO {
             if (admins[0].role === 'SUPER_ADMIN') {
                 await db.rollback();
                 return 'super_admin';
+            }
+            if (admins[0].active) {
+                await db.rollback();
+                return 'active';
             }
 
             // Preserve event history and explain the conflict instead of exposing a foreign-key error.

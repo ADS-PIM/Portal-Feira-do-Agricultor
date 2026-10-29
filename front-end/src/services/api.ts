@@ -12,6 +12,12 @@ import { makeApiUrl } from './apiUrl'
 
 const isSessionEndpoint = (endpoint: string) => /^admin\/(?:login|refresh|logout|forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)
 
+async function readErrorCode(response: Response): Promise<string | undefined> {
+    const payload: unknown = await response.json().catch(() => null)
+    return payload && typeof payload === 'object' && 'code' in payload && typeof payload.code === 'string'
+        ? payload.code : undefined
+}
+
 async function refreshAccessToken(): Promise<string | null> {
     const response = await fetch(makeApiUrl('admin/refresh'), {
         method: 'POST',
@@ -24,7 +30,9 @@ async function refreshAccessToken(): Promise<string | null> {
     }
 
     if (!response.ok) {
-        throw new ApiRequestError(response.status, 'admin/refresh')
+        const code = await readErrorCode(response)
+        if (response.status === 403 && code === 'ADMIN_DISABLED') clearAccessToken()
+        throw new ApiRequestError(response.status, 'admin/refresh', code)
     }
 
     const contentType = response.headers.get('content-type') ?? ''
@@ -77,6 +85,12 @@ export async function restoreAdminProfile(): Promise<AdminProfile | null> {
     }
 
     const profile = await apiFetch<AdminProfile>(`admin/${encodeURIComponent(adminId)}`)
+    if (!profile.active) {
+        clearAccessToken()
+        // Expire the refresh cookie so returning to login cannot restore this account again.
+        await apiFetch('admin/logout', { method: 'POST' }).catch(() => {})
+        throw new ApiRequestError(403, `admin/${encodeURIComponent(adminId)}`, 'ADMIN_DISABLED')
+    }
     setAdminProfile(profile)
     return profile
 }
@@ -108,12 +122,8 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
         let code: string | undefined
         const hasValidationCode = response.status === 400 && /^(?:business-info|admin\/(?:forgot-password|reset-password))(?:\/|$|\?)/.test(path)
         const isAdminResource = !sessionEndpoint && /^admin\/[^/?]+\/?(?:\?|$)/.test(path)
-        if (hasValidationCode || isAdminResource) {
-            const payload: unknown = await response.json().catch(() => null)
-            if (payload && typeof payload === 'object' && 'code' in payload && typeof payload.code === 'string') {
-                code = payload.code
-            }
-        }
+        if (hasValidationCode || isAdminResource || sessionEndpoint) code = await readErrorCode(response)
+        if (response.status === 403 && code === 'ADMIN_DISABLED') clearAccessToken()
         throw new ApiRequestError(response.status, path, code)
     }
 

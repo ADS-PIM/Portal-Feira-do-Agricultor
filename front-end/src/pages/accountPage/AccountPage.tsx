@@ -5,7 +5,8 @@ import Icon from '../../components/Icon'
 import { restoreAdminProfile } from '../../services/api'
 import { logoutAdmin, updateAdmin } from '../../services/adminService'
 import { setAdminProfile, type AdminProfile } from '../../services/authToken'
-import { ApiRequestError, getUserFacingError } from '../../services/errors'
+import { ApiRequestError, getUserFacingError, isAdminDisabledError } from '../../services/errors'
+import AdminDisabledPage from '../loginPage/AdminDisabledPage'
 import { accountFormValues, buildAccountUpdate, type AccountFormValues } from './accountForm'
 import './AccountPage.css'
 
@@ -115,6 +116,7 @@ export default function AccountPage() {
     const [profile, setProfile] = useState<AdminProfile | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [attempt, setAttempt] = useState(0)
+    const [adminDisabled, setAdminDisabled] = useState(false)
     useEffect(() => {
         let active = true
         void restoreAdminProfile().then(result => {
@@ -126,6 +128,10 @@ export default function AccountPage() {
             setProfile(result)
         }).catch(requestError => {
             if (!active) return
+            if (isAdminDisabledError(requestError)) {
+                setAdminDisabled(true)
+                return
+            }
             if (requestError instanceof ApiRequestError && requestError.status === 401) {
                 window.location.hash = '#/admin/login'
                 return
@@ -134,5 +140,6 @@ export default function AccountPage() {
         })
         return () => { active = false }
     }, [attempt])
+    if (adminDisabled) return <AdminDisabledPage />
     return <><Header initialActiveLink="#/minha-conta" /><main className="account-page"><div className="account-container"><a className="account-back" href="#/admin"><Icon name="arrowLeft" />Voltar ao painel</a><header className="account-heading"><span>SEU PERFIL</span><h1>Minha conta</h1><p>Gerencie suas informações e seu acesso ao portal.</p></header>{profile ? <AccountDetails initialProfile={profile} /> : error ? <section className="account-card"><p role="alert">{error}</p><button type="button" className="account-button" onClick={() => { setError(null); setAttempt(current => current + 1) }}>Tentar novamente</button></section> : <section className="account-card" role="status">Carregando sua conta...</section>}</div></main><Footer /></>
 }

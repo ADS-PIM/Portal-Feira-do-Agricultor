@@ -5,7 +5,8 @@ import AdminUsersMessages from './AdminUsersMessages'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import { restoreAdminProfile } from '../../services/api'
-import { getUserFacingError } from '../../services/errors'
+import { getUserFacingError, isAdminDisabledError } from '../../services/errors'
+import AdminDisabledPage from '../loginPage/AdminDisabledPage'
 import AdminBusinessInfo from './AdminBusinessInfo'
 import AdminDashboard from './AdminDashboard'
 import AdminEvents from './AdminEvents'
@@ -135,7 +136,7 @@ const AdminAccessSkeleton = () => (
 )
 
 const AdminArea = () => {
-    const [status, setStatus] = useState<'checking' | 'authorized' | 'error'>('checking')
+    const [status, setStatus] = useState<'checking' | 'authorized' | 'disabled' | 'error'>('checking')
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [activeSection, setActiveSection] = useState<AdminSection>('dashboard')
     const [createEventRequest, setCreateEventRequest] = useState<{ date: string | null } | null>(null)
@@ -172,7 +173,7 @@ const AdminArea = () => {
                 const profile = await restoreAdminProfile()
                 if (!active) return
 
-                if (!profile || !['ADMIN', 'SUPER_ADMIN'].includes(profile.role) || !profile.active) {
+                if (!profile || !['ADMIN', 'SUPER_ADMIN'].includes(profile.role)) {
                     window.location.hash = '#/admin/login'
                     return
                 }
@@ -180,6 +181,10 @@ const AdminArea = () => {
                 setStatus('authorized')
             } catch (error) {
                 if (!active) return
+                if (isAdminDisabledError(error)) {
+                    setStatus('disabled')
+                    return
+                }
                 setErrorMessage(getUserFacingError(error, 'Não foi possível validar sua conta administrativa.'))
                 setStatus('error')
             }
@@ -190,6 +195,8 @@ const AdminArea = () => {
             active = false
         }
     }, [])
+
+    if (status === 'disabled') return <AdminDisabledPage />
 
     return (
         <>

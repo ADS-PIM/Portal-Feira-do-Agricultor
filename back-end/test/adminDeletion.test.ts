@@ -4,9 +4,10 @@ import type { AddressInfo } from 'node:net';
 import test from 'node:test';
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import type { Pool } from 'mysql2/promise';
 import app from '../src/app';
 import { AdminController } from '../src/controller/admin.controller';
-import { AdminDAO } from '../src/dao/admin.dao';
+import { AdminDAO, type AdminDeleteResult } from '../src/dao/admin.dao';
 import { MemoryTokenBucketStore } from '../src/rateLimit/tokenBucket';
 import { readPolicies } from '../src/rateLimit/middleware';
 import { AdminService } from '../src/service/admin.service';
@@ -14,6 +15,7 @@ import { AdminService } from '../src/service/admin.service';
 const blockedResults = [
     { result: 'not_found', status: 404, code: 'ADMIN_NOT_FOUND' },
     { result: 'super_admin', status: 403, code: 'SUPER_ADMIN_DELETE_FORBIDDEN' },
+    { result: 'active', status: 409, code: 'ADMIN_ACTIVE' },
     { result: 'has_events', status: 409, code: 'ADMIN_HAS_EVENTS' },
 ] as const;
 
@@ -25,6 +27,38 @@ function response() {
     } as unknown as Response;
     return { state, res };
 }
+
+test('DAO requires deactivation before deleting an admin or their sessions', async context => {
+    const admin = { role: 'ADMIN', active: 1 as number | boolean };
+    const db = {
+        beginTransaction: context.mock.fn(async () => {}),
+        rollback: context.mock.fn(async () => {}),
+        commit: context.mock.fn(async () => {}),
+        release: context.mock.fn(() => {}),
+        execute: context.mock.fn(async (sql: string) => {
+            if (sql.startsWith('SELECT') && sql.includes('FROM administrators')) return [[admin]];
+            if (sql.startsWith('SELECT')) return [[]];
+            return [{ affectedRows: 1 }];
+        }),
+    };
+    const dao = new AdminDAO({ getConnection: async () => db } as unknown as Pool);
+    for (const active of [1, true]) {
+        admin.active = active;
+        assert.equal(await dao.delete('target-admin'), 'active');
+    }
+    assert.equal(db.execute.mock.calls.some(call => call.arguments[0].startsWith('DELETE')), false);
+    assert.equal(db.rollback.mock.callCount(), 2);
+    assert.equal(db.commit.mock.callCount(), 0);
+    assert.equal(db.release.mock.callCount(), 2);
+
+    for (const inactive of [0, false]) {
+        admin.active = inactive;
+        assert.equal(await dao.delete('target-admin'), 'deleted');
+    }
+    assert.equal(db.commit.mock.callCount(), 2);
+    assert.equal(db.release.mock.callCount(), 4);
+    assert.ok(db.execute.mock.calls.some(call => call.arguments[0].startsWith('DELETE FROM administrators')));
+});
 
 test('admin deletion reports expected business failures without treating them as an outage', async context => {
     const dao = new AdminDAO();
@@ -86,7 +120,7 @@ test('DELETE /admin/:id requires SUPER_ADMIN and preserves business status codes
         if (previousAccessSecret === undefined) delete process.env.JWT_ACCESS_SECRET;
         else process.env.JWT_ACCESS_SECRET = previousAccessSecret;
     });
-    let outcome: 'deleted' | 'not_found' | 'super_admin' | 'has_events' = 'deleted';
+    let outcome: AdminDeleteResult = 'deleted';
     const deletion = context.mock.method(AdminDAO.prototype, 'delete', async () => outcome);
     app.locals.rateLimitStore = new MemoryTokenBucketStore();
     app.locals.rateLimitPolicies = readPolicies({});

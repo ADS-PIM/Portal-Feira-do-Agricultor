@@ -7,7 +7,7 @@ import { AdminUpdateData } from '../dao/admin.dao';
 export class AdminDeletionError extends Error {
     constructor(
         public readonly status: 403 | 404 | 409,
-        public readonly code: 'ADMIN_NOT_FOUND' | 'SUPER_ADMIN_DELETE_FORBIDDEN' | 'ADMIN_HAS_EVENTS',
+        public readonly code: 'ADMIN_NOT_FOUND' | 'SUPER_ADMIN_DELETE_FORBIDDEN' | 'ADMIN_ACTIVE' | 'ADMIN_HAS_EVENTS',
         message: string,
     ) {
         super(message);
@@ -44,6 +44,8 @@ export class AdminService {
                 throw new AdminDeletionError(404, 'ADMIN_NOT_FOUND', 'Admin not found');
             case 'super_admin':
                 throw new AdminDeletionError(403, 'SUPER_ADMIN_DELETE_FORBIDDEN', 'Cannot delete SUPER_ADMIN');
+            case 'active':
+                throw new AdminDeletionError(409, 'ADMIN_ACTIVE', 'Deactivate the administrator before deleting the account');
             case 'has_events':
                 throw new AdminDeletionError(409, 'ADMIN_HAS_EVENTS', 'Admin has linked events; deactivate the account to preserve event history');
         }

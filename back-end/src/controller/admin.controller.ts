@@ -57,6 +57,11 @@ export class AdminController {
                 return res.status(401).json({error: 'Invalid email or password'});
             }
 
+            if (!admin.active) {
+                res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+                return res.status(403).json({ code: 'ADMIN_DISABLED', error: 'Administrator account is disabled' });
+            }
+
             const accessSecret = process.env.JWT_ACCESS_SECRET;
             const refreshSecret = process.env.JWT_REFRESH_SECRET;
 
@@ -103,15 +108,27 @@ export class AdminController {
             }
 
             const adminId = payload.adminId;
-            if (!payload.jti || payload.jti !== storedToken.id) {
+            if (typeof adminId !== 'string' || !adminId || !payload.jti || payload.jti !== storedToken.id) {
                 return res.status(401).json({ message: 'Invalid refresh token' })
             }
 
+            const admin = await this.adminService.searchById(adminId);
+            if (!admin) {
+                await refreshTokenDAO.deleteByToken(refreshToken);
+                res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+                return res.status(401).json({ message: 'Invalid refresh token' });
+            }
+            if (!admin.active) {
+                await refreshTokenDAO.deleteByUserId(adminId);
+                res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+                return res.status(403).json({ code: 'ADMIN_DISABLED', error: 'Administrator account is disabled' });
+            }
+
             if (!process.env.JWT_ACCESS_SECRET) throw new Error('JWT access secret is not configured');
-            const newAccessToken = jwt.sign({ adminId, role: payload.role }, process.env.JWT_ACCESS_SECRET, { expiresIn: '5m' });
+            const newAccessToken = jwt.sign({ adminId, role: admin.role }, process.env.JWT_ACCESS_SECRET, { expiresIn: '5m' });
 
             const newRefreshTokenId = crypto.randomUUID();
-            const newRefreshToken = jwt.sign({ adminId, role: payload.role }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d', jwtid: newRefreshTokenId });
+            const newRefreshToken = jwt.sign({ adminId, role: admin.role }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d', jwtid: newRefreshTokenId });
             const newRefreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
             if (!await refreshTokenDAO.rotate(refreshToken, newRefreshTokenId, newRefreshToken, adminId, newRefreshExpiresAt)) {
                 return res.status(401).json({ message: 'Invalid or expired refresh token' });

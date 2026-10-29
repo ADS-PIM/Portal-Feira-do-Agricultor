@@ -15,6 +15,7 @@ export class ApiRequestError extends Error {
 }
 
 function getApiErrorMessage(status: number, endpoint: string, code?: string): string {
+    if (status === 403 && code === 'ADMIN_DISABLED') return 'O acesso desta conta administrativa foi desativado.'
     if (/^event\/image\/upload(?:\/|$|\?)/.test(endpoint)) {
         if (status === 413) return EVENT_IMAGE_TOO_LARGE
         if (status === 400) return `Não foi possível validar a foto. Selecione novamente uma imagem JPG ou PNG de até ${EVENT_IMAGE_MAX_MB} MB.`
@@ -22,6 +23,7 @@ function getApiErrorMessage(status: number, endpoint: string, code?: string): st
     if (/^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)) {
         if (status === 404 && code === 'ADMIN_NOT_FOUND') return 'Administrador não encontrado. Atualize a lista e tente novamente.'
         if (status === 403 && code === 'SUPER_ADMIN_DELETE_FORBIDDEN') return 'Não é possível excluir o administrador principal.'
+        if (status === 409 && code === 'ADMIN_ACTIVE') return 'Desative o administrador antes de excluir a conta.'
         if (status === 409 && code === 'ADMIN_HAS_EVENTS') return 'Este administrador possui eventos vinculados. Desative o acesso para manter o histórico.'
     }
     if (status === 400 && /^admin\/(?:forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)) {
@@ -41,6 +43,10 @@ function getApiErrorMessage(status: number, endpoint: string, code?: string): st
     if (status >= 500) return 'O serviço está temporariamente indisponível. Tente novamente mais tarde.'
 
     return 'Não foi possível concluir a solicitação. Verifique os dados e tente novamente.'
+}
+
+export function isAdminDisabledError(error: unknown): boolean {
+    return error instanceof ApiRequestError && error.status === 403 && error.code === 'ADMIN_DISABLED'
 }
 
 export function getUserFacingError(error: unknown, fallback: string): string {

@@ -198,6 +198,10 @@ const AdminAdministrators = () => {
 
     const handleDelete = (admin: AdminRecord) => {
         if (!canManageAdmins) return
+        if (admin.active) {
+            setError('Desative o administrador antes de excluir a conta.')
+            return
+        }
         const currentUserId = getAdminId()
         if (admin.id === currentUserId) {
             setError('Você não pode excluir sua própria conta administrativa.')
@@ -209,7 +213,7 @@ const AdminAdministrators = () => {
     }
 
     const confirmDelete = async () => {
-        if (!adminPendingDeletion || isDeleting || !canManageAdmins) return
+        if (!adminPendingDeletion || adminPendingDeletion.active || isDeleting || !canManageAdmins) return
         if (adminPendingDeletion.id === getAdminId()) return
 
         try {

@@ -12,6 +12,7 @@ test/*
 !test/passwordRecovery.test.ts
 !test/passwordRecoveryMysql.integration.ts
 !test/adminDeletion.test.ts
+!test/adminSession.test.ts
 !test/adminDeletionMysql.integration.ts
 !test/eventAdministrators.test.ts
 !test/messageValidation.test.ts

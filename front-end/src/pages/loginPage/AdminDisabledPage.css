@@ -1,0 +1,60 @@
+.admin-disabled-panel {
+    box-sizing: border-box;
+    max-width: 440px;
+    min-width: 0;
+    padding: 2rem;
+    align-items: center;
+    text-align: center;
+}
+
+.admin-disabled-message {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+}
+
+.admin-disabled-icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #fff4e4;
+    color: var(--brand-orange-dark);
+    font-size: 1.6rem;
+}
+
+.admin-disabled-message h1 {
+    color: var(--brand-charcoal);
+    font-size: 1.45rem;
+    line-height: 1.3;
+}
+
+.admin-disabled-message h1:focus {
+    outline: none;
+}
+
+.admin-disabled-message p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.admin-disabled-back {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    text-decoration: none;
+}
+
+.admin-disabled-back:focus-visible {
+    outline: 3px solid var(--brand-green);
+    outline-offset: 4px;
+}
+
+@media (max-width: 480px) {
+    .admin-disabled-page .login-page-content { padding: 1.25rem 1rem; }
+    .admin-disabled-panel { padding: 1.5rem 1.25rem; }
+}

@@ -18,6 +18,8 @@ tests
 tests/*
 !tests/passwordRecovery.browser.mjs
 !tests/adminDeletion.test.mjs
+!tests/adminSession.test.mjs
+!tests/adminSession.browser.mjs
 !tests/eventAdministrators.browser.mjs
 !tests/contactValidation.browser.mjs
 !tests/eventImageUrl.test.mjs

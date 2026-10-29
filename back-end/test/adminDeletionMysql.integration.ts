@@ -12,7 +12,7 @@ const roles = require('../db/migrations/20261005103000-align-administrator-roles
 const refreshExpiry = require('../db/migrations/20261005112000-refresh-token-expiry-datetime.js');
 const passwordReset = require('../db/migrations/20261021150000-create-password-reset-tokens.js');
 
-test('MySQL: administrator deletion handles session FKs, protects events and principal admins, and rolls back atomically', { timeout: 120_000 }, async () => {
+test('MySQL: administrator deletion requires deactivation, protects events and principal admins, and rolls back atomically', { timeout: 120_000 }, async () => {
     const database = `admin_delete_test_${randomUUID().replace(/-/g, '')}`;
     assert.match(database, /^admin_delete_test_[a-f0-9]{32}$/);
     const options = { host: config.host, port: config.port, user: config.username, password: config.password,
@@ -31,10 +31,10 @@ test('MySQL: administrator deletion handles session FKs, protects events and pri
         await refreshExpiry.up(sequelize.getQueryInterface());
         await passwordReset.up(sequelize.getQueryInterface());
         const dao = new AdminDAO(pool);
-        const createAdmin = async (role = 'ADMIN') => {
+        const createAdmin = async (role = 'ADMIN', active = false) => {
             const id = randomUUID();
             await pool.execute(`INSERT INTO administrators (id, name, email, hashPassword, role, active, createdAt)
-                VALUES (?, 'Test', ?, 'test-password-hash', ?, 1, CURRENT_DATE)`, [id, `${id}@example.com`, role]);
+                VALUES (?, 'Test', ?, 'test-password-hash', ?, ?, CURRENT_DATE)`, [id, `${id}@example.com`, role, active]);
             return id;
         };
         const createSession = async (adminId: string) => {
@@ -56,7 +56,7 @@ test('MySQL: administrator deletion handles session FKs, protects events and pri
         const unrelated = await createAdmin();
         await createSession(unrelated);
         await createReset(unrelated);
-        const target = await createAdmin();
+        const target = await createAdmin('ADMIN', true);
         await createSession(target);
         await createSession(target);
         await createReset(target);
@@ -64,6 +64,11 @@ test('MySQL: administrator deletion handles session FKs, protects events and pri
         // Reproduces the former DAO's direct DELETE failure after an administrator has logged in.
         await assert.rejects(pool.execute('DELETE FROM administrators WHERE id = ?', [target]),
             (error: any) => error.code === 'ER_ROW_IS_REFERENCED_2');
+        assert.equal(await dao.delete(target), 'active');
+        assert.equal(await count('administrators', target), 1);
+        assert.equal(await count('refresh_tokens', target), 2);
+        assert.equal(await count('password_reset_tokens', target), 1);
+        await dao.update(target, { active: false });
         assert.equal(await dao.delete(target), 'deleted');
         assert.equal(await count('administrators', target), 0);
         assert.equal(await count('refresh_tokens', target), 0);
@@ -73,13 +78,15 @@ test('MySQL: administrator deletion handles session FKs, protects events and pri
         assert.equal(await count('password_reset_tokens', unrelated), 1);
         assert.equal(await dao.delete(target), 'not_found');
 
-        const principal = await createAdmin('SUPER_ADMIN');
+        const principal = await createAdmin('SUPER_ADMIN', true);
         await createSession(principal);
         await createReset(principal);
         assert.equal(await dao.delete(principal), 'super_admin');
         assert.equal(await count('administrators', principal), 1);
         assert.equal(await count('refresh_tokens', principal), 1);
         assert.equal(await count('password_reset_tokens', principal), 1);
+        await dao.update(principal, { active: false });
+        assert.equal(await dao.delete(principal), 'super_admin');
 
         const eventAdmin = await createAdmin();
         await createSession(eventAdmin);
