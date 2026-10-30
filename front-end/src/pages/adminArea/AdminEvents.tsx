@@ -19,6 +19,10 @@ import AdminEventForm, { type EventFormValues, type EventSaveSession } from './A
 import { STATE_LABELS } from './eventFormLabels'
 
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
+const MONTH_OPTIONS = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+].map((label, index) => ({ value: String(index + 1).padStart(2, '0'), label }))
 const WEEKDAY_OPTIONS = [
     { value: '', label: 'Todos os dias' },
     { value: '0', label: 'Domingo' },
@@ -88,6 +92,7 @@ const AdminEvents = ({
     const [isFiltersOpen, setIsFiltersOpen] = useState(false)
     const [statusFilter, setStatusFilter] = useState<AdminEvent['state'] | ''>('')
     const [yearFilter, setYearFilter] = useState('')
+    const [monthFilter, setMonthFilter] = useState('')
     const [weekdayFilter, setWeekdayFilter] = useState('')
     const [timeFromFilter, setTimeFromFilter] = useState('')
     const [timeToFilter, setTimeToFilter] = useState('')
@@ -171,6 +176,7 @@ const AdminEvents = ({
             .filter(event => {
                 const matchesSearch = !query || event.title.toLocaleLowerCase('pt-BR').includes(query)
                 const matchesYear = !yearFilter || getDateKey(event.date).startsWith(yearFilter)
+                const matchesMonth = !monthFilter || getDateKey(event.date).slice(5, 7) === monthFilter
                 const matchesStatus = !statusFilter || event.state === statusFilter
                 const eventWeekday = new Date(`${getDateKey(event.date)}T12:00:00`).getDay().toString()
                 const matchesWeekday = !weekdayFilter || eventWeekday === weekdayFilter
@@ -178,7 +184,7 @@ const AdminEvents = ({
                 const matchesAdministrator = !administratorFilter || event.administratorId === (
                     administratorFilter === 'mine' ? currentAdminId : administratorFilter
                 )
-                return matchesSearch && matchesYear && matchesStatus && matchesWeekday && matchesTime && matchesAdministrator
+                return matchesSearch && matchesYear && matchesMonth && matchesStatus && matchesWeekday && matchesTime && matchesAdministrator
             })
             .sort((first, second) => {
                 const firstDate = `${getDateKey(first.date)}T${first.startAt.slice(0, 5)}`
@@ -190,13 +196,14 @@ const AdminEvents = ({
                     ? firstDate.localeCompare(secondDate)
                     : secondDate.localeCompare(firstDate)
             })
-    }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter, administratorFilter, currentAdminId])
+    }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter, monthFilter, administratorFilter, currentAdminId])
 
-    const activeFilterCount = [statusFilter, yearFilter, weekdayFilter, timeFromFilter, timeToFilter, administratorFilter].filter(Boolean).length
+    const activeFilterCount = [statusFilter, yearFilter, monthFilter, weekdayFilter, timeFromFilter, timeToFilter, administratorFilter].filter(Boolean).length
 
     const clearFilters = () => {
         setStatusFilter('')
         setYearFilter('')
+        setMonthFilter('')
         setWeekdayFilter('')
         setTimeFromFilter('')
         setTimeToFilter('')
@@ -337,29 +344,17 @@ const AdminEvents = ({
                 {isFiltersOpen && (
                     <section className="admin-events-filters" id="admin-events-filters" aria-label="Filtros de eventos">
                         <label>
-                            Administrador
-                            <select value={administratorFilter} onChange={event => setAdministratorFilter(event.target.value)}>
-                                <option value="">Todos os administradores</option>
-                                <option value="mine">Meus eventos</option>
-                                {availableAdministrators.map(admin => (
-                                    <option key={admin.id} value={admin.id}>
-                                        {admin.name}{admin.active ? '' : ' (desativado)'}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-                        <label>
                             Ano
                             <select value={yearFilter} onChange={event => setYearFilter(event.target.value)}>
-                                <option value="">Ver todos</option>
+                                <option value="">Todos os anos</option>
                                 {availableYears.map(year => <option key={year} value={year}>{year}</option>)}
                             </select>
                         </label>
                         <label>
-                            Status
-                            <select value={statusFilter} onChange={event => setStatusFilter(event.target.value as AdminEvent['state'] | '')}>
-                                <option value="">Todos os status</option>
-                                {EVENT_STATES.map(state => <option key={state} value={state}>{STATE_LABELS[state]}</option>)}
+                            Mês
+                            <select value={monthFilter} onChange={event => setMonthFilter(event.target.value)}>
+                                <option value="">Todos os meses</option>
+                                {MONTH_OPTIONS.map(month => <option key={month.value} value={month.value}>{month.label}</option>)}
                             </select>
                         </label>
                         <label>
@@ -375,6 +370,25 @@ const AdminEvents = ({
                         <label>
                             Horário até
                             <input type="time" value={timeToFilter} onChange={event => setTimeToFilter(event.target.value)} />
+                        </label>
+                        <label>
+                            Status
+                            <select value={statusFilter} onChange={event => setStatusFilter(event.target.value as AdminEvent['state'] | '')}>
+                                <option value="">Todos os status</option>
+                                {EVENT_STATES.map(state => <option key={state} value={state}>{STATE_LABELS[state]}</option>)}
+                            </select>
+                        </label>
+                        <label>
+                            Administrador
+                            <select value={administratorFilter} onChange={event => setAdministratorFilter(event.target.value)}>
+                                <option value="">Todos os administradores</option>
+                                <option value="mine">Meus eventos</option>
+                                {availableAdministrators.map(admin => (
+                                    <option key={admin.id} value={admin.id}>
+                                        {admin.name}{admin.active ? '' : ' (desativado)'}
+                                    </option>
+                                ))}
+                            </select>
                         </label>
                         <button className="admin-events-clear-filters" type="button" onClick={clearFilters} disabled={activeFilterCount === 0}>
                             Limpar filtros
