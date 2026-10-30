@@ -45,6 +45,6 @@ adminRoutes
     .route('/:id')
     .get(authToken, authenticatedRateLimit, async (req, res) => adminController.searchById(req, res))
     .patch(authToken, authenticatedRateLimit, passwordRateLimit, async (req, res) => adminController.update(req, res))
-    .delete(authToken, authenticatedRateLimit, isSuperAdmin, async (req, res) => adminController.delete(req, res))
+    .delete(authToken, authenticatedRateLimit, passwordRateLimit, async (req, res) => adminController.delete(req, res))
 
 export default adminRoutes;

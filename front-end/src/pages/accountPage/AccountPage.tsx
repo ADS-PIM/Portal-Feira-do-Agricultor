@@ -9,6 +9,7 @@ import { ApiRequestError, getUserFacingError, isAdminDisabledError } from '../..
 import AdminDisabledPage from '../loginPage/AdminDisabledPage'
 import { accountFormValues, buildAccountUpdate, type AccountFormValues } from './accountForm'
 import './AccountPage.css'
+import AccountDeletion from './AccountDeletion'
 
 function AccountAvatar({ profile }: { profile: AdminProfile }) {
     const [failed, setFailed] = useState(false)
@@ -23,12 +24,13 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
     const [editing, setEditing] = useState(false)
     const [saving, setSaving] = useState(false)
     const [loggingOut, setLoggingOut] = useState(false)
+    const [deleting, setDeleting] = useState(false)
     const [accessChanged, setAccessChanged] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
     const isSuper = profile.role === 'SUPER_ADMIN'
-    const busy = saving || loggingOut
+    const busy = saving || loggingOut || deleting
     const change = <K extends keyof AccountFormValues>(key: K, value: AccountFormValues[K]) => setValues(current => ({ ...current, [key]: value }))
 
     const logout = async () => {
@@ -108,6 +110,7 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
                     <div className="account-form-actions"><button type="button" className="account-button is-secondary" disabled={busy} onClick={() => { setValues(accountFormValues(profile)); setEditing(false); setShowPassword(false); setError(null); setSuccess(null) }}>Cancelar</button><button type="submit" className="account-button" disabled={busy}>{saving ? 'Salvando...' : 'Salvar alterações'}</button></div>
                 </form>
             )}
+            {!editing && <AccountDeletion key={`${profile.id}:${profile.role}`} profile={profile} disabled={busy || accessChanged} onBusyChange={setDeleting} />}
         </section>
     </div>
 }

@@ -13,6 +13,10 @@ administrativas para gerenciar o conteúdo.
 
 ## Requisitos
 
+Os arquivos de teste e seus resultados são locais e ignorados pelo Git. Os comandos
+de teste documentados abaixo exigem os arquivos em `back-end/test` e
+`front-end/tests`, que não acompanham novos clones do repositório.
+
 - Git.
 - Node.js e npm compatíveis com Vite 8 (Node.js 20.19+ ou 22.12+).
 - MySQL instalado e em execução.
@@ -130,14 +134,34 @@ navegador Chromium, informe o executável em `BROWSER_PATH`.
 
 ### Exclusão de administradores
 
-`DELETE /admin/:id` exige uma sessão de `SUPER_ADMIN`. A exclusão remove os
-refresh tokens e a conta na mesma transação; links de recuperação de senha
-são removidos pela chave estrangeira existente. A correção não exige migration.
+`DELETE /admin/:id` exige uma sessão autenticada. Um `SUPER_ADMIN` pode excluir
+um `ADMIN` previamente desativado, mas nunca outro `SUPER_ADMIN`. Administradores
+comuns não podem excluir outras contas. Ambos os perfis podem excluir a própria
+conta ativa em **Minha conta**, enviando a senha atual no corpo `{ "password": "..." }`.
 
-Contas inexistentes retornam `404` (`ADMIN_NOT_FOUND`), administradores principais
-retornam `403` (`SUPER_ADMIN_DELETE_FORBIDDEN`) e contas com eventos vinculados
-retornam `409` (`ADMIN_HAS_EVENTS`). Nesse último caso, desative o acesso para
-preservar o histórico dos eventos. O painel mostra uma mensagem específica
+O último `SUPER_ADMIN` ativo não pode excluir, desativar ou rebaixar a própria
+conta: é preciso promover ou reativar outro Super Admin primeiro. Um Super Admin
+ativo pode reativar outro Super Admin com `PATCH /admin/:id` e corpo exclusivamente
+`{ "active": true }`. Desativação, rebaixamento e demais alterações na conta de
+outro Super Admin são bloqueados, evitando o rebaixamento seguido de exclusão.
+As verificações e alterações usam a mesma transação com
+bloqueios no banco para proteger saídas simultâneas.
+
+Na autoexclusão, a responsabilidade pelos eventos vinculados é transferida para
+outro Super Admin ativo, sem apagar os eventos. Quando um Super Admin exclui um
+Admin comum desativado, os eventos passam para o Super Admin que confirmou a
+exclusão. Os dados dos eventos e suas imagens são preservados; o diálogo de
+confirmação informa a transferência de responsabilidade. A exclusão remove os refresh
+tokens e a conta na mesma transação; links de recuperação de senha são removidos
+pela chave estrangeira existente. O cookie e o estado local da sessão são limpos.
+Requisições autenticadas consultam a conta atual no banco, impedindo o uso de
+tokens de contas excluídas, inativas ou com permissões antigas. Não exige migration.
+
+Contas inexistentes retornam `404` (`ADMIN_NOT_FOUND`), exclusões de outros Super Admins
+retornam `403` (`SUPER_ADMIN_DELETE_FORBIDDEN`), a saída do último principal ativo
+retorna `409` (`LAST_SUPER_ADMIN`) e contas com eventos vinculados sem transferência
+retornam `409` (`ADMIN_HAS_EVENTS`). Nesse último caso, é necessário disponibilizar
+um Super Admin ativo para assumir os eventos. O painel mostra uma mensagem específica
 para cada situação.
 
 `npm test` cobre as permissões e respostas da API.
@@ -145,6 +169,9 @@ para cada situação.
 chave estrangeira e verifica exclusão, rollback e concorrência em um schema
 temporário `admin_delete_test_<uuid>`, removido ao final. No frontend,
 `node --test tests/adminDeletion.test.mjs` verifica as mensagens do painel.
+`node tests/adminPermissions.browser.mjs` verifica autoexclusão, senha, bloqueio
+do último Super Admin, encerramento de sessão e proteção entre pares nas telas
+reais com respostas simuladas, incluindo larguras de 320 a 1440 px.
 
 ### Eventos por administrador
 

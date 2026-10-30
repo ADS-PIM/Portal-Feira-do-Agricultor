@@ -62,3 +62,12 @@ export async function deleteAdmin(id: string): Promise<{ message: string }> {
         method: 'DELETE',
     })
 }
+
+export async function deleteOwnAdmin(id: string, password: string): Promise<void> {
+    await apiFetch(`admin/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+    })
+    clearAccessToken()
+}

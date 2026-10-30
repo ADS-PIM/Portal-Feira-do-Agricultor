@@ -3,7 +3,8 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { PasswordCrypto } from '../service/passwordCrypto'
 import { AdminCreateDTO, AdminLoginDTO, AdminUpdateDTO } from '../dto/admin.dto';
-import { AdminDeletionError, AdminService } from '../service/admin.service';
+import { AdminService } from '../service/admin.service';
+import { AdminActionError } from '../model/adminActionError';
 import { RefreshTokenDAO } from '../dao/refreshToken.dao';
 import jwt from 'jsonwebtoken';
 import { AdminRole } from '../model/admin';
@@ -200,10 +201,13 @@ export class AdminController {
             const updateData = Object.fromEntries(
                 requestedFields.map((field) => [field, adminUpdateDTO[field as keyof AdminUpdateDTO]])
             );
-            await this.adminService.update(targetAdminId, updateData);
+            await this.adminService.update(targetAdminId, updateData, authenticatedAdminId);
 
             return res.status(200).json({ message: 'Admin updated successfully' });
         } catch (error: any) {
+            if (error instanceof AdminActionError) {
+                return res.status(error.status).json({ error: error.message, code: error.code });
+            }
             if (error.message === 'Email already registered') {
                 return res.status(409).json({ error: error.message });
             }
@@ -212,16 +216,24 @@ export class AdminController {
         }
     }
 
-    public async delete(req: Request, res: Response) {
+    public async delete(req: AuthRequest, res: Response) {
         try {
+            const actorId = req.admin?.adminId;
+            if (!actorId) return res.status(401).json({ error: 'Authentication is required' });
             const targetAdminId = req.params.id;
             if (typeof targetAdminId !== 'string') {
                 return res.status(400).json({ error: 'Invalid admin id' });
             }
-            await this.adminService.delete(targetAdminId);
+            if (targetAdminId !== actorId && req.admin?.role !== AdminRole.SUPER_ADMIN) {
+                return res.status(403).json({ code: 'ADMIN_DELETE_FORBIDDEN', error: 'You cannot delete another administrator' });
+            }
+            await this.adminService.delete(targetAdminId, actorId, req.body?.password);
+            if (targetAdminId === actorId) {
+                res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+            }
             return res.status(200).json({ message: 'Admin deleted successfully' });
         } catch (error: any) {
-            if (error instanceof AdminDeletionError) {
+            if (error instanceof AdminActionError) {
                 return res.status(error.status).json({ error: error.message, code: error.code });
             }
             console.error('Error deleting admin:', error);

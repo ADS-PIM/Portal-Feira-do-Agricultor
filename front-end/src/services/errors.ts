@@ -22,9 +22,13 @@ function getApiErrorMessage(status: number, endpoint: string, code?: string): st
     }
     if (/^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)) {
         if (status === 404 && code === 'ADMIN_NOT_FOUND') return 'Administrador não encontrado. Atualize a lista e tente novamente.'
-        if (status === 403 && code === 'SUPER_ADMIN_DELETE_FORBIDDEN') return 'Não é possível excluir o administrador principal.'
+        if (status === 403 && code === 'SUPER_ADMIN_DELETE_FORBIDDEN') return 'Você não pode excluir outro Super Admin. Cada Super Admin deve excluir a própria conta.'
+        if (status === 403 && code === 'SUPER_ADMIN_UPDATE_FORBIDDEN') return 'Você só pode reativar outro Super Admin. As demais alterações devem ser feitas pelo próprio usuário.'
+        if (status === 409 && code === 'LAST_SUPER_ADMIN') return 'Você é o único Super Admin ativo. Promova um administrador ativo ou reative outro Super Admin antes de excluir, desativar ou rebaixar sua conta.'
+        if (status === 400 && code === 'CURRENT_PASSWORD_REQUIRED') return 'Informe sua senha atual para excluir a conta.'
+        if (status === 403 && code === 'INVALID_CURRENT_PASSWORD') return 'Senha atual incorreta. Confira sua senha e tente novamente.'
         if (status === 409 && code === 'ADMIN_ACTIVE') return 'Desative o administrador antes de excluir a conta.'
-        if (status === 409 && code === 'ADMIN_HAS_EVENTS') return 'Este administrador possui eventos vinculados. Desative o acesso para manter o histórico.'
+        if (status === 409 && code === 'ADMIN_HAS_EVENTS') return 'Não é possível excluir esta conta sem um Super Admin ativo para assumir os eventos vinculados.'
     }
     if (status === 400 && /^admin\/(?:forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)) {
         if (code === 'INVALID_EMAIL') return 'Informe um e-mail válido.'
