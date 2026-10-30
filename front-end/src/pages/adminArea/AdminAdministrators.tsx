@@ -253,7 +253,6 @@ const AdminAdministrators = () => {
                     <div className="admin-managers-stat-card">
                         <span className="admin-managers-stat-label">Administradores Ativos</span>
                         <strong>{activeAdmins}</strong>
-                        <small>Todos online hoje</small>
                     </div>
 
                     <div className="admin-managers-stat-card is-compact">
@@ -294,7 +293,7 @@ const AdminAdministrators = () => {
                                         </div>
 
                                         <span className="admin-managers-email" role="cell">{admin.email}</span>
-                                        <span className="admin-managers-role" role="cell">{getRoleLabel(admin.role)}</span>
+                                        <span className="admin-managers-role" role="cell"><span className={`admin-managers-role-label${admin.role === 'SUPER_ADMIN' ? ' is-super' : ''}`}>{admin.role === 'SUPER_ADMIN' && <Icon name="shieldCheck" />}{getRoleLabel(admin.role)}</span></span>
 
                                         <span className="admin-managers-status" role="cell">
                                             <span className={`admin-managers-status-badge ${admin.active ? 'is-active' : 'is-inactive'}`}>
@@ -305,7 +304,7 @@ const AdminAdministrators = () => {
                                         {canManageAdmins && <div className="admin-managers-actions" role="cell">
                                             <button
                                                 type="button"
-                                                className="admin-managers-action-button is-toggle"
+                                                className={`admin-managers-action-button is-toggle${!admin.active ? ' is-reactivate' : ''}`}
                                                 disabled={admin.role === 'SUPER_ADMIN' && Boolean(admin.active)}
                                                 onClick={() => handleToggleStatus(admin)}
                                                 aria-label={admin.active ? 'Desativar administrador' : 'Ativar administrador'}

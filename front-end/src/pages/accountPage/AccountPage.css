@@ -37,6 +37,7 @@
 .account-deletion { margin-top: 30px; padding-top: 24px; border-top: 1px solid #efcec4; }
 .account-deletion h3 { margin: 0 0 10px; color: #9b4532; font-size: 15px; }
 .account-deletion > p, .account-deletion form > p { font-size: 12px; line-height: 1.7; color: var(--text-muted); }
+.account-deletion > h3 + p { margin: 0 0 20px; }
 .account-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin: 0; padding-top: 22px; border-top: 1px solid #edf0e9; }
 .account-info dt { margin-bottom: 9px; color: var(--text-muted); font-size: 11px; }
 .account-info dd { margin: 0; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
