@@ -23,6 +23,23 @@ export type AdminUpdateData = {
 export class AdminDAO {
     constructor(private pool: Pool = connection) {}
 
+    async replaceProfilePicture(id: string, url: string | null): Promise<string | null> {
+        const db = await this.pool.getConnection();
+        try {
+            await db.beginTransaction();
+            const [rows] = await db.execute<RowDataPacket[]>(
+                'SELECT profile_picture, active FROM administrators WHERE id = ? FOR UPDATE', [id]);
+            if (!rows[0]?.active) throw new AdminActionError(403, 'ADMIN_DISABLED', 'Account unavailable');
+            const previous = rows[0].profile_picture as string | null;
+            await db.execute('UPDATE administrators SET profile_picture = ? WHERE id = ?', [url, id]);
+            await db.commit();
+            return previous;
+        } catch (error) {
+            await db.rollback();
+            throw error;
+        } finally { db.release(); }
+    }
+
     public async register(admin: Admin): Promise<void> {
         try {
             const [result]: any = await this.pool.query(

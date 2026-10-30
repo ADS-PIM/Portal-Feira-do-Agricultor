@@ -10,6 +10,7 @@ import AdminDisabledPage from '../loginPage/AdminDisabledPage'
 import { accountFormValues, buildAccountUpdate, type AccountFormValues } from './accountForm'
 import './AccountPage.css'
 import AccountDeletion from './AccountDeletion'
+import ProfilePictureUpload from './ProfilePictureUpload'
 
 function AccountAvatar({ profile }: { profile: AdminProfile }) {
     const [failed, setFailed] = useState(false)
@@ -23,6 +24,7 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
     const [values, setValues] = useState(() => accountFormValues(initialProfile))
     const [editing, setEditing] = useState(false)
     const [saving, setSaving] = useState(false)
+    const [uploadingPhoto, setUploadingPhoto] = useState(false)
     const [loggingOut, setLoggingOut] = useState(false)
     const [deleting, setDeleting] = useState(false)
     const [accessChanged, setAccessChanged] = useState(false)
@@ -30,7 +32,7 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
     const isSuper = profile.role === 'SUPER_ADMIN'
-    const busy = saving || loggingOut || deleting
+    const busy = saving || loggingOut || deleting || uploadingPhoto
     const change = <K extends keyof AccountFormValues>(key: K, value: AccountFormValues[K]) => setValues(current => ({ ...current, [key]: value }))
 
     const logout = async () => {
@@ -100,7 +102,12 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
                     <fieldset className="account-fields" disabled={busy}>
                         <label>Nome<input autoFocus required autoComplete="name" value={values.name} onChange={e => change('name', e.target.value)} /></label>
                         <label>E-mail<input type="email" required autoComplete="email" readOnly={!isSuper} aria-describedby={!isSuper ? 'account-email-hint' : undefined} value={values.email} onChange={e => change('email', e.target.value)} />{!isSuper && <small id="account-email-hint">A alteração de e-mail é feita pelo administrador principal.</small>}</label>
-                        <label className="account-full-width">Foto de perfil<input type="url" placeholder="https://exemplo.com/minha-foto.jpg" value={values.profile_picture} onChange={e => change('profile_picture', e.target.value)} /><small>Informe o endereço de uma imagem ou deixe vazio para remover a foto.</small></label>
+                        <ProfilePictureUpload currentPhoto={profile.profile_picture} disabled={busy} onBusyChange={setUploadingPhoto} onSaved={url => {
+                            const updated = { ...profile, profile_picture: url }
+                            setProfile(updated)
+                            setAdminProfile(updated)
+                            change('profile_picture', url ?? '')
+                        }} />
                         {isSuper && <><label>Perfil de acesso<select value={values.role} onChange={e => change('role', e.target.value as AccountFormValues['role'])}><option value="SUPER_ADMIN">Administrador principal</option><option value="ADMIN">Administrador</option></select></label><label>Status da conta<select value={String(values.active)} onChange={e => change('active', e.target.value === 'true')}><option value="true">Ativa</option><option value="false">Inativa</option></select></label>{(values.role !== profile.role || values.active !== Boolean(profile.active)) && <p className="account-access-note account-full-width">Ao salvar, sua sessão será encerrada. Uma conta inativa não pode acessar a área administrativa; mudar para administrador remove as permissões de administrador principal.</p>}</>}
                         <div className="account-password-heading account-full-width"><h3>Alterar senha</h3><p>Deixe os campos vazios para manter sua senha atual.</p></div>
                         <label>Nova senha<input type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={values.password} onChange={e => change('password', e.target.value)} /></label>
