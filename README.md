@@ -189,6 +189,69 @@ quem cadastrou o evento; editar um evento não muda o criador.
 a preservação do criador e o layout de 320 a 1894 px com respostas simuladas.
 Capturas de tela ficam em `output/event-administrators`.
 
+### Localização dos eventos
+
+Na criação ou edição, use **Selecionar no mapa** para pesquisar um nome/endereço,
+clicar no mapa ou escolher um local no **Histórico**. Arraste o marcador para
+ajustar o ponto e confirme em **Usar esta localização**. O nome/endereço continua
+editável. Cancelar a janela descarta a seleção; a lixeira remove apenas o ponto,
+mantendo o endereço. Pelo teclado, as setas movem o mapa e Enter marca o centro.
+
+A página pública mostra um mapa interativo e **Traçar rota no Google Maps**.
+Eventos antigos que possuem somente endereço continuam funcionando; nesse caso,
+a rota pesquisa o endereço e o mapa aparece quando um administrador marcar o ponto.
+
+Antes de iniciar/publicar o novo backend, execute em `back-end`:
+
+```powershell
+npm.cmd run db:migrate
+```
+
+A migration `20261030120000-create-event-locations.js` cria `event_locations` e
+importa as coordenadas válidas dos eventos existentes. O histórico é compartilhado
+entre administradores, persiste mesmo quando o evento original é excluído e
+guarda um registro por coordenada arredondada a seis casas decimais. Ao salvar o
+evento, o histórico é atualizado na mesma transação. Cancelar o formulário não
+grava locais. A consulta retorna os 30 resultados mais recentes e aceita pesquisa
+por endereço para encontrar registros antigos.
+
+A API mantém `latitude` e `longitude` como números no POST/PATCH e devolve
+`localLatitude`/`localLongitude` nas consultas. Envie ambas as coordenadas juntas;
+`null` em ambas remove o ponto e a omissão das duas preserva o ponto na edição.
+Latitude aceita -90 a 90, longitude -180 a 180, e endereço até 255 caracteres.
+`GET /event/locations/search?q=...` e `GET /event/locations/history?q=...` exigem
+autenticação administrativa.
+
+O mapa usa [Leaflet](https://leafletjs.com/reference.html) e tiles do
+[OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/), com
+atribuição visível e cache normal do navegador. A busca usa a API
+[Photon](https://github.com/komoot/photon#demo-server), acionada pelo botão Buscar;
+o serviço público permite uso moderado, mas não garante disponibilidade. O backend
+mantém cache de consultas por 15 minutos (até 256 entradas por processo), reaproveita
+requisições simultâneas iguais e aplica um limite adicional de 30 buscas por
+administrador a cada 15 minutos. Falhas de busca permitem continuar pelo mapa ou
+histórico. Não é necessária chave do Google Maps.
+
+Configurações opcionais no **backend**, também descritas em `.env.example`:
+
+```dotenv
+LOCATION_SEARCH_URL=https://photon.komoot.io/api/
+RATE_LIMIT_GEOCODING_CAPACITY=30
+```
+
+Para maior volume ou garantia de disponibilidade, configure um provedor/instância
+Photon dedicada via HTTPS. No **frontend**, `VITE_MAP_TILE_URL` e
+`VITE_MAP_ATTRIBUTION` permitem substituir o provedor de tiles e sua atribuição;
+recompile o frontend após mudá-las. Os serviços públicos exigem conexão à internet
+e seus termos de uso devem ser respeitados.
+
+Os testes locais adicionados cobrem coordenadas, contratos HTTP, autenticação,
+cache da busca e transação do histórico. `node tests/eventLocation.browser.mjs`
+(em `front-end`, com `@playwright/test` instalado e Microsoft Edge disponível)
+verifica criação/edição, pesquisa, histórico, cancelamento e layouts de 320 a
+1366 px. Esse teste usa API e tiles simulados, sem consultar serviços externos ou
+gravar eventos no banco. Capturas ficam em `output/location-qa` na raiz.
+
 ### Imagens no Cloudinary
 
 Novos uploads usam o [SDK Node.js do Cloudinary](https://cloudinary.com/documentation/node_integration).

@@ -386,10 +386,10 @@
     background: #f4f0e5;
 }
 
-.event-page-map iframe {
+.event-page-map .location-map {
     display: block;
     width: 100%;
-    height: 220px;
+    height: 320px;
     border: 0;
 }
 

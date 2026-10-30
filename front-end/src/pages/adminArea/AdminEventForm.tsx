@@ -6,6 +6,7 @@ import { getUserFacingError } from '../../services/errors'
 import { savePendingEventPhotos, validateEventImage, type PendingEventPhoto } from './eventGallery'
 import { STATE_LABELS } from './eventFormLabels'
 import { EVENT_IMAGE_MAX_MB } from '../../utils/eventImageUpload'
+import EventLocationPicker from '../../components/Location/EventLocationPicker'
 import './AdminEventForm.css'
 import '../../components/Calendar/CalendarStatus.css'
 
@@ -16,6 +17,8 @@ export type EventFormValues = {
     startAt: string
     endAt: string
     localAddress: string
+    latitude: number | null
+    longitude: number | null
     state: AdminEvent['state']
     bannerImage: string | null
 }
@@ -186,7 +189,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                     }
                     if (event.key !== 'Tab') return
                     const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
-                        'button:not(:disabled), input:not(:disabled):not([type="hidden"]), textarea:not(:disabled), [tabindex="0"]',
+                        'button:not(:disabled), input:not(:disabled):not([type="hidden"]), textarea:not(:disabled), a[href], [tabindex="0"]',
                     )).filter(element => element.getClientRects().length > 0 && !element.closest('fieldset:disabled'))
                     const first = focusable[0], last = focusable.at(-1)
                     if (!first) { event.preventDefault(); return }
@@ -217,7 +220,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                                 onChange={event => setValues(current => ({ ...current, title: event.target.value }))} />
                                         </label>
                                         <label>Descrição <span className="admin-event-optional">Opcional</span>
-                                            <textarea rows={4} value={values.description} placeholder="Conte o que os visitantes vão encontrar: produtos, atrações e outras informações."
+                                            <textarea rows={3} value={values.description} placeholder="Conte o que os visitantes vão encontrar: produtos, atrações e outras informações."
                                                 onChange={event => setValues(current => ({ ...current, description: event.target.value }))} />
                                         </label>
                                     </section>
@@ -228,23 +231,10 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                             <label>Início<input required type="time" value={values.startAt} onChange={event => setValues(current => ({ ...current, startAt: event.target.value }))} /></label>
                                             <label>Término<input required type="time" value={values.endAt} onChange={event => setValues(current => ({ ...current, endAt: event.target.value }))} /></label>
                                         </div>
-                                        <label>Local / endereço
-                                            <input required value={values.localAddress} placeholder="Nome do local, rua, número e bairro" onChange={event => setValues(current => ({ ...current, localAddress: event.target.value }))} />
-                                        </label>
+                                        <EventLocationPicker address={values.localAddress} latitude={values.latitude} longitude={values.longitude}
+                                            disabled={isBusy} onChange={location => setValues(current => ({ ...current,
+                                                localAddress: location.address, latitude: location.latitude, longitude: location.longitude }))} />
                                     </section>
-                                    <fieldset className="admin-event-status-field">
-                                        <legend>Status do evento</legend>
-                                        <div className="admin-event-status-options">
-                                            {(Object.keys(STATE_LABELS) as AdminEvent['state'][]).map(state => (
-                                                <button type="button" key={state} aria-pressed={values.state === state}
-                                                    className={`admin-event-status-option calendar-status--${state}${values.state === state ? ' is-selected' : ''}`}
-                                                    onClick={() => setValues(current => ({ ...current, state }))}>
-                                                    <span aria-hidden="true" />{STATE_LABELS[state]}
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <p className="admin-event-help">Use “Agendado” para um evento previsto na agenda.</p>
-                                    </fieldset>
                                 </div>
                                 <div className="admin-event-editor-column admin-event-media-column">
                                     <section className="admin-event-editor-section" aria-labelledby="event-cover-title">
@@ -293,6 +283,18 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                             </figure>)}
                                         </div>}
                                     </section>
+                                    <fieldset className="admin-event-status-field">
+                                        <legend>Status do evento</legend>
+                                        <div className="admin-event-status-options">
+                                            {(Object.keys(STATE_LABELS) as AdminEvent['state'][]).map(state => (
+                                                <button type="button" key={state} aria-pressed={values.state === state}
+                                                    className={`admin-event-status-option calendar-status--${state}${values.state === state ? ' is-selected' : ''}`}
+                                                    onClick={() => setValues(current => ({ ...current, state }))}>
+                                                    <span aria-hidden="true" />{STATE_LABELS[state]}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </fieldset>
                                     {fileError && <div className="admin-event-gallery-error" role="alert"><p>{fileError} Os arquivos inválidos não foram adicionados.</p><button type="button" className="admin-event-upload-button" onClick={() => setFileError(null)}>Entendi</button></div>}
                                 </div>
                             </div>

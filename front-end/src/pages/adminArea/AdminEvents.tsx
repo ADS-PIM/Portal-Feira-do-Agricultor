@@ -17,6 +17,7 @@ import './AdminEvents.css'
 import '../../components/Calendar/CalendarStatus.css'
 import AdminEventForm, { type EventFormValues, type EventSaveSession } from './AdminEventForm'
 import { STATE_LABELS } from './eventFormLabels'
+import { getCoordinates } from '../../utils/eventLocation'
 
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
 const MONTH_OPTIONS = [
@@ -40,6 +41,8 @@ const emptyForm: EventFormValues = {
     startAt: '',
     endAt: '',
     localAddress: '',
+    latitude: null,
+    longitude: null,
     state: 'PENDING',
     bannerImage: null,
 }
@@ -64,6 +67,7 @@ function formatDate(value: string): string {
 }
 
 function toFormValues(event: AdminEvent): EventFormValues {
+    const coordinates = getCoordinates(event.localLatitude, event.localLongitude)
     return {
         title: event.title,
         description: event.description ?? '',
@@ -71,6 +75,8 @@ function toFormValues(event: AdminEvent): EventFormValues {
         startAt: event.startAt.slice(0, 5),
         endAt: event.endAt.slice(0, 5),
         localAddress: event.localAddress,
+        latitude: coordinates?.latitude ?? null,
+        longitude: coordinates?.longitude ?? null,
         state: event.state,
         bannerImage: event.bannerImage,
     }
@@ -247,6 +253,8 @@ const AdminEvents = ({
             eventSaved = true
             const savedEvent: AdminEvent = {
                 ...eventInput,
+                localLatitude: eventInput.latitude,
+                localLongitude: eventInput.longitude,
                 id: session.eventId,
                 createdAt: editingEvent?.createdAt ?? new Date().toISOString(),
                 administratorId: editingEvent?.administratorId ?? currentAdmin!.id,

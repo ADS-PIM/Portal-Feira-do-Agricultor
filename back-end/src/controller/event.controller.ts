@@ -4,12 +4,16 @@ import { validate } from 'class-validator';
 import { EventCreateDTO, EventUpdateDTO } from '../dto/event.dto';
 import { EventService } from '../service/event.service';
 import { AuthRequest } from '../../authMiddleware'
+import { validCoordinatePair } from '../util/eventCoordinates';
 
 export class EventController {
     public constructor(private eventService: EventService) {}
 
     public async create(req: AuthRequest, res: Response) {
         try {
+            if (!validCoordinatePair(req.body?.latitude, req.body?.longitude)) {
+                return res.status(400).json({ code: 'INVALID_EVENT_COORDINATES', error: 'Informe latitude e longitude válidas juntas, ou remova ambas.' });
+            }
             const eventCreateDTO = plainToInstance(EventCreateDTO, req.body)
             eventCreateDTO.adminId = req.admin?.adminId as string// não vai dar errado por causa da rota ser protegida
             const errors = await validate(eventCreateDTO);
@@ -26,6 +30,9 @@ export class EventController {
 
     public async update(req: AuthRequest, res: Response) {
         try {
+            if (!validCoordinatePair(req.body?.latitude, req.body?.longitude)) {
+                return res.status(400).json({ code: 'INVALID_EVENT_COORDINATES', error: 'Informe latitude e longitude válidas juntas, ou remova ambas.' });
+            }
             const targetEventId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
             const eventUpdateDTO = plainToInstance(EventUpdateDTO, req.body)
             const errors = await validate(eventUpdateDTO)

@@ -1,6 +1,7 @@
 import { connection } from '../util/connection'
 import { randomUUID } from 'node:crypto'
 import type { PoolConnection } from 'mysql2/promise'
+import { rememberEventLocation } from './eventLocation.dao'
 import { Event, EventState } from '../model/event'
 import { AdminEventSearchDTO, EventAgendaSearchDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
 
@@ -39,6 +40,7 @@ export class EventDAO {
             if (event.bannerImage) {
                 await this.syncBannerImage(dbConnection, event.id, event.bannerImage)
             }
+            if (event.latitude != null && event.longitude != null) await rememberEventLocation(dbConnection, event.id)
             await dbConnection.commit()
         } catch (error: any) {
             await dbConnection.rollback()
@@ -64,7 +66,7 @@ export class EventDAO {
     public async searchAll(): Promise<EventSearchDTO[] | null> {
         try {
             const [events]: any = await connection.query(
-                "SELECT id, title, date, description, startAt, endAt, localAddress, state, bannerImage, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i:%s.%f') AS createdAt FROM events ORDER BY createdAt DESC, id DESC"
+                "SELECT id, title, date, description, startAt, endAt, localAddress, localLatitude, localLongitude, state, bannerImage, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i:%s.%f') AS createdAt FROM events ORDER BY createdAt DESC, id DESC"
             );
             return events.length === 0 ? null : events;
         } catch (error: any) {
@@ -75,7 +77,7 @@ export class EventDAO {
     public async searchForAdmin(): Promise<AdminEventSearchDTO[]> {
         const [events]: any = await connection.query(`
             SELECT e.id, e.title, e.date, e.description, e.startAt, e.endAt, e.localAddress,
-                e.state, e.bannerImage, DATE_FORMAT(e.createdAt, '%Y-%m-%d %H:%i:%s.%f') AS createdAt,
+                e.localLatitude, e.localLongitude, e.state, e.bannerImage, DATE_FORMAT(e.createdAt, '%Y-%m-%d %H:%i:%s.%f') AS createdAt,
                 e.administratorId, a.name AS administratorName, a.active AS administratorActive
             FROM events e
             INNER JOIN administrators a ON a.id = e.administratorId
@@ -177,6 +179,9 @@ export class EventDAO {
             }
             if (data.bannerImage !== undefined) {
                 await this.syncBannerImage(dbConnection, id, data.bannerImage)
+            }
+            if (data.latitude !== undefined || data.longitude !== undefined || data.localAddress !== undefined) {
+                await rememberEventLocation(dbConnection, id)
             }
             await dbConnection.commit()
         } catch (error: any) {
