@@ -32,6 +32,12 @@
 .account-button:hover:not(:disabled) { background: var(--brand-green-hover); }
 .account-button.is-secondary { background: #fff; border-color: #dce5d7; color: #396445; }
 .account-button.is-secondary:hover:not(:disabled) { background: #f3f8f0; }
+.account-button.is-danger { background: #a04432; border-color: #a04432; }
+.account-button.is-danger:hover:not(:disabled) { background: #803327; }
+.account-deletion { margin-top: 30px; padding-top: 24px; border-top: 1px solid #efcec4; }
+.account-deletion h3 { margin: 0 0 10px; color: #9b4532; font-size: 15px; }
+.account-deletion > p, .account-deletion form > p { font-size: 12px; line-height: 1.7; color: var(--text-muted); }
+.account-deletion > h3 + p { margin: 0 0 20px; }
 .account-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin: 0; padding-top: 22px; border-top: 1px solid #edf0e9; }
 .account-info dt { margin-bottom: 9px; color: var(--text-muted); font-size: 11px; }
 .account-info dd { margin: 0; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
@@ -63,3 +69,30 @@
     .account-button,
     .account-password-toggle { font-size: 14px; }
 }
+
+.account-photo-upload { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.account-photo-label { font-size: 12px; font-weight: 600; }
+.account-photo-card { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; padding: 16px; border: 1px solid var(--border-default); border-radius: 12px; background: var(--surface-input); min-width: 0; }
+.account-photo-info { display: flex; flex: 1 1 150px; flex-direction: column; gap: 4px; min-width: 0; }
+.account-photo-info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 600; }
+.account-photo-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.account-photo-edit-actions, .account-photo-save-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.account-photo-save-actions { margin-left: auto; }
+.account-photo-card.has-selection .account-photo-actions { flex-basis: 100%; padding-top: 12px; border-top: 1px solid #e2e9dd; }
+.account-photo-actions .account-button { min-height: 38px; padding: 8px 12px; }
+.account-photo-actions .account-button svg { width: 14px; height: 14px; }
+.account-photo-actions .account-photo-cancel { border-color: transparent; background: transparent; color: #626e5e; }
+.account-photo-actions .account-photo-cancel:hover:not(:disabled) { background: #eaf0e5; color: #34472e; }
+.account-photo-actions .account-photo-save { box-shadow: 0 2px 4px rgb(28 61 37 / 12%); }
+.account-photo-upload .account-feedback { margin: 0; }
+@media (max-width: 480px) {
+    .account-photo-label { font-size: 14px; }
+    .account-photo-card { gap: 12px; padding: 12px; }
+    .account-photo-info { flex-basis: 100%; }
+    .account-photo-actions { width: 100%; }
+    .account-photo-edit-actions, .account-photo-save-actions { width: 100%; }
+    .account-photo-actions .account-button { flex: 1; padding: 8px; font-size: 12px; gap: 6px; }
+}
+
+.account-photo-actions .account-photo-remove { color: #9b4532; border-color: #efcec4; }
+.account-photo-actions .account-photo-remove:hover:not(:disabled) { background: #fff6f2; }

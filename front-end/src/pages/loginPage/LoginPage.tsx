@@ -2,10 +2,11 @@ import './LoginPage.css'
 import { useEffect, useState } from 'react'
 import Header from '../../components/Header/Header'
 import LoginPainel from '../../components/Login/LoginPainel'
+import AdminDisabledPage from './AdminDisabledPage'
 import type { LoginCredentials } from '../../components/Login/LoginPainel'
 import { apiFetch, restoreAdminProfile } from '../../services/api'
-import { getUserFacingError } from '../../services/errors'
-import { setAccessToken, setAdminId, setAdminProfile, type AdminProfile } from '../../services/authToken'
+import { getUserFacingError, isAdminDisabledError } from '../../services/errors'
+import { setAccessToken, setAdminId, type AdminProfile } from '../../services/authToken'
 
 interface LoginResponse {
     accessToken: string
@@ -20,6 +21,7 @@ const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
     const [isLoading, setIsLoading] = useState(false)
     const [isCheckingSession, setIsCheckingSession] = useState(true)
     const [sessionRestored, setSessionRestored] = useState(false)
+    const [adminDisabled, setAdminDisabled] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     useEffect(() => {
@@ -34,6 +36,10 @@ const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
                 onLoginSuccess?.(admin)
             } catch (error) {
                 if (active) {
+                    if (isAdminDisabledError(error)) {
+                        setAdminDisabled(true)
+                        return
+                    }
                     setErrorMessage(getUserFacingError(error, 'Não foi possível restaurar a sessão. Tente novamente.'))
                 }
             } finally {
@@ -61,15 +67,25 @@ const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
             setAccessToken(accessToken)
             setAdminId(userId)
 
-            const admin = await apiFetch<AdminProfile>(`admin/${encodeURIComponent(userId)}`)
-            setAdminProfile(admin)
+            const admin = await restoreAdminProfile()
+            if (!admin) return
             onLoginSuccess?.(admin)
         } catch (error) {
+            if (isAdminDisabledError(error)) {
+                setAdminDisabled(true)
+                return
+            }
             setErrorMessage(getUserFacingError(error, 'Não foi possível entrar. Tente novamente mais tarde.'))
         } finally {
             setIsLoading(false)
         }
     }
+
+    if (adminDisabled) return <AdminDisabledPage onReturnToLogin={() => {
+        setAdminDisabled(false)
+        setSessionRestored(false)
+        setErrorMessage(null)
+    }} />
 
     return (
         <div className="login-page">

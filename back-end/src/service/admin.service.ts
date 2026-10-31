@@ -3,17 +3,7 @@ import { AdminCreateDTO, AdminSearchByIdDTO, AdminSearchDTO } from "../dto/admin
 import { Admin } from "../model/admin";
 import { PasswordCrypto } from './passwordCrypto';
 import { AdminUpdateData } from '../dao/admin.dao';
-
-export class AdminDeletionError extends Error {
-    constructor(
-        public readonly status: 403 | 404 | 409,
-        public readonly code: 'ADMIN_NOT_FOUND' | 'SUPER_ADMIN_DELETE_FORBIDDEN' | 'ADMIN_HAS_EVENTS',
-        message: string,
-    ) {
-        super(message);
-        this.name = 'AdminDeletionError';
-    }
-}
+import { AdminActionError } from '../model/adminActionError';
 
 export class AdminService {
     public constructor(private adminDAO: AdminDAO) {}
@@ -37,15 +27,35 @@ export class AdminService {
         }
     }
 
-    public async delete(id: string): Promise<void> {
-        const result = await this.adminDAO.delete(id);
+    public async delete(id: string, actorId: string, currentPassword?: unknown): Promise<void> {
+        let verifiedPasswordHash: string | undefined;
+        if (id === actorId) {
+            if (typeof currentPassword !== 'string' || !currentPassword) {
+                throw new AdminActionError(400, 'CURRENT_PASSWORD_REQUIRED', 'Current password is required');
+            }
+            const actor = await this.searchById(actorId);
+            if (!actor?.active || !actor.password ||
+                !await PasswordCrypto.verifyPassword(currentPassword, actor.password)) {
+                throw new AdminActionError(403, 'INVALID_CURRENT_PASSWORD', 'Current password is incorrect');
+            }
+            verifiedPasswordHash = actor.password;
+        }
+        const result = await this.adminDAO.delete(id, actorId, verifiedPasswordHash);
         switch (result) {
             case 'not_found':
-                throw new AdminDeletionError(404, 'ADMIN_NOT_FOUND', 'Admin not found');
+                throw new AdminActionError(404, 'ADMIN_NOT_FOUND', 'Admin not found');
             case 'super_admin':
-                throw new AdminDeletionError(403, 'SUPER_ADMIN_DELETE_FORBIDDEN', 'Cannot delete SUPER_ADMIN');
+                throw new AdminActionError(403, 'SUPER_ADMIN_DELETE_FORBIDDEN', 'Cannot delete another SUPER_ADMIN');
+            case 'forbidden':
+                throw new AdminActionError(403, 'ADMIN_DELETE_FORBIDDEN', 'You cannot delete this administrator');
+            case 'invalid_password':
+                throw new AdminActionError(403, 'INVALID_CURRENT_PASSWORD', 'Current password has changed; confirm it again');
+            case 'last_super_admin':
+                throw new AdminActionError(409, 'LAST_SUPER_ADMIN', 'Promote another active administrator before leaving');
+            case 'active':
+                throw new AdminActionError(409, 'ADMIN_ACTIVE', 'Deactivate the administrator before deleting the account');
             case 'has_events':
-                throw new AdminDeletionError(409, 'ADMIN_HAS_EVENTS', 'Admin has linked events; deactivate the account to preserve event history');
+                throw new AdminActionError(409, 'ADMIN_HAS_EVENTS', 'No active SUPER_ADMIN is available to take responsibility for linked events');
         }
     }
 
@@ -68,7 +78,7 @@ export class AdminService {
         return admins;
     }
 
-    public async update(id: string, data: AdminUpdateData): Promise<void> {
+    public async update(id: string, data: AdminUpdateData, actorId: string): Promise<void> {
         if (data.email !== undefined) {
             const adminWithEmail = await this.searchByEmail(data.email);
             if (adminWithEmail && adminWithEmail.id !== id) {
@@ -80,6 +90,6 @@ export class AdminService {
             data.password = await PasswordCrypto.hashPassword(data.password);
         }
 
-        await this.adminDAO.update(id, data);
+        await this.adminDAO.update(id, data, actorId);
     }
 }

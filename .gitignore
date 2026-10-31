@@ -1,3 +1,17 @@
 node_modules/
-output/password-recovery/
-output/event-administrators/
+
+# Local test sources (frontend and backend)
+test/
+tests/
+__tests__/
+*.test.*
+*.spec.*
+*.integration.*
+*.browser.mjs
+
+# Generated test reports, coverage and browser captures
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+/output/

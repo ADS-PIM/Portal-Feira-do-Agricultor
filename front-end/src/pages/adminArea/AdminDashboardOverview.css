@@ -4,12 +4,6 @@
 }
 
 .dashboard-overview-heading {
-    display: flex;
-    min-height: 84px;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
     margin-bottom: 16px;
 }
 
@@ -285,7 +279,6 @@
 }
 
 @container dashboard (max-width: 479px) {
-    .dashboard-overview-heading { min-height: auto; align-items: flex-start; }
     .dashboard-metric { padding: 10px; }
     .dashboard-metric-heading { min-height: 18px; }
     .dashboard-metric-icon { display: none; }

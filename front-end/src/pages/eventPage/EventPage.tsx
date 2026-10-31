@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import Icon from '../../components/Icon'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
@@ -6,7 +6,10 @@ import { getEvents, getEventDetails, getEventImages, type AdminEvent, type Event
 import { getUserFacingError } from '../../services/errors'
 import { getEventImageProps } from '../../services/eventImageUrl'
 import { getAdjacentEvents } from './eventNavigation'
+import { getCoordinates, getDirectionsUrl } from '../../utils/eventLocation'
 import './EventPage.css'
+
+const LocationMap = lazy(() => import('../../components/Location/LocationMap'))
 
 const EVENT_STATE_LABELS: Record<EventDetails['state'], string> = {
     PENDING: 'Agendado',
@@ -32,21 +35,6 @@ function formatDate(value: string): string {
 function formatTime(value: string): string {
     const time = value.slice(0, 5)
     return /^\d{2}:\d{2}$/.test(time) ? time : 'Horário não informado'
-}
-
-function getMapCoordinates(event: EventDetails): { latitude: number; longitude: number } | null {
-    const latitude = Number(event.localLatitude)
-    const longitude = Number(event.localLongitude)
-    if (
-        event.localLatitude === null || event.localLatitude === ''
-        || event.localLongitude === null || event.localLongitude === ''
-        || !Number.isFinite(latitude) || !Number.isFinite(longitude)
-        || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180
-    ) {
-        return null
-    }
-
-    return { latitude, longitude }
 }
 
 function EventPhoto({ image }: { image: EventImage }) {
@@ -148,23 +136,9 @@ function EventPage({ eventId }: { eventId: string }) {
             : []
     const visiblePhotos = showAllPhotos ? photos : photos.slice(0, 5)
     const selectedPhoto = selectedPhotoIndex !== null ? photos[selectedPhotoIndex] ?? null : null
-    const mapCoordinates = event ? getMapCoordinates(event) : null
+    const mapCoordinates = event ? getCoordinates(event.localLatitude, event.localLongitude) : null
     const hasAddress = Boolean(event?.localAddress?.trim())
-    const mapUrl = mapCoordinates
-        ? `https://www.openstreetmap.org/?mlat=${mapCoordinates.latitude}&mlon=${mapCoordinates.longitude}#map=16/${mapCoordinates.latitude}/${mapCoordinates.longitude}`
-        : null
-    const mapEmbedUrl = mapCoordinates
-        ? `https://www.openstreetmap.org/export/embed.html?${new URLSearchParams({
-            bbox: [
-                mapCoordinates.longitude - 0.01,
-                mapCoordinates.latitude - 0.01,
-                mapCoordinates.longitude + 0.01,
-                mapCoordinates.latitude + 0.01,
-            ].join(','),
-            layer: 'mapnik',
-            marker: `${mapCoordinates.latitude},${mapCoordinates.longitude}`,
-        })}`
-        : null
+    const mapUrl = getDirectionsUrl(mapCoordinates, event?.localAddress ?? null)
 
     const openPhoto = (index: number) => {
         if (photos.length === 0) return
@@ -387,13 +361,10 @@ function EventPage({ eventId }: { eventId: string }) {
 
                             <section className="event-page-location" aria-labelledby="event-page-location-title">
                                 <div className="event-page-map">
-                                    {mapEmbedUrl ? (
-                                        <iframe
-                                            title={`Mapa de localização de ${event.title}`}
-                                            src={mapEmbedUrl}
-                                            loading="lazy"
-                                            referrerPolicy="no-referrer"
-                                        />
+                                    {mapCoordinates ? (
+                                        <Suspense fallback={<p role="status">Carregando mapa...</p>}>
+                                            <LocationMap coordinates={mapCoordinates} label={`Mapa de localização de ${event.title}`} />
+                                        </Suspense>
                                     ) : (
                                         <p>
                                             {hasAddress
@@ -409,7 +380,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                     </div>
                                     {mapUrl && (
                                         <a href={mapUrl} target="_blank" rel="noreferrer">
-                                            Abrir no mapa
+                                            Traçar rota no Google Maps
                                             <Icon name="map" />
                                         </a>
                                     )}

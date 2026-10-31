@@ -24,6 +24,8 @@ export interface AgendaEvent {
 }
 
 export interface AdminEvent extends AgendaEvent {
+    localLatitude: number | string | null
+    localLongitude: number | string | null
     description: string | null
     state: 'PENDING' | 'CANCELED' | 'CONCLUDED' | 'RESCHEDULED' | 'HAPPENING'
     createdAt: string
@@ -51,7 +53,7 @@ export interface EventImage {
 export type AdminEventInput = Pick<
     AdminEvent,
     'title' | 'description' | 'date' | 'startAt' | 'endAt' | 'localAddress' | 'state' | 'bannerImage'
->
+> & { latitude: number | null; longitude: number | null }
 
 type ImageUploadSession = {
     uploadUrl: string

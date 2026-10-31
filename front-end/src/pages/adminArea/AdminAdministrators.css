@@ -212,6 +212,7 @@
     width: 34px;
     height: 34px;
     place-items: center;
+    overflow: hidden;
     border-radius: 50%;
     background: linear-gradient(135deg, #d9f4e0, #cfe7d3);
     color: #0f6d39;
@@ -219,9 +220,34 @@
     font-weight: 700;
 }
 
+.admin-managers-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .admin-managers-name {
     font-weight: 700;
     overflow-wrap: anywhere;
+}
+
+.admin-managers-role-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+.admin-managers-role-label.is-super {
+    color: #396445;
+    font-weight: 600;
+}
+
+.admin-managers-role-label svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
 }
 
 .admin-managers-email,
@@ -279,7 +305,7 @@
     transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.admin-managers-action-button:hover {
+.admin-managers-action-button:hover:not(:disabled) {
     box-shadow: 0 2px 4px #26362412;
 }
 
@@ -295,7 +321,7 @@
     color: #44513e;
 }
 
-.admin-managers-action-button.is-toggle:hover {
+.admin-managers-action-button.is-toggle:hover:not(:disabled) {
     background: #e8ede3;
     border-color: #b8c5af;
 }
@@ -306,7 +332,7 @@
     color: #1f56d9;
 }
 
-.admin-managers-action-button.is-edit:hover {
+.admin-managers-action-button.is-edit:hover:not(:disabled) {
     background: #e8f0ff;
     border-color: #aac5f5;
 }
@@ -317,9 +343,40 @@
     color: #bf2d2d;
 }
 
-.admin-managers-action-button.is-delete:hover {
+.admin-managers-action-button.is-delete:hover:not(:disabled) {
     background: #ffe3e3;
     border-color: #e9aaaa;
+}
+
+.admin-managers-action-button.is-reactivate {
+    background: #edf7ee;
+    border-color: #c8dfcb;
+    color: #236634;
+}
+
+.admin-managers-action-button.is-reactivate:hover:not(:disabled) {
+    background: #dfefdf;
+    border-color: #a9caae;
+}
+
+.admin-managers-action-button:disabled {
+    background: #f6f6f4;
+    border-color: #e8e8e3;
+    color: #a7aaa2;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.admin-managers-action-button.is-edit:disabled {
+    background: #f7f9fc;
+    border-color: #e7ebf3;
+    color: #a8b5ce;
+}
+
+.admin-managers-action-button.is-delete:disabled {
+    background: #fff8f7;
+    border-color: #f3e6e3;
+    color: #d1aca6;
 }
 
 .admin-managers-action-button svg {

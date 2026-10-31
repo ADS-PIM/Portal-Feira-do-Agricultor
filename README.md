@@ -13,6 +13,10 @@ administrativas para gerenciar o conteúdo.
 
 ## Requisitos
 
+Os arquivos de teste e seus resultados são locais e ignorados pelo Git. Os comandos
+de teste documentados abaixo exigem os arquivos em `back-end/test` e
+`front-end/tests`, que não acompanham novos clones do repositório.
+
 - Git.
 - Node.js e npm compatíveis com Vite 8 (Node.js 20.19+ ou 22.12+).
 - MySQL instalado e em execução.
@@ -130,14 +134,34 @@ navegador Chromium, informe o executável em `BROWSER_PATH`.
 
 ### Exclusão de administradores
 
-`DELETE /admin/:id` exige uma sessão de `SUPER_ADMIN`. A exclusão remove os
-refresh tokens e a conta na mesma transação; links de recuperação de senha
-são removidos pela chave estrangeira existente. A correção não exige migration.
+`DELETE /admin/:id` exige uma sessão autenticada. Um `SUPER_ADMIN` pode excluir
+um `ADMIN` previamente desativado, mas nunca outro `SUPER_ADMIN`. Administradores
+comuns não podem excluir outras contas. Ambos os perfis podem excluir a própria
+conta ativa em **Minha conta**, enviando a senha atual no corpo `{ "password": "..." }`.
 
-Contas inexistentes retornam `404` (`ADMIN_NOT_FOUND`), administradores principais
-retornam `403` (`SUPER_ADMIN_DELETE_FORBIDDEN`) e contas com eventos vinculados
-retornam `409` (`ADMIN_HAS_EVENTS`). Nesse último caso, desative o acesso para
-preservar o histórico dos eventos. O painel mostra uma mensagem específica
+O último `SUPER_ADMIN` ativo não pode excluir, desativar ou rebaixar a própria
+conta: é preciso promover ou reativar outro Super Admin primeiro. Um Super Admin
+ativo pode reativar outro Super Admin com `PATCH /admin/:id` e corpo exclusivamente
+`{ "active": true }`. Desativação, rebaixamento e demais alterações na conta de
+outro Super Admin são bloqueados, evitando o rebaixamento seguido de exclusão.
+As verificações e alterações usam a mesma transação com
+bloqueios no banco para proteger saídas simultâneas.
+
+Na autoexclusão, a responsabilidade pelos eventos vinculados é transferida para
+outro Super Admin ativo, sem apagar os eventos. Quando um Super Admin exclui um
+Admin comum desativado, os eventos passam para o Super Admin que confirmou a
+exclusão. Os dados dos eventos e suas imagens são preservados; o diálogo de
+confirmação informa a transferência de responsabilidade. A exclusão remove os refresh
+tokens e a conta na mesma transação; links de recuperação de senha são removidos
+pela chave estrangeira existente. O cookie e o estado local da sessão são limpos.
+Requisições autenticadas consultam a conta atual no banco, impedindo o uso de
+tokens de contas excluídas, inativas ou com permissões antigas. Não exige migration.
+
+Contas inexistentes retornam `404` (`ADMIN_NOT_FOUND`), exclusões de outros Super Admins
+retornam `403` (`SUPER_ADMIN_DELETE_FORBIDDEN`), a saída do último principal ativo
+retorna `409` (`LAST_SUPER_ADMIN`) e contas com eventos vinculados sem transferência
+retornam `409` (`ADMIN_HAS_EVENTS`). Nesse último caso, é necessário disponibilizar
+um Super Admin ativo para assumir os eventos. O painel mostra uma mensagem específica
 para cada situação.
 
 `npm test` cobre as permissões e respostas da API.
@@ -145,6 +169,9 @@ para cada situação.
 chave estrangeira e verifica exclusão, rollback e concorrência em um schema
 temporário `admin_delete_test_<uuid>`, removido ao final. No frontend,
 `node --test tests/adminDeletion.test.mjs` verifica as mensagens do painel.
+`node tests/adminPermissions.browser.mjs` verifica autoexclusão, senha, bloqueio
+do último Super Admin, encerramento de sessão e proteção entre pares nas telas
+reais com respostas simuladas, incluindo larguras de 320 a 1440 px.
 
 ### Eventos por administrador
 
@@ -161,6 +188,69 @@ quem cadastrou o evento; editar um evento não muda o criador.
 `node tests/eventAdministrators.browser.mjs`, em `front-end`, verifica os filtros,
 a preservação do criador e o layout de 320 a 1894 px com respostas simuladas.
 Capturas de tela ficam em `output/event-administrators`.
+
+### Localização dos eventos
+
+Na criação ou edição, use **Selecionar no mapa** para pesquisar um nome/endereço,
+clicar no mapa ou escolher um local no **Histórico**. Arraste o marcador para
+ajustar o ponto e confirme em **Usar esta localização**. O nome/endereço continua
+editável. Cancelar a janela descarta a seleção; a lixeira remove apenas o ponto,
+mantendo o endereço. Pelo teclado, as setas movem o mapa e Enter marca o centro.
+
+A página pública mostra um mapa interativo e **Traçar rota no Google Maps**.
+Eventos antigos que possuem somente endereço continuam funcionando; nesse caso,
+a rota pesquisa o endereço e o mapa aparece quando um administrador marcar o ponto.
+
+Antes de iniciar/publicar o novo backend, execute em `back-end`:
+
+```powershell
+npm.cmd run db:migrate
+```
+
+A migration `20261030120000-create-event-locations.js` cria `event_locations` e
+importa as coordenadas válidas dos eventos existentes. O histórico é compartilhado
+entre administradores, persiste mesmo quando o evento original é excluído e
+guarda um registro por coordenada arredondada a seis casas decimais. Ao salvar o
+evento, o histórico é atualizado na mesma transação. Cancelar o formulário não
+grava locais. A consulta retorna os 30 resultados mais recentes e aceita pesquisa
+por endereço para encontrar registros antigos.
+
+A API mantém `latitude` e `longitude` como números no POST/PATCH e devolve
+`localLatitude`/`localLongitude` nas consultas. Envie ambas as coordenadas juntas;
+`null` em ambas remove o ponto e a omissão das duas preserva o ponto na edição.
+Latitude aceita -90 a 90, longitude -180 a 180, e endereço até 255 caracteres.
+`GET /event/locations/search?q=...` e `GET /event/locations/history?q=...` exigem
+autenticação administrativa.
+
+O mapa usa [Leaflet](https://leafletjs.com/reference.html) e tiles do
+[OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/), com
+atribuição visível e cache normal do navegador. A busca usa a API
+[Photon](https://github.com/komoot/photon#demo-server), acionada pelo botão Buscar;
+o serviço público permite uso moderado, mas não garante disponibilidade. O backend
+mantém cache de consultas por 15 minutos (até 256 entradas por processo), reaproveita
+requisições simultâneas iguais e aplica um limite adicional de 30 buscas por
+administrador a cada 15 minutos. Falhas de busca permitem continuar pelo mapa ou
+histórico. Não é necessária chave do Google Maps.
+
+Configurações opcionais no **backend**, também descritas em `.env.example`:
+
+```dotenv
+LOCATION_SEARCH_URL=https://photon.komoot.io/api/
+RATE_LIMIT_GEOCODING_CAPACITY=30
+```
+
+Para maior volume ou garantia de disponibilidade, configure um provedor/instância
+Photon dedicada via HTTPS. No **frontend**, `VITE_MAP_TILE_URL` e
+`VITE_MAP_ATTRIBUTION` permitem substituir o provedor de tiles e sua atribuição;
+recompile o frontend após mudá-las. Os serviços públicos exigem conexão à internet
+e seus termos de uso devem ser respeitados.
+
+Os testes locais adicionados cobrem coordenadas, contratos HTTP, autenticação,
+cache da busca e transação do histórico. `node tests/eventLocation.browser.mjs`
+(em `front-end`, com `@playwright/test` instalado e Microsoft Edge disponível)
+verifica criação/edição, pesquisa, histórico, cancelamento e layouts de 320 a
+1366 px. Esse teste usa API e tiles simulados, sem consultar serviços externos ou
+gravar eventos no banco. Capturas ficam em `output/location-qa` na raiz.
 
 ### Imagens no Cloudinary
 

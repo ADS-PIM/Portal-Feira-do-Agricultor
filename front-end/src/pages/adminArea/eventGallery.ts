@@ -1,3 +1,5 @@
+import type { ImageAdjustment } from '../../utils/imageCrop'
+
 export { validateEventImage } from '../../utils/eventImageUpload'
 
 export type PendingEventPhoto = {
@@ -5,6 +7,8 @@ export type PendingEventPhoto = {
     file: File
     preview: string
     description: string
+    source?: File
+    adjustment?: ImageAdjustment
     uploadedUrl?: string
     saved?: boolean
 }

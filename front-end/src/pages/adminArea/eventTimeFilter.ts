@@ -4,5 +4,5 @@ export function matchesEventTimeRange(event: EventHours, from: string, to: strin
     const startsAt = event.startAt.slice(0, 5)
     const endsAt = event.endAt.slice(0, 5)
 
-    return (!from || startsAt >= from) && (!to || endsAt <= to)
+    return (!from || endsAt >= from) && (!to || startsAt <= to)
 }

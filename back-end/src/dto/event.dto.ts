@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEnum, IsOptional, IsDateString, IsMilitaryTime, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, IsOptional, IsDateString, IsMilitaryTime, IsNumber, Min, Max, MaxLength } from 'class-validator';
 import { EventState } from '../model/event';
 import type { EventImageSearchByEventId } from './eventImage.dto';
 
@@ -25,14 +25,19 @@ export class EventCreateDTO {
 
     @IsNotEmpty()
     @IsString()
+    @MaxLength(255)
     localAddress: string;
 
     @IsOptional()
     @IsNumber()
+    @Min(-90)
+    @Max(90)
     latitude?: number | null;
 
     @IsOptional()
     @IsNumber()
+    @Min(-180)
+    @Max(180)
     longitude?: number | null;
 
     @IsOptional()
@@ -71,14 +76,19 @@ export class EventUpdateDTO {
 
     @IsOptional()
     @IsString()
+    @MaxLength(255)
     localAddress: string;
 
     @IsOptional()
     @IsNumber()
+    @Min(-90)
+    @Max(90)
     latitude?: number | null;
 
     @IsOptional()
     @IsNumber()
+    @Min(-180)
+    @Max(180)
     longitude?: number | null;
 
     @IsOptional()   
@@ -98,6 +108,8 @@ export class EventSearchDTO {
     endAt: string;
     description: string | null;
     localAddress: string;
+    localLatitude: number | string | null;
+    localLongitude: number | string | null;
     state: EventState;
     bannerImage: string | null;
     createdAt: Date;

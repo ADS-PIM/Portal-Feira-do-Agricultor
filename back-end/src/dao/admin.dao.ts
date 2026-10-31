@@ -2,8 +2,14 @@ import { connection } from '../util/connection';
 import { Admin } from '../model/admin';
 import { AdminSearchByIdDTO, AdminSearchDTO } from '../dto/admin.dto';
 import type { Pool, RowDataPacket } from 'mysql2/promise';
+import { AdminActionError } from '../model/adminActionError';
 
-export type AdminDeleteResult = 'deleted' | 'not_found' | 'super_admin' | 'has_events';
+export type AdminDeleteResult = 'deleted' | 'not_found' | 'super_admin' | 'active' | 'has_events'
+    | 'forbidden' | 'invalid_password' | 'last_super_admin';
+
+// Updates and deletions share one lock order. Concurrent departures cannot both
+// decide that the other principal administrator will remain available.
+const lockAdministrators = 'SELECT id, role, active FROM administrators ORDER BY id FOR UPDATE';
 
 export type AdminUpdateData = {
     name?: string;
@@ -16,6 +22,23 @@ export type AdminUpdateData = {
 
 export class AdminDAO {
     constructor(private pool: Pool = connection) {}
+
+    async replaceProfilePicture(id: string, url: string | null): Promise<string | null> {
+        const db = await this.pool.getConnection();
+        try {
+            await db.beginTransaction();
+            const [rows] = await db.execute<RowDataPacket[]>(
+                'SELECT profile_picture, active FROM administrators WHERE id = ? FOR UPDATE', [id]);
+            if (!rows[0]?.active) throw new AdminActionError(403, 'ADMIN_DISABLED', 'Account unavailable');
+            const previous = rows[0].profile_picture as string | null;
+            await db.execute('UPDATE administrators SET profile_picture = ? WHERE id = ?', [url, id]);
+            await db.commit();
+            return previous;
+        } catch (error) {
+            await db.rollback();
+            throw error;
+        } finally { db.release(); }
+    }
 
     public async register(admin: Admin): Promise<void> {
         try {
@@ -78,7 +101,7 @@ export class AdminDAO {
         }
     }
 
-    async update(id: string, data: AdminUpdateData): Promise<void> {
+    async update(id: string, data: AdminUpdateData, actorId: string): Promise<void> {
         const fields: string[] = [];
         const values: (string | boolean | null)[] = [];
 
@@ -111,38 +134,97 @@ export class AdminDAO {
             return;
         }
 
-        try {
-            await this.pool.query(
-                `UPDATE administrators SET ${fields.join(', ')} WHERE id = ?`,
-                [...values, id]
-            );
-        } catch (error: any) {
-            throw new Error('Error updating admin: ' + error.message);
-        }
-    }
-
-    async delete(id: string): Promise<AdminDeleteResult> {
         const db = await this.pool.getConnection();
         try {
             await db.beginTransaction();
-            // Use the same lock order as refresh and password recovery.
-            const [admins] = await db.execute<RowDataPacket[]>(
-                'SELECT role FROM administrators WHERE id = ? FOR UPDATE', [id]);
-            if (!admins[0]) {
+            const [admins] = await db.execute<RowDataPacket[]>(lockAdministrators);
+            const actor = admins.find(admin => admin.id === actorId);
+            const target = admins.find(admin => admin.id === id);
+            const isSelf = actorId === id;
+            const isSuper = actor?.role === 'SUPER_ADMIN';
+            const allowedFields = isSuper
+                ? ['name', 'email', 'role', 'active', 'profile_picture', ...(isSelf ? ['password'] : [])]
+                : ['name', 'password', 'profile_picture'];
+            if (!actor?.active || (!isSelf && !isSuper) ||
+                Object.keys(data).some(field => !allowedFields.includes(field))) {
+                throw new AdminActionError(403, 'ADMIN_UPDATE_FORBIDDEN', 'You cannot update this administrator');
+            }
+            if (!target) throw new AdminActionError(404, 'ADMIN_NOT_FOUND', 'Admin not found');
+            const isPeerReactivation = isSuper && data.active === true && Object.keys(data).length === 1;
+            if (!isSelf && target.role === 'SUPER_ADMIN' && !isPeerReactivation) {
+                throw new AdminActionError(403, 'SUPER_ADMIN_UPDATE_FORBIDDEN', 'Another SUPER_ADMIN may only be reactivated');
+            }
+            if (target.role === 'SUPER_ADMIN' && target.active &&
+                ((data.role !== undefined && data.role !== 'SUPER_ADMIN') || data.active === false) &&
+                !admins.some(admin => admin.id !== id && admin.role === 'SUPER_ADMIN' && admin.active)) {
+                throw new AdminActionError(409, 'LAST_SUPER_ADMIN', 'Promote another active administrator before leaving');
+            }
+            await db.execute(
+                `UPDATE administrators SET ${fields.join(', ')} WHERE id = ?`,
+                [...values, id]
+            );
+            if ((data.role !== undefined && data.role !== target.role) ||
+                (data.active !== undefined && data.active !== Boolean(target.active)) || data.password !== undefined) {
+                await db.execute('DELETE FROM refresh_tokens WHERE adminId = ?', [id]);
+            }
+            await db.commit();
+        } catch (error) {
+            await db.rollback();
+            throw error;
+        } finally {
+            db.release();
+        }
+    }
+
+    async delete(id: string, actorId: string, verifiedPasswordHash?: string): Promise<AdminDeleteResult> {
+        const db = await this.pool.getConnection();
+        try {
+            await db.beginTransaction();
+            const [admins] = await db.execute<RowDataPacket[]>(lockAdministrators);
+            const actor = admins.find(admin => admin.id === actorId);
+            const target = admins.find(admin => admin.id === id);
+            const isSelf = actorId === id;
+            if (!actor?.active || (!isSelf && actor.role !== 'SUPER_ADMIN')) {
+                await db.rollback();
+                return 'forbidden';
+            }
+            if (!target) {
                 await db.rollback();
                 return 'not_found';
             }
-            if (admins[0].role === 'SUPER_ADMIN') {
+            if (target.role === 'SUPER_ADMIN' && !isSelf) {
                 await db.rollback();
                 return 'super_admin';
             }
+            if (isSelf) {
+                const [credentials] = await db.execute<RowDataPacket[]>(
+                    'SELECT hashPassword FROM administrators WHERE id = ? FOR UPDATE', [id]);
+                if (!verifiedPasswordHash || credentials[0]?.hashPassword !== verifiedPasswordHash) {
+                    await db.rollback();
+                    return 'invalid_password';
+                }
+            }
+            const successor = isSelf
+                ? admins.find(admin => admin.id !== id && admin.role === 'SUPER_ADMIN' && admin.active)
+                : actor;
+            if (isSelf && target.role === 'SUPER_ADMIN' && !successor) {
+                await db.rollback();
+                return 'last_super_admin';
+            }
+            if (target.active && !isSelf) {
+                await db.rollback();
+                return 'active';
+            }
 
-            // Preserve event history and explain the conflict instead of exposing a foreign-key error.
+            // Keep events and their images: responsibility moves before the account is removed.
             const [events] = await db.execute<RowDataPacket[]>(
                 'SELECT id FROM events WHERE administratorId = ? LIMIT 1 FOR UPDATE', [id]);
             if (events.length > 0) {
-                await db.rollback();
-                return 'has_events';
+                if (!successor) {
+                    await db.rollback();
+                    return 'has_events';
+                }
+                await db.execute('UPDATE events SET administratorId = ? WHERE administratorId = ?', [successor.id, id]);
             }
 
             await db.execute('DELETE FROM refresh_tokens WHERE adminId = ?', [id]);

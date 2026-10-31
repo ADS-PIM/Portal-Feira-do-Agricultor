@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AdminRole } from './src/model/admin';
 import { anonymousRateLimit } from './src/rateLimit/middleware';
+import { AdminDAO } from './src/dao/admin.dao';
 
 
 export interface AuthRequest extends Request {
@@ -11,7 +12,7 @@ export interface AuthRequest extends Request {
     };
 }
 
-export function authToken(req: AuthRequest, res: Response, next: NextFunction): void {
+export async function authToken(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     const rejectAuthentication = (error: string) => {
         void anonymousRateLimit(req, res, () => { res.status(401).json({ error }); });
     };
@@ -46,28 +47,40 @@ export function authToken(req: AuthRequest, res: Response, next: NextFunction): 
         }
 
         // Verificar o token JWT
-        jwt.verify(token, accessSecret, (err: jwt.VerifyErrors | null, admin: string | jwt.JwtPayload | undefined) => {
-            if (err) {
-                if (err instanceof jwt.TokenExpiredError) {
-                    rejectAuthentication('Token has expired');
-                    return;
-                }
-                if (err instanceof jwt.JsonWebTokenError) {
-                    rejectAuthentication('Invalid token');
-                    return;
-                }
-                rejectAuthentication('Token verification failed');
+        let admin: string | jwt.JwtPayload;
+        try {
+            admin = jwt.verify(token, accessSecret);
+        } catch (err) {
+            if (err instanceof jwt.TokenExpiredError) {
+                rejectAuthentication('Token has expired');
                 return;
             }
-
-            if (!admin || typeof admin === 'string' || typeof admin.adminId !== 'string' || !admin.adminId) {
-                rejectAuthentication('Invalid token payload');
+            if (err instanceof jwt.JsonWebTokenError) {
+                rejectAuthentication('Invalid token');
                 return;
             }
+            rejectAuthentication('Token verification failed');
+            return;
+        }
 
-            req.admin = admin;
-            next();
-        });
+        if (!admin || typeof admin === 'string' || typeof admin.adminId !== 'string' || !admin.adminId) {
+            rejectAuthentication('Invalid token payload');
+            return;
+        }
+
+        // A deleted/disabled account or an old role must not remain authorized
+        // until its already-issued access token expires.
+        const currentAdmin = await new AdminDAO().searchById(admin.adminId);
+        if (!currentAdmin) {
+            rejectAuthentication('Administrator account no longer exists');
+            return;
+        }
+        if (!currentAdmin.active) {
+            res.status(403).json({ code: 'ADMIN_DISABLED', error: 'Administrator account is disabled' });
+            return;
+        }
+        req.admin = { ...admin, role: currentAdmin.role };
+        next();
     } catch (error) {
         res.status(500).json({ error: 'Internal server error during authentication' });
     }

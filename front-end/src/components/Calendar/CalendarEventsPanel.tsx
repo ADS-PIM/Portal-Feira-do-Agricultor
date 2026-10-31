@@ -54,17 +54,19 @@ function CalendarEventCard({ event }: { event: AgendaEvent }) {
                 <div className="calendar-event-card-content">
                     <h3>{event.title}</h3>
                     <span className="calendar-event-status">{getCalendarStatusLabel(event.state)}</span>
+                </div>
+            </div>
+            <div className="calendar-event-footer">
+                <div className="calendar-event-info">
                     <p className="calendar-event-detail">
                         <Icon name="clock" />
                         <span>{weekday}, {formatTime(event.startAt)} às {formatTime(event.endAt)}</span>
                     </p>
+                    <p className="calendar-event-detail calendar-event-location">
+                        <Icon name="location" />
+                        <span>{event.localAddress}</span>
+                    </p>
                 </div>
-            </div>
-            <div className="calendar-event-footer">
-                <p className="calendar-event-detail calendar-event-location">
-                    <Icon name="location" />
-                    <span>{event.localAddress}</span>
-                </p>
                 <a className="calendar-event-details-button" href={`#/evento/${encodeURIComponent(event.id)}`}>
                     <span>Ver detalhes</span>
                     <Icon name="arrowRight" />

@@ -17,6 +17,7 @@ export const RATE_LIMIT_DEFAULTS = {
     MESSAGE: 10,
     SESSION: 30,
     ANONYMOUS: 60,
+    GEOCODING: 30,
 } as const;
 
 type PolicyName = keyof typeof RATE_LIMIT_DEFAULTS;

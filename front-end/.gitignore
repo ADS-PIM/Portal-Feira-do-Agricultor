@@ -12,19 +12,6 @@ dist
 dist-ssr
 *.local
 
-test
-tests
-!tests/
-tests/*
-!tests/passwordRecovery.browser.mjs
-!tests/adminDeletion.test.mjs
-!tests/eventAdministrators.browser.mjs
-!tests/contactValidation.browser.mjs
-!tests/eventImageUrl.test.mjs
-!tests/eventImageUpload.test.mjs
-!tests/advancedPricing.test.mjs
-!tests/advancedPricing.browser.mjs
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

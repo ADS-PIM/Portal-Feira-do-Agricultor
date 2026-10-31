@@ -17,8 +17,14 @@ import './AdminEvents.css'
 import '../../components/Calendar/CalendarStatus.css'
 import AdminEventForm, { type EventFormValues, type EventSaveSession } from './AdminEventForm'
 import { STATE_LABELS } from './eventFormLabels'
+import { getCoordinates } from '../../utils/eventLocation'
 
+const EVENTS_PAGE_SIZE = 12
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
+const MONTH_OPTIONS = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+].map((label, index) => ({ value: String(index + 1).padStart(2, '0'), label }))
 const WEEKDAY_OPTIONS = [
     { value: '', label: 'Todos os dias' },
     { value: '0', label: 'Domingo' },
@@ -36,6 +42,8 @@ const emptyForm: EventFormValues = {
     startAt: '',
     endAt: '',
     localAddress: '',
+    latitude: null,
+    longitude: null,
     state: 'PENDING',
     bannerImage: null,
 }
@@ -60,6 +68,7 @@ function formatDate(value: string): string {
 }
 
 function toFormValues(event: AdminEvent): EventFormValues {
+    const coordinates = getCoordinates(event.localLatitude, event.localLongitude)
     return {
         title: event.title,
         description: event.description ?? '',
@@ -67,6 +76,8 @@ function toFormValues(event: AdminEvent): EventFormValues {
         startAt: event.startAt.slice(0, 5),
         endAt: event.endAt.slice(0, 5),
         localAddress: event.localAddress,
+        latitude: coordinates?.latitude ?? null,
+        longitude: coordinates?.longitude ?? null,
         state: event.state,
         bannerImage: event.bannerImage,
     }
@@ -82,12 +93,14 @@ const AdminEvents = ({
     initialEventAction?: { eventId: string; action: 'edit' | 'delete' } | null
 }) => {
     const [events, setEvents] = useState<AdminEvent[]>([])
+    const [visibleEventCount, setVisibleEventCount] = useState(EVENTS_PAGE_SIZE)
     const [isLoading, setIsLoading] = useState(true)
     const [loadError, setLoadError] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [isFiltersOpen, setIsFiltersOpen] = useState(false)
     const [statusFilter, setStatusFilter] = useState<AdminEvent['state'] | ''>('')
     const [yearFilter, setYearFilter] = useState('')
+    const [monthFilter, setMonthFilter] = useState('')
     const [weekdayFilter, setWeekdayFilter] = useState('')
     const [timeFromFilter, setTimeFromFilter] = useState('')
     const [timeToFilter, setTimeToFilter] = useState('')
@@ -171,6 +184,7 @@ const AdminEvents = ({
             .filter(event => {
                 const matchesSearch = !query || event.title.toLocaleLowerCase('pt-BR').includes(query)
                 const matchesYear = !yearFilter || getDateKey(event.date).startsWith(yearFilter)
+                const matchesMonth = !monthFilter || getDateKey(event.date).slice(5, 7) === monthFilter
                 const matchesStatus = !statusFilter || event.state === statusFilter
                 const eventWeekday = new Date(`${getDateKey(event.date)}T12:00:00`).getDay().toString()
                 const matchesWeekday = !weekdayFilter || eventWeekday === weekdayFilter
@@ -178,7 +192,7 @@ const AdminEvents = ({
                 const matchesAdministrator = !administratorFilter || event.administratorId === (
                     administratorFilter === 'mine' ? currentAdminId : administratorFilter
                 )
-                return matchesSearch && matchesYear && matchesStatus && matchesWeekday && matchesTime && matchesAdministrator
+                return matchesSearch && matchesYear && matchesMonth && matchesStatus && matchesWeekday && matchesTime && matchesAdministrator
             })
             .sort((first, second) => {
                 const firstDate = `${getDateKey(first.date)}T${first.startAt.slice(0, 5)}`
@@ -190,13 +204,17 @@ const AdminEvents = ({
                     ? firstDate.localeCompare(secondDate)
                     : secondDate.localeCompare(firstDate)
             })
-    }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter, administratorFilter, currentAdminId])
+    }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter, monthFilter, administratorFilter, currentAdminId])
 
-    const activeFilterCount = [statusFilter, yearFilter, weekdayFilter, timeFromFilter, timeToFilter, administratorFilter].filter(Boolean).length
+    const visibleEvents = filteredEvents.slice(0, visibleEventCount)
+    const hasMoreEvents = visibleEvents.length < filteredEvents.length
+    const activeFilterCount = [statusFilter, yearFilter, monthFilter, weekdayFilter, timeFromFilter, timeToFilter, administratorFilter].filter(Boolean).length
 
     const clearFilters = () => {
+        setVisibleEventCount(EVENTS_PAGE_SIZE)
         setStatusFilter('')
         setYearFilter('')
+        setMonthFilter('')
         setWeekdayFilter('')
         setTimeFromFilter('')
         setTimeToFilter('')
@@ -240,6 +258,8 @@ const AdminEvents = ({
             eventSaved = true
             const savedEvent: AdminEvent = {
                 ...eventInput,
+                localLatitude: eventInput.latitude,
+                localLongitude: eventInput.longitude,
                 id: session.eventId,
                 createdAt: editingEvent?.createdAt ?? new Date().toISOString(),
                 administratorId: editingEvent?.administratorId ?? currentAdmin!.id,
@@ -305,7 +325,10 @@ const AdminEvents = ({
                                 type="search"
                                 placeholder="Buscar por título do evento"
                                 value={searchTerm}
-                                onChange={event => setSearchTerm(event.target.value)}
+                                onChange={event => {
+                                    setSearchTerm(event.target.value)
+                                    setVisibleEventCount(EVENTS_PAGE_SIZE)
+                                }}
                                 aria-label="Buscar eventos pelo título"
                             />
                         </label>
@@ -337,8 +360,64 @@ const AdminEvents = ({
                 {isFiltersOpen && (
                     <section className="admin-events-filters" id="admin-events-filters" aria-label="Filtros de eventos">
                         <label>
+                            Ano
+                            <select value={yearFilter} onChange={event => {
+                                setYearFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
+                                <option value="">Todos os anos</option>
+                                {availableYears.map(year => <option key={year} value={year}>{year}</option>)}
+                            </select>
+                        </label>
+                        <label>
+                            Mês
+                            <select value={monthFilter} onChange={event => {
+                                setMonthFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
+                                <option value="">Todos os meses</option>
+                                {MONTH_OPTIONS.map(month => <option key={month.value} value={month.value}>{month.label}</option>)}
+                            </select>
+                        </label>
+                        <label>
+                            Dia da semana
+                            <select value={weekdayFilter} onChange={event => {
+                                setWeekdayFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
+                                {WEEKDAY_OPTIONS.map(day => <option key={day.value} value={day.value}>{day.label}</option>)}
+                            </select>
+                        </label>
+                        <label>
+                            Horário a partir de
+                            <input type="time" value={timeFromFilter} onChange={event => {
+                                setTimeFromFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }} />
+                        </label>
+                        <label>
+                            Horário até
+                            <input type="time" value={timeToFilter} onChange={event => {
+                                setTimeToFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }} />
+                        </label>
+                        <label>
+                            Status
+                            <select value={statusFilter} onChange={event => {
+                                setStatusFilter(event.target.value as AdminEvent['state'] | '')
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
+                                <option value="">Todos os status</option>
+                                {EVENT_STATES.map(state => <option key={state} value={state}>{STATE_LABELS[state]}</option>)}
+                            </select>
+                        </label>
+                        <label>
                             Administrador
-                            <select value={administratorFilter} onChange={event => setAdministratorFilter(event.target.value)}>
+                            <select value={administratorFilter} onChange={event => {
+                                setAdministratorFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
                                 <option value="">Todos os administradores</option>
                                 <option value="mine">Meus eventos</option>
                                 {availableAdministrators.map(admin => (
@@ -347,34 +426,6 @@ const AdminEvents = ({
                                     </option>
                                 ))}
                             </select>
-                        </label>
-                        <label>
-                            Ano
-                            <select value={yearFilter} onChange={event => setYearFilter(event.target.value)}>
-                                <option value="">Ver todos</option>
-                                {availableYears.map(year => <option key={year} value={year}>{year}</option>)}
-                            </select>
-                        </label>
-                        <label>
-                            Status
-                            <select value={statusFilter} onChange={event => setStatusFilter(event.target.value as AdminEvent['state'] | '')}>
-                                <option value="">Todos os status</option>
-                                {EVENT_STATES.map(state => <option key={state} value={state}>{STATE_LABELS[state]}</option>)}
-                            </select>
-                        </label>
-                        <label>
-                            Dia da semana
-                            <select value={weekdayFilter} onChange={event => setWeekdayFilter(event.target.value)}>
-                                {WEEKDAY_OPTIONS.map(day => <option key={day.value} value={day.value}>{day.label}</option>)}
-                            </select>
-                        </label>
-                        <label>
-                            Horário a partir de
-                            <input type="time" value={timeFromFilter} onChange={event => setTimeFromFilter(event.target.value)} />
-                        </label>
-                        <label>
-                            Horário até
-                            <input type="time" value={timeToFilter} onChange={event => setTimeToFilter(event.target.value)} />
                         </label>
                         <button className="admin-events-clear-filters" type="button" onClick={clearFilters} disabled={activeFilterCount === 0}>
                             Limpar filtros
@@ -397,8 +448,8 @@ const AdminEvents = ({
                     {isLoading ? (
                         <p className="admin-events-empty" role="status">Carregando eventos...</p>
                     ) : filteredEvents.length ? (
-                        <ul className="admin-events-list">
-                            {filteredEvents.map(event => (
+                        <ul className="admin-events-list" id="admin-events-list">
+                            {visibleEvents.map(event => (
                                 <li className="admin-event-card" key={event.id}>
                                     <div className="admin-event-title-row">
                                         <h3>{event.title}</h3>
@@ -465,6 +516,18 @@ const AdminEvents = ({
                                 ? 'Nenhum evento corresponde à busca e aos filtros selecionados.'
                                 : 'Nenhum evento cadastrado.'}
                         </p>
+                    )}
+                    {!isLoading && hasMoreEvents && (
+                        <div className="admin-events-pagination">
+                            <button
+                                className="admin-event-button is-secondary"
+                                type="button"
+                                aria-controls="admin-events-list"
+                                onClick={() => setVisibleEventCount(count => count + EVENTS_PAGE_SIZE)}
+                            >
+                                Ver mais
+                            </button>
+                        </div>
                     )}
                 </section>
             </section>

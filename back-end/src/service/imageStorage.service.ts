@@ -60,7 +60,7 @@ export class ImageStorageService {
         private readonly getConfig = getCloudinaryConfig,
     ) {}
 
-    public async upload(image: unknown, contentType?: string, migrationSource?: string): Promise<{ url: string }> {
+    public async upload(image: unknown, contentType?: string, migrationSource?: string, profileOwner?: string): Promise<{ url: string }> {
         const extension = contentType === 'image/jpeg' ? 'jpg' : contentType === 'image/png' ? 'png' : null;
         if (!extension || !Buffer.isBuffer(image) || image.length === 0) {
             throw new ImageUploadError(400, 'Selecione uma imagem JPG ou PNG.');
@@ -76,7 +76,9 @@ export class ImageStorageService {
         }
 
         const config = this.getConfig();
-        const publicId = migrationSource
+        const publicId = profileOwner
+            ? `profile-images/${createHash('sha256').update(profileOwner).digest('hex')}/${randomUUID()}`
+            : migrationSource
             ? `event-images/migrated/${createHash('sha256').update(migrationSource).digest('hex')}`
             : `event-images/${randomUUID()}`;
         const options: UploadApiOptions = {
@@ -88,8 +90,12 @@ export class ImageStorageService {
             unique_filename: false,
             allowed_formats: ['jpg', 'png'],
             timeout: 60000,
-            // Keep the original intact. Responsive derivatives are generated
-            // directly from it on demand, then cached by Cloudinary's CDN.
+            ...(profileOwner ? {
+                transformation: [{ width: 512, height: 512, crop: 'limit', quality: 80 }],
+                format: 'webp',
+            } : {}),
+            // Event originals remain intact; profile photos are reduced before storage.
+            // Event derivatives are generated on demand and cached by the CDN.
             // f_auto belongs in delivery URLs, never in upload transformations.
         };
 
