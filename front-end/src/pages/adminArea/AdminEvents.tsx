@@ -19,6 +19,7 @@ import AdminEventForm, { type EventFormValues, type EventSaveSession } from './A
 import { STATE_LABELS } from './eventFormLabels'
 import { getCoordinates } from '../../utils/eventLocation'
 
+const EVENTS_PAGE_SIZE = 12
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
 const MONTH_OPTIONS = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -92,6 +93,7 @@ const AdminEvents = ({
     initialEventAction?: { eventId: string; action: 'edit' | 'delete' } | null
 }) => {
     const [events, setEvents] = useState<AdminEvent[]>([])
+    const [visibleEventCount, setVisibleEventCount] = useState(EVENTS_PAGE_SIZE)
     const [isLoading, setIsLoading] = useState(true)
     const [loadError, setLoadError] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
@@ -204,9 +206,12 @@ const AdminEvents = ({
             })
     }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter, monthFilter, administratorFilter, currentAdminId])
 
+    const visibleEvents = filteredEvents.slice(0, visibleEventCount)
+    const hasMoreEvents = visibleEvents.length < filteredEvents.length
     const activeFilterCount = [statusFilter, yearFilter, monthFilter, weekdayFilter, timeFromFilter, timeToFilter, administratorFilter].filter(Boolean).length
 
     const clearFilters = () => {
+        setVisibleEventCount(EVENTS_PAGE_SIZE)
         setStatusFilter('')
         setYearFilter('')
         setMonthFilter('')
@@ -320,7 +325,10 @@ const AdminEvents = ({
                                 type="search"
                                 placeholder="Buscar por título do evento"
                                 value={searchTerm}
-                                onChange={event => setSearchTerm(event.target.value)}
+                                onChange={event => {
+                                    setSearchTerm(event.target.value)
+                                    setVisibleEventCount(EVENTS_PAGE_SIZE)
+                                }}
                                 aria-label="Buscar eventos pelo título"
                             />
                         </label>
@@ -353,42 +361,63 @@ const AdminEvents = ({
                     <section className="admin-events-filters" id="admin-events-filters" aria-label="Filtros de eventos">
                         <label>
                             Ano
-                            <select value={yearFilter} onChange={event => setYearFilter(event.target.value)}>
+                            <select value={yearFilter} onChange={event => {
+                                setYearFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
                                 <option value="">Todos os anos</option>
                                 {availableYears.map(year => <option key={year} value={year}>{year}</option>)}
                             </select>
                         </label>
                         <label>
                             Mês
-                            <select value={monthFilter} onChange={event => setMonthFilter(event.target.value)}>
+                            <select value={monthFilter} onChange={event => {
+                                setMonthFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
                                 <option value="">Todos os meses</option>
                                 {MONTH_OPTIONS.map(month => <option key={month.value} value={month.value}>{month.label}</option>)}
                             </select>
                         </label>
                         <label>
                             Dia da semana
-                            <select value={weekdayFilter} onChange={event => setWeekdayFilter(event.target.value)}>
+                            <select value={weekdayFilter} onChange={event => {
+                                setWeekdayFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
                                 {WEEKDAY_OPTIONS.map(day => <option key={day.value} value={day.value}>{day.label}</option>)}
                             </select>
                         </label>
                         <label>
                             Horário a partir de
-                            <input type="time" value={timeFromFilter} onChange={event => setTimeFromFilter(event.target.value)} />
+                            <input type="time" value={timeFromFilter} onChange={event => {
+                                setTimeFromFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }} />
                         </label>
                         <label>
                             Horário até
-                            <input type="time" value={timeToFilter} onChange={event => setTimeToFilter(event.target.value)} />
+                            <input type="time" value={timeToFilter} onChange={event => {
+                                setTimeToFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }} />
                         </label>
                         <label>
                             Status
-                            <select value={statusFilter} onChange={event => setStatusFilter(event.target.value as AdminEvent['state'] | '')}>
+                            <select value={statusFilter} onChange={event => {
+                                setStatusFilter(event.target.value as AdminEvent['state'] | '')
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
                                 <option value="">Todos os status</option>
                                 {EVENT_STATES.map(state => <option key={state} value={state}>{STATE_LABELS[state]}</option>)}
                             </select>
                         </label>
                         <label>
                             Administrador
-                            <select value={administratorFilter} onChange={event => setAdministratorFilter(event.target.value)}>
+                            <select value={administratorFilter} onChange={event => {
+                                setAdministratorFilter(event.target.value)
+                                setVisibleEventCount(EVENTS_PAGE_SIZE)
+                            }}>
                                 <option value="">Todos os administradores</option>
                                 <option value="mine">Meus eventos</option>
                                 {availableAdministrators.map(admin => (
@@ -419,8 +448,8 @@ const AdminEvents = ({
                     {isLoading ? (
                         <p className="admin-events-empty" role="status">Carregando eventos...</p>
                     ) : filteredEvents.length ? (
-                        <ul className="admin-events-list">
-                            {filteredEvents.map(event => (
+                        <ul className="admin-events-list" id="admin-events-list">
+                            {visibleEvents.map(event => (
                                 <li className="admin-event-card" key={event.id}>
                                     <div className="admin-event-title-row">
                                         <h3>{event.title}</h3>
@@ -487,6 +516,18 @@ const AdminEvents = ({
                                 ? 'Nenhum evento corresponde à busca e aos filtros selecionados.'
                                 : 'Nenhum evento cadastrado.'}
                         </p>
+                    )}
+                    {!isLoading && hasMoreEvents && (
+                        <div className="admin-events-pagination">
+                            <button
+                                className="admin-event-button is-secondary"
+                                type="button"
+                                aria-controls="admin-events-list"
+                                onClick={() => setVisibleEventCount(count => count + EVENTS_PAGE_SIZE)}
+                            >
+                                Ver mais
+                            </button>
+                        </div>
                     )}
                 </section>
             </section>

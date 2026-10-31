@@ -5,7 +5,9 @@ import { getEventImageProps } from '../../services/eventImageUrl'
 import { getUserFacingError } from '../../services/errors'
 import { savePendingEventPhotos, validateEventImage, type PendingEventPhoto } from './eventGallery'
 import { STATE_LABELS } from './eventFormLabels'
-import { EVENT_IMAGE_MAX_MB } from '../../utils/eventImageUpload'
+import { EVENT_IMAGE_MAX_BYTES, EVENT_IMAGE_MAX_MB } from '../../utils/eventImageUpload'
+import ImageCropDialog from '../../components/ImageEditor/ImageCropDialog'
+import type { AdjustedImage, ImageAdjustment } from '../../utils/imageCrop'
 import EventLocationPicker from '../../components/Location/EventLocationPicker'
 import './AdminEventForm.css'
 import '../../components/Calendar/CalendarStatus.css'
@@ -39,6 +41,10 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
     const [values, setValues] = useState(initialValues)
     const [bannerFile, setBannerFile] = useState<File | null>(null)
     const [bannerPreview, setBannerPreview] = useState<string | null>(null)
+    const [preparedBanner, setPreparedBanner] = useState<AdjustedImage | null>(null)
+    const [editingImage, setEditingImage] = useState<{
+        target: 'banner' | 'gallery'; source: File; photoId?: string; adjustment?: ImageAdjustment
+    } | null>(null)
     const [fileError, setFileError] = useState<string | null>(null)
     const [photos, setPhotos] = useState<PendingEventPhoto[]>([])
     const [existingPhotos, setExistingPhotos] = useState<EventImage[]>([])
@@ -122,9 +128,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
         const message = validateEventImage(file)
         setFileError(message)
         if (message) return
-        revokePreview(bannerPreview)
-        setBannerFile(file)
-        setBannerPreview(makePreview(file))
+        setEditingImage({ target: 'banner', source: file })
     }
     const choosePhotos = (files: FileList | null) => {
         if (!files?.length) return
@@ -140,7 +144,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
     }
     const submit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        if (isBusy || photoToDelete) return
+        if (isBusy || photoToDelete || editingImage) return
         if (!values.title.trim() || !values.localAddress.trim()) {
             setValidationError('Preencha o nome e o local do evento.'); return
         }
@@ -158,6 +162,29 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
         setProgress('')
     }
     const cover = bannerPreview ?? values.bannerImage
+
+    const applyImage = (result: AdjustedImage) => {
+        if (editingImage?.target === 'banner') {
+            revokePreview(bannerPreview)
+            setBannerFile(result.file)
+            setBannerPreview(makePreview(result.file))
+            setPreparedBanner(result)
+            // A different File must be uploaded even after a previous save failed.
+            session.current.banner = undefined
+        } else if (editingImage?.target === 'gallery') {
+            const photo = photos.find(item => item.id === editingImage.photoId)
+            if (photo && !photo.saved) {
+                revokePreview(photo.preview)
+                const preview = makePreview(result.file)
+                setPhotos(current => current.map(item => item.id === photo.id ? {
+                    ...item, file: result.file, source: result.source, adjustment: result.adjustment,
+                    preview, uploadedUrl: undefined,
+                } : item))
+            }
+        }
+        setEditingImage(null)
+        setFileError(null)
+    }
 
     const removePhoto = async (id: string) => {
         if (isBusy) return
@@ -178,11 +205,11 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
 
     return (
         <div className="admin-event-modal-backdrop" role="presentation" onMouseDown={event => {
-            if (event.target === event.currentTarget && !isBusy) onClose()
+            if (event.target === event.currentTarget && !isBusy && !editingImage) onClose()
         }}>
             <section ref={dialog} tabIndex={-1} className="admin-event-modal admin-event-editor" role="dialog"
                 aria-modal="true" aria-labelledby="admin-event-form-title" onKeyDown={event => {
-                    if (event.key === 'Escape' && !isBusy) {
+                    if (event.key === 'Escape' && !isBusy && !editingImage) {
                         event.stopPropagation()
                         if (photoToDelete) { setPhotoToDelete(null); setDeleteError(null) }
                         else onClose()
@@ -243,11 +270,15 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                             {cover ? <img {...getEventImageProps(cover, '(max-width: 680px) 90vw, 560px')} alt="Prévia da capa do evento" /> : <div className="admin-event-cover-empty"><Icon name="image" /><span>Adicione uma capa ao evento</span></div>}
                                             {cover && <button type="button" className="admin-event-photo-remove" title="Remover capa" aria-label="Remover imagem de capa" onClick={() => {
                                                 revokePreview(bannerPreview); setBannerFile(null); setBannerPreview(null)
+                                                setPreparedBanner(null); session.current.banner = undefined
                                                 setValues(current => ({ ...current, bannerImage: null }))
                                             }}><Icon name="close" /></button>}
                                         </div>
                                         <div className="admin-event-upload-row">
                                             <button type="button" className="admin-event-upload-button" onClick={() => bannerInput.current?.click()}><Icon name="image" />{cover ? 'Trocar capa' : 'Selecionar capa'}</button>
+                                            {preparedBanner && <button type="button" className="admin-event-upload-button" onClick={() => setEditingImage({
+                                                target: 'banner', source: preparedBanner.source, adjustment: preparedBanner.adjustment,
+                                            })}><Icon name="edit" />Ajustar capa</button>}
                                             <small>JPG ou PNG · até {EVENT_IMAGE_MAX_MB} MB</small>
                                         </div>
                                         <input ref={bannerInput} hidden type="file" accept="image/jpeg,image/png" aria-label="Selecionar imagem de capa" onChange={event => { chooseBanner(event.target.files?.[0]); event.currentTarget.value = '' }} />
@@ -277,6 +308,10 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                                 <img src={photo.preview} alt={photo.description || `Nova foto ${index + 1}`} />
                                                 {!photo.saved && <button type="button" className="admin-event-photo-remove" aria-label={`Remover foto ${index + 1}: ${photo.file.name}`} title="Remover foto selecionada" onClick={() => { revokePreview(photo.preview); setPhotos(current => current.filter(item => item.id !== photo.id)) }}><Icon name="close" /></button>}
                                                 <figcaption>
+                                                    {!photo.saved && <button type="button" className="admin-event-upload-button admin-event-photo-adjust"
+                                                        aria-label={`Ajustar foto ${index + 1}: ${photo.file.name}`} onClick={() => setEditingImage({
+                                                            target: 'gallery', photoId: photo.id, source: photo.source ?? photo.file, adjustment: photo.adjustment,
+                                                        })}><Icon name="edit" />Prévia e ajuste</button>}
                                                     <label>Legenda (opcional)<input value={photo.description} maxLength={255} disabled={photo.saved} placeholder="Descreva esta foto" onChange={event => setPhotos(current => current.map(item => item.id === photo.id ? { ...item, description: event.target.value } : item))} /></label>
                                                     <small>{photo.saved ? 'Publicada' : 'Nova foto · aguardando salvar'}</small>
                                                 </figcaption>
@@ -303,7 +338,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                     <footer className="admin-event-form-actions">
                         <p role="status" aria-live="polite">{isSaving ? progress : 'Ao salvar, as informações ficam disponíveis no mural público.'}</p>
                         <div><button type="button" className="admin-event-button is-secondary" disabled={isBusy} onClick={onClose}>Cancelar</button>
-                            <button type="submit" className="admin-event-button is-primary" disabled={isBusy || Boolean(photoToDelete)}>{isSaving ? 'Salvando...' : eventId ? 'Salvar alterações' : 'Criar evento'}</button></div>
+                            <button type="submit" className="admin-event-button is-primary" disabled={isBusy || Boolean(photoToDelete) || Boolean(editingImage)}>{isSaving ? 'Salvando...' : eventId ? 'Salvar alterações' : 'Criar evento'}</button></div>
                     </footer>
                 </form>
             </section>
@@ -331,6 +366,9 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                     </div>
                 </div>
             </dialog>
+            {editingImage && <ImageCropDialog source={editingImage.source} variant={editingImage.target}
+                maxBytes={EVENT_IMAGE_MAX_BYTES} initialAdjustment={editingImage.adjustment}
+                onCancel={() => setEditingImage(null)} onApply={applyImage} />}
         </div>
     )
 }

@@ -268,9 +268,11 @@ const AdminDashboard = ({
                             <ul className="admin-events-list">
                                 {agendaEvents.map(event => (
                                     <li className={`admin-event-card calendar-status--${event.state}`} key={event.id}>
+                                        <div className="admin-dashboard-event-heading">
                                             <h3>{event.title}</h3>
                                             <span className="calendar-event-status">{getCalendarStatusLabel(event.state)}</span>
-                                            {event.description && <p className="admin-event-description">{event.description}</p>}
+                                        </div>
+                                        {event.description && <p className="admin-event-description">{event.description}</p>}
                                         <p className="admin-event-detail">
                                             <Icon name="calendar" />
                                             <span title={formatEventDate(event.date)}>{normalizeDateOnly(event.date).split('-').reverse().join('/')}</span>

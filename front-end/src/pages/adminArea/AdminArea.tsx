@@ -12,6 +12,7 @@ import AdminDashboard from './AdminDashboard'
 import AdminEvents from './AdminEvents'
 import AdminAdministrators from './AdminAdministrators'
 import './AdminArea.css'
+import './AdminEventPageLayout.css'
 
 const AdminAccessSkeleton = () => (
     <main className="admin-area admin-area-checking" aria-label="Verificação de acesso administrativo" aria-busy="true">

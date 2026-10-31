@@ -33,6 +33,15 @@ button.admin-create-event:focus-visible {
     flex-shrink: 0;
 }
 
-@media (max-width: 680px) {
-    .admin-create-event { width: 100%; }
+@media (max-width: 760px) {
+    button.admin-create-event {
+        box-sizing: border-box;
+        width: 40px;
+        min-height: 40px;
+        gap: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .admin-create-event-label { display: none; }
 }

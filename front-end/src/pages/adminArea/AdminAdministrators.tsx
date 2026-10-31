@@ -44,6 +44,17 @@ const getRoleLabel = (role: string) => (
     role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin'
 )
 
+function AdminAvatar({ admin }: { admin: Pick<AdminRecord, 'name' | 'profile_picture'> }) {
+    const [failed, setFailed] = useState(false)
+    const photo = admin.profile_picture?.trim()
+
+    return <span className="admin-managers-avatar">
+        {photo && !failed
+            ? <img src={photo} alt={`Foto de ${admin.name}`} loading="lazy" onError={() => setFailed(true)} />
+            : getInitials(admin.name)}
+    </span>
+}
+
 function EditIcon() {
     return <Icon name="edit" />
 }
@@ -288,7 +299,7 @@ const AdminAdministrators = () => {
                                 {admins.map(admin => (
                                     <div className="admin-managers-table-row" key={admin.id} role="row">
                                         <div className="admin-managers-person" role="cell">
-                                            <span className="admin-managers-avatar">{getInitials(admin.name)}</span>
+                                            <AdminAvatar key={admin.profile_picture} admin={admin} />
                                             <span className="admin-managers-name">{admin.name}</span>
                                         </div>
 

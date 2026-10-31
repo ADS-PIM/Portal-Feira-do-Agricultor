@@ -75,15 +75,23 @@
 .account-photo-card { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; padding: 16px; border: 1px solid var(--border-default); border-radius: 12px; background: var(--surface-input); min-width: 0; }
 .account-photo-info { display: flex; flex: 1 1 150px; flex-direction: column; gap: 4px; min-width: 0; }
 .account-photo-info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 600; }
-.account-photo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.account-photo-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.account-photo-edit-actions, .account-photo-save-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.account-photo-save-actions { margin-left: auto; }
+.account-photo-card.has-selection .account-photo-actions { flex-basis: 100%; padding-top: 12px; border-top: 1px solid #e2e9dd; }
 .account-photo-actions .account-button { min-height: 38px; padding: 8px 12px; }
+.account-photo-actions .account-button svg { width: 14px; height: 14px; }
+.account-photo-actions .account-photo-cancel { border-color: transparent; background: transparent; color: #626e5e; }
+.account-photo-actions .account-photo-cancel:hover:not(:disabled) { background: #eaf0e5; color: #34472e; }
+.account-photo-actions .account-photo-save { box-shadow: 0 2px 4px rgb(28 61 37 / 12%); }
 .account-photo-upload .account-feedback { margin: 0; }
 @media (max-width: 480px) {
     .account-photo-label { font-size: 14px; }
     .account-photo-card { gap: 12px; padding: 12px; }
     .account-photo-info { flex-basis: 100%; }
     .account-photo-actions { width: 100%; }
-    .account-photo-actions .account-button { flex: 1; }
+    .account-photo-edit-actions, .account-photo-save-actions { width: 100%; }
+    .account-photo-actions .account-button { flex: 1; padding: 8px; font-size: 12px; gap: 6px; }
 }
 
 .account-photo-actions .account-photo-remove { color: #9b4532; border-color: #efcec4; }

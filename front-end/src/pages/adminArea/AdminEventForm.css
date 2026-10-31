@@ -81,6 +81,7 @@
 .admin-event-photo { position: relative; min-width: 0; margin: 0; overflow: hidden; border: 1px solid #e0e6dc; border-radius: 9px; background: #fff; }
 .admin-event-photo > img { display: block; width: 100%; height: 125px; object-fit: contain; background: #f2f5ef; }
 .admin-event-photo figcaption { padding: 10px; overflow-wrap: anywhere; font-size: 12px; }
+.admin-event-photo-adjust { width: 100%; margin-bottom: 10px; }
 .admin-event-photo figcaption small { display: block; margin-top: 7px; color: #65805a; font-size: 10px; }
 .admin-event-editor .admin-event-photo label { font-size: 11px; gap: 5px; }
 .admin-event-editor .admin-event-photo input { min-height: 36px; padding: 8px; font-size: 12px; }

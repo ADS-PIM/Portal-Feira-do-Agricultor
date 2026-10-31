@@ -2,6 +2,8 @@ import { useRef, useState } from 'react'
 import { apiFetch } from '../../services/api'
 import { ApiRequestError } from '../../services/errors'
 import Icon from '../../components/Icon'
+import ImageCropDialog from '../../components/ImageEditor/ImageCropDialog'
+import type { AdjustedImage } from '../../utils/imageCrop'
 
 export default function ProfilePictureUpload({ disabled, currentPhoto, onBusyChange, onSaved }: {
     currentPhoto?: string | null
@@ -9,7 +11,9 @@ export default function ProfilePictureUpload({ disabled, currentPhoto, onBusyCha
     onBusyChange: (busy: boolean) => void
     onSaved: (url: string | null) => void
 }) {
-    const [file, setFile] = useState<File | null>(null)
+    const [prepared, setPrepared] = useState<AdjustedImage | null>(null)
+    const [editingImage, setEditingImage] = useState<{ source: File; previous?: AdjustedImage } | null>(null)
+    const file = prepared?.file ?? null
     const [uploading, setUploading] = useState(false)
     const [removing, setRemoving] = useState(false)
     const [error, setError] = useState('')
@@ -24,7 +28,7 @@ export default function ProfilePictureUpload({ disabled, currentPhoto, onBusyCha
         try {
             const result = await apiFetch<{ cleanupPending: boolean }>('admin/me/profile-picture', { method: 'DELETE' })
             onSaved(null)
-            setFile(null)
+            setPrepared(null)
             if (input.current) input.current.value = ''
             setMessage(result.cleanupPending
                 ? 'Foto removida do perfil. Não foi possível excluir o arquivo do armazenamento.'
@@ -48,7 +52,7 @@ export default function ProfilePictureUpload({ disabled, currentPhoto, onBusyCha
                 method: 'POST', headers: { 'Content-Type': file.type }, body: file,
             })
             onSaved(result.profile_picture)
-            setFile(null)
+            setPrepared(null)
             if (input.current) input.current.value = ''
             setMessage(result.cleanupPending
                 ? 'Foto atualizada. Não foi possível excluir o arquivo anterior do armazenamento.'
@@ -65,7 +69,7 @@ export default function ProfilePictureUpload({ disabled, currentPhoto, onBusyCha
 
     return <div className="account-full-width account-photo-upload">
         <span className="account-photo-label" id="account-photo-label">Foto de perfil</span>
-        <div className="account-photo-card" role="group" aria-labelledby="account-photo-label" aria-busy={uploading || removing}>
+        <div className={`account-photo-card${file ? ' has-selection' : ''}`} role="group" aria-labelledby="account-photo-label" aria-busy={uploading || removing}>
             <div className="account-photo-info">
                 <strong title={file?.name}>{file ? file.name : 'Escolha sua foto de perfil'}</strong>
                 <small id="account-photo-hint">JPG ou PNG de até 4 MB</small>
@@ -73,29 +77,42 @@ export default function ProfilePictureUpload({ disabled, currentPhoto, onBusyCha
         <input ref={input} hidden aria-label="Selecionar foto de perfil" id="account-photo" type="file" accept="image/jpeg,image/png" disabled={disabled}
             aria-describedby="account-photo-hint" onChange={event => {
                 const selected = event.target.files?.[0] ?? null
-                setError(''); setMessage(''); setFile(null)
+                setError(''); setMessage('')
+                event.target.value = ''
                 if (!selected) return
                 if (!['image/jpeg', 'image/png'].includes(selected.type) || selected.size === 0 || selected.size > 4 * 1024 * 1024) {
                     setError('Selecione uma imagem JPG ou PNG de até 4 MB.')
                     event.target.value = ''
                     return
                 }
-                setFile(selected)
+                setEditingImage({ source: selected })
             }} />
             <div className="account-photo-actions">
+                <div className="account-photo-edit-actions">
                 <button type="button" className="account-button is-secondary" disabled={disabled} onClick={() => input.current?.click()}>
-                    <Icon name="image" />{file ? 'Trocar arquivo' : 'Selecionar foto'}
+                    <Icon name="image" />{file ? 'Trocar foto' : 'Selecionar foto'}
                 </button>
-                {file && <button type="button" className="account-button" disabled={disabled} onClick={() => void upload()}>
-                    {uploading ? 'Enviando...' : 'Atualizar foto'}
-                </button>}
+                {prepared && <button type="button" className="account-button is-secondary" disabled={disabled}
+                    title="Visualizar e ajustar o enquadramento da foto"
+                    onClick={() => setEditingImage({ source: prepared.source, previous: prepared })}><Icon name="sliders" />Ajustar foto</button>}
                 {currentPhoto && <button type="button" className="account-button is-secondary account-photo-remove" disabled={disabled} onClick={() => void removePhoto()}>
-                    <Icon name="trash" />{removing ? 'Removendo...' : 'Remover foto'}
+                    <Icon name="trash" />{removing ? 'Removendo...' : file ? 'Remover foto atual' : 'Remover foto'}
                 </button>}
+                </div>
+                {file && <div className="account-photo-save-actions">
+                    <button type="button" className="account-button is-secondary account-photo-cancel" disabled={disabled}
+                        title="Descartar a nova foto e manter a foto atual"
+                        onClick={() => { setPrepared(null); setError(''); setMessage('') }}><Icon name="close" />Cancelar</button>
+                    <button type="button" className="account-button account-photo-save" disabled={disabled} onClick={() => void upload()}>
+                        <Icon name="check" />{uploading ? 'Salvando...' : 'Salvar foto'}
+                    </button>
+                </div>}
             </div>
         </div>
-        {file && <small>A nova foto será salva ao clicar em “Atualizar foto”.</small>}
         {error && <p className="account-feedback is-error" role="alert">{error}</p>}
         {message && <p className="account-feedback" role="status">{message}</p>}
+        {editingImage && <ImageCropDialog source={editingImage.source} variant="profile" maxBytes={4 * 1024 * 1024}
+            initialAdjustment={editingImage.previous?.adjustment} onCancel={() => setEditingImage(null)}
+            onApply={result => { setPrepared(result); setEditingImage(null); setError(''); setMessage('') }} />}
     </div>
 }
