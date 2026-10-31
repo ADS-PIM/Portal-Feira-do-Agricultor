@@ -1,6 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react'
 import Icon from '../../components/Icon'
-import { calculateIngredient, PRICING_UNITS, type PricingUnit } from '../../utils/advancedPricingCalculator'
+import { calculateIngredient, ingredientMeasurementUnit, PRICING_UNITS, type PricingUnit, type PurchaseUnit } from '../../utils/advancedPricingCalculator'
 import { parsePricingNumber } from '../../utils/pricingCalculator'
 import { emptyAdvancedForm, evaluateAdvancedForm, exampleAdvancedForm, newEquipment, newExpense, newIngredient,
   type AdvancedFormValues, type EquipmentDraft, type ExpenseDraft, type IngredientDraft } from './advancedPricingForm'
@@ -30,16 +30,19 @@ const numeric = (value: number) => {
   const rounded = Number(value.toFixed(4))
   return ((value > 0 && rounded === 0) || (value < 100 && rounded === 100) ? preciseDecimal : decimal).format(value)
 }
-const unitOptions = Object.entries(PRICING_UNITS).map(([value, unit]) => ({ value, label: unit.label }))
+const unitOptions = Object.entries(PRICING_UNITS).map(([value, unit]) => ({ value, label: unit.label, dimension: unit.dimension }))
+const timeUnitOptions = unitOptions.filter(option => option.dimension === 'time')
+const purchaseUnitOptions = [...unitOptions, { value: 'package', label: 'Pacote' }, { value: 'consumption', label: 'Consumo' }]
 
 type FieldProps = {
   name: string; label: string; value: string; onChange: (value: string) => void
   error?: string; hint?: string; unit?: string; text?: boolean; placeholder?: string
+  purchaseUnit?: PurchaseUnit
 }
 
-function AdvancedField({ name, label, value, onChange, error, hint, unit, text, placeholder }: FieldProps) {
+function AdvancedField({ name, label, value, onChange, error, hint, unit, text, placeholder, purchaseUnit }: FieldProps) {
   const id = `advanced-${name}`
-  const help = getAdvancedFieldHelp(name)
+  const help = getAdvancedFieldHelp(name, purchaseUnit)
   const helpButton = help ? <CalculatorFieldHelp label={label} help={help} /> : undefined
   if (unit === '%') return <PercentageField id={id} name={name} label={label} value={value}
     onChange={onChange} error={error} hint={hint} help={helpButton} />
@@ -69,7 +72,7 @@ function AdvancedSelect({ name, label, value, options, onChange, error }: {
   return (
     <div className="markup-field">
       <div className="markup-field-heading"><label htmlFor={id}>{label}</label>{help && <CalculatorFieldHelp label={label} help={help} />}</div>
-      <select id={id} name={name} value={value} onChange={event => onChange(event.currentTarget.value)}
+      <select className="markup-unit-select" id={id} name={name} value={value} onChange={event => onChange(event.currentTarget.value)}
         aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined}>
         {options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select>
@@ -90,6 +93,7 @@ export default function AdvancedPricingCalculator() {
   const [attemptedSteps, setAttemptedSteps] = useState<number[]>([])
   const formRef = useRef<HTMLFormElement>(null)
   const validation = evaluateAdvancedForm(values)
+  const incompleteSteps = [...new Set(validation.missingFields.map(stepForField))]
   const result = validation.result
   const error = (name: string) => touchedFields[name] || attemptedSteps.includes(stepForField(name)) ? validation.errors[name] : undefined
   const currentErrors = Object.keys(validation.errors).filter(name => stepForField(name) === step)
@@ -111,16 +115,7 @@ export default function AdvancedPricingCalculator() {
     })
   }
   function goToStep(target: number) {
-    if (target > step) {
-      const invalid = Object.keys(validation.errors).sort((a, b) => stepForField(a) - stepForField(b))
-        .find(name => stepForField(name) < target)
-      if (invalid) {
-        const invalidStep = stepForField(invalid)
-        setAttemptedSteps(previous => [...new Set([...previous, invalidStep])])
-        showStep(invalidStep, invalid)
-        return
-      }
-    }
+    setAttemptedSteps(previous => [...new Set([...previous, step])])
     showStep(target)
   }
 
@@ -129,7 +124,15 @@ export default function AdvancedPricingCalculator() {
     setIsExample(false)
   }
   function updateIngredient(id: string, patch: Partial<IngredientDraft>) {
-    update('ingredients', values.ingredients.map(row => row.id === id ? { ...row, ...patch } : row))
+    update('ingredients', values.ingredients.map(row => {
+      if (row.id !== id) return row
+      const updated = { ...row, ...patch }
+      const unit = ingredientMeasurementUnit(updated)
+      if (PRICING_UNITS[unit].dimension !== PRICING_UNITS[updated.usedUnit].dimension) {
+        updated.usedUnit = unit
+      }
+      return updated
+    }))
   }
   function updateExpense(group: 'fixedExpenses' | 'variableExpenses', id: string, patch: Partial<ExpenseDraft>) {
     update(group, values[group].map(row => row.id === id ? { ...row, ...patch } : row))
@@ -188,68 +191,78 @@ export default function AdvancedPricingCalculator() {
           </div>
           <p className="markup-help-intro">Preencha um tópico por vez. Use Voltar e Próximo para revisar seus custos e toque na interrogação (?) para entender os campos e ver exemplos. Os valores ficam preservados entre as etapas.</p>
           <form ref={formRef} className="markup-form" onSubmit={handleSubmit} onChangeCapture={touchField} onBlurCapture={touchField} noValidate autoComplete="off">
-            <CalculatorSteps steps={steps} current={step} onSelect={goToStep} />
+            <CalculatorSteps steps={steps} current={step} incompleteSteps={incompleteSteps} onSelect={goToStep} />
             <fieldset className="markup-field-group" data-step="0" hidden={step !== 0}>
-              <legend tabIndex={-1}><Icon name="box" /> 1. Seu produto e a receita</legend>
+              <legend tabIndex={-1}><Icon name="box" /> 1. Seu produto e a produção</legend>
               <div className="advanced-field-grid">
-                {baseField('productName', 'Nome do produto', { text: true, placeholder: 'Ex.: pão recheado' })}
-                {baseField('producedQuantity', 'Quantidade produzida por receita', { placeholder: 'Ex.: 2', hint: 'Quantidade pronta para vender, depois das perdas.' })}
-                {baseField('productionTime', 'Tempo total de trabalho na receita', {
-                  unit: values.timeUnit === 'minute' ? 'minutos' : 'horas',
-                  placeholder: values.timeUnit === 'minute' ? 'Ex.: 30' : 'Ex.: 2',
-                  hint: `Informe o tempo de trabalho dedicado a todo o lote, em ${values.timeUnit === 'minute' ? 'minutos' : 'horas'}.`,
-                })}
-                <ProductionTimeUnitField id="advanced-timeUnit" value={values.timeUnit} onChange={value => update('timeUnit', value)} />
+                {baseField('productName', 'Nome do produto', { text: true, placeholder: 'Ex.: produto personalizado' })}
+                {baseField('producedQuantity', 'Quantidade produzida por lote', { placeholder: 'Ex.: 2', hint: 'Quantidade pronta para vender em cada lote, depois das perdas.' })}
+                <div className="markup-measurement-fields">
+                  {baseField('productionTime', 'Tempo total de trabalho no lote', {
+                    unit: values.timeUnit === 'minute' ? 'minutos' : 'horas',
+                    placeholder: values.timeUnit === 'minute' ? 'Ex.: 30' : 'Ex.: 2',
+                    hint: `Informe o tempo de trabalho dedicado a todo o lote, em ${values.timeUnit === 'minute' ? 'minutos' : 'horas'}.`,
+                  })}
+                  <ProductionTimeUnitField id="advanced-timeUnit" value={values.timeUnit} onChange={value => update('timeUnit', value)} />
+                </div>
               </div>
             </fieldset>
 
             <fieldset className="markup-field-group" data-step="1" hidden={step !== 1}>
               <legend tabIndex={-1}><Icon name="seedling" /> 2. Insumos e embalagens</legend>
-              <p className="markup-hint advanced-section-hint">Cadastre cada ingrediente, embalagem ou consumo de gás usado na receita. O valor pago deve corresponder a toda a quantidade comprada informada.</p>
+              <p className="markup-hint advanced-section-hint">Cadastre cada material, embalagem ou recurso consumido na produção do lote. O valor pago deve corresponder à quantidade comprada ou à duração total informada.</p>
               <div className="advanced-rows">
                 {values.ingredients.map((row, index) => {
                   const key = `ingredients.${row.id}`
+                  const isPackage = row.purchasedUnit === 'package'
+                  const isConsumption = row.purchasedUnit === 'consumption'
+                  const measurementUnit = ingredientMeasurementUnit(row)
+                  const usedUnitOptions = unitOptions.filter(option => option.dimension === PRICING_UNITS[measurementUnit].dimension)
                   const preview = calculateIngredient({ ...row, purchasedQuantity: parsePricingNumber(row.purchasedQuantity) ?? NaN,
-                    purchaseValue: parsePricingNumber(row.purchaseValue) ?? NaN, usedQuantity: parsePricingNumber(row.usedQuantity) ?? NaN,
-                    packageQuantity: parsePricingNumber(row.packageQuantity) ?? NaN })
+                    purchaseValue: parsePricingNumber(row.purchaseValue) ?? NaN, usedQuantity: parsePricingNumber(row.usedQuantity) ?? NaN })
+                  const purchasedQuantityField = <AdvancedField name={`${key}.purchasedQuantity`}
+                    label={isPackage ? 'Quantidade de itens no pacote' : isConsumption ? 'Duração total' : 'Quantidade comprada'}
+                    value={row.purchasedQuantity} error={error(`${key}.purchasedQuantity`)} purchaseUnit={row.purchasedUnit}
+                    unit={PRICING_UNITS[measurementUnit].label} placeholder={isPackage ? 'Ex.: 100' : isConsumption ? 'Ex.: 320' : 'Ex.: 1'}
+                    onChange={purchasedQuantity => updateIngredient(row.id, { purchasedQuantity })} />
+                  const purchaseValueField = <AdvancedField name={`${key}.purchaseValue`}
+                    label={isPackage ? 'Valor do pacote' : isConsumption ? 'Valor pago pelo consumo' : 'Valor total pago na compra'}
+                    unit="R$" value={row.purchaseValue} error={error(`${key}.purchaseValue`)} purchaseUnit={row.purchasedUnit}
+                    placeholder={isConsumption ? 'Ex.: 125,00' : 'Ex.: 4,80'} onChange={purchaseValue => updateIngredient(row.id, { purchaseValue })} />
+                  const purchaseUnitField = <AdvancedSelect name={`${key}.purchasedUnit`} label="Medida da compra" value={row.purchasedUnit}
+                    options={purchaseUnitOptions} onChange={purchasedUnit => updateIngredient(row.id, { purchasedUnit: purchasedUnit as PurchaseUnit })} />
                   return (
                     <div className="advanced-item" key={row.id}>
                       <div className="advanced-item-heading"><h3>Insumo {index + 1}</h3><RemoveRow label={`Remover insumo ${index + 1}`} disabled={values.ingredients.length === 1}
                         onClick={() => update('ingredients', values.ingredients.filter(item => item.id !== row.id))} /></div>
                       <AdvancedField name={`${key}.name`} label="Nome do insumo" text value={row.name} error={error(`${key}.name`)}
-                        placeholder="Ex.: farinha de trigo" onChange={name => updateIngredient(row.id, { name })} />
+                        placeholder="Ex.: material principal" onChange={name => updateIngredient(row.id, { name })} />
                       <div className="advanced-field-grid">
-                        <AdvancedField name={`${key}.purchasedQuantity`} label="Quantidade comprada" value={row.purchasedQuantity} error={error(`${key}.purchasedQuantity`)}
-                          unit={row.purchasedUnit === 'package' ? 'pacote/botijão' : PRICING_UNITS[row.purchasedUnit].label}
-                          placeholder="Ex.: 1" onChange={purchasedQuantity => updateIngredient(row.id, { purchasedQuantity })} />
-                        <AdvancedSelect name={`${key}.purchasedUnit`} label="Medida da compra" value={row.purchasedUnit}
-                          options={[...unitOptions, { value: 'package', label: 'Pacote / botijão' }]}
-                          onChange={purchasedUnit => updateIngredient(row.id, { purchasedUnit: purchasedUnit as IngredientDraft['purchasedUnit'] })} />
-                        <AdvancedField name={`${key}.purchaseValue`} label="Valor total pago na compra" unit="R$" value={row.purchaseValue} error={error(`${key}.purchaseValue`)}
-                          placeholder="Ex.: 4,80" onChange={purchaseValue => updateIngredient(row.id, { purchaseValue })} />
+                        {isPackage || isConsumption ? <>
+                          {purchaseValueField}
+                          {purchaseUnitField}
+                          {isConsumption ? <div className="markup-measurement-fields">
+                            {purchasedQuantityField}
+                            <AdvancedSelect name={`${key}.consumptionUnit`} label="Medida da duração" value={row.consumptionUnit} options={timeUnitOptions}
+                              onChange={consumptionUnit => updateIngredient(row.id, { consumptionUnit: consumptionUnit as IngredientDraft['consumptionUnit'] })} />
+                          </div> : purchasedQuantityField}
+                        </> : <>
+                          <div className="markup-measurement-fields">{purchasedQuantityField}{purchaseUnitField}</div>
+                          {purchaseValueField}
+                        </>}
                       </div>
-                      {row.purchasedUnit === 'package' && (
-                        <div className="advanced-package">
-                          <p className="markup-hint">Quanto vem ou quanto dura cada pacote/botijão? Para gás, informe a duração estimada nas mesmas condições de uso, como 320 horas por botijão.</p>
-                          <div className="advanced-field-grid">
-                            <AdvancedField name={`${key}.packageQuantity`} label="Conteúdo ou duração de cada pacote" value={row.packageQuantity} error={error(`${key}.packageQuantity`)}
-                              unit={PRICING_UNITS[row.packageUnit].label}
-                              onChange={packageQuantity => updateIngredient(row.id, { packageQuantity })} />
-                            <AdvancedSelect name={`${key}.packageUnit`} label="Medida do conteúdo ou duração" value={row.packageUnit} options={unitOptions}
-                              onChange={packageUnit => updateIngredient(row.id, { packageUnit: packageUnit as PricingUnit })} />
-                          </div>
-                        </div>
-                      )}
-                      <div className="advanced-field-grid">
-                        <AdvancedField name={`${key}.usedQuantity`} label="Quantidade usada na receita" value={row.usedQuantity} error={error(`${key}.usedQuantity`)}
-                          unit={PRICING_UNITS[row.usedUnit].label}
-                          placeholder="Ex.: 500" onChange={usedQuantity => updateIngredient(row.id, { usedQuantity })} />
-                        <AdvancedSelect name={`${key}.usedUnit`} label="Medida usada na receita" value={row.usedUnit} options={unitOptions} error={error(`${key}.usedUnit`)}
+                      <div className="advanced-field-grid markup-measurement-fields">
+                        <AdvancedField name={`${key}.usedQuantity`}
+                          label={isConsumption ? 'Tempo usado na produção' : 'Quantidade usada na produção'}
+                          value={row.usedQuantity} error={error(`${key}.usedQuantity`)} purchaseUnit={row.purchasedUnit}
+                          unit={PRICING_UNITS[row.usedUnit].label} placeholder={isPackage ? 'Ex.: 5' : isConsumption ? 'Ex.: 4' : 'Ex.: 500'}
+                          onChange={usedQuantity => updateIngredient(row.id, { usedQuantity })} />
+                        <AdvancedSelect name={`${key}.usedUnit`} label="Medida usada na produção" value={row.usedUnit} options={usedUnitOptions} error={error(`${key}.usedUnit`)}
                           onChange={usedUnit => updateIngredient(row.id, { usedUnit: usedUnit as PricingUnit })} />
                       </div>
                       <div className="advanced-item-summary">
-                        <span>Rende <strong>{preview ? numeric(preview.recipeYield) : '—'}</strong> receitas</span>
-                        <span>Custo nesta receita <strong>{preview ? money(preview.cost) : 'R$ —'}</strong></span>
+                        <span>Rende <strong>{preview ? numeric(preview.recipeYield) : '—'}</strong> {preview?.recipeYield === 1 ? 'lote' : 'lotes'}</span>
+                        <span>Custo neste lote <strong>{preview ? money(preview.cost) : 'R$ —'}</strong></span>
                       </div>
                     </div>
                   )
@@ -260,7 +273,7 @@ export default function AdvancedPricingCalculator() {
 
             <fieldset className="markup-field-group" data-step="2" hidden={step !== 2}>
               <legend tabIndex={-1}><Icon name="clock" /> 3. Valor do seu trabalho</legend>
-              <div className="advanced-field-grid">
+              <div className="advanced-field-grid advanced-work-fields">
                 {baseField('monthlyPay', 'Quanto quer receber por mês pelo trabalho?', { unit: 'R$', placeholder: 'Ex.: 1.600,00', hint: 'Sua remuneração pelo trabalho, separada do lucro do negócio.' })}
                 {baseField('hoursPerDay', 'Horas produtivas por dia', { unit: 'h', placeholder: 'Ex.: 8', hint: 'Somente horas dedicadas à produção, até 24 por dia.' })}
                 {baseField('daysPerMonth', 'Dias trabalhados no mês', { unit: 'dias', placeholder: 'Ex.: 20' })}
@@ -270,7 +283,7 @@ export default function AdvancedPricingCalculator() {
 
             <fieldset className="markup-field-group" data-step="3" hidden={step !== 3}>
               <legend tabIndex={-1}><Icon name="store" /> 4. Gastos fixos mensais</legend>
-              <p className="markup-hint advanced-section-hint">Inclua a parte do aluguel, internet e outras contas destinada ao negócio. Evite repetir insumos, gás ou trabalho já contabilizados.</p>
+              <p className="markup-hint advanced-section-hint">Inclua a parte do aluguel, internet e outras contas destinada ao negócio. Evite repetir materiais, consumo ou trabalho já contabilizados.</p>
               {values.fixedExpenses.map((row, index) => (
                 <div className="advanced-expense-row" key={row.id}>
                   <AdvancedField name={`fixedExpenses.${row.id}.name`} label={`Gasto fixo ${index + 1}`} text value={row.name} error={error(`fixedExpenses.${row.id}.name`)}
@@ -290,7 +303,7 @@ export default function AdvancedPricingCalculator() {
                 <div className="advanced-item" key={row.id}>
                   <div className="advanced-item-heading"><h3>Equipamento {index + 1}</h3><RemoveRow label={`Remover equipamento ${index + 1}`} onClick={() => update('equipment', values.equipment.filter(item => item.id !== row.id))} /></div>
                   <AdvancedField name={`equipment.${row.id}.name`} label="Nome do equipamento" text value={row.name} error={error(`equipment.${row.id}.name`)}
-                    placeholder="Ex.: forno" onChange={name => updateEquipment(row.id, { name })} />
+                    placeholder="Ex.: equipamento de produção" onChange={name => updateEquipment(row.id, { name })} />
                   <div className="advanced-field-grid">
                     <AdvancedField name={`equipment.${row.id}.value`} label="Quanto vale hoje?" unit="R$" value={row.value} error={error(`equipment.${row.id}.value`)}
                       onChange={value => updateEquipment(row.id, { value })} />
@@ -332,8 +345,8 @@ export default function AdvancedPricingCalculator() {
               <p className="markup-hint">A soma precisa ficar abaixo de 100% para calcular o markup.</p>
             </fieldset>
             {((attemptedSteps.includes(step) && currentErrors.length > 0) || validation.errors.calculation)
-              && <p className="markup-error" role="alert">{validation.errors.calculation || 'Revise os campos indicados nesta etapa antes de continuar.'}</p>}
-            <CalculatorStepActions current={step} count={steps.length} onBack={() => showStep(step - 1)} onClear={clear} />
+              && <p className="markup-error" role="alert">{validation.errors.calculation || 'Revise os campos indicados nesta etapa.'}</p>}
+            <CalculatorStepActions current={step} count={steps.length} onBack={() => goToStep(step - 1)} onClear={clear} />
           </form>
         </section>
 
@@ -343,12 +356,12 @@ export default function AdvancedPricingCalculator() {
             <h2 id="advanced-result-title">Preço de venda por unidade</h2>
             <div className="markup-price-area" role="status" aria-live="polite" aria-atomic="true">
               <strong className="markup-price">{result ? money(result.price) : 'R$ —'}</strong>
-              <p>{result ? `${result.productName} · ${numeric(result.producedQuantity)} ${result.producedQuantity === 1 ? 'unidade produzida' : 'unidades produzidas'} por receita.`
+              <p>{result ? `${result.productName} · ${numeric(result.producedQuantity)} ${result.producedQuantity === 1 ? 'unidade produzida' : 'unidades produzidas'} por lote.`
                 : 'Preencha ou corrija os campos necessários para ver o preço sugerido.'}</p>
               <p>O resultado é atualizado automaticamente conforme você preenche os campos.</p>
             </div>
             <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${numeric(result.multiplier)}×` : '—'}</strong></div>
-            <div className="markup-multiplier advanced-batch-price"><span>Venda de toda a receita</span><strong>{result ? money(result.batchPrice) : 'R$ —'}</strong></div>
+            <div className="markup-multiplier advanced-batch-price"><span>Venda de todo o lote</span><strong>{result ? money(result.batchPrice) : 'R$ —'}</strong></div>
           </div>
           <section className="markup-breakdown" aria-labelledby="advanced-breakdown-title">
             <h3 id="advanced-breakdown-title">Para onde vai cada parte do preço?</h3>
@@ -363,7 +376,7 @@ export default function AdvancedPricingCalculator() {
             <h3 id="advanced-summary-title">Resumo da produção</h3>
             <dl className="advanced-summary">
               {[
-                ['Custo dos insumos da receita', result ? money(result.recipeCost) : 'R$ —'],
+                ['Custo dos insumos do lote', result ? money(result.recipeCost) : 'R$ —'],
                 ['Material por unidade', result ? money(result.materialCost) : 'R$ —'],
                 ['Horas produtivas no mês', result ? `${numeric(result.monthlyProductiveHours)} h` : '—'],
                 ['Valor da sua hora', result ? money(result.hourlyRate) : 'R$ —'],
@@ -377,7 +390,7 @@ export default function AdvancedPricingCalculator() {
             </dl>
           </section>
           <p className="markup-local-note"><Icon name="shieldCheck" /><span>Seus valores ajudam a planejar uma venda que remunera seu trabalho e mantém o negócio saudável.</span></p>
-          {isExample && <p className="markup-hint advanced-example-note">Exemplo ilustrativo: gás a R$ 125,00 por botijão, duração de 320 horas e uso de 4 horas por receita. Ajuste esses dados à sua realidade.</p>}
+          {isExample && <p className="markup-hint advanced-example-note">Exemplo ilustrativo: recurso de consumo a R$ 125,00, duração total de 320 horas e uso de 4 horas por lote. Ajuste esses dados à sua realidade.</p>}
         </aside>
       </div>
 
@@ -386,12 +399,12 @@ export default function AdvancedPricingCalculator() {
         <p className="markup-formula">Preço por unidade = (material por unidade + mão de obra por unidade) × 100 ÷ [100 − (gastos fixos % + despesas variáveis % + lucro %)]</p>
         <ol className="advanced-formula-steps">
           <li><strong>Rendimento do insumo</strong><span>Quantidade comprada ÷ quantidade usada, após converter as medidas.</span></li>
-          <li><strong>Custo do insumo na receita</strong><span>Valor total pago ÷ rendimento.</span></li>
-          <li><strong>Custo total da receita</strong><span>Soma dos custos de todos os insumos e embalagens.</span></li>
-          <li><strong>Material por unidade</strong><span>Custo total da receita ÷ quantidade produzida.</span></li>
+          <li><strong>Custo do insumo no lote</strong><span>Valor total pago ÷ rendimento.</span></li>
+          <li><strong>Custo total do lote</strong><span>Soma dos custos de todos os insumos e embalagens.</span></li>
+          <li><strong>Material por unidade</strong><span>Custo total do lote ÷ quantidade produzida.</span></li>
           <li><strong>Horas produtivas mensais</strong><span>Horas produtivas por dia × dias trabalhados.</span></li>
           <li><strong>Valor da hora trabalhada</strong><span>Remuneração mensal ÷ horas produtivas mensais.</span></li>
-          <li><strong>Tempo por unidade</strong><span>Tempo de trabalho na receita, em horas, ÷ quantidade produzida.</span></li>
+          <li><strong>Tempo por unidade</strong><span>Tempo de trabalho no lote, em horas, ÷ quantidade produzida.</span></li>
           <li><strong>Mão de obra por unidade</strong><span>Valor da hora × tempo por unidade.</span></li>
           <li><strong>Gastos fixos mensais</strong><span>Soma das contas fixas + depreciação. Cada depreciação = valor atual ÷ meses restantes de uso.</span></li>
           <li><strong>Percentual de gastos fixos</strong><span>Gastos fixos mensais ÷ faturamento médio mensal × 100.</span></li>

@@ -16,7 +16,7 @@ export default function ProductionTimeUnitField({ id, value, onChange }: {
       <label htmlFor={id}>{label}</label>
       <CalculatorFieldHelp label={label} help={help} />
     </div>
-    <select id={id} name="timeUnit" value={value} onChange={event => onChange(event.currentTarget.value as ProductionTimeUnit)}>
+    <select className="markup-unit-select" id={id} name="timeUnit" value={value} onChange={event => onChange(event.currentTarget.value as ProductionTimeUnit)}>
       <option value="hour">Horas</option>
       <option value="minute">Minutos</option>
     </select>

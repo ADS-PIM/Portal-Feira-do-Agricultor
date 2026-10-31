@@ -1,25 +1,27 @@
-import { calculateMarkup } from './pricingCalculator'
+import { calculateMarkup, type ProductionTimeUnit } from './pricingCalculator'
 
 export const PRICING_UNITS = {
   kg: { label: 'kg', dimension: 'mass', factor: 1000 },
   g: { label: 'g', dimension: 'mass', factor: 1 },
   l: { label: 'L', dimension: 'volume', factor: 1000 },
   ml: { label: 'mL', dimension: 'volume', factor: 1 },
+  m: { label: 'm', dimension: 'length', factor: 100 },
+  cm: { label: 'cm', dimension: 'length', factor: 1 },
   unit: { label: 'unidades', dimension: 'count', factor: 1 },
   hour: { label: 'horas', dimension: 'time', factor: 60 },
   minute: { label: 'minutos', dimension: 'time', factor: 1 },
 } as const
 
 export type PricingUnit = keyof typeof PRICING_UNITS
+export type PurchaseUnit = PricingUnit | 'package' | 'consumption'
 export type RecipeIngredient = {
   name: string
   purchasedQuantity: number
-  purchasedUnit: PricingUnit | 'package'
+  purchasedUnit: PurchaseUnit
   purchaseValue: number
   usedQuantity: number
   usedUnit: PricingUnit
-  packageQuantity?: number
-  packageUnit?: PricingUnit
+  consumptionUnit?: ProductionTimeUnit
 }
 export type NamedExpense = { name: string; value: number }
 export type Equipment = { name: string; value: number; lifeMonths: number }
@@ -42,16 +44,21 @@ export type AdvancedPricingInput = {
 const nonnegative = (value: number) => Number.isFinite(value) && value >= 0
 const positive = (value: number) => Number.isFinite(value) && value > 0
 
+export function ingredientMeasurementUnit(ingredient: Pick<RecipeIngredient, 'purchasedUnit' | 'consumptionUnit'>): PricingUnit {
+  if (ingredient.purchasedUnit === 'package') return 'unit'
+  if (ingredient.purchasedUnit === 'consumption') return ingredient.consumptionUnit ?? 'hour'
+  return ingredient.purchasedUnit
+}
+
 export function calculateIngredient(ingredient: RecipeIngredient) {
   const { purchasedQuantity, purchasedUnit, purchaseValue, usedQuantity, usedUnit } = ingredient
-  const unit = purchasedUnit === 'package' ? ingredient.packageUnit : purchasedUnit
+  const unit = ingredientMeasurementUnit(ingredient)
   if (!unit || !PRICING_UNITS[unit] || !PRICING_UNITS[usedUnit]
-    || !positive(purchasedQuantity) || !positive(usedQuantity) || !nonnegative(purchaseValue)
-    || (purchasedUnit === 'package' && !positive(ingredient.packageQuantity ?? 0))) return null
+    || !positive(purchasedQuantity) || !positive(usedQuantity) || !nonnegative(purchaseValue)) return null
+  if (purchasedUnit === 'consumption' && PRICING_UNITS[unit].dimension !== 'time') return null
   if (PRICING_UNITS[unit].dimension !== PRICING_UNITS[usedUnit].dimension) return null
 
   const purchasedBase = purchasedQuantity * PRICING_UNITS[unit].factor
-    * (purchasedUnit === 'package' ? ingredient.packageQuantity! : 1)
   const usedBase = usedQuantity * PRICING_UNITS[usedUnit].factor
   const recipeYield = purchasedBase / usedBase
   const cost = purchaseValue / recipeYield

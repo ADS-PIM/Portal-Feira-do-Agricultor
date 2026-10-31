@@ -1,10 +1,10 @@
-import { calculateAdvancedPricing, PRICING_UNITS, type AdvancedPricingInput, type PricingUnit } from '../../utils/advancedPricingCalculator'
-import { parsePricingNumber } from '../../utils/pricingCalculator'
+import { calculateAdvancedPricing, ingredientMeasurementUnit, PRICING_UNITS, type AdvancedPricingInput, type PricingUnit, type PurchaseUnit } from '../../utils/advancedPricingCalculator'
+import { parsePricingNumber, type ProductionTimeUnit } from '../../utils/pricingCalculator'
 
 export type IngredientDraft = {
-  id: string; name: string; purchasedQuantity: string; purchasedUnit: PricingUnit | 'package'
+  id: string; name: string; purchasedQuantity: string; purchasedUnit: PurchaseUnit
   purchaseValue: string; usedQuantity: string; usedUnit: PricingUnit
-  packageQuantity: string; packageUnit: PricingUnit
+  consumptionUnit: ProductionTimeUnit
 }
 export type ExpenseDraft = { id: string; name: string; value: string }
 export type EquipmentDraft = ExpenseDraft & { lifeMonths: string }
@@ -19,7 +19,7 @@ export type AdvancedFormValues = {
 
 export const newIngredient = (values: Partial<IngredientDraft> = {}): IngredientDraft => ({
   id: crypto.randomUUID(), name: '', purchasedQuantity: '', purchasedUnit: 'kg',
-  purchaseValue: '', usedQuantity: '', usedUnit: 'g', packageQuantity: '', packageUnit: 'hour', ...values,
+  purchaseValue: '', usedQuantity: '', usedUnit: 'g', consumptionUnit: 'hour', ...values,
 })
 export const newExpense = (): ExpenseDraft => ({ id: crypto.randomUUID(), name: '', value: '' })
 export const newEquipment = (): EquipmentDraft => ({ ...newExpense(), lifeMonths: '' })
@@ -32,30 +32,33 @@ export function emptyAdvancedForm(): AdvancedFormValues {
 
 export function exampleAdvancedForm(): AdvancedFormValues {
   return {
-    productName: 'Pão recheado', producedQuantity: '2', productionTime: '2', timeUnit: 'hour',
+    productName: 'Produto de exemplo', producedQuantity: '2', productionTime: '2', timeUnit: 'hour',
     monthlyPay: '1.600,00', hoursPerDay: '8', daysPerMonth: '20', monthlyRevenue: '10.000,00', profit: '30',
     ingredients: [
-      newIngredient({ name: 'Farinha de trigo sem fermento', purchasedQuantity: '1', purchaseValue: '4,80', usedQuantity: '500' }),
-      newIngredient({ name: 'Açúcar', purchasedQuantity: '1', purchaseValue: '3,20', usedQuantity: '100' }),
-      newIngredient({ name: 'Peito de frango', purchasedQuantity: '1', purchaseValue: '12,00', usedQuantity: '500' }),
-      newIngredient({ name: 'Queijo muçarela', purchasedQuantity: '1', purchaseValue: '40,00', usedQuantity: '200' }),
-      newIngredient({ name: 'Gás', purchasedQuantity: '1', purchasedUnit: 'package', purchaseValue: '125,00',
-        packageQuantity: '320', packageUnit: 'hour', usedQuantity: '4', usedUnit: 'hour' }),
-      newIngredient({ name: 'Embalagem', purchasedQuantity: '100', purchasedUnit: 'unit', purchaseValue: '5,00', usedQuantity: '1', usedUnit: 'unit' }),
+      newIngredient({ name: 'Material A', purchasedQuantity: '1', purchaseValue: '4,80', usedQuantity: '500' }),
+      newIngredient({ name: 'Material B', purchasedQuantity: '1', purchaseValue: '3,20', usedQuantity: '100' }),
+      newIngredient({ name: 'Material C', purchasedQuantity: '1', purchaseValue: '12,00', usedQuantity: '500' }),
+      newIngredient({ name: 'Material D', purchasedQuantity: '1', purchaseValue: '40,00', usedQuantity: '200' }),
+      newIngredient({ name: 'Recurso de consumo', purchasedQuantity: '320', purchasedUnit: 'consumption', purchaseValue: '125,00',
+        consumptionUnit: 'hour', usedQuantity: '4', usedUnit: 'hour' }),
+      newIngredient({ name: 'Embalagem', purchasedQuantity: '100', purchasedUnit: 'package', purchaseValue: '5,00', usedQuantity: '1', usedUnit: 'unit' }),
     ],
     fixedExpenses: [{ ...newExpense(), name: 'Aluguel', value: '800,00' }, { ...newExpense(), name: 'Energia e internet', value: '180,00' }],
-    equipment: [{ ...newEquipment(), name: 'Forno', value: '1.200,00', lifeMonths: '60' }],
+    equipment: [{ ...newEquipment(), name: 'Equipamento de produção', value: '1.200,00', lifeMonths: '60' }],
     variableExpenses: [{ ...newExpense(), name: 'Taxa da maquininha', value: '3' }, { ...newExpense(), name: 'Comissão de venda', value: '2' }],
   }
 }
 
 export function evaluateAdvancedForm(values: AdvancedFormValues) {
   const errors: Record<string, string> = {}
+  const missingFields: string[] = []
   function text(key: string, value: string) {
+    if (!value.trim()) missingFields.push(key)
     if (!value.trim()) errors[key] = 'Preencha este campo.'
     return value.trim()
   }
   function number(key: string, value: string, positive = false, maximum?: number) {
+    if (!value.trim()) missingFields.push(key)
     const parsed = parsePricingNumber(value)
     if (parsed === null) errors[key] = value.trim() ? 'Informe um número válido, como 1.000,50.' : 'Preencha este campo.'
     else if (positive && parsed <= 0) errors[key] = 'Informe um valor maior que zero.'
@@ -80,14 +83,14 @@ export function evaluateAdvancedForm(values: AdvancedFormValues) {
     monthlyRevenue: number('monthlyRevenue', values.monthlyRevenue, true), profit: percentage('profit', values.profit),
     ingredients: values.ingredients.map(row => {
       const key = `ingredients.${row.id}`
-      const purchasedUnit = row.purchasedUnit === 'package' ? row.packageUnit : row.purchasedUnit
+      const purchasedUnit = ingredientMeasurementUnit(row)
       const compatible = PRICING_UNITS[purchasedUnit].dimension === PRICING_UNITS[row.usedUnit].dimension
-      if (!compatible) errors[`${key}.usedUnit`] = 'Use medidas compatíveis: kg com g, L com mL, ou horas com minutos.'
+      if (!compatible) errors[`${key}.usedUnit`] = 'Use medidas compatíveis: kg com g, L com mL, m com cm, unidades com unidades ou horas com minutos.'
       return { name: text(`${key}.name`, row.name),
         purchasedQuantity: number(`${key}.purchasedQuantity`, row.purchasedQuantity, true), purchasedUnit: row.purchasedUnit,
         purchaseValue: number(`${key}.purchaseValue`, row.purchaseValue),
         usedQuantity: number(`${key}.usedQuantity`, row.usedQuantity, true), usedUnit: row.usedUnit,
-        ...(row.purchasedUnit === 'package' ? { packageQuantity: number(`${key}.packageQuantity`, row.packageQuantity, true), packageUnit: row.packageUnit } : {}) }
+        ...(row.purchasedUnit === 'consumption' ? { consumptionUnit: row.consumptionUnit } : {}) }
     }),
     fixedExpenses: expenses(values.fixedExpenses, 'fixedExpenses'),
     variableExpenses: expenses(values.variableExpenses, 'variableExpenses'),
@@ -105,5 +108,5 @@ export function evaluateAdvancedForm(values: AdvancedFormValues) {
   }
   const result = Object.keys(errors).length ? null : calculateAdvancedPricing(input)
   if (!Object.keys(errors).length && !result) errors.calculation = 'Confira os valores: o custo-base deve ser maior que zero e os números precisam permitir um cálculo finito.'
-  return { errors, result, input, fixedPercentage, variablePercentage, totalPercentage, monthlyFixed, monthlyDepreciation }
+  return { errors, missingFields, result, input, fixedPercentage, variablePercentage, totalPercentage, monthlyFixed, monthlyDepreciation }
 }

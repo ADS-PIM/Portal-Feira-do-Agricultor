@@ -8,7 +8,7 @@ const PricingCalculatorPromo = () => {
                 <div className="pricing-calculator-content">
                     <h2 id="pricing-calculator-title">Calculadora de Precificação</h2>
                     <p>
-                        Calcule o preço justo do seu produto considerando sementes, água, transporte e horas
+                        Calcule o preço justo do seu produto considerando materiais, despesas de produção e horas
                         trabalhadas. Uma ferramenta simples para decisões mais seguras e sustentáveis.
                     </p>
                     <button className="pricing-calculator-button" type="button" onClick={() => { window.location.hash = '#/calculadora' }}>

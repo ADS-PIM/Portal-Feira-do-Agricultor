@@ -63,13 +63,13 @@ const percentageFields: Field[] = ['monthlyFixedExpenses', 'monthlyRevenue', 'va
 
 const fieldHelp: Record<Field, { explanation: string; example: string; effect: string }> = {
   materialCost: {
-    explanation: 'Some o que você gasta com ingredientes, materiais e embalagem para preparar apenas uma unidade do produto. Não inclua seu tempo de trabalho aqui.',
-    example: 'Se os ingredientes de um pote de doce custam R$ 4 e o pote custa R$ 1, preencha R$ 5.',
+    explanation: 'Some o que você gasta com materiais, componentes e embalagem para produzir uma unidade do produto. Não inclua seu tempo de trabalho aqui.',
+    example: 'Se os materiais de um produto custam R$ 4 e a embalagem custa R$ 1, preencha R$ 5.',
     effect: 'Quanto maior esse gasto, maior precisa ser o preço de venda para pagar os materiais e ainda cobrir as despesas e o lucro.',
   },
   productionHours: {
     explanation: 'Informe o tempo de trabalho necessário para fazer uma unidade e escolha horas ou minutos. Se você faz vários produtos juntos, divida o tempo total pela quantidade produzida.',
-    example: 'Se você leva 2 horas para fazer 10 potes de doce, cada pote usa 0,2 hora ou 12 minutos. Meia hora pode ser informada como 0,5 hora ou 30 minutos.',
+    example: 'Se você leva 2 horas para produzir 10 unidades, cada unidade usa 0,2 hora ou 12 minutos. Meia hora pode ser informada como 0,5 hora ou 30 minutos.',
     effect: 'Os minutos são divididos por 60 antes de multiplicar pelo valor da sua hora. Com a hora a R$ 20, uma unidade que leva 30 minutos tem R$ 10 de mão de obra.',
   },
   hourlyRate: {
@@ -99,7 +99,7 @@ const fieldHelp: Record<Field, { explanation: string; example: string; effect: s
   },
 }
 
-const steps = fieldGroups.map(group => group.title)
+const steps = ['Produção unitaria', fieldGroups[1].title, 'Despesas e lucro']
 const stepForField = (name: Field) => fieldGroups.findIndex(group => group.fields.some(field => field.name === name))
 
 export default function PricingCalculatorPage() {
@@ -109,6 +109,7 @@ export default function PricingCalculatorPage() {
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({})
   const [step, setStep] = useState(0)
   const formRef = useRef<HTMLFormElement>(null)
+  const incompleteSteps = fieldGroups.flatMap((group, index) => group.fields.some(({ name }) => !values[name].trim()) ? [index] : [])
   const numbers = {
     materialCost: parsePricingNumber(values.materialCost),
     productionHours: parseProductionHours(values.productionHours, values.timeUnit),
@@ -187,13 +188,7 @@ export default function PricingCalculatorPage() {
   }
 
   function goToStep(target: number) {
-    const firstInvalid = target > step ? fields.find(({ name }) => stepForField(name) < target && errors[name])?.name : undefined
-    if (firstInvalid) {
-      const invalidStep = stepForField(firstInvalid)
-      setTouched(previous => ({ ...previous, ...Object.fromEntries(fieldGroups[invalidStep].fields.map(field => [field.name, true])) }))
-      showStep(invalidStep, firstInvalid)
-      return
-    }
+    setTouched(previous => ({ ...previous, ...Object.fromEntries(fieldGroups[step].fields.map(field => [field.name, true])) }))
     showStep(target)
   }
 
@@ -277,7 +272,7 @@ export default function PricingCalculatorPage() {
 
                 <p className="markup-help-intro">Preencha um tópico por vez e use Voltar e Próximo para revisar. Toque na interrogação (?) para entender cada campo e ver um exemplo.</p>
                 <form ref={formRef} className="markup-form" onSubmit={handleSubmit} autoComplete="off" noValidate>
-                  <CalculatorSteps steps={steps} current={step} onSelect={goToStep} label="Etapas da calculadora simples" />
+                  <CalculatorSteps steps={steps} current={step} incompleteSteps={incompleteSteps} onSelect={goToStep} label="Etapas da calculadora simples" />
                   {fieldGroups.map((group, index) => (
                     <fieldset className="markup-field-group" key={group.title} data-step={index} hidden={step !== index}>
                       <legend tabIndex={-1}><Icon name={group.icon} /> {index + 1}. {group.title}</legend>
@@ -321,7 +316,7 @@ export default function PricingCalculatorPage() {
                           </div>
                         )
                         return name === 'productionHours' ? (
-                          <div className="markup-time-fields" key={name}>
+                          <div className="markup-time-fields markup-measurement-fields" key={name}>
                             {inputField}
                             <ProductionTimeUnitField id="markup-timeUnit" value={values.timeUnit}
                               onChange={timeUnit => setValues(previous => ({ ...previous, timeUnit }))} />
@@ -352,7 +347,7 @@ export default function PricingCalculatorPage() {
                     ) : <p className="markup-hint">A soma deve ficar abaixo de 100% para calcular o preço.</p>}
                     {calculationError && <p className="markup-error" role="alert">{calculationError}</p>}
                   </div>
-                  <CalculatorStepActions current={step} count={steps.length} onBack={() => showStep(step - 1)} onClear={clearFields} />
+                  <CalculatorStepActions current={step} count={steps.length} onBack={() => goToStep(step - 1)} onClear={clearFields} />
                 </form>
               </section>
 
