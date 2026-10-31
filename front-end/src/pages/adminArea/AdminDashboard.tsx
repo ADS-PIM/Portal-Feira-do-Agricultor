@@ -273,18 +273,20 @@ const AdminDashboard = ({
                                             <span className="calendar-event-status">{getCalendarStatusLabel(event.state)}</span>
                                         </div>
                                         {event.description && <p className="admin-event-description">{event.description}</p>}
-                                        <p className="admin-event-detail">
-                                            <Icon name="calendar" />
-                                            <span title={formatEventDate(event.date)}>{normalizeDateOnly(event.date).split('-').reverse().join('/')}</span>
-                                        </p>
-                                        <p className="admin-event-detail">
-                                            <Icon name="clock" />
-                                            <span>{event.startAt.slice(0, 5)} - {event.endAt.slice(0, 5)}</span>
-                                        </p>
-                                        <p className="admin-event-detail admin-event-location">
-                                            <Icon name="location" />
-                                            <span>{event.localAddress}</span>
-                                        </p>
+                                        <div className="admin-dashboard-event-details">
+                                            <p className="admin-event-detail">
+                                                <Icon name="calendar" />
+                                                <span title={formatEventDate(event.date)}>{normalizeDateOnly(event.date).split('-').reverse().join('/')}</span>
+                                            </p>
+                                            <p className="admin-event-detail">
+                                                <Icon name="clock" />
+                                                <span>{event.startAt.slice(0, 5)} - {event.endAt.slice(0, 5)}</span>
+                                            </p>
+                                            <p className="admin-event-detail admin-event-location">
+                                                <Icon name="location" />
+                                                <span>{event.localAddress}</span>
+                                            </p>
+                                        </div>
                                         <div className="admin-event-actions">
                                             <a
                                                 className="admin-event-action is-view"
