@@ -1,6 +1,8 @@
 node_modules/
 
 # Local test sources (frontend and backend)
+# Keep tests local; do not force-add them with git add -f.
+# Already tracked tests must also be removed with git rm --cached.
 test/
 tests/
 __tests__/
