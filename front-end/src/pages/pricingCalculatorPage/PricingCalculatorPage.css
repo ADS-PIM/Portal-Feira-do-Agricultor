@@ -48,10 +48,23 @@
 .markup-field-group legend { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 14px; padding: 0; color: var(--calculator-green); font-size: 16px; font-weight: 700; }
 .markup-field-group legend svg { flex-shrink: 0; font-size: 18px; }
 .markup-field + .markup-field { margin-top: 16px; }
+.markup-field-group[hidden] { display: none; }
+.markup-percentage-field .markup-field-heading { display: flex; flex-wrap: wrap; }
+.markup-percentage-field .markup-field-label { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-width: 0; }
+.markup-percentage-field .markup-field-label > label { min-width: 0; }
 .markup-field label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 700; }
 .markup-help-intro { margin: -4px 0 22px; color: var(--calculator-muted); font-size: 14px; line-height: 1.6; }
-.markup-field-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.markup-field-heading { display: block; margin-bottom: 7px; text-wrap: balance; }
 .markup-field-heading label { margin-bottom: 0; }
+.markup-field-heading > label { display: inline; }
+.markup-field-heading > .markup-help-button { margin-left: 4px; vertical-align: middle; }
+.markup-page .markup-field select { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid var(--calculator-border); border-radius: 9px; background: var(--surface-input); color: var(--calculator-text); font: inherit; font-size: 16px; }
+.markup-page .markup-field select:focus { outline: none; border-color: var(--calculator-green); box-shadow: 0 0 0 3px rgb(7 131 46 / 13%); }
+.markup-page .markup-field select[aria-invalid="true"] { border-color: #a73324; }
+.markup-time-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
+.markup-time-fields > .markup-field { min-width: 0; }
+.markup-time-fields > .markup-field + .markup-field { margin-top: 0; }
+.markup-time-fields .markup-field-heading { min-height: 36px; }
 .markup-field-heading .markup-range-value {
     display: inline-flex;
     flex-shrink: 0;
@@ -135,7 +148,9 @@
     background: var(--range-color);
     box-shadow: 0 2px 4px rgb(0 0 0 / 15%);
 }
-.markup-range:focus-visible { outline: 3px solid var(--brand-orange); outline-offset: 3px; }
+.markup-range:focus-visible { outline: none; }
+.markup-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgb(10 145 52 / 18%); }
+.markup-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgb(10 145 52 / 18%); }
 .markup-range[aria-invalid="true"] { --range-color: #a73324; }
 .markup-page .markup-help-button { display: inline-flex; flex: 0 0 36px; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--calculator-green); font-size: 14px; }
 .markup-help-button .markup-help-icon { display: block; flex: none; width: 22px; height: 22px; }
@@ -225,6 +240,24 @@
 .markup-page button:focus-visible,
 .markup-page a:focus-visible { outline: 3px solid #ff9d2e; outline-offset: 4px; }
 
+.markup-steps { min-width: 0; }
+.markup-step-status { margin-bottom: 14px; color: var(--calculator-muted); font-size: 13px; }
+.markup-step-status strong { color: var(--calculator-green); }
+.markup-step-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0; list-style: none; }
+.markup-page .markup-step-button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 56px; padding: 10px; border: 1px solid var(--calculator-border); border-radius: 10px; background: #fff; color: var(--calculator-muted); text-align: left; font-size: 12px; line-height: 1.4; }
+.markup-step-button > span { display: grid; flex: 0 0 25px; place-items: center; width: 25px; height: 25px; border-radius: 50%; background: var(--calculator-soft); color: var(--calculator-green); }
+.markup-step-button:hover { background: var(--calculator-soft); }
+.markup-step-button[aria-current="step"] { border-color: var(--calculator-green); background: var(--calculator-soft); color: var(--calculator-green); }
+.markup-step-button[aria-current="step"] > span { background: var(--calculator-green); color: #fff; }
+.markup-field-group legend[tabindex="-1"] { scroll-margin-top: 120px; }
+.markup-field-group legend[tabindex="-1"]:focus-visible { outline: 2px solid var(--calculator-green); outline-offset: 4px; border-radius: 4px; }
+.markup-step-actions { display: flex; flex-direction: column; gap: 12px; padding-top: 20px; border-top: 1px solid var(--calculator-border); }
+.markup-step-navigation { display: flex; gap: 12px; }
+.markup-step-navigation .markup-submit { flex: 1; width: auto; }
+.markup-page .markup-step-back { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 53px; padding: 12px 16px; border: 1px solid var(--calculator-border); border-radius: 9px; background: #fff; color: var(--calculator-green); font-size: 15px; }
+.markup-step-back:hover { background: var(--calculator-soft); }
+.markup-step-actions .markup-clear { align-self: center; min-width: 0; min-height: 40px; padding: 8px 14px; border-color: transparent; font-size: 13px; }
+
 @media (max-width: 1050px) {
     .markup-form-panel, .markup-result-card, .markup-breakdown { padding: 24px; }
     .markup-layout { gap: 20px; }
@@ -240,10 +273,14 @@
 }
 
 @media (max-width: 600px) {
+    .markup-time-fields { grid-template-columns: minmax(0, 1fr); }
     .markup-guide-steps { grid-template-columns: minmax(0, 1fr); gap: 20px; }
 }
 
 @media (max-width: 480px) {
+    .markup-step-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .markup-step-navigation { flex-wrap: wrap; }
+    .markup-step-navigation .markup-submit { min-width: 150px; }
     .markup-form-actions { grid-template-columns: minmax(0, 1fr); }
     .markup-shell { padding: 26px 16px 40px; }
     .markup-heading { align-items: flex-start; gap: 12px; margin-bottom: 24px; }

@@ -1,13 +1,17 @@
-import { useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
-import { faQuestion } from '@fortawesome/free-solid-svg-icons'
+import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import Icon, { type IconName } from '../../components/Icon'
-import { calculateMarkup, parsePricingNumber, type MarkupInput } from '../../utils/pricingCalculator'
+import { calculateMarkup, parsePricingNumber, parseProductionHours, type MarkupInput, type ProductionTimeUnit } from '../../utils/pricingCalculator'
+import AdvancedPricingCalculator from './AdvancedPricingCalculator'
+import PercentageField from './PercentageField'
+import CalculatorFieldHelp from './CalculatorFieldHelp'
+import { CalculatorSteps, CalculatorStepActions } from './CalculatorSteps'
+import ProductionTimeUnitField from './ProductionTimeUnitField'
 import './PricingCalculatorPage.css'
 
 type Field = keyof MarkupInput
-type FormValues = Record<Field, string>
+type FormValues = Record<Field, string> & { timeUnit: ProductionTimeUnit }
 type FieldDefinition = { name: Field; label: string; unit: string; hint: string; placeholder: string }
 
 const calculatorMethods = [
@@ -18,11 +22,11 @@ type CalculatorMethod = typeof calculatorMethods[number]['id']
 
 const initialValues: FormValues = {
   materialCost: '', productionHours: '', hourlyRate: '', monthlyFixedExpenses: '0',
-  monthlyRevenue: '', variableExpenses: '0', profit: '0',
+  monthlyRevenue: '', variableExpenses: '0', profit: '0', timeUnit: 'hour',
 }
 const exampleValues: FormValues = {
   materialCost: '30,00', productionHours: '2', hourlyRate: '20,00', monthlyFixedExpenses: '1.000,00',
-  monthlyRevenue: '10.000,00', variableExpenses: '5', profit: '30',
+  monthlyRevenue: '10.000,00', variableExpenses: '5', profit: '30', timeUnit: 'hour',
 }
 const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 4 })
@@ -64,9 +68,9 @@ const fieldHelp: Record<Field, { explanation: string; example: string; effect: s
     effect: 'Quanto maior esse gasto, maior precisa ser o preço de venda para pagar os materiais e ainda cobrir as despesas e o lucro.',
   },
   productionHours: {
-    explanation: 'Informe quantas horas de trabalho são necessárias para fazer uma unidade. Se você faz vários produtos juntos, divida o tempo pela quantidade produzida.',
-    example: 'Se você leva 2 horas para fazer 10 potes de doce, cada pote usa 0,2 hora. Meia hora é 0,5 e 15 minutos são 0,25.',
-    effect: 'Esse tempo é multiplicado pelo valor da sua hora. Quanto mais tempo por unidade, maior o custo do trabalho e o preço calculado.',
+    explanation: 'Informe o tempo de trabalho necessário para fazer uma unidade e escolha horas ou minutos. Se você faz vários produtos juntos, divida o tempo total pela quantidade produzida.',
+    example: 'Se você leva 2 horas para fazer 10 potes de doce, cada pote usa 0,2 hora ou 12 minutos. Meia hora pode ser informada como 0,5 hora ou 30 minutos.',
+    effect: 'Os minutos são divididos por 60 antes de multiplicar pelo valor da sua hora. Com a hora a R$ 20, uma unidade que leva 30 minutos tem R$ 10 de mão de obra.',
   },
   hourlyRate: {
     explanation: 'Informe quanto você quer receber por uma hora do seu trabalho. Seu trabalho também tem um custo, mesmo quando é você quem produz.',
@@ -95,56 +99,19 @@ const fieldHelp: Record<Field, { explanation: string; example: string; effect: s
   },
 }
 
-const helpQuestionPaths = [faQuestion.icon[4]].flat()
-const helpQuestionScale = 12 / faQuestion.icon[1]
-const helpQuestionOffsetX = (22 - faQuestion.icon[0] * helpQuestionScale) / 2
-
-function FieldHelp({ name, label }: { name: Field; label: string }) {
-  const dialogRef = useRef<HTMLDialogElement>(null)
-  const help = fieldHelp[name]
-
-  return (
-    <>
-      <button type="button" className="markup-help-button" aria-label={`Entenda: ${label}`} aria-haspopup="dialog" onClick={() => dialogRef.current?.showModal()}>
-        <svg className="markup-help-icon" viewBox="0 0 22 22" aria-hidden="true" focusable="false">
-          <circle cx="11" cy="11" r="10.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <g transform={`translate(${helpQuestionOffsetX} 5) scale(${helpQuestionScale})`}>
-            {helpQuestionPaths.map((path, index) => <path key={index} d={path} fill="currentColor" />)}
-          </g>
-        </svg>
-      </button>
-      <dialog ref={dialogRef} className="markup-help-dialog" aria-labelledby={`markup-help-${name}`} onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          const bounds = event.currentTarget.getBoundingClientRect()
-          if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) event.currentTarget.close()
-        }
-      }}>
-        <div className="markup-help-heading">
-          <h2 id={`markup-help-${name}`}>{label}</h2>
-          <button type="button" className="markup-help-close" aria-label="Fechar explicação" onClick={() => dialogRef.current?.close()}>×</button>
-        </div>
-        <p>{help.explanation}</p>
-        <h3>Por exemplo</h3>
-        <p>{help.example}</p>
-        <h3>Como muda o preço?</h3>
-        <p>{help.effect}</p>
-        <button type="button" className="markup-example markup-help-understood" onClick={() => dialogRef.current?.close()}>Entendi</button>
-      </dialog>
-    </>
-  )
-}
+const steps = fieldGroups.map(group => group.title)
+const stepForField = (name: Field) => fieldGroups.findIndex(group => group.fields.some(field => field.name === name))
 
 export default function PricingCalculatorPage() {
   const [activeMethod, setActiveMethod] = useState<CalculatorMethod>('main')
   const tabRefs = useRef<Partial<Record<CalculatorMethod, HTMLButtonElement | null>>>({})
   const [values, setValues] = useState<FormValues>(initialValues)
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({})
-  const [submitted, setSubmitted] = useState(false)
-  const [result, setResult] = useState<ReturnType<typeof calculateMarkup>>(null)
+  const [step, setStep] = useState(0)
   const formRef = useRef<HTMLFormElement>(null)
   const numbers = {
     materialCost: parsePricingNumber(values.materialCost),
-    productionHours: parsePricingNumber(values.productionHours),
+    productionHours: parseProductionHours(values.productionHours, values.timeUnit),
     hourlyRate: parsePricingNumber(values.hourlyRate),
     monthlyFixedExpenses: parsePricingNumber(values.monthlyFixedExpenses),
     monthlyRevenue: parsePricingNumber(values.monthlyRevenue),
@@ -175,9 +142,10 @@ export default function PricingCalculatorPage() {
     && monthlyRevenue !== null && variableExpenses !== null && profit !== null
     ? calculateMarkup({ materialCost, productionHours, hourlyRate, monthlyFixedExpenses, monthlyRevenue, variableExpenses, profit }) : null
   const hasFieldErrors = fields.some(({ name }) => Boolean(errors[name]))
+  const result = !hasFieldErrors ? calculated : null
   const calculationError = !hasFieldErrors && !invalidTotal && !calculated
     ? 'Os valores informados são grandes demais para calcular. Reduza os valores e tente novamente.' : ''
-  const isExample = result !== null && fields.every(({ name }) => values[name] === exampleValues[name])
+  const isExample = result !== null && values.timeUnit === exampleValues.timeUnit && fields.every(({ name }) => values[name] === exampleValues[name])
   const breakdown = result ? [
     { label: 'Materiais', detail: 'Por unidade', amount: result.materialCost, className: 'materials' },
     { label: 'Mão de obra', detail: `${decimal.format(result.productionHours)} ${result.productionHours === 1 ? 'hora' : 'horas'} × ${currency.format(result.hourlyRate)}`, amount: result.laborCost, className: 'labor' },
@@ -206,38 +174,56 @@ export default function PricingCalculatorPage() {
 
   function updateValue(name: Field, value: string) {
     setValues((previous) => ({ ...previous, [name]: value }))
-    setResult(null)
+    setTouched(previous => ({ ...previous, [name]: true }))
   }
 
-  function calculate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setSubmitted(true)
-    setResult(calculated)
-    const firstInvalid = fields.find(({ name }) => errors[name])?.name
-      ?? (invalidTotal ? 'monthlyFixedExpenses' : calculationError ? 'materialCost' : null)
+  function showStep(target: number, name?: Field) {
+    setStep(target)
+    requestAnimationFrame(() => {
+      const field = name ? formRef.current?.elements.namedItem(name)
+        : formRef.current?.querySelector(`fieldset[data-step="${target}"] legend`)
+      if (field instanceof HTMLElement) field.focus()
+    })
+  }
+
+  function goToStep(target: number) {
+    const firstInvalid = target > step ? fields.find(({ name }) => stepForField(name) < target && errors[name])?.name : undefined
     if (firstInvalid) {
-      const input = formRef.current?.elements.namedItem(firstInvalid)
-      if (input instanceof HTMLInputElement) input.focus()
+      const invalidStep = stepForField(firstInvalid)
+      setTouched(previous => ({ ...previous, ...Object.fromEntries(fieldGroups[invalidStep].fields.map(field => [field.name, true])) }))
+      showStep(invalidStep, firstInvalid)
+      return
+    }
+    showStep(target)
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (step < steps.length - 1) {
+      goToStep(step + 1)
+      return
+    }
+    const firstInvalid = fields.find(({ name }) => errors[name])?.name
+      ?? (invalidTotal ? 'profit' : calculationError ? 'materialCost' : null)
+    if (firstInvalid) {
+      setTouched(previous => ({ ...previous, [firstInvalid]: true }))
+      showStep(stepForField(firstInvalid), firstInvalid)
     }
   }
 
   function useExample() {
     setValues(exampleValues)
     setTouched({})
-    setSubmitted(false)
-    setResult(calculateMarkup(Object.fromEntries(fields.map(({ name }) => [name, parsePricingNumber(exampleValues[name])])) as MarkupInput))
+    setStep(0)
   }
 
   function clearFields() {
     setValues({
       materialCost: '', productionHours: '', hourlyRate: '', monthlyFixedExpenses: '',
-      monthlyRevenue: '', variableExpenses: '0', profit: '0',
+      monthlyRevenue: '', variableExpenses: '0', profit: '0', timeUnit: 'hour',
     })
     setTouched({})
-    setSubmitted(false)
-    setResult(null)
-    const input = formRef.current?.elements.namedItem('materialCost')
-    if (input instanceof HTMLInputElement) input.focus()
+    showStep(0, 'materialCost')
   }
 
   return (
@@ -270,7 +256,6 @@ export default function PricingCalculatorPage() {
               >
                 <Icon name={method.icon} />
                 <span>{method.label}</span>
-                {method.id === 'advanced' && <span className="markup-coming-soon-badge">Em breve</span>}
               </button>
             ))}
           </div>
@@ -290,80 +275,27 @@ export default function PricingCalculatorPage() {
                   <button className="markup-example" type="button" onClick={useExample}>Usar exemplo</button>
                 </div>
 
-                <p className="markup-help-intro">Tem dúvida? Toque no botão de interrogação (?) ao lado de cada campo para ver uma explicação e um exemplo.</p>
-                <form ref={formRef} className="markup-form" onSubmit={calculate} autoComplete="off" noValidate>
-                  {fieldGroups.map((group) => (
-                    <fieldset className="markup-field-group" key={group.title}>
-                      <legend><Icon name={group.icon} /> {group.title}</legend>
+                <p className="markup-help-intro">Preencha um tópico por vez e use Voltar e Próximo para revisar. Toque na interrogação (?) para entender cada campo e ver um exemplo.</p>
+                <form ref={formRef} className="markup-form" onSubmit={handleSubmit} autoComplete="off" noValidate>
+                  <CalculatorSteps steps={steps} current={step} onSelect={goToStep} label="Etapas da calculadora simples" />
+                  {fieldGroups.map((group, index) => (
+                    <fieldset className="markup-field-group" key={group.title} data-step={index} hidden={step !== index}>
+                      <legend tabIndex={-1}><Icon name={group.icon} /> {index + 1}. {group.title}</legend>
                       {group.fields.map(({ name, label, unit, hint, placeholder }) => {
-                        const error = touched[name] || submitted ? errors[name] : ''
+                        const error = touched[name] ? errors[name] : ''
                         const hasTotalError = percentageFields.includes(name) && invalidTotal
-                        const isSlider = unit === '%'
-                        const sliderValue = numbers[name] ?? 0
-                        return (
+                        if (unit === '%') return <PercentageField key={name} id={`markup-${name}`} name={name}
+                          label={label} value={values[name]} onChange={value => updateValue(name, value)}
+                          onBlur={() => setTouched(previous => ({ ...previous, [name]: true }))}
+                          hint={hint} error={error} invalid={hasTotalError}
+                          describedBy={hasTotalError ? 'markup-total-error' : undefined}
+                          help={<CalculatorFieldHelp label={label} help={fieldHelp[name]} />} />
+                        const inputField = (
                           <div className="markup-field" key={name}>
                             <div className="markup-field-heading">
-                              <label htmlFor={`markup-${name}${isSlider ? '-value' : ''}`}>{label}</label>
-                              <FieldHelp name={name} label={label} />
-                              {isSlider && (
-                                <label className={`markup-range-value${error || hasTotalError ? ' has-error' : ''}`} htmlFor={`markup-${name}-value`}>
-                                  <input
-                                    id={`markup-${name}-value`}
-                                    name={name}
-                                    type="text"
-                                    inputMode="decimal"
-                                    enterKeyHint="done"
-                                    maxLength={20}
-                                    value={values[name]}
-                                    aria-label={`${label} (%)`}
-                                    aria-invalid={Boolean(error) || hasTotalError}
-                                    aria-describedby={`markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
-                                    onFocus={(event) => event.currentTarget.select()}
-                                    onChange={(event) => updateValue(name, event.currentTarget.value)}
-                                    onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
-                                    onKeyDown={(event) => {
-                                      if (event.key === 'Enter') {
-                                        event.preventDefault()
-                                        event.currentTarget.blur()
-                                      }
-                                    }}
-                                    required
-                                  />
-                                  <span aria-hidden="true">%</span>
-                                </label>
-                              )}
+                              <label htmlFor={`markup-${name}`}>{label}</label>
+                              <CalculatorFieldHelp label={label} help={fieldHelp[name]} />
                             </div>
-                            {isSlider ? (
-                              <input
-                                className="markup-range"
-                                id={`markup-${name}`}
-                                name={`${name}-range`}
-                                type="range"
-                                min={0}
-                                max={100}
-                                step="any"
-                                value={Math.min(100, sliderValue)}
-                                style={{ '--range-fill': `${Math.min(100, sliderValue)}%` } as CSSProperties}
-                                aria-label={label}
-                                aria-valuetext={`${formatPercentage(sliderValue)}%`}
-                                aria-invalid={Boolean(error) || hasTotalError}
-                                aria-describedby={`markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
-                                onPointerDown={(event) => event.currentTarget.focus({ preventScroll: true })}
-                                onChange={(event) => {
-                                  updateValue(name, String(Number(Number(event.currentTarget.value).toFixed(1))))
-                                }}
-                                onKeyDown={(event) => {
-                                  const direction = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? 1
-                                    : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -1 : 0
-                                  if (direction) {
-                                    event.preventDefault()
-                                    const nextValue = Math.max(0, Math.min(100, sliderValue + direction * 0.1))
-                                    updateValue(name, String(Number(nextValue.toFixed(10))))
-                                  }
-                                }}
-                                onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
-                              />
-                            ) : (
                             <div className={`markup-input-wrap${error ? ' has-error' : ''}`}>
                               {unit === 'R$' && <span id={`markup-${name}-unit`}>R$</span>}
                               <input
@@ -373,7 +305,7 @@ export default function PricingCalculatorPage() {
                                 inputMode="decimal"
                                 maxLength={20}
                                 value={values[name]}
-                                placeholder={placeholder}
+                                placeholder={name === 'productionHours' && values.timeUnit === 'minute' ? 'Ex.: 30' : placeholder}
                                 required
                                 aria-invalid={Boolean(error) || hasTotalError}
                                 aria-describedby={`markup-${name}-unit markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
@@ -382,24 +314,33 @@ export default function PricingCalculatorPage() {
                                 }}
                                 onBlur={() => setTouched((previous) => ({ ...previous, [name]: true }))}
                               />
-                              {unit !== 'R$' && <span id={`markup-${name}-unit`}>{unit}</span>}
+                              {unit !== 'R$' && <span id={`markup-${name}-unit`}>{name === 'productionHours' && values.timeUnit === 'minute' ? 'minutos' : unit}</span>}
                             </div>
-                            )}
-                            <p id={`markup-${name}-hint`} className="markup-hint">{hint}</p>
+                            <p id={`markup-${name}-hint`} className="markup-hint">{name === 'productionHours' ? `Tempo gasto para produzir uma unidade, em ${values.timeUnit === 'minute' ? 'minutos' : 'horas'}.` : hint}</p>
                             {error && <p id={`markup-${name}-error`} className="markup-error">{error}</p>}
                           </div>
                         )
+                        return name === 'productionHours' ? (
+                          <div className="markup-time-fields" key={name}>
+                            {inputField}
+                            <ProductionTimeUnitField id="markup-timeUnit" value={values.timeUnit}
+                              onChange={timeUnit => setValues(previous => ({ ...previous, timeUnit }))} />
+                          </div>
+                        ) : inputField
                       })}
                       {group.icon === 'store' && (
-                        <div className="markup-fixed-percentage">
-                          <span>Despesas fixas ÷ faturamento × 100</span>
-                          <strong>{fixedPercentage !== null ? `${formatPercentage(fixedPercentage)}%` : '—'}</strong>
-                        </div>
+                        <>
+                          <div className="markup-fixed-percentage">
+                            <span>Despesas fixas ÷ faturamento × 100</span>
+                            <strong>{fixedPercentage !== null ? `${formatPercentage(fixedPercentage)}%` : '—'}</strong>
+                          </div>
+                          {monthlyFixedExpenses === 0 && <p id="markup-revenue-effect" className="markup-hint">Sem despesas fixas mensais, mudar o faturamento não altera o preço sugerido.</p>}
+                        </>
                       )}
                     </fieldset>
                   ))}
 
-                  <div className="markup-total-section">
+                  <div className="markup-total-section" hidden={step !== steps.length - 1}>
                     <div className={`markup-total${invalidTotal ? ' has-error' : ''}`}>
                       <span>{totalPercentage !== null
                         ? `Fixas ${formatPercentage(fixedPercentage!)}% + variáveis ${formatPercentage(variableExpenses!)}% + lucro ${formatPercentage(profit!)}%`
@@ -409,12 +350,9 @@ export default function PricingCalculatorPage() {
                     {invalidTotal ? (
                       <p id="markup-total-error" className="markup-error" role="alert">A soma deve ficar abaixo de 100%. Revise as despesas, o faturamento ou o lucro desejado.</p>
                     ) : <p className="markup-hint">A soma deve ficar abaixo de 100% para calcular o preço.</p>}
-                    {submitted && calculationError && <p className="markup-error" role="alert">{calculationError}</p>}
+                    {calculationError && <p className="markup-error" role="alert">{calculationError}</p>}
                   </div>
-                  <div className="markup-form-actions">
-                    <button className="markup-submit" type="submit"><Icon name="calculator" /> Calcular preço de venda</button>
-                    <button className="markup-clear" type="button" onClick={clearFields}><Icon name="trash" /> Limpar campos</button>
-                  </div>
+                  <CalculatorStepActions current={step} count={steps.length} onBack={() => showStep(step - 1)} onClear={clearFields} />
                 </form>
               </section>
 
@@ -427,9 +365,9 @@ export default function PricingCalculatorPage() {
                   <h2 id="markup-result-title">Preço de venda por unidade</h2>
                   <div className="markup-price-area" role="status" aria-live="polite" aria-atomic="true">
                     <strong className="markup-price">{result ? currency.format(result.price) : 'R$ —'}</strong>
-                    <p>{result ? 'Preço sugerido com os custos e percentuais informados.' : invalidTotal
-                      ? 'Ajuste os percentuais para calcular o preço.' : calculated
-                        ? 'Clique em calcular para atualizar o preço.' : 'Preencha os campos e clique em calcular para ver seu preço.'}</p>
+                    <p>{result ? 'Preço atualizado com os custos e percentuais informados.' : invalidTotal
+                      ? 'Ajuste os percentuais para ver o preço.' : 'Preencha ou corrija os campos necessários para ver seu preço.'}</p>
+                    <p>O resultado é atualizado automaticamente conforme você preenche os campos.</p>
                   </div>
                   <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${decimal.format(result.multiplier)}×` : '—'}</strong></div>
                 </div>
@@ -449,7 +387,7 @@ export default function PricingCalculatorPage() {
                       <div className="markup-breakdown-total"><span>Preço de venda</span><strong>{currency.format(result.price)}</strong></div>
                       <p className="markup-hint">Valores arredondados para duas casas decimais.</p>
                     </>
-                  ) : <p className="markup-empty">Calcule seu preço para ver os materiais, a mão de obra, as despesas e o lucro de cada unidade.</p>}
+                  ) : <p className="markup-empty">Preencha os dados para ver os materiais, a mão de obra, as despesas e o lucro de cada unidade.</p>}
                 </section>
                 <p className="markup-local-note"><Icon name="shieldCheck" /><span>Seus valores ajudam a planejar uma venda que remunera seu trabalho e mantém o negócio saudável.</span></p>
               </aside>
@@ -490,16 +428,7 @@ export default function PricingCalculatorPage() {
             hidden={activeMethod !== 'advanced'}
             tabIndex={0}
           >
-            <section className="markup-advanced-placeholder" aria-labelledby="markup-advanced-title">
-              <span className="markup-advanced-icon"><Icon name="sliders" /></span>
-              <span className="markup-coming-soon-badge">Em breve</span>
-              <h2 id="markup-advanced-title">Uma nova forma de calcular seu preço</h2>
-              <p>Este espaço está reservado para uma metodologia de precificação mais avançada. Ela estará disponível assim que o novo cálculo for definido.</p>
-              <p>Enquanto isso, use a calculadora principal para encontrar um preço que cubra seus custos e seu lucro.</p>
-              <button className="markup-advanced-back" type="button" onClick={() => selectMethod('main')}>
-                <Icon name="arrowLeft" /> Usar calculadora principal
-              </button>
-            </section>
+            <AdvancedPricingCalculator />
           </div>
         </div>
       </main>
