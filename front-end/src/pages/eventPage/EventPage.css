@@ -111,6 +111,10 @@
     gap: 24px;
 }
 
+.event-page-main-column {
+    min-width: 0;
+}
+
 .event-page-details-card,
 .event-page-gallery,
 .event-page-location {
@@ -403,6 +407,7 @@
 
 .event-page-location-caption {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 18px;

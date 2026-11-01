@@ -129,12 +129,10 @@ function EventPage({ eventId }: { eventId: string }) {
     const galleryImages = images.filter(image =>
         image.imageURL.trim() && image.description.trim().toLocaleLowerCase('pt-BR') !== 'banner do evento',
     )
-    const photos = galleryImages.length > 0
-        ? galleryImages
-        : event?.bannerImage?.trim()
-            ? [{ id: 'event-banner', imageURL: event.bannerImage, description: 'Imagem do evento' }]
-            : []
-    const visiblePhotos = showAllPhotos ? photos : photos.slice(0, 5)
+    const photos = event?.bannerImage?.trim()
+        ? [{ id: 'event-banner', imageURL: event.bannerImage, description: 'Banner do evento' }, ...galleryImages]
+        : galleryImages
+    const visiblePhotos = showAllPhotos ? galleryImages : galleryImages.slice(0, 5)
     const selectedPhoto = selectedPhotoIndex !== null ? photos[selectedPhotoIndex] ?? null : null
     const mapCoordinates = event ? getCoordinates(event.localLatitude, event.localLongitude) : null
     const hasAddress = Boolean(event?.localAddress?.trim())
@@ -260,8 +258,8 @@ function EventPage({ eventId }: { eventId: string }) {
                     )}
 
                     {!isLoading && !eventError && event && (
-                        <>
-                            <div className="event-page-layout">
+                        <div className="event-page-layout">
+                            <div className="event-page-main-column">
                                 <article className="event-page-details-card">
                                     <div className="event-page-title-row">
                                         <h1>{event.title}</h1>
@@ -298,7 +296,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                         <button
                                             type="button"
                                             className="event-page-cover-button"
-                                            onClick={() => openPhoto(photos.findIndex(photo => photo.id === 'event-banner') >= 0 ? photos.findIndex(photo => photo.id === 'event-banner') : 0)}
+                                            onClick={() => openPhoto(0)}
                                             aria-label={`Ampliar imagem do evento ${event.title}`}
                                         >
                                             <img className="event-page-cover" {...getEventImageProps(event.bannerImage, '(max-width: 680px) calc(100vw - 80px), (max-width: 1200px) 60vw, 760px')} alt={event.title} />
@@ -317,76 +315,76 @@ function EventPage({ eventId }: { eventId: string }) {
                                     </section>
                                 </article>
 
-                                <aside className="event-page-gallery" aria-labelledby="event-page-gallery-title">
-                                    <h2 id="event-page-gallery-title">Galeria de Fotos</h2>
-                                    {imagesError ? (
-                                        <p className="event-page-gallery-message is-error" role="alert">{imagesError}</p>
-                                    ) : photos.length === 0 ? (
-                                        <p className="event-page-gallery-message">Esse evento não possui fotos.</p>
-                                    ) : (
-                                        <>
-                                            <div className="event-page-photos">
-                                                {visiblePhotos.map((image, index) => (
-                                                    <div
-                                                        key={image.id}
-                                                        className="event-page-photo-button"
-                                                        role="button"
-                                                        tabIndex={0}
-                                                        onClick={() => openPhoto(photos.findIndex(photo => photo.id === image.id))}
-                                                        onKeyDown={(event) => {
-                                                            if (event.key === 'Enter' || event.key === ' ') {
-                                                                event.preventDefault()
-                                                                openPhoto(photos.findIndex(photo => photo.id === image.id))
-                                                            }
-                                                        }}
-                                                        aria-label={`Ampliar foto ${index + 1} de ${visiblePhotos.length}`}
-                                                    >
-                                                        <EventPhoto image={image} />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            {photos.length > 5 && (
-                                                <button
-                                                    className="event-page-gallery-more"
-                                                    type="button"
-                                                    onClick={() => setShowAllPhotos(current => !current)}
-                                                >
-                                                    {showAllPhotos ? 'Ver menos' : 'Ver mais'}
-                                                </button>
-                                            )}
-                                        </>
-                                    )}
-                                </aside>
+                                <section className="event-page-location" aria-labelledby="event-page-location-title">
+                                    <div className="event-page-map">
+                                        {mapCoordinates ? (
+                                            <Suspense fallback={<p role="status">Carregando mapa...</p>}>
+                                                <LocationMap coordinates={mapCoordinates} label={`Mapa de localização de ${event.title}`} />
+                                            </Suspense>
+                                        ) : (
+                                            <p>
+                                                {hasAddress
+                                                    ? 'O mapa não está disponível para este evento.'
+                                                    : 'A localização ainda não foi informada para este evento.'}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="event-page-location-caption">
+                                        <div>
+                                            <h2 id="event-page-location-title">Como chegar?</h2>
+                                            <p>{hasAddress ? event.localAddress : 'Localização não informada para este evento.'}</p>
+                                        </div>
+                                        {mapUrl && (
+                                            <a href={mapUrl} target="_blank" rel="noreferrer">
+                                                Traçar rota no Google Maps
+                                                <Icon name="map" />
+                                            </a>
+                                        )}
+                                    </div>
+                                </section>
                             </div>
 
-                            <section className="event-page-location" aria-labelledby="event-page-location-title">
-                                <div className="event-page-map">
-                                    {mapCoordinates ? (
-                                        <Suspense fallback={<p role="status">Carregando mapa...</p>}>
-                                            <LocationMap coordinates={mapCoordinates} label={`Mapa de localização de ${event.title}`} />
-                                        </Suspense>
-                                    ) : (
-                                        <p>
-                                            {hasAddress
-                                                ? 'O mapa não está disponível para este evento.'
-                                                : 'A localização ainda não foi informada para este evento.'}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="event-page-location-caption">
-                                    <div>
-                                        <h2 id="event-page-location-title">Como chegar?</h2>
-                                        <p>{hasAddress ? event.localAddress : 'Localização não informada para este evento.'}</p>
-                                    </div>
-                                    {mapUrl && (
-                                        <a href={mapUrl} target="_blank" rel="noreferrer">
-                                            Traçar rota no Google Maps
-                                            <Icon name="map" />
-                                        </a>
-                                    )}
-                                </div>
-                            </section>
-                        </>
+                            <aside className="event-page-gallery" aria-labelledby="event-page-gallery-title">
+                                <h2 id="event-page-gallery-title">Galeria de Fotos</h2>
+                                {imagesError ? (
+                                    <p className="event-page-gallery-message is-error" role="alert">{imagesError}</p>
+                                ) : galleryImages.length === 0 ? (
+                                    <p className="event-page-gallery-message">Esse evento não possui fotos.</p>
+                                ) : (
+                                    <>
+                                        <div className="event-page-photos">
+                                            {visiblePhotos.map((image, index) => (
+                                                <div
+                                                    key={image.id}
+                                                    className="event-page-photo-button"
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onClick={() => openPhoto(photos.findIndex(photo => photo.id === image.id))}
+                                                    onKeyDown={(event) => {
+                                                        if (event.key === 'Enter' || event.key === ' ') {
+                                                            event.preventDefault()
+                                                            openPhoto(photos.findIndex(photo => photo.id === image.id))
+                                                        }
+                                                    }}
+                                                    aria-label={`Ampliar foto ${index + 1} de ${visiblePhotos.length}`}
+                                                >
+                                                    <EventPhoto image={image} />
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {galleryImages.length > 5 && (
+                                            <button
+                                                className="event-page-gallery-more"
+                                                type="button"
+                                                onClick={() => setShowAllPhotos(current => !current)}
+                                            >
+                                                {showAllPhotos ? 'Ver menos' : 'Ver mais'}
+                                            </button>
+                                        )}
+                                    </>
+                                )}
+                            </aside>
+                        </div>
                     )}
                 </div>
             </main>
