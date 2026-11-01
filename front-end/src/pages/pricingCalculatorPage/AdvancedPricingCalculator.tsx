@@ -10,6 +10,7 @@ import { CalculatorSteps, CalculatorStepActions } from './CalculatorSteps'
 import CalculatorFieldHelp from './CalculatorFieldHelp'
 import { getAdvancedFieldHelp } from './advancedFieldHelp'
 import ProductionTimeUnitField from './ProductionTimeUnitField'
+import { calculatorErrors } from './calculatorValidation'
 
 const steps = ['Produto', 'Insumos', 'Trabalho', 'Gastos fixos', 'Equipamentos', 'Taxas e lucro'] as const
 function stepForField(name: string) {
@@ -345,7 +346,7 @@ export default function AdvancedPricingCalculator() {
               <p className="markup-hint">A soma precisa ficar abaixo de 100% para calcular o markup.</p>
             </fieldset>
             {((attemptedSteps.includes(step) && currentErrors.length > 0) || validation.errors.calculation)
-              && <p className="markup-error" role="alert">{validation.errors.calculation || 'Revise os campos indicados nesta etapa.'}</p>}
+              && <p className="markup-error" role="alert">{validation.errors.calculation || calculatorErrors.reviewStep}</p>}
             <CalculatorStepActions current={step} count={steps.length} onBack={() => goToStep(step - 1)} onClear={clear} />
           </form>
         </section>

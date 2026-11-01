@@ -1,4 +1,6 @@
 import { businessDescriptionTooLong } from '../utils/businessDescription'
+import { BUSINESS_EMAIL_ERROR, BUSINESS_WHATSAPP_ERROR } from '../utils/businessContacts'
+import { INSTAGRAM_ERROR_MESSAGES } from '../utils/instagramAccount'
 import { EVENT_IMAGE_MAX_MB, EVENT_IMAGE_TOO_LARGE } from '../utils/eventImageUpload'
 
 export class ApiRequestError extends Error {
@@ -15,6 +17,12 @@ export class ApiRequestError extends Error {
 }
 
 function getApiErrorMessage(status: number, endpoint: string, code?: string): string {
+    if (status === 400 && /^business-info(?:\/|$|\?)/.test(endpoint)) {
+        if (code === 'BUSINESS_WHATSAPP_INVALID') return BUSINESS_WHATSAPP_ERROR
+        const instagramMessage = Object.entries(INSTAGRAM_ERROR_MESSAGES).find(([errorCode]) => errorCode === code)?.[1]
+        if (instagramMessage) return instagramMessage
+        if (code === 'BUSINESS_EMAIL_INVALID') return BUSINESS_EMAIL_ERROR
+    }
     if (status === 403 && code === 'ADMIN_DISABLED') return 'O acesso desta conta administrativa foi desativado.'
     if (/^event\/image\/upload(?:\/|$|\?)/.test(endpoint)) {
         if (status === 413) return EVENT_IMAGE_TOO_LARGE

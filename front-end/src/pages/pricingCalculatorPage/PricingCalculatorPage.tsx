@@ -8,6 +8,7 @@ import PercentageField from './PercentageField'
 import CalculatorFieldHelp from './CalculatorFieldHelp'
 import { CalculatorSteps, CalculatorStepActions } from './CalculatorSteps'
 import ProductionTimeUnitField from './ProductionTimeUnitField'
+import { calculatorErrors, getCalculatorNumberError } from './calculatorValidation'
 import './PricingCalculatorPage.css'
 
 type Field = keyof MarkupInput
@@ -119,14 +120,10 @@ export default function PricingCalculatorPage() {
     variableExpenses: parsePricingNumber(values.variableExpenses),
     profit: parsePricingNumber(values.profit),
   }
-  const errors = Object.fromEntries(fields.map(({ name }) => {
-    const value = numbers[name]
-    let error = ''
-    if (value === null) error = values[name].trim() ? 'Informe um número válido, maior ou igual a zero. Ex.: 1000,50 ou 1.000,50.' : 'Preencha este campo.'
-    else if (name === 'monthlyRevenue' && value <= 0) error = 'Informe um faturamento maior que zero.'
-    else if ((name === 'variableExpenses' || name === 'profit') && value >= 100) error = 'Informe um percentual menor que 100%.'
-    return [name, error]
-  })) as Record<Field, string>
+  const errors = Object.fromEntries(fields.map(({ name }) => [name, getCalculatorNumberError(values[name], {
+    positive: name === 'monthlyRevenue',
+    percentage: name === 'variableExpenses' || name === 'profit',
+  })])) as Record<Field, string>
 
   const { materialCost, productionHours, hourlyRate, monthlyFixedExpenses, monthlyRevenue, variableExpenses, profit } = numbers
   const fixedRatio = monthlyFixedExpenses !== null && monthlyRevenue !== null && monthlyRevenue > 0
@@ -137,7 +134,7 @@ export default function PricingCalculatorPage() {
   const invalidTotal = totalPercentage !== null && totalPercentage >= 100
   const directCost = materialCost !== null && productionHours !== null && hourlyRate !== null
     ? materialCost + productionHours * hourlyRate : null
-  if (directCost === 0) errors.materialCost = 'O custo de material mais a mão de obra deve ser maior que zero.'
+  if (directCost === 0) errors.materialCost = calculatorErrors.directCost
 
   const calculated = materialCost !== null && productionHours !== null && hourlyRate !== null && monthlyFixedExpenses !== null
     && monthlyRevenue !== null && variableExpenses !== null && profit !== null
@@ -145,7 +142,7 @@ export default function PricingCalculatorPage() {
   const hasFieldErrors = fields.some(({ name }) => Boolean(errors[name]))
   const result = !hasFieldErrors ? calculated : null
   const calculationError = !hasFieldErrors && !invalidTotal && !calculated
-    ? 'Os valores informados são grandes demais para calcular. Reduza os valores e tente novamente.' : ''
+    ? calculatorErrors.calculation : ''
   const isExample = result !== null && values.timeUnit === exampleValues.timeUnit && fields.every(({ name }) => values[name] === exampleValues[name])
   const breakdown = result ? [
     { label: 'Materiais', detail: 'Por unidade', amount: result.materialCost, className: 'materials' },
@@ -291,7 +288,7 @@ export default function PricingCalculatorPage() {
                               <label htmlFor={`markup-${name}`}>{label}</label>
                               <CalculatorFieldHelp label={label} help={fieldHelp[name]} />
                             </div>
-                            <div className={`markup-input-wrap${error ? ' has-error' : ''}`}>
+                            <div className={`markup-input-wrap${error || hasTotalError ? ' has-error' : ''}`}>
                               {unit === 'R$' && <span id={`markup-${name}-unit`}>R$</span>}
                               <input
                                 id={`markup-${name}`}
@@ -343,7 +340,7 @@ export default function PricingCalculatorPage() {
                       <strong>{totalPercentage !== null ? `${formatPercentage(totalPercentage)}%` : '—'}</strong>
                     </div>
                     {invalidTotal ? (
-                      <p id="markup-total-error" className="markup-error" role="alert">A soma deve ficar abaixo de 100%. Revise as despesas, o faturamento ou o lucro desejado.</p>
+                      <p id="markup-total-error" className="markup-error" role="alert">{calculatorErrors.totalPercentage}</p>
                     ) : <p className="markup-hint">A soma deve ficar abaixo de 100% para calcular o preço.</p>}
                     {calculationError && <p className="markup-error" role="alert">{calculationError}</p>}
                   </div>

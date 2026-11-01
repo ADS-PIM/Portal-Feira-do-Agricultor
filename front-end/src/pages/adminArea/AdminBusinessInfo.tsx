@@ -3,6 +3,8 @@ import Icon from '../../components/Icon'
 import { getBusinessInfo, type BusinessInfo, upsertBusinessInfo } from '../../services/businessInfoService'
 import { getUserFacingError } from '../../services/errors'
 import { businessDescriptionMaxLength, businessDescriptionTooLong, defaultBusinessDescription } from '../../utils/businessDescription'
+import { getBusinessContactErrors, type BusinessContactField } from '../../utils/businessContacts'
+import { normalizeInstagramAccount } from '../../utils/instagramAccount'
 import {
     createEmptyWeeklyBusinessHours,
     formatWeeklyBusinessHours,
@@ -73,6 +75,20 @@ const AdminBusinessInfo = () => {
         instagram: true,
         email: true,
     })
+    const [touchedContacts, setTouchedContacts] = useState<Partial<Record<BusinessContactField, boolean>>>({})
+    const contactValues = {
+        instagramAccount: fieldToggles.instagram ? normalizeInstagramAccount(values.instagramAccount) || null : null,
+        whatsappNumber: fieldToggles.whatsapp ? values.whatsappNumber.trim() || null : null,
+        businessEmail: fieldToggles.email ? values.businessEmail.trim() || null : null,
+    }
+    const contactErrors = getBusinessContactErrors(contactValues)
+    const contactError = (field: BusinessContactField) => touchedContacts[field] ? contactErrors[field] : undefined
+
+    const touchContact = (name: string) => {
+        if (name === 'instagramAccount' || name === 'whatsappNumber' || name === 'businessEmail') {
+            setTouchedContacts(current => ({ ...current, [name]: true }))
+        }
+    }
 
     useEffect(() => {
         const controller = new AbortController()
@@ -108,13 +124,16 @@ const AdminBusinessInfo = () => {
 
     const handleFieldChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target
-        setValues((current) => ({ ...current, [name]: value }))
+        setValues((current) => ({ ...current, [name]: name === 'instagramAccount' ? value.toLowerCase() : value }))
+        touchContact(name)
         if (statusMessage) setStatusMessage(null)
         if (error) setError(null)
     }
 
     const handleToggle = (field: keyof typeof fieldToggles) => {
         setFieldToggles((current) => ({ ...current, [field]: !current[field] }))
+        setError(null)
+        setStatusMessage(null)
     }
 
     const handleDayHoursChange = (day: WeekdayId, field: 'opensAt' | 'closesAt', value: string) => {
@@ -143,6 +162,7 @@ const AdminBusinessInfo = () => {
     }
 
     const handleReset = () => {
+        setTouchedContacts({})
         setValues(toValues(businessInfo))
         const parsedHours = parseWeeklyBusinessHours(businessInfo?.businessHours)
         setWeeklyHours(parsedHours ?? createEmptyWeeklyBusinessHours())
@@ -165,6 +185,16 @@ const AdminBusinessInfo = () => {
             return
         }
 
+        setTouchedContacts({ whatsappNumber: true, instagramAccount: true, businessEmail: true })
+        const firstInvalidContact = (Object.keys(contactErrors) as BusinessContactField[])[0]
+        if (firstInvalidContact) {
+            setError('Revise os contatos indicados antes de salvar.')
+            setStatusMessage(null)
+            const field = event.currentTarget.elements.namedItem(firstInvalidContact)
+            if (field instanceof HTMLElement) field.focus()
+            return
+        }
+
         if (!legacyHours) {
             const hoursError = validateWeeklyBusinessHours(weeklyHours)
             if (hoursError) {
@@ -175,9 +205,7 @@ const AdminBusinessInfo = () => {
         }
 
         const payload = {
-            instagramAccount: fieldToggles.instagram ? values.instagramAccount.trim() : null,
-            whatsappNumber: fieldToggles.whatsapp ? values.whatsappNumber.trim() : null,
-            businessEmail: fieldToggles.email ? values.businessEmail.trim() : null,
+            ...contactValues,
             businessHours: legacyHours ?? formatWeeklyBusinessHours(weeklyHours),
             description: values.description.trim(),
         }
@@ -191,6 +219,7 @@ const AdminBusinessInfo = () => {
             const refreshed = await getBusinessInfo()
             setBusinessInfo(refreshed)
             setValues(toValues(refreshed))
+            setTouchedContacts({})
             const parsedHours = parseWeeklyBusinessHours(refreshed?.businessHours)
             setWeeklyHours(parsedHours ?? createEmptyWeeklyBusinessHours())
             setLegacyHours(refreshed?.businessHours?.trim() && !parsedHours ? refreshed.businessHours : null)
@@ -216,7 +245,7 @@ const AdminBusinessInfo = () => {
                             Carregando informações...
                         </div>
                     ) : (
-                        <form className="admin-business-info-form" onSubmit={handleSubmit}>
+                        <form className="admin-business-info-form" onSubmit={handleSubmit} noValidate>
                             {error && <p className="admin-business-info-alert is-error" role="alert">{error}</p>}
                             {statusMessage && <p className="admin-business-info-alert is-success" role="status">{statusMessage}</p>}
 
@@ -260,10 +289,15 @@ const AdminBusinessInfo = () => {
                                     <label className="admin-business-contact-field">
                                     <span>WhatsApp</span>
                                     <input
-                                        type="text"
+                                        type="tel"
+                                        inputMode="tel"
                                         name="whatsappNumber"
                                         value={values.whatsappNumber}
                                         onChange={handleFieldChange}
+                                        onBlur={event => touchContact(event.currentTarget.name)}
+                                        disabled={!fieldToggles.whatsapp}
+                                        aria-invalid={Boolean(contactError('whatsappNumber'))}
+                                        aria-describedby={contactError('whatsappNumber') ? 'businessInfo-whatsapp-error' : undefined}
                                         placeholder="(88) 99876-5432"
                                     />
                                     </label>
@@ -277,6 +311,7 @@ const AdminBusinessInfo = () => {
                                     >
                                         <span />
                                     </button>
+                                    {contactError('whatsappNumber') && <p id="businessInfo-whatsapp-error" className="admin-business-info-field-error admin-business-contact-error" role="alert">{contactError('whatsappNumber')}</p>}
                                 </div>
 
                                 <div className="admin-business-info-row">
@@ -290,6 +325,10 @@ const AdminBusinessInfo = () => {
                                         name="instagramAccount"
                                         value={values.instagramAccount}
                                         onChange={handleFieldChange}
+                                        onBlur={event => touchContact(event.currentTarget.name)}
+                                        disabled={!fieldToggles.instagram}
+                                        aria-invalid={Boolean(contactError('instagramAccount'))}
+                                        aria-describedby={contactError('instagramAccount') ? 'businessInfo-instagram-error' : undefined}
                                         placeholder="@brotando.feiras"
                                     />
                                     </label>
@@ -303,6 +342,7 @@ const AdminBusinessInfo = () => {
                                     >
                                         <span />
                                     </button>
+                                    {contactError('instagramAccount') && <p id="businessInfo-instagram-error" className="admin-business-info-field-error admin-business-contact-error" role="alert">{contactError('instagramAccount')}</p>}
                                 </div>
 
                                 <div className="admin-business-info-row">
@@ -316,6 +356,10 @@ const AdminBusinessInfo = () => {
                                         name="businessEmail"
                                         value={values.businessEmail}
                                         onChange={handleFieldChange}
+                                        onBlur={event => touchContact(event.currentTarget.name)}
+                                        disabled={!fieldToggles.email}
+                                        aria-invalid={Boolean(contactError('businessEmail'))}
+                                        aria-describedby={contactError('businessEmail') ? 'businessInfo-email-error' : undefined}
                                         placeholder="contato@brotandofeiras.com"
                                     />
                                     </label>
@@ -329,6 +373,7 @@ const AdminBusinessInfo = () => {
                                     >
                                         <span />
                                     </button>
+                                    {contactError('businessEmail') && <p id="businessInfo-email-error" className="admin-business-info-field-error admin-business-contact-error" role="alert">{contactError('businessEmail')}</p>}
                                 </div>
                             </div>
 

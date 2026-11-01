@@ -546,6 +546,8 @@
 .admin-business-hours { margin-top: 8px; padding-top: 22px; border-top: 1px solid #edf0e9; }
 .admin-business-contact-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .admin-business-contact-field > span { color: #4a644d; font-size: 11px; font-weight: 600; }
+.admin-business-info-row input[aria-invalid="true"] { border-color: #b42318; }
+.admin-business-contact-error { grid-column: 1 / -1; margin: 0; }
 .admin-business-info-button svg,
 .admin-business-info-updateStamp svg { width: 14px; height: 14px; flex-shrink: 0; }
 .admin-business-info-page button:focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 3px; }
