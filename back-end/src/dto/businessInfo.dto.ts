@@ -1,13 +1,14 @@
 import { Transform } from 'class-transformer'
-import {IsNotEmpty, IsString, IsEmail, IsOptional, MaxLength, Matches, ValidateBy} from 'class-validator'
+import {IsNotEmpty, IsString, IsOptional, MaxLength, ValidateBy} from 'class-validator'
 import { getInstagramAccountError, INSTAGRAM_ERROR_MESSAGES, normalizeInstagramAccount } from '../util/instagramAccount'
+import { CONTACT_EMAIL_ERROR, CONTACT_PHONE_ERROR } from '../util/contactValidation'
+import { IsContact } from './contact.validator'
 
 export const BUSINESS_DESCRIPTION_MAX_LENGTH = 2000
 export const BUSINESS_DESCRIPTION_TOO_LONG = 'O campo Sobre a feira ultrapassa o limite de 2.000 caracteres.'
 export const BUSINESS_INSTAGRAM_ERROR = INSTAGRAM_ERROR_MESSAGES.BUSINESS_INSTAGRAM_INVALID
-export const BUSINESS_WHATSAPP_ERROR = 'Informe um telefone com DDD, como (88) 99999-9999.'
-export const BUSINESS_EMAIL_ERROR = 'Informe um e-mail válido, como nome@exemplo.com.'
-const businessPhonePattern = /^(?:\+?55 ?)?(?:\([1-9]\d\)|[1-9]\d) ?(?:[2-5]\d{3}|9\d{4})-?\d{4}$/
+export const BUSINESS_WHATSAPP_ERROR = CONTACT_PHONE_ERROR
+export const BUSINESS_EMAIL_ERROR = CONTACT_EMAIL_ERROR
 const optionalContact = ({ value }: { value: unknown }) => typeof value === 'string' ? value.trim() || null : value
 const optionalInstagram = ({ value }: { value: unknown }) => typeof value === 'string' ? normalizeInstagramAccount(value) || null : value
 const IsInstagramAccount = () => ValidateBy({
@@ -30,15 +31,13 @@ export class BusinessInfoCreateDTO {
     @IsOptional()
     @IsNotEmpty()
     @IsString()
-    @MaxLength(20, { message: BUSINESS_WHATSAPP_ERROR })
-    @Matches(businessPhonePattern, { message: BUSINESS_WHATSAPP_ERROR })
+    @IsContact('phone')
     whatsappNumber: string | null
 
     @Transform(optionalContact)
     @IsOptional()
     @IsNotEmpty()
-    @IsEmail({}, { message: BUSINESS_EMAIL_ERROR })
-    @MaxLength(254, { message: BUSINESS_EMAIL_ERROR })
+    @IsContact('email')
     businessEmail: string | null
 
     @IsNotEmpty()
@@ -61,14 +60,12 @@ export class BusinessInfoUpdateDTO {
     @Transform(optionalContact)
     @IsOptional()
     @IsString()
-    @MaxLength(20, { message: BUSINESS_WHATSAPP_ERROR })
-    @Matches(businessPhonePattern, { message: BUSINESS_WHATSAPP_ERROR })
+    @IsContact('phone')
     whatsappNumber?: string | null
 
     @Transform(optionalContact)
     @IsOptional()
-    @IsEmail({}, { message: BUSINESS_EMAIL_ERROR })
-    @MaxLength(254, { message: BUSINESS_EMAIL_ERROR })
+    @IsContact('email')
     businessEmail?: string | null
 
     @IsOptional()

@@ -1,6 +1,7 @@
 import { businessDescriptionTooLong } from '../utils/businessDescription'
 import { BUSINESS_EMAIL_ERROR, BUSINESS_WHATSAPP_ERROR } from '../utils/businessContacts'
 import { INSTAGRAM_ERROR_MESSAGES } from '../utils/instagramAccount'
+import { CONTACT_VALIDATION_MESSAGES } from '../utils/contactValidation'
 import { EVENT_IMAGE_MAX_MB, EVENT_IMAGE_TOO_LARGE } from '../utils/eventImageUpload'
 
 export class ApiRequestError extends Error {
@@ -17,6 +18,10 @@ export class ApiRequestError extends Error {
 }
 
 function getApiErrorMessage(status: number, endpoint: string, code?: string): string {
+    if (status === 400 && /^(?:message\/create|business-info)(?:\/|$|\?)/.test(endpoint)) {
+        const contactMessage = Object.entries(CONTACT_VALIDATION_MESSAGES).find(([errorCode]) => errorCode === code)?.[1]
+        if (contactMessage) return contactMessage
+    }
     if (status === 400 && /^business-info(?:\/|$|\?)/.test(endpoint)) {
         if (code === 'BUSINESS_WHATSAPP_INVALID') return BUSINESS_WHATSAPP_ERROR
         const instagramMessage = Object.entries(INSTAGRAM_ERROR_MESSAGES).find(([errorCode]) => errorCode === code)?.[1]

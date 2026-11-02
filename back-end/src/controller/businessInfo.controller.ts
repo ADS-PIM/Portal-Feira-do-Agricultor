@@ -6,6 +6,7 @@ import { BusinessInfoCreateDTO, BusinessInfoUpdateDTO, BUSINESS_DESCRIPTION_TOO_
 import { BusinessInfoService } from '../service/businessInfo.service';
 import { AuthRequest } from '../../authMiddleware';
 import { getInstagramAccountError } from '../util/instagramAccount';
+import { getContactEmailValidation, getContactPhoneValidation } from '../util/contactValidation';
 
 function businessInfoValidationResponse(errors: ValidationError[]) {
     if (errors.some(error => error.property === 'description' && error.constraints?.maxLength)) {
@@ -17,9 +18,11 @@ function businessInfoValidationResponse(errors: ValidationError[]) {
         { field: 'businessEmail', code: 'BUSINESS_EMAIL_INVALID', message: BUSINESS_EMAIL_ERROR },
     ];
     const contactError = contactErrors.find(contact => errors.some(error => error.property === contact.field));
-    if (contactError?.field === 'instagramAccount') {
-        const value = errors.find(error => error.property === 'instagramAccount')?.value;
-        return { ...contactError, ...getInstagramAccountError(value) };
+    if (contactError) {
+        const value = errors.find(error => error.property === contactError.field)?.value;
+        const detail = contactError.field === 'instagramAccount' ? getInstagramAccountError(value)
+            : contactError.field === 'whatsappNumber' ? getContactPhoneValidation(value) : getContactEmailValidation(value);
+        return { ...contactError, ...detail };
     }
     return contactError ?? { errors };
 }

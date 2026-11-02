@@ -104,6 +104,10 @@
     resize: vertical;
 }
 
+.contact-field input[aria-invalid="true"] {
+    border-color: #b42318;
+}
+
 .contact-submit-button {
     width: 100%;
     min-height: 48px;

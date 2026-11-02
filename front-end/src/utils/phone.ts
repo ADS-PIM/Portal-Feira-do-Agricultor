@@ -1,10 +1,10 @@
-import { getContactPhoneError } from './contactValidation'
+import { getContactPhoneError, stripPhoneCountryCode } from './contactValidation'
 
 export const PHONE_PATTERN = String.raw`\([0-9]{2}\) [0-9]{4,5}\-[0-9]{4}`
 
 export function formatPhoneInput(value: string): string | null {
   // Normalize pasted Brazilian country codes before applying the national mask.
-  value = value.trim().replace(/^\+55\s*/, '')
+  value = stripPhoneCountryCode(value)
   if (/[^0-9()\s-]/.test(value)) return null
 
   const digits = value.replace(/\D/g, '')

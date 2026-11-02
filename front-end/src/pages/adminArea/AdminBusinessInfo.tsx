@@ -1,10 +1,12 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import Icon from '../../components/Icon'
+import ContactFieldError from '../../components/ContactFieldError/ContactFieldError'
 import { getBusinessInfo, type BusinessInfo, upsertBusinessInfo } from '../../services/businessInfoService'
 import { getUserFacingError } from '../../services/errors'
 import { businessDescriptionMaxLength, businessDescriptionTooLong, defaultBusinessDescription } from '../../utils/businessDescription'
 import { getBusinessContactErrors, type BusinessContactField } from '../../utils/businessContacts'
 import { normalizeInstagramAccount } from '../../utils/instagramAccount'
+import { CONTACT_REVIEW_ERROR } from '../../utils/contactValidation'
 import {
     createEmptyWeeklyBusinessHours,
     formatWeeklyBusinessHours,
@@ -188,7 +190,7 @@ const AdminBusinessInfo = () => {
         setTouchedContacts({ whatsappNumber: true, instagramAccount: true, businessEmail: true })
         const firstInvalidContact = (Object.keys(contactErrors) as BusinessContactField[])[0]
         if (firstInvalidContact) {
-            setError('Revise os contatos indicados antes de salvar.')
+            setError(CONTACT_REVIEW_ERROR)
             setStatusMessage(null)
             const field = event.currentTarget.elements.namedItem(firstInvalidContact)
             if (field instanceof HTMLElement) field.focus()
@@ -311,7 +313,7 @@ const AdminBusinessInfo = () => {
                                     >
                                         <span />
                                     </button>
-                                    {contactError('whatsappNumber') && <p id="businessInfo-whatsapp-error" className="admin-business-info-field-error admin-business-contact-error" role="alert">{contactError('whatsappNumber')}</p>}
+                                    <ContactFieldError id="businessInfo-whatsapp-error" className="admin-business-contact-error" message={contactError('whatsappNumber')} />
                                 </div>
 
                                 <div className="admin-business-info-row">
@@ -342,7 +344,7 @@ const AdminBusinessInfo = () => {
                                     >
                                         <span />
                                     </button>
-                                    {contactError('instagramAccount') && <p id="businessInfo-instagram-error" className="admin-business-info-field-error admin-business-contact-error" role="alert">{contactError('instagramAccount')}</p>}
+                                    <ContactFieldError id="businessInfo-instagram-error" className="admin-business-contact-error" message={contactError('instagramAccount')} />
                                 </div>
 
                                 <div className="admin-business-info-row">
@@ -373,7 +375,7 @@ const AdminBusinessInfo = () => {
                                     >
                                         <span />
                                     </button>
-                                    {contactError('businessEmail') && <p id="businessInfo-email-error" className="admin-business-info-field-error admin-business-contact-error" role="alert">{contactError('businessEmail')}</p>}
+                                    <ContactFieldError id="businessInfo-email-error" className="admin-business-contact-error" message={contactError('businessEmail')} />
                                 </div>
                             </div>
 
