@@ -7,6 +7,7 @@ import { businessDescriptionMaxLength, businessDescriptionTooLong, defaultBusine
 import { getBusinessContactErrors, type BusinessContactField } from '../../utils/businessContacts'
 import { normalizeInstagramAccount } from '../../utils/instagramAccount'
 import { CONTACT_REVIEW_ERROR } from '../../utils/contactValidation'
+import { applyPhoneInputMask, formatPhoneInput, PHONE_PATTERN } from '../../utils/phone'
 import {
     createEmptyWeeklyBusinessHours,
     formatWeeklyBusinessHours,
@@ -34,7 +35,7 @@ const emptyValues: BusinessInfoFormValues = {
 
 const toValues = (businessInfo: BusinessInfo | null): BusinessInfoFormValues => ({
     instagramAccount: businessInfo?.instagramAccount?.trim() ?? '',
-    whatsappNumber: businessInfo?.whatsappNumber?.trim() ?? '',
+    whatsappNumber: formatPhoneInput(businessInfo?.whatsappNumber ?? '') ?? businessInfo?.whatsappNumber?.trim() ?? '',
     businessEmail: businessInfo?.businessEmail?.trim() ?? '',
     description: businessInfo?.description?.trim() ?? '',
 })
@@ -132,6 +133,16 @@ const AdminBusinessInfo = () => {
         if (error) setError(null)
     }
 
+    const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const formatted = applyPhoneInputMask(event.currentTarget, values.whatsappNumber, (event.nativeEvent as InputEvent).inputType)
+        if (formatted === null) return
+
+        setValues(current => ({ ...current, whatsappNumber: formatted }))
+        touchContact('whatsappNumber')
+        setStatusMessage(null)
+        setError(null)
+    }
+
     const handleToggle = (field: keyof typeof fieldToggles) => {
         setFieldToggles((current) => ({ ...current, [field]: !current[field] }))
         setError(null)
@@ -208,6 +219,8 @@ const AdminBusinessInfo = () => {
 
         const payload = {
             ...contactValues,
+            // Keep the country code used by the public WhatsApp links.
+            whatsappNumber: contactValues.whatsappNumber ? `+55 ${contactValues.whatsappNumber}` : null,
             businessHours: legacyHours ?? formatWeeklyBusinessHours(weeklyHours),
             description: values.description.trim(),
         }
@@ -295,7 +308,9 @@ const AdminBusinessInfo = () => {
                                         inputMode="tel"
                                         name="whatsappNumber"
                                         value={values.whatsappNumber}
-                                        onChange={handleFieldChange}
+                                        onChange={handlePhoneChange}
+                                        autoComplete="tel-national"
+                                        pattern={PHONE_PATTERN}
                                         onBlur={event => touchContact(event.currentTarget.name)}
                                         disabled={!fieldToggles.whatsapp}
                                         aria-invalid={Boolean(contactError('whatsappNumber'))}

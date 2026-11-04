@@ -8,8 +8,8 @@ import { ApiRequestError, getUserFacingError } from '../../services/errors'
 import { createMessage, type MessageSubject } from '../../services/messageService'
 import { getBusinessHoursLines } from '../../utils/businessHours'
 import { CONTACT_EMAIL_ERROR, CONTACT_REVIEW_ERROR, getContactEmailError, getContactPhoneError } from '../../utils/contactValidation'
+import { applyPhoneInputMask, PHONE_PATTERN } from '../../utils/phone'
 import './ContactUs.css'
-import { PHONE_PATTERN } from '../../utils/phone';
 
 type ContactFormState = {
   name: string
@@ -102,6 +102,16 @@ const ContactUsPage = () => {
     if (submitFeedback) {
       setSubmitFeedback(null)
     }
+  }
+
+  const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const formatted = applyPhoneInputMask(event.currentTarget, formData.phone, (event.nativeEvent as InputEvent).inputType)
+    if (formatted === null) return
+
+    touchContact('phone')
+    setServerContactErrors(previous => ({ ...previous, phone: undefined }))
+    setFormData(previous => ({ ...previous, phone: formatted }))
+    setSubmitFeedback(null)
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -232,10 +242,11 @@ const ContactUsPage = () => {
                     <label htmlFor="contact-phone">Telefone</label>
                     <input
                       id="contact-phone"
-                      type="text"
+                      type="tel"
+                      inputMode="tel"
                       name="phone"
                       value={formData.phone}
-                      onChange={handleChange}
+                      onChange={handlePhoneChange}
                       onBlur={() => touchContact('phone')}
                       aria-invalid={Boolean(phoneError)}
                       aria-describedby={phoneError ? 'contact-phone-error' : undefined}

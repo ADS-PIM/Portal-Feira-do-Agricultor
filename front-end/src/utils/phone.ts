@@ -24,3 +24,35 @@ export function formatPhoneInput(value: string): string | null {
 export function isValidPhone(value: string): boolean {
   return getContactPhoneError(value) === ''
 }
+
+export function applyPhoneInputMask(input: HTMLInputElement, previousValue: string, inputType?: string): string | null {
+  const cursor = input.selectionStart ?? input.value.length
+  let value = input.value
+  let digitsBeforeCursor = value.slice(0, cursor).replace(/\D/g, '').length
+  const previousDigits = previousValue.replace(/\D/g, '')
+
+  // Deleting a mask separator also deletes the adjacent digit.
+  if (inputType?.startsWith('delete') && value !== previousValue
+    && value.replace(/\D/g, '') === previousDigits) {
+    const index = inputType === 'deleteContentBackward' ? digitsBeforeCursor - 1 : digitsBeforeCursor
+    if (index >= 0) {
+      value = previousDigits.slice(0, index) + previousDigits.slice(index + 1)
+      digitsBeforeCursor = index
+    }
+  }
+
+  const formatted = formatPhoneInput(value)
+  if (formatted === null) {
+    input.value = previousValue
+    return null
+  }
+
+  let position = 0
+  let count = 0
+  while (position < formatted.length && count < digitsBeforeCursor) {
+    if (/\d/.test(formatted[position])) count += 1
+    position += 1
+  }
+  requestAnimationFrame(() => input.setSelectionRange(position, position))
+  return formatted
+}
