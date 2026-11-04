@@ -30,10 +30,13 @@ export class AdminService {
     public async delete(id: string, actorId: string, currentPassword?: unknown): Promise<void> {
         let verifiedPasswordHash: string | undefined;
         if (id === actorId) {
+            const actor = await this.searchById(actorId);
+            if (actor?.active && actor.role === 'SUPER_ADMIN' && !await this.adminDAO.hasOtherActiveSuperAdmin(actorId)) {
+                throw new AdminActionError(409, 'LAST_SUPER_ADMIN', 'Promote another active administrator before leaving');
+            }
             if (typeof currentPassword !== 'string' || !currentPassword) {
                 throw new AdminActionError(400, 'CURRENT_PASSWORD_REQUIRED', 'Current password is required');
             }
-            const actor = await this.searchById(actorId);
             if (!actor?.active || !actor.password ||
                 !await PasswordCrypto.verifyPassword(currentPassword, actor.password)) {
                 throw new AdminActionError(403, 'INVALID_CURRENT_PASSWORD', 'Current password is incorrect');
