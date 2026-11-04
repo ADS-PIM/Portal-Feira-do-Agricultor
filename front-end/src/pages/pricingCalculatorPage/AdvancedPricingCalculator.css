@@ -19,6 +19,22 @@
 .advanced-expense-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) 38px; align-items: start; gap: 12px; margin-bottom: 18px; }
 .advanced-expense-row .markup-field + .markup-field { margin-top: 0; }
 .advanced-expense-row > .advanced-remove { margin-top: 43px; }
+.advanced-variable-expenses { margin: 22px 0; padding-top: 18px; border-top: 1px solid var(--calculator-border); }
+.advanced-variable-heading { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.advanced-variable-heading h3 { color: var(--calculator-green); font-size: 16px; }
+.advanced-variable-list { display: grid; gap: 14px; }
+.advanced-variable-item { min-width: 0; padding: 16px; border: 1px solid var(--calculator-border); border-radius: 12px; background: var(--surface-page); }
+.advanced-variable-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.advanced-variable-item-heading h4 { color: var(--calculator-green); font-size: 14px; }
+.advanced-variable-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); align-items: start; gap: 14px; }
+.advanced-variable-fields > .markup-field + .markup-field { margin-top: 0; }
+.advanced-variable-fields > .markup-field > .markup-field-heading { display: flex; align-items: center; min-height: 36px; }
+.advanced-variable-fields .markup-percentage-field { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; }
+.advanced-variable-fields .markup-percentage-field .markup-field-heading { display: contents; }
+.advanced-variable-fields .markup-percentage-field .markup-field-label { grid-column: 1 / -1; grid-row: 1; min-height: 36px; margin-bottom: 7px; }
+.advanced-variable-fields .markup-percentage-field .markup-range-value { grid-column: 2; grid-row: 2; min-height: 48px; margin: 0; }
+.advanced-variable-fields .markup-percentage-field .markup-range { grid-column: 1; grid-row: 2; align-self: center; }
+.advanced-variable-fields .markup-percentage-field .markup-error { grid-column: 1 / -1; grid-row: 3; }
 .advanced-calculator .advanced-add + .markup-field { margin-top: 18px; }
 .advanced-calculator .markup-total { margin-top: 18px; }
 .advanced-calculator .markup-fixed-percentage { flex-wrap: wrap; }
