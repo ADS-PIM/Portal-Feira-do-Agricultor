@@ -2,13 +2,14 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import Icon from '../../components/Icon'
+import ContactFieldError from '../../components/ContactFieldError/ContactFieldError'
 import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoService'
-import { getUserFacingError } from '../../services/errors'
+import { ApiRequestError, getUserFacingError } from '../../services/errors'
 import { createMessage, type MessageSubject } from '../../services/messageService'
 import { getBusinessHoursLines } from '../../utils/businessHours'
-import { CONTACT_EMAIL_ERROR, CONTACT_PHONE_ERROR, getContactEmailError, getContactPhoneError } from '../../utils/contactValidation'
-import { formatPhoneInput, PHONE_PATTERN } from '../../utils/phone'
+import { CONTACT_EMAIL_ERROR, CONTACT_REVIEW_ERROR, getContactEmailError, getContactPhoneError } from '../../utils/contactValidation'
 import './ContactUs.css'
+import { PHONE_PATTERN } from '../../utils/phone';
 
 type ContactFormState = {
   name: string
@@ -34,6 +35,11 @@ function ContactIcon({ type }: { type: 'whatsapp' | 'email' | 'instagram' }) {
 
 const ContactUsPage = () => {
   const [formData, setFormData] = useState<ContactFormState>(initialFormState)
+  const [touchedContacts, setTouchedContacts] = useState({ email: false, phone: false })
+  const [serverContactErrors, setServerContactErrors] = useState<Partial<Record<'email' | 'phone', string>>>({})
+  const emailError = touchedContacts.email ? getContactEmailError(formData.email) || serverContactErrors.email : ''
+  const phoneError = touchedContacts.phone ? getContactPhoneError(formData.phone) || serverContactErrors.phone : ''
+  const touchContact = (field: 'email' | 'phone') => setTouchedContacts(previous => ({ ...previous, [field]: true }))
   const [businessInfo, setBusinessInfo] = useState<BusinessInfo | null>(null)
   const [hasContactError, setHasContactError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -88,8 +94,9 @@ const ContactUsPage = () => {
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target
-    if (event.target instanceof HTMLInputElement) {
-      if (name === 'email') event.target.setCustomValidity(getContactEmailError(value))
+    if (name === 'email' || name === 'phone') {
+      touchContact(name)
+      setServerContactErrors(previous => ({ ...previous, [name]: undefined }))
     }
     setFormData((previous) => ({ ...previous, [name]: value }))
     if (submitFeedback) {
@@ -97,46 +104,11 @@ const ContactUsPage = () => {
     }
   }
 
-  const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const input = event.currentTarget
-    const cursor = input.selectionStart ?? input.value.length
-    let value = input.value
-    let digitsBeforeCursor = value.slice(0, cursor).replace(/\D/g, '').length
-
-    // Deleting a mask separator also deletes the adjacent digit.
-    const inputType = (event.nativeEvent as InputEvent).inputType
-    const previousDigits = formData.phone.replace(/\D/g, '')
-    if (inputType?.startsWith('delete') && value !== formData.phone
-      && value.replace(/\D/g, '') === previousDigits) {
-      const index = inputType === 'deleteContentBackward' ? digitsBeforeCursor - 1 : digitsBeforeCursor
-      if (index >= 0) {
-        value = previousDigits.slice(0, index) + previousDigits.slice(index + 1)
-        digitsBeforeCursor = index
-      }
-    }
-
-    const formatted = formatPhoneInput(value)
-    if (formatted === null) {
-      input.value = formData.phone
-      input.setCustomValidity(CONTACT_PHONE_ERROR)
-      return
-    }
-
-    input.setCustomValidity(getContactPhoneError(formatted))
-    setFormData((previous) => ({ ...previous, phone: formatted }))
-    setSubmitFeedback(null)
-
-    let position = 0
-    let count = 0
-    while (position < formatted.length && count < digitsBeforeCursor) {
-      if (/\d/.test(formatted[position])) count += 1
-      position += 1
-    }
-    requestAnimationFrame(() => input.setSelectionRange(position, position))
-  }
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const form = event.currentTarget
+    setServerContactErrors({})
+    setTouchedContacts({ email: true, phone: true })
 
     const trimmedName = formData.name.trim()
     const trimmedEmail = formData.email.trim()
@@ -150,11 +122,10 @@ const ContactUsPage = () => {
       { field: 'phone', message: getContactPhoneError(trimmedPhone) },
     ]
     for (const { field, message } of contactErrors) {
-      const input = event.currentTarget.elements.namedItem(field) as HTMLInputElement
-      input.setCustomValidity(message)
+      const input = form.elements.namedItem(field) as HTMLInputElement
       if (message) {
-        setSubmitFeedback({ type: 'error', message })
-        input.reportValidity()
+        setSubmitFeedback({ type: 'error', message: CONTACT_REVIEW_ERROR })
+        input.focus()
         return
       }
     }
@@ -181,11 +152,24 @@ const ContactUsPage = () => {
       })
 
       setFormData(initialFormState)
+      setTouchedContacts({ email: false, phone: false })
+      setServerContactErrors({})
       setSubmitFeedback({
         type: 'success',
         message: 'Mensagem enviada com sucesso! Nossa equipe entrará em contato em breve.',
       })
     } catch (error) {
+      if (error instanceof ApiRequestError && error.status === 400) {
+        const field = error.code?.startsWith('CONTACT_EMAIL_') ? 'email'
+          : error.code?.startsWith('CONTACT_PHONE_') ? 'phone' : null
+        if (field) {
+          setServerContactErrors({ [field]: error.message })
+          setSubmitFeedback({ type: 'error', message: CONTACT_REVIEW_ERROR })
+          const input = form.elements.namedItem(field)
+          if (input instanceof HTMLElement) input.focus()
+          return
+        }
+      }
       setSubmitFeedback({
         type: 'error',
         message: getUserFacingError(error, 'Não foi possível enviar sua mensagem. Tente novamente mais tarde.'),
@@ -213,7 +197,7 @@ const ContactUsPage = () => {
             <section className="contact-form-panel" aria-labelledby="contact-page-form-title">
               <h2 id="contact-page-form-title">Envie uma Mensagem</h2>
 
-              <form className="contact-form" onSubmit={handleSubmit}>
+              <form className="contact-form" onSubmit={handleSubmit} noValidate>
                 <label className="contact-field">
                   <span>Nome Completo</span>
                   <input
@@ -227,10 +211,12 @@ const ContactUsPage = () => {
                 </label>
 
                 <div className="contact-row">
-                  <label className="contact-field">
-                    <span>E-mail</span>
+                  <div className="contact-field">
+                    <label htmlFor="contact-email">E-mail</label>
                     <input
-                      type="email"
+                      id="contact-email"
+                      type="text"
+                      inputMode="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
@@ -239,22 +225,27 @@ const ContactUsPage = () => {
                       autoComplete="email"
                       maxLength={254}
                     />
-                  </label>
+                    <ContactFieldError id="contact-email-error" className="contact-field-error" message={emailError} />
+                  </div>
 
-                  <label className="contact-field">
-                    <span>Telefone</span>
+                  <div className="contact-field">
+                    <label htmlFor="contact-phone">Telefone</label>
                     <input
-                      type="tel"
+                      id="contact-phone"
+                      type="text"
                       name="phone"
                       value={formData.phone}
-                      onChange={handlePhoneChange}
-                      inputMode="tel"
+                      onChange={handleChange}
+                      onBlur={() => touchContact('phone')}
+                      aria-invalid={Boolean(phoneError)}
+                      aria-describedby={phoneError ? 'contact-phone-error' : undefined}
                       autoComplete="tel-national"
                       pattern={PHONE_PATTERN}
                       title="Informe um telefone com DDD: (88) 3333-4444 ou (88) 99999-9999, sem letras."
                       placeholder="(88) 99999-9999 (Opicional)"
                     />
-                  </label>
+                    <ContactFieldError id="contact-phone-error" className="contact-field-error" message={phoneError} />
+                  </div>
                 </div>
 
                 <label className="contact-field">

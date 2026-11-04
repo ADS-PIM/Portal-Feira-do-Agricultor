@@ -78,7 +78,7 @@ const help = {
     effect: 'O faturamento distribui os gastos fixos entre as vendas e altera o markup. Sem gastos fixos nem depreciação, mudar esse valor não altera o preço. Use uma média realista e maior que zero.',
   },
   variableExpense: {
-    explanation: 'Informe a porcentagem da venda destinada a uma taxa ou comissão. Cadastre cada taxa em uma linha para que os percentuais sejam somados.',
+    explanation: 'Informe o nome e a porcentagem de cada taxa ou comissão nos campos do mesmo quadro. Adicione um quadro para cada despesa; os percentuais são somados automaticamente.',
     example: 'Uma taxa da maquininha de 3% e uma comissão de 2% somam 5%. Em uma venda de R$ 20, essas despesas representam R$ 1.',
     effect: 'As taxas entram no markup como parcelas do preço de venda. Quanto maiores essas porcentagens, maior o preço necessário para cobri-las. Não repita os materiais neste campo.',
   },

@@ -10,6 +10,7 @@ import { CalculatorSteps, CalculatorStepActions } from './CalculatorSteps'
 import CalculatorFieldHelp from './CalculatorFieldHelp'
 import { getAdvancedFieldHelp } from './advancedFieldHelp'
 import ProductionTimeUnitField from './ProductionTimeUnitField'
+import { calculatorErrors } from './calculatorValidation'
 
 const steps = ['Produto', 'Insumos', 'Trabalho', 'Gastos fixos', 'Equipamentos', 'Taxas e lucro'] as const
 function stepForField(name: string) {
@@ -33,16 +34,17 @@ const numeric = (value: number) => {
 const unitOptions = Object.entries(PRICING_UNITS).map(([value, unit]) => ({ value, label: unit.label, dimension: unit.dimension }))
 const timeUnitOptions = unitOptions.filter(option => option.dimension === 'time')
 const purchaseUnitOptions = [...unitOptions, { value: 'package', label: 'Pacote' }, { value: 'consumption', label: 'Consumo' }]
+const variableExpenseHelp = getAdvancedFieldHelp('variableExpenses.value')
 
 type FieldProps = {
   name: string; label: string; value: string; onChange: (value: string) => void
   error?: string; hint?: string; unit?: string; text?: boolean; placeholder?: string
-  purchaseUnit?: PurchaseUnit
+  purchaseUnit?: PurchaseUnit; showHelp?: boolean
 }
 
-function AdvancedField({ name, label, value, onChange, error, hint, unit, text, placeholder, purchaseUnit }: FieldProps) {
+function AdvancedField({ name, label, value, onChange, error, hint, unit, text, placeholder, purchaseUnit, showHelp = true }: FieldProps) {
   const id = `advanced-${name}`
-  const help = getAdvancedFieldHelp(name, purchaseUnit)
+  const help = showHelp ? getAdvancedFieldHelp(name, purchaseUnit) : undefined
   const helpButton = help ? <CalculatorFieldHelp label={label} help={help} /> : undefined
   if (unit === '%') return <PercentageField id={id} name={name} label={label} value={value}
     onChange={onChange} error={error} hint={hint} help={helpButton} />
@@ -327,17 +329,30 @@ export default function AdvancedPricingCalculator() {
                 : Number.isFinite(validation.fixedPercentage)
                   ? `${money(validation.monthlyFixed)} de gastos fixos ÷ ${money(validation.input.monthlyRevenue)} de faturamento × 100 = ${numeric(validation.fixedPercentage)}%. Esse percentual entra no markup.`
                   : 'O faturamento distribui os gastos fixos entre as vendas. Ele altera o percentual de gastos fixos usado no markup.'}</p>
-              <p className="markup-hint advanced-section-hint">Cadastre taxas e comissões em porcentagem do preço de venda. Por exemplo, maquininha 3% e comissão 2%.</p>
-              {values.variableExpenses.map((row, index) => (
-                <div className="advanced-expense-row" key={row.id}>
-                  <AdvancedField name={`variableExpenses.${row.id}.name`} label={`Despesa variável ${index + 1}`} text value={row.name} error={error(`variableExpenses.${row.id}.name`)}
-                    placeholder="Ex.: taxa da maquininha" onChange={name => updateExpense('variableExpenses', row.id, { name })} />
-                  <AdvancedField name={`variableExpenses.${row.id}.value`} label="Percentual sobre a venda" unit="%" value={row.value} error={error(`variableExpenses.${row.id}.value`)}
-                    onChange={value => updateExpense('variableExpenses', row.id, { value })} />
-                  <RemoveRow label={`Remover despesa variável ${index + 1}`} onClick={() => update('variableExpenses', values.variableExpenses.filter(item => item.id !== row.id))} />
+              <section className="advanced-variable-expenses" aria-labelledby="advanced-variable-expenses-title">
+                <div className="advanced-variable-heading">
+                  <h3 id="advanced-variable-expenses-title">Taxas e comissões</h3>
+                  {variableExpenseHelp && <CalculatorFieldHelp label="Taxas e comissões" help={variableExpenseHelp} />}
                 </div>
-              ))}
-              <button className="advanced-add" type="button" onClick={() => update('variableExpenses', [...values.variableExpenses, newExpense()])}><Icon name="plus" /> Adicionar taxa ou comissão</button>
+                <p className="markup-hint advanced-section-hint">Cadastre cada taxa com seu percentual sobre a venda. Ex.: maquininha 3% e comissão 2%.</p>
+                <div className="advanced-variable-list">
+                  {values.variableExpenses.map((row, index) => (
+                    <div className="advanced-variable-item" key={row.id} role="group" aria-labelledby={`advanced-variable-${row.id}-title`}>
+                      <div className="advanced-variable-item-heading">
+                        <h4 id={`advanced-variable-${row.id}-title`}>Despesa variável {index + 1}</h4>
+                        <RemoveRow label={`Remover despesa variável ${index + 1}`} onClick={() => update('variableExpenses', values.variableExpenses.filter(item => item.id !== row.id))} />
+                      </div>
+                      <div className="advanced-variable-fields">
+                        <AdvancedField name={`variableExpenses.${row.id}.name`} label="Nome da taxa ou comissão" text value={row.name} error={error(`variableExpenses.${row.id}.name`)} showHelp={false}
+                          placeholder="Ex.: taxa da maquininha" onChange={name => updateExpense('variableExpenses', row.id, { name })} />
+                        <AdvancedField name={`variableExpenses.${row.id}.value`} label="Percentual sobre a venda" unit="%" value={row.value} error={error(`variableExpenses.${row.id}.value`)} showHelp={false}
+                          onChange={value => updateExpense('variableExpenses', row.id, { value })} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button className="advanced-add" type="button" onClick={() => update('variableExpenses', [...values.variableExpenses, newExpense()])}><Icon name="plus" /> Adicionar taxa ou comissão</button>
+              </section>
               {baseField('profit', 'Lucro desejado sobre a venda', { unit: '%', hint: 'Parcela do preço que sobra para o negócio após os custos e a remuneração do seu trabalho.' })}
               <div className={`markup-total${Number.isFinite(validation.totalPercentage) && validation.totalPercentage >= 100 ? ' has-error' : ''}`}>
                 <span>Gastos fixos % + despesas variáveis % + lucro %</span><strong>{numeric(validation.totalPercentage)}%</strong>
@@ -345,7 +360,7 @@ export default function AdvancedPricingCalculator() {
               <p className="markup-hint">A soma precisa ficar abaixo de 100% para calcular o markup.</p>
             </fieldset>
             {((attemptedSteps.includes(step) && currentErrors.length > 0) || validation.errors.calculation)
-              && <p className="markup-error" role="alert">{validation.errors.calculation || 'Revise os campos indicados nesta etapa.'}</p>}
+              && <p className="markup-error" role="alert">{validation.errors.calculation || calculatorErrors.reviewStep}</p>}
             <CalculatorStepActions current={step} count={steps.length} onBack={() => goToStep(step - 1)} onClear={clear} />
           </form>
         </section>

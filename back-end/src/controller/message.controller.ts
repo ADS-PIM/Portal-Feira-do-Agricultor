@@ -4,6 +4,7 @@ import { validate } from 'class-validator';
 import { AuthRequest } from '../../authMiddleware';
 import { MessageCreateDTO } from '../dto/message.dto';
 import { MessageService } from '../service/message.service';
+import { getContactEmailValidation, getContactPhoneValidation } from '../util/contactValidation';
 
 export class MessageController {
     public constructor(private messageService: MessageService) {}
@@ -36,6 +37,12 @@ export class MessageController {
             const messageCreateDTO = plainToInstance(MessageCreateDTO, req.body);
             const errors = await validate(messageCreateDTO);
             if (errors.length > 0) {
+                const contactError = errors.find(error => error.property === 'email' || error.property === 'phone');
+                if (contactError) {
+                    const detail = contactError.property === 'email'
+                        ? getContactEmailValidation(contactError.value) : getContactPhoneValidation(contactError.value);
+                    if (detail) return res.status(400).json({ errors, field: contactError.property, ...detail });
+                }
                 return res.status(400).json({ errors });
             }
 

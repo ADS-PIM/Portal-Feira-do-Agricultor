@@ -120,7 +120,7 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
 
     if (!response.ok) {
         let code: string | undefined
-        const hasValidationCode = response.status === 400 && /^(?:business-info|admin\/(?:forgot-password|reset-password))(?:\/|$|\?)/.test(path)
+        const hasValidationCode = response.status === 400 && /^(?:business-info|message\/create|admin\/(?:forgot-password|reset-password))(?:\/|$|\?)/.test(path)
         const isAdminResource = !sessionEndpoint && /^admin\/[^/?]+\/?(?:\?|$)/.test(path)
         if (hasValidationCode || isAdminResource || sessionEndpoint) code = await readErrorCode(response)
         if (response.status === 403 && code === 'ADMIN_DISABLED') clearAccessToken()

@@ -1,8 +1,9 @@
 import { Transform } from "class-transformer";
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, IsEmail } from "class-validator";
 import { MessageSubject } from "../model/message";
+import { IsContact } from './contact.validator';
 
-export class MessageCreateDTO {// phone, subject, message
+export class MessageCreateDTO {
     @IsNotEmpty()
     @IsString()
     name: string;
@@ -15,9 +16,7 @@ export class MessageCreateDTO {// phone, subject, message
     @Transform(({ value }) => typeof value === 'string' ? value.trim() || undefined : value)
     @IsOptional()
     @IsString()
-    @Matches(/^(?:\+55 ?)?(?:\([1-9]\d\)|[1-9]\d) ?(?:[2-5]\d{3}|9\d{4})-?\d{4}$/, {
-        message: 'Informe um telefone com DDD, como (88) 99999-9999 ou (88) 3333-4444.'
-    })
+    @IsContact('phone')
     phone?: string;
 
     @IsNotEmpty()

@@ -101,6 +101,12 @@ export class AdminDAO {
         }
     }
 
+    async hasOtherActiveSuperAdmin(id: string): Promise<boolean> {
+        const [admins] = await this.pool.execute<RowDataPacket[]>(
+            "SELECT id FROM administrators WHERE id <> ? AND role = 'SUPER_ADMIN' AND active = 1 LIMIT 1", [id]);
+        return admins.length > 0;
+    }
+
     async update(id: string, data: AdminUpdateData, actorId: string): Promise<void> {
         const fields: string[] = [];
         const values: (string | boolean | null)[] = [];
@@ -196,6 +202,13 @@ export class AdminDAO {
                 await db.rollback();
                 return 'super_admin';
             }
+            const successor = isSelf
+                ? admins.find(admin => admin.id !== id && admin.role === 'SUPER_ADMIN' && admin.active)
+                : actor;
+            if (isSelf && target.role === 'SUPER_ADMIN' && !successor) {
+                await db.rollback();
+                return 'last_super_admin';
+            }
             if (isSelf) {
                 const [credentials] = await db.execute<RowDataPacket[]>(
                     'SELECT hashPassword FROM administrators WHERE id = ? FOR UPDATE', [id]);
@@ -203,13 +216,6 @@ export class AdminDAO {
                     await db.rollback();
                     return 'invalid_password';
                 }
-            }
-            const successor = isSelf
-                ? admins.find(admin => admin.id !== id && admin.role === 'SUPER_ADMIN' && admin.active)
-                : actor;
-            if (isSelf && target.role === 'SUPER_ADMIN' && !successor) {
-                await db.rollback();
-                return 'last_super_admin';
             }
             if (target.active && !isSelf) {
                 await db.rollback();
