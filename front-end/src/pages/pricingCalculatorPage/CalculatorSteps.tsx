@@ -24,7 +24,7 @@ export function CalculatorSteps({ steps, current, incompleteSteps, onSelect, lab
         </li>)}
       </ol>
       <div aria-live="polite">
-        {highlightedSteps.length > 0 && <p id={warningId} className="markup-step-warning">Preencha todos os campos obrigatorio</p>}
+        {highlightedSteps.length > 0 && <p id={warningId} className="markup-step-warning">Preencha todos os campos obrigatórios</p>}
       </div>
     </nav>
   )

@@ -11,7 +11,7 @@ export enum MessageSubject {
 export type propsMessage = {
     id: string;
     name: string;
-    email: string;
+    email: string | null;
     phone: string | null;
     subject: MessageSubject;
     message: string;
@@ -26,8 +26,8 @@ export class Message {
         const props: propsMessage = {
             id: crypto.randomUUID(),
             name,
-            email,
-            phone: phone ? phone : '',
+            email: email?.trim() || null,
+            phone: phone?.trim() || null,
             subject: subject as MessageSubject,
             message,
             submitDate: new Date(),

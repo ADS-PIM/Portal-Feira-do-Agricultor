@@ -7,6 +7,7 @@ const phonePattern = /^(?:\+55 ?)?(?:\([1-9]\d\)|[1-9]\d) ?(?:[2-5]\d{3}|9\d{4})
 
 export function getContactEmailError(value: string): string {
   const email = value.trim()
+  if (!email) return ''
   return email.length <= 254 && email.split('@')[0].length <= 64 && emailPattern.test(email)
     ? ''
     : CONTACT_EMAIL_ERROR

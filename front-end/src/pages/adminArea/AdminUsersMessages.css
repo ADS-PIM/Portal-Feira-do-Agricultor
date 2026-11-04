@@ -492,11 +492,16 @@
     color: var(--brand-green-dark);
 }
 
-.admin-user-message-reply-button:hover {
+.admin-user-message-reply-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.admin-user-message-reply-button:not(:disabled):hover {
     background: #edf5e9;
 }
 
-.admin-user-message-reply-button.is-whatsapp:hover {
+.admin-user-message-reply-button.is-whatsapp:not(:disabled):hover {
     border-color: #25d366;
     background: #eaf7ee;
 }

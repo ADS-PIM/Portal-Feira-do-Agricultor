@@ -159,10 +159,10 @@ const ContactUsPage = () => {
       }
     }
 
-    if (!trimmedName || !trimmedEmail || !selectedSubject || !trimmedTitle || !trimmedMessage) {
+    if (!trimmedName || !selectedSubject || !trimmedTitle || !trimmedMessage) {
       setSubmitFeedback({
         type: 'error',
-        message: 'Preencha seu nome, e-mail, assunto, título e mensagem antes de enviar.',
+        message: 'Preencha seu nome, assunto, título e mensagem antes de enviar.',
       })
       return
     }
@@ -173,7 +173,7 @@ const ContactUsPage = () => {
     try {
       await createMessage({
         name: trimmedName,
-        email: trimmedEmail,
+        email: trimmedEmail || undefined,
         phone: trimmedPhone || undefined,
         subject: selectedSubject,
         message: trimmedMessage,
@@ -235,10 +235,9 @@ const ContactUsPage = () => {
                       value={formData.email}
                       onChange={handleChange}
                       onInvalid={(event) => event.currentTarget.setCustomValidity(CONTACT_EMAIL_ERROR)}
-                      placeholder="seu-email@exemplo.com"
+                      placeholder="seu-email@exemplo.com (Opicional)"
                       autoComplete="email"
                       maxLength={254}
-                      required
                     />
                   </label>
 
@@ -253,7 +252,7 @@ const ContactUsPage = () => {
                       autoComplete="tel-national"
                       pattern={PHONE_PATTERN}
                       title="Informe um telefone com DDD: (88) 3333-4444 ou (88) 99999-9999, sem letras."
-                      placeholder="(88) 99999-9999"
+                      placeholder="(88) 99999-9999 (Opicional)"
                     />
                   </label>
                 </div>

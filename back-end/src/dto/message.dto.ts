@@ -7,10 +7,10 @@ export class MessageCreateDTO {// phone, subject, message
     @IsString()
     name: string;
 
-    @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
-    @IsNotEmpty()
+    @Transform(({ value }) => typeof value === 'string' ? value.trim() || undefined : value)
+    @IsOptional()
     @IsEmail({}, { message: 'Informe um e-mail válido, como nome@exemplo.com.' })
-    email: string;
+    email?: string;
 
     @Transform(({ value }) => typeof value === 'string' ? value.trim() || undefined : value)
     @IsOptional()

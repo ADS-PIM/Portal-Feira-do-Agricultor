@@ -18,7 +18,7 @@ export interface UserMessage {
 
 export interface CreateMessagePayload {
   name: string
-  email: string
+  email?: string
   phone?: string
   subject: MessageSubject
   message: string
@@ -34,6 +34,7 @@ export async function createMessage(payload: CreateMessagePayload, signal?: Abor
     },
     body: JSON.stringify({
       ...payload,
+      email: payload.email?.trim() || undefined,
       phone: payload.phone?.trim() || undefined,
     }),
   })

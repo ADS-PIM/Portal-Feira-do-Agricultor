@@ -97,7 +97,7 @@ function UserMessageDetails({
                     Voltar para mensagens
                 </button>
                 <div className="admin-user-message-detail-actions">
-                    {email && (
+                    {email ? (
                         <a
                             className="admin-user-message-reply-button"
                             href={`mailto:${email}?subject=${encodeURIComponent(`Re: ${displayValue(message.title)}`)}`}
@@ -105,12 +105,22 @@ function UserMessageDetails({
                             <Icon name="email" />
                             Responder por e-mail
                         </a>
+                    ) : (
+                        <button type="button" className="admin-user-message-reply-button" disabled>
+                            <Icon name="email" />
+                            Responder por e-mail
+                        </button>
                     )}
-                    {whatsappUrl && (
+                    {whatsappUrl ? (
                         <a className="admin-user-message-reply-button is-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer">
                             <Icon name="whatsapp" />
                             Responder pelo WhatsApp
                         </a>
+                    ) : (
+                        <button type="button" className="admin-user-message-reply-button is-whatsapp" disabled>
+                            <Icon name="whatsapp" />
+                            Responder pelo WhatsApp
+                        </button>
                     )}
                     <button type="button" className="admin-user-message-delete-button" onClick={onDelete}>
                         <Icon name="trash" />

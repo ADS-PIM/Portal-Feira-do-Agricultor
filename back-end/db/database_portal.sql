@@ -54,7 +54,7 @@ create table `businessInfo` (
 create table `message` (
     `id` char(36) not null,
     `name` varchar(255) not null,
-    `email` varchar(320) not null,
+    `email` varchar(320) default null,
     `phone` varchar(20) default null,
     `subject` enum('DOUBT', 'SUGGESTION', 'COMPLAINT', 'PARTNERSHIP', 'OTHER') not null,
     `message` varchar(1500) not null,
