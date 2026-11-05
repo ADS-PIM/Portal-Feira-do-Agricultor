@@ -1,5 +1,5 @@
 import './App.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import MainPage from './pages/mainPage/MainPage'
 import LoginPage from './pages/loginPage/LoginPage'
 import PasswordRecoveryPage from './pages/loginPage/PasswordRecoveryPage'
@@ -14,6 +14,14 @@ import ProducerProfilePage from './pages/producersPage/ProducerProfilePage'
 import type { AdminSection } from './components/AdminSideNav/AdminSideNav'
 import { getAdminSection } from './services/adminNavigation'
 import { getAccountReturnTarget, type AccountReturnTarget } from './services/profileNavigation'
+import { AUTH_STATE_CHANGE_EVENT, dismissAdminAccessIssue, getAdminAccessIssue } from './services/authToken'
+import AdminDisabledPage from './pages/loginPage/AdminDisabledPage'
+import { useAdminSessionMonitor } from './hooks/useAdminSessionMonitor'
+
+const subscribeAuthState = (onChange: () => void) => {
+  window.addEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
+  return () => window.removeEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
+}
 
 type AppRoute =
   | { page: 'home' | 'login' | 'contact' | 'calendar' | 'calculator' | 'producers' }
@@ -81,6 +89,10 @@ function getCurrentRoute(): AppRoute {
 
 function App() {
   const [route, setRoute] = useState<AppRoute>(getCurrentRoute)
+  const accessIssue = useSyncExternalStore(subscribeAuthState, getAdminAccessIssue)
+  const protectedPage = route.page === 'admin' || route.page === 'account'
+  const showAccessNotice = Boolean(accessIssue) && (protectedPage || route.page === 'login')
+  useAdminSessionMonitor(protectedPage && !accessIssue)
 
   useEffect(() => {
     const syncRoute = () => setRoute(getCurrentRoute())
@@ -98,8 +110,14 @@ function App() {
   }, [route])
 
   useEffect(() => {
-    document.title = `${pageTitles[route.page]} | Brotando Feiras`
-  }, [route.page])
+    document.title = `${showAccessNotice ? 'Acesso administrativo indisponível' : pageTitles[route.page]} | Brotando Feiras`
+  }, [route.page, showAccessNotice])
+
+  if (showAccessNotice && accessIssue) return <AdminDisabledPage reason={accessIssue} onReturnToLogin={() => {
+    window.location.hash = '#/admin/login'
+    setRoute({ page: 'login' })
+    dismissAdminAccessIssue()
+  }} />
 
   if (route.page === 'login') {
     return <LoginPage onLoginSuccess={() => { window.location.hash = '#/admin' }} />
