@@ -3,6 +3,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import logo from '../../assets/brotando-feiras-alinhada-direita-tons.png'
 import Icon from '../Icon'
 import { restoreAdminProfile } from '../../services/api'
+import { getProfileHref } from '../../services/profileNavigation'
 import {
     AUTH_STATE_CHANGE_EVENT,
     getAdminProfile,
@@ -35,8 +36,15 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     const navigationId = useId()
     const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(() => getAdminProfile())
     const [hasCheckedSession, setHasCheckedSession] = useState(false)
+    const [currentHash, setCurrentHash] = useState(() => window.location.hash)
     const lastVisibilityChangeY = useRef(0);
     const hasInitializedScrollPosition = useRef(false)
+
+    useEffect(() => {
+        const syncHash = () => setCurrentHash(window.location.hash)
+        window.addEventListener('hashchange', syncHash)
+        return () => window.removeEventListener('hashchange', syncHash)
+    }, [])
 
     useLayoutEffect(() => {
         const header = headerRef.current
@@ -183,7 +191,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
 
             <div className="site-header-account">
                 {adminProfile ? (
-                    <a className="site-header-profile" href="#/minha-conta" aria-label="Visualizar minha conta" aria-current={initialActiveLink === '#/minha-conta' ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>
+                    <a className="site-header-profile" href={getProfileHref(currentHash)} aria-label="Visualizar minha conta" aria-current={initialActiveLink === '#/minha-conta' ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>
                         <div className="site-header-profile-info">
                             <span className="site-header-profile-name">{adminProfile.name}</span>
                             <span className="site-header-profile-role">

@@ -224,8 +224,8 @@ export class AdminController {
             if (typeof targetAdminId !== 'string') {
                 return res.status(400).json({ error: 'Invalid admin id' });
             }
-            if (targetAdminId !== actorId && req.admin?.role !== AdminRole.SUPER_ADMIN) {
-                return res.status(403).json({ code: 'ADMIN_DELETE_FORBIDDEN', error: 'You cannot delete another administrator' });
+            if (req.admin?.role !== AdminRole.SUPER_ADMIN) {
+                return res.status(403).json({ code: 'ADMIN_DELETE_FORBIDDEN', error: 'Only SUPER_ADMIN can delete administrator accounts' });
             }
             await this.adminService.delete(targetAdminId, actorId, req.body?.password);
             if (targetAdminId === actorId) {

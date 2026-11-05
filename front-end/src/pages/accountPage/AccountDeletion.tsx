@@ -16,7 +16,7 @@ export default function AccountDeletion({ profile, disabled, onBusyChange }: {
     onBusyChange: (busy: boolean) => void
 }) {
     const isSuper = profile.role === 'SUPER_ADMIN'
-    const [eligibility, setEligibility] = useState<DeletionEligibility>(isSuper ? 'loading' : 'allowed')
+    const [eligibility, setEligibility] = useState<DeletionEligibility>('loading')
     const [attempt, setAttempt] = useState(0)
     const [confirming, setConfirming] = useState(false)
     const [password, setPassword] = useState('')
@@ -24,7 +24,7 @@ export default function AccountDeletion({ profile, disabled, onBusyChange }: {
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!isSuper) return
+        if (!isSuper || !profile.active) return
         let active = true
         void getSuperAdminEligibility(profile.id).then(result => {
             if (active) setEligibility(result)
@@ -32,16 +32,12 @@ export default function AccountDeletion({ profile, disabled, onBusyChange }: {
             if (active) setEligibility('failed')
         })
         return () => { active = false }
-    }, [isSuper, profile.id, attempt])
+    }, [isSuper, profile.id, profile.active, attempt])
 
     const beginConfirmation = async () => {
-        if (disabled || deleting || eligibility === 'loading') return
+        if (!isSuper || !profile.active || disabled || deleting || eligibility === 'loading') return
         setPassword('')
         setError(null)
-        if (!isSuper) {
-            setConfirming(true)
-            return
-        }
         setEligibility('loading')
         onBusyChange(true)
         try {
@@ -58,7 +54,7 @@ export default function AccountDeletion({ profile, disabled, onBusyChange }: {
 
     const removeAccount = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        if (disabled || deleting || eligibility !== 'allowed' || !password) return
+        if (!isSuper || !profile.active || disabled || deleting || eligibility !== 'allowed' || !password) return
         setDeleting(true)
         onBusyChange(true)
         setError(null)
@@ -79,6 +75,8 @@ export default function AccountDeletion({ profile, disabled, onBusyChange }: {
             onBusyChange(false)
         }
     }
+
+    if (!isSuper || !profile.active) return null
 
     return <section className="account-deletion" aria-labelledby="account-delete-title">
         <h3 id="account-delete-title">Excluir minha conta</h3>

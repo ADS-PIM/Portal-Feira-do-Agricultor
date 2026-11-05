@@ -35,6 +35,7 @@ function getApiErrorMessage(status: number, endpoint: string, code?: string): st
     }
     if (/^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)) {
         if (status === 404 && code === 'ADMIN_NOT_FOUND') return 'Administrador não encontrado. Atualize a lista e tente novamente.'
+        if (status === 403 && code === 'ADMIN_DELETE_FORBIDDEN') return 'Apenas um Super Admin pode excluir contas de administradores.'
         if (status === 403 && code === 'SUPER_ADMIN_DELETE_FORBIDDEN') return 'Você não pode excluir outro Super Admin. Cada Super Admin deve excluir a própria conta.'
         if (status === 403 && code === 'SUPER_ADMIN_UPDATE_FORBIDDEN') return 'Você só pode reativar outro Super Admin. As demais alterações devem ser feitas pelo próprio usuário.'
         if (status === 409 && code === 'LAST_SUPER_ADMIN') return 'Você é o único Super Admin ativo. Promova um administrador ativo ou reative outro Super Admin antes de excluir, desativar ou rebaixar sua conta.'

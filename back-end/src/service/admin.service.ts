@@ -28,10 +28,13 @@ export class AdminService {
     }
 
     public async delete(id: string, actorId: string, currentPassword?: unknown): Promise<void> {
+        const actor = await this.searchById(actorId);
+        if (!actor?.active || actor.role !== 'SUPER_ADMIN') {
+            throw new AdminActionError(403, 'ADMIN_DELETE_FORBIDDEN', 'Only an active SUPER_ADMIN can delete administrator accounts');
+        }
         let verifiedPasswordHash: string | undefined;
         if (id === actorId) {
-            const actor = await this.searchById(actorId);
-            if (actor?.active && actor.role === 'SUPER_ADMIN' && !await this.adminDAO.hasOtherActiveSuperAdmin(actorId)) {
+            if (!await this.adminDAO.hasOtherActiveSuperAdmin(actorId)) {
                 throw new AdminActionError(409, 'LAST_SUPER_ADMIN', 'Promote another active administrator before leaving');
             }
             if (typeof currentPassword !== 'string' || !currentPassword) {

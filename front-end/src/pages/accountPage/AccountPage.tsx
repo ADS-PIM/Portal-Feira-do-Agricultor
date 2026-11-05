@@ -11,6 +11,7 @@ import { accountFormValues, buildAccountUpdate, type AccountFormValues } from '.
 import './AccountPage.css'
 import AccountDeletion from './AccountDeletion'
 import ProfilePictureUpload from './ProfilePictureUpload'
+import { getAccountReturnTarget, type AccountReturnTarget } from '../../services/profileNavigation'
 
 function AccountAvatar({ profile }: { profile: AdminProfile }) {
     const [failed, setFailed] = useState(false)
@@ -117,12 +118,12 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
                     <div className="account-form-actions"><button type="button" className="account-button is-secondary" disabled={busy} onClick={() => { setValues(accountFormValues(profile)); setEditing(false); setShowPassword(false); setError(null); setSuccess(null) }}>Cancelar</button><button type="submit" className="account-button" disabled={busy}>{saving ? 'Salvando...' : 'Salvar alterações'}</button></div>
                 </form>
             )}
-            {!editing && <AccountDeletion key={`${profile.id}:${profile.role}`} profile={profile} disabled={busy || accessChanged} onBusyChange={setDeleting} />}
+            {!editing && isSuper && Boolean(profile.active) && <AccountDeletion key={`${profile.id}:${profile.role}`} profile={profile} disabled={busy || accessChanged} onBusyChange={setDeleting} />}
         </section>
     </div>
 }
 
-export default function AccountPage() {
+export default function AccountPage({ returnTarget = getAccountReturnTarget(null) }: { returnTarget?: AccountReturnTarget }) {
     const [profile, setProfile] = useState<AdminProfile | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [attempt, setAttempt] = useState(0)
@@ -151,5 +152,5 @@ export default function AccountPage() {
         return () => { active = false }
     }, [attempt])
     if (adminDisabled) return <AdminDisabledPage />
-    return <><Header initialActiveLink="#/minha-conta" /><main className="account-page"><div className="account-container"><a className="account-back" href="#/admin"><Icon name="arrowLeft" />Voltar ao painel</a><header className="account-heading"><span>SEU PERFIL</span><h1>Minha conta</h1><p>Gerencie suas informações e seu acesso ao portal.</p></header>{profile ? <AccountDetails initialProfile={profile} /> : error ? <section className="account-card"><p role="alert">{error}</p><button type="button" className="account-button" onClick={() => { setError(null); setAttempt(current => current + 1) }}>Tentar novamente</button></section> : <section className="account-card" role="status">Carregando sua conta...</section>}</div></main><Footer /></>
+    return <><Header initialActiveLink="#/minha-conta" /><main className="account-page"><div className="account-container"><a className="account-back" href={returnTarget.href}><Icon name="arrowLeft" />{returnTarget.label}</a><header className="account-heading"><span>SEU PERFIL</span><h1>Minha conta</h1><p>Gerencie suas informações e seu acesso ao portal.</p></header>{profile ? <AccountDetails initialProfile={profile} /> : error ? <section className="account-card"><p role="alert">{error}</p><button type="button" className="account-button" onClick={() => { setError(null); setAttempt(current => current + 1) }}>Tentar novamente</button></section> : <section className="account-card" role="status">Carregando sua conta...</section>}</div></main><Footer /></>
 }

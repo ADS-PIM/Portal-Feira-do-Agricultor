@@ -190,7 +190,7 @@ export class AdminDAO {
             const actor = admins.find(admin => admin.id === actorId);
             const target = admins.find(admin => admin.id === id);
             const isSelf = actorId === id;
-            if (!actor?.active || (!isSelf && actor.role !== 'SUPER_ADMIN')) {
+            if (!actor?.active || actor.role !== 'SUPER_ADMIN') {
                 await db.rollback();
                 return 'forbidden';
             }
