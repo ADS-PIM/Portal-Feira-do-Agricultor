@@ -1,5 +1,5 @@
 import { apiFetch } from './api'
-import { clearAccessToken } from './authToken'
+import { clearAccessToken, getAdminProfile, setAdminProfile } from './authToken'
 import { ApiRequestError } from './errors'
 
 export async function logoutAdmin(): Promise<void> {
@@ -48,13 +48,27 @@ export async function createAdmin(payload: AdminCreateInput): Promise<{ message:
 }
 
 export async function updateAdmin(id: string, payload: Partial<AdminRecord>): Promise<{ message: string }> {
-    return apiFetch<{ message: string }>(`admin/${encodeURIComponent(id)}`, {
+    const result = await apiFetch<{ message: string }>(`admin/${encodeURIComponent(id)}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
     })
+    const profile = getAdminProfile()
+    if (profile?.id === id) {
+        // Apply self-updates immediately, even if refreshing the administrator list fails.
+        // Only public profile fields belong in the shared authentication state.
+        setAdminProfile({
+            ...profile,
+            name: payload.name ?? profile.name,
+            email: payload.email ?? profile.email,
+            role: payload.role ?? profile.role,
+            active: payload.active ?? profile.active,
+            profile_picture: payload.profile_picture !== undefined ? payload.profile_picture : profile.profile_picture,
+        })
+    }
+    return result
 }
 
 export async function deleteAdmin(id: string): Promise<{ message: string }> {

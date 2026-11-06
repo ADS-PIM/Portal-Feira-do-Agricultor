@@ -10,6 +10,8 @@ export interface AdminProfile {
 }
 
 let adminProfile: AdminProfile | null = null
+export type AdminAccessIssue = 'disabled' | 'revoked'
+let adminAccessIssue: AdminAccessIssue | null = null
 export const AUTH_STATE_CHANGE_EVENT = 'auth-state-change'
 
 const notifyAuthStateChange = () => {
@@ -20,6 +22,7 @@ const notifyAuthStateChange = () => {
 
 export const authToken = {
     setAccessToken: (token: string) => {
+        if (adminAccessIssue) return
         accessToken = token
         notifyAuthStateChange()
     },
@@ -36,6 +39,7 @@ export const authToken = {
     },
 
     setAdminId: (id: string) => {
+        if (adminAccessIssue) return
         adminId = id
     },
 
@@ -44,6 +48,7 @@ export const authToken = {
     },
 
     setAdminProfile: (profile: AdminProfile) => {
+        if (adminAccessIssue) return
         adminId = profile.id
         adminProfile = profile
         notifyAuthStateChange()
@@ -51,6 +56,22 @@ export const authToken = {
 
     getAdminProfile: () => {
         return adminProfile
+    },
+
+    getAdminAccessIssue: () => adminAccessIssue,
+
+    invalidateAdminAccess: (reason: AdminAccessIssue) => {
+        // Keep the reason until acknowledged, including when older requests finish later.
+        if (adminAccessIssue !== 'revoked') adminAccessIssue = reason
+        accessToken = null
+        adminId = null
+        adminProfile = null
+        notifyAuthStateChange()
+    },
+
+    dismissAdminAccessIssue: () => {
+        adminAccessIssue = null
+        notifyAuthStateChange()
     },
 
     isAuthenticated: () => Boolean(authToken.getAccessToken()),
@@ -64,5 +85,8 @@ export const {
     getAdminId,
     setAdminProfile,
     getAdminProfile,
+    getAdminAccessIssue,
+    invalidateAdminAccess,
+    dismissAdminAccessIssue,
     isAuthenticated,
 } = authToken

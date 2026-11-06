@@ -2,6 +2,8 @@ import {
     clearAccessToken,
     getAccessToken,
     getAdminId,
+    getAdminAccessIssue,
+    invalidateAdminAccess,
     setAccessToken,
     setAdminId,
     setAdminProfile,
@@ -11,6 +13,14 @@ import { ApiRequestError } from './errors'
 import { makeApiUrl } from './apiUrl'
 
 const isSessionEndpoint = (endpoint: string) => /^admin\/(?:login|refresh|logout|forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)
+
+function checkAdminAccess(response: Response, endpoint: string, code?: string): void {
+    if (response.status !== 403) return
+    if (code === 'ADMIN_ACCESS_REVOKED' || code === 'ADMIN_DISABLED') {
+        invalidateAdminAccess(code === 'ADMIN_ACCESS_REVOKED' ? 'revoked' : 'disabled')
+        throw new ApiRequestError(response.status, endpoint, code)
+    }
+}
 
 async function readErrorCode(response: Response): Promise<string | undefined> {
     const payload: unknown = await response.json().catch(() => null)
@@ -24,14 +34,14 @@ async function refreshAccessToken(): Promise<string | null> {
         credentials: 'include',
     })
 
+    const code = response.ok ? undefined : await readErrorCode(response)
+    checkAdminAccess(response, 'admin/refresh', code)
     if (response.status === 401) {
         clearAccessToken()
         return null
     }
 
     if (!response.ok) {
-        const code = await readErrorCode(response)
-        if (response.status === 403 && code === 'ADMIN_DISABLED') clearAccessToken()
         throw new ApiRequestError(response.status, 'admin/refresh', code)
     }
 
@@ -71,6 +81,8 @@ function getRefreshedAccessToken(): Promise<string | null> {
 }
 
 export async function restoreSession(): Promise<boolean> {
+    const issue = getAdminAccessIssue()
+    if (issue) throw new ApiRequestError(403, 'admin/refresh', issue === 'revoked' ? 'ADMIN_ACCESS_REVOKED' : 'ADMIN_DISABLED')
     if (getAccessToken()) return true
     return Boolean(await getRefreshedAccessToken())
 }
@@ -85,8 +97,11 @@ export async function restoreAdminProfile(): Promise<AdminProfile | null> {
     }
 
     const profile = await apiFetch<AdminProfile>(`admin/${encodeURIComponent(adminId)}`)
+    const issue = getAdminAccessIssue()
+    if (issue) throw new ApiRequestError(403, `admin/${encodeURIComponent(adminId)}`, issue === 'revoked' ? 'ADMIN_ACCESS_REVOKED' : 'ADMIN_DISABLED')
+    if (!getAccessToken() || getAdminId() !== adminId) return null
     if (!profile.active) {
-        clearAccessToken()
+        invalidateAdminAccess('disabled')
         // Expire the refresh cookie so returning to login cannot restore this account again.
         await apiFetch('admin/logout', { method: 'POST' }).catch(() => {})
         throw new ApiRequestError(403, `admin/${encodeURIComponent(adminId)}`, 'ADMIN_DISABLED')
@@ -108,22 +123,21 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
         credentials: 'include',
     }
     let response = await fetch(makeApiUrl(path), requestOptions)
+    let code = response.ok ? undefined : await readErrorCode(response)
+    checkAdminAccess(response, path, code)
 
     if (response.status === 401 && token && !sessionEndpoint) {
         const refreshedToken = await getRefreshedAccessToken()
         if (refreshedToken) {
             headers.set('Authorization', `Bearer ${refreshedToken}`)
             response = await fetch(makeApiUrl(path), requestOptions)
+            code = response.ok ? undefined : await readErrorCode(response)
+            checkAdminAccess(response, path, code)
             if (response.status === 401) clearAccessToken()
         }
     }
 
     if (!response.ok) {
-        let code: string | undefined
-        const hasValidationCode = response.status === 400 && /^(?:business-info|message\/create|admin\/(?:forgot-password|reset-password))(?:\/|$|\?)/.test(path)
-        const isAdminResource = !sessionEndpoint && /^admin\/[^/?]+\/?(?:\?|$)/.test(path)
-        if (hasValidationCode || isAdminResource || sessionEndpoint) code = await readErrorCode(response)
-        if (response.status === 403 && code === 'ADMIN_DISABLED') clearAccessToken()
         throw new ApiRequestError(response.status, path, code)
     }
 

@@ -13,6 +13,7 @@ import AdminEvents from './AdminEvents'
 import AdminAdministrators from './AdminAdministrators'
 import './AdminArea.css'
 import './AdminEventPageLayout.css'
+import { getAdminHref } from '../../services/adminNavigation'
 
 const AdminAccessSkeleton = () => (
     <main className="admin-area admin-area-checking" aria-label="Verificação de acesso administrativo" aria-busy="true">
@@ -136,10 +137,9 @@ const AdminAccessSkeleton = () => (
     </main>
 )
 
-const AdminArea = () => {
+const AdminArea = ({ activeSection = 'dashboard' }: { activeSection?: AdminSection }) => {
     const [status, setStatus] = useState<'checking' | 'authorized' | 'disabled' | 'error'>('checking')
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
-    const [activeSection, setActiveSection] = useState<AdminSection>('dashboard')
     const [createEventRequest, setCreateEventRequest] = useState<{ date: string | null } | null>(null)
     const [eventActionRequest, setEventActionRequest] = useState<{
         eventId: string
@@ -147,7 +147,7 @@ const AdminArea = () => {
     } | null>(null)
 
     const selectSection = (section: AdminSection) => {
-        setActiveSection(section)
+        window.location.hash = getAdminHref(section)
         if (section !== 'eventos') {
             setCreateEventRequest(null)
             setEventActionRequest(null)
@@ -157,13 +157,13 @@ const AdminArea = () => {
     const createEventAtDate = (date: string | null = null) => {
         setCreateEventRequest({ date })
         setEventActionRequest(null)
-        setActiveSection('eventos')
+        window.location.hash = getAdminHref('eventos')
     }
 
     const handleDashboardEventAction = (eventId: string, action: 'edit' | 'delete') => {
         setEventActionRequest({ eventId, action })
         setCreateEventRequest(null)
-        setActiveSection('eventos')
+        window.location.hash = getAdminHref('eventos')
     }
 
     useEffect(() => {

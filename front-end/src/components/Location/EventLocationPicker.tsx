@@ -95,7 +95,7 @@ function LocationDialog({ value, onClose, onConfirm }: { value: LocationValue; o
                 <button type="button" className="location-button" aria-pressed={mode === 'history'} onClick={() => setMode('history')}><Icon name="clock" />Histórico</button>
             </div>
             <LocationResults key={mode} mode={mode} onSelect={location => { setPoint(location); setAddress(location.address); setError('') }} />
-            <p className="location-help" id="event-location-map-help">Clique no mapa ou arraste o marcador para ajustar o ponto. Pelo teclado, use as setas para mover o mapa e Enter para marcar o centro.</p>
+            <p className="location-help" id="event-location-map-help">Use a roda do mouse para aproximar ou afastar o mapa. Clique no mapa ou arraste o marcador para ajustar o ponto. Pelo teclado, use as setas para mover o mapa e Enter para marcar o centro.</p>
             <Suspense fallback={<div className="location-map-loading" role="status">Carregando mapa...</div>}>
                 <LocationMap coordinates={point} editable label="Selecionar local do evento no mapa" onSelect={coordinates => { setPoint(coordinates); setError('') }} />
             </Suspense>

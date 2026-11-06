@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AdminRole } from './src/model/admin';
 import { anonymousRateLimit } from './src/rateLimit/middleware';
 import { AdminDAO } from './src/dao/admin.dao';
+import { refreshCookieOptions } from './src/util/adminSessionCookie';
 
 
 export interface AuthRequest extends Request {
@@ -72,7 +73,8 @@ export async function authToken(req: AuthRequest, res: Response, next: NextFunct
         // until its already-issued access token expires.
         const currentAdmin = await new AdminDAO().searchById(admin.adminId);
         if (!currentAdmin) {
-            rejectAuthentication('Administrator account no longer exists');
+            res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+            res.status(403).json({ code: 'ADMIN_ACCESS_REVOKED', error: 'Administrative access has been removed' });
             return;
         }
         if (!currentAdmin.active) {

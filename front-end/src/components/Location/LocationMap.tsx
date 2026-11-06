@@ -4,6 +4,8 @@ import type { Coordinates } from '../../utils/eventLocation'
 import 'leaflet/dist/leaflet.css'
 import './LocationMap.css'
 
+const defaultCenter: L.LatLngTuple = [-5.24, -38.13] // Tabuleiro do Norte, CE
+
 const pin = L.divIcon({
     className: 'location-map-pin',
     html: '<span></span>',
@@ -29,7 +31,7 @@ export default function LocationMap({ coordinates, onSelect, label, editable = f
     useEffect(() => {
         if (!container.current) return
         const element = container.current
-        const instance = L.map(element, { scrollWheelZoom: false }).setView([-14.24, -51.92], 4)
+        const instance = L.map(element, { scrollWheelZoom: editable }).setView(defaultCenter, 13)
         map.current = instance
         L.control.zoom({ position: 'topright', zoomInTitle: 'Aproximar', zoomOutTitle: 'Afastar' }).addTo(instance)
         instance.zoomControl.remove()

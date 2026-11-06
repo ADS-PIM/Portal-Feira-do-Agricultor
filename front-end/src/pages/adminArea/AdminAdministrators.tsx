@@ -75,12 +75,6 @@ const AdminAdministrators = () => {
     const [currentProfile, setCurrentProfile] = useState(getAdminProfile)
     const canManageAdmins = currentProfile?.role === 'SUPER_ADMIN' && Boolean(currentProfile.active)
 
-    useEffect(() => {
-        const syncProfile = () => setCurrentProfile(getAdminProfile())
-        window.addEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
-        return () => window.removeEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
-    }, [])
-
     const [admins, setAdmins] = useState<AdminRecord[]>([])
     const [form, setForm] = useState<AdminFormState>(emptyForm)
     const [emailError, setEmailError] = useState<string | null>(null)
@@ -100,6 +94,21 @@ const AdminAdministrators = () => {
     const [isDeleting, setIsDeleting] = useState(false)
     const [deleteError, setDeleteError] = useState<string | null>(null)
     const deleteDialogRef = useRef<HTMLElement>(null)
+
+    useEffect(() => {
+        const syncProfile = () => {
+            const profile = getAdminProfile()
+            setCurrentProfile(profile)
+            if (profile?.role !== 'SUPER_ADMIN' || !profile.active) {
+                setForm(emptyForm)
+                setEditingAdminId(null)
+                setAdminPendingDeletion(null)
+                setDeleteError(null)
+            }
+        }
+        window.addEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
+        return () => window.removeEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
+    }, [])
 
     useEffect(() => {
         if (!adminPendingDeletion) return
@@ -521,7 +530,7 @@ const AdminAdministrators = () => {
                     </aside>}
                 </div>
             </div>
-            {adminPendingDeletion && createPortal(
+            {canManageAdmins && adminPendingDeletion && createPortal(
                 <div
                     className="admin-event-modal-backdrop"
                     role="presentation"

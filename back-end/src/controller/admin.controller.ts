@@ -9,16 +9,7 @@ import { RefreshTokenDAO } from '../dao/refreshToken.dao';
 import jwt from 'jsonwebtoken';
 import { AdminRole } from '../model/admin';
 import { AuthRequest } from '../../authMiddleware';
-
-const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
-
-const refreshCookieOptions = {
-    httpOnly: true,
-    sameSite: isProduction ? 'none' as const : 'lax' as const,
-    secure: isProduction,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    path: '/admin'
-};
+import { refreshCookieOptions } from '../util/adminSessionCookie';
 
 export class AdminController {
     private adminService: AdminService;
@@ -97,10 +88,7 @@ export class AdminController {
             }
 
             const refreshTokenDAO = new RefreshTokenDAO();
-            const storedToken = await refreshTokenDAO.findByToken(refreshToken);
-            if (!storedToken) return res.status(401).json({ message: 'Invalid refresh token' });
-
-            let payload: any;
+            let payload: string | jwt.JwtPayload;
             try {
                 payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
             } catch (error) {
@@ -108,21 +96,35 @@ export class AdminController {
                 return res.status(401).json({ message: 'Invalid or expired refresh token' });
             }
 
-            const adminId = payload.adminId;
-            if (typeof adminId !== 'string' || !adminId || !payload.jti || payload.jti !== storedToken.id) {
-                return res.status(401).json({ message: 'Invalid refresh token' })
-            }
-
-            const admin = await this.adminService.searchById(adminId);
-            if (!admin) {
-                await refreshTokenDAO.deleteByToken(refreshToken);
-                res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+            if (typeof payload === 'string' || typeof payload.adminId !== 'string' || !payload.adminId
+                || typeof payload.jti !== 'string' || !payload.jti) {
                 return res.status(401).json({ message: 'Invalid refresh token' });
             }
-            if (!admin.active) {
-                await refreshTokenDAO.deleteByUserId(adminId);
-                res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
-                return res.status(403).json({ code: 'ADMIN_DISABLED', error: 'Administrator account is disabled' });
+            const adminId = payload.adminId;
+
+            // Account deletion also removes stored refresh tokens. A verified JWT can still
+            // identify that loss of access, but can never recreate a revoked session.
+            const findAvailableAdmin = async () => {
+                const admin = await this.adminService.searchById(adminId);
+                if (!admin) {
+                    res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+                    res.status(403).json({ code: 'ADMIN_ACCESS_REVOKED', error: 'Administrative access has been removed' });
+                    return null;
+                }
+                if (!admin.active) {
+                    await refreshTokenDAO.deleteByUserId(adminId);
+                    res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+                    res.status(403).json({ code: 'ADMIN_DISABLED', error: 'Administrator account is disabled' });
+                    return null;
+                }
+                return admin;
+            };
+            const admin = await findAvailableAdmin();
+            if (!admin) return;
+            const storedToken = await refreshTokenDAO.findByToken(refreshToken);
+            if (!storedToken || payload.jti !== storedToken.id) {
+                if (!await findAvailableAdmin()) return;
+                return res.status(401).json({ message: 'Invalid refresh token' });
             }
 
             if (!process.env.JWT_ACCESS_SECRET) throw new Error('JWT access secret is not configured');
@@ -132,6 +134,7 @@ export class AdminController {
             const newRefreshToken = jwt.sign({ adminId, role: admin.role }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d', jwtid: newRefreshTokenId });
             const newRefreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
             if (!await refreshTokenDAO.rotate(refreshToken, newRefreshTokenId, newRefreshToken, adminId, newRefreshExpiresAt)) {
+                if (!await findAvailableAdmin()) return;
                 return res.status(401).json({ message: 'Invalid or expired refresh token' });
             }
         
@@ -224,8 +227,8 @@ export class AdminController {
             if (typeof targetAdminId !== 'string') {
                 return res.status(400).json({ error: 'Invalid admin id' });
             }
-            if (targetAdminId !== actorId && req.admin?.role !== AdminRole.SUPER_ADMIN) {
-                return res.status(403).json({ code: 'ADMIN_DELETE_FORBIDDEN', error: 'You cannot delete another administrator' });
+            if (req.admin?.role !== AdminRole.SUPER_ADMIN) {
+                return res.status(403).json({ code: 'ADMIN_DELETE_FORBIDDEN', error: 'Only SUPER_ADMIN can delete administrator accounts' });
             }
             await this.adminService.delete(targetAdminId, actorId, req.body?.password);
             if (targetAdminId === actorId) {

@@ -29,12 +29,14 @@ function getApiErrorMessage(status: number, endpoint: string, code?: string): st
         if (code === 'BUSINESS_EMAIL_INVALID') return BUSINESS_EMAIL_ERROR
     }
     if (status === 403 && code === 'ADMIN_DISABLED') return 'O acesso desta conta administrativa foi desativado.'
+    if (status === 403 && code === 'ADMIN_ACCESS_REVOKED') return 'Você não tem mais permissões administrativas. Seu acesso ao portal foi removido.'
     if (/^event\/image\/upload(?:\/|$|\?)/.test(endpoint)) {
         if (status === 413) return EVENT_IMAGE_TOO_LARGE
         if (status === 400) return `Não foi possível validar a foto. Selecione novamente uma imagem JPG ou PNG de até ${EVENT_IMAGE_MAX_MB} MB.`
     }
     if (/^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)) {
         if (status === 404 && code === 'ADMIN_NOT_FOUND') return 'Administrador não encontrado. Atualize a lista e tente novamente.'
+        if (status === 403 && code === 'ADMIN_DELETE_FORBIDDEN') return 'Apenas um Super Admin pode excluir contas de administradores.'
         if (status === 403 && code === 'SUPER_ADMIN_DELETE_FORBIDDEN') return 'Você não pode excluir outro Super Admin. Cada Super Admin deve excluir a própria conta.'
         if (status === 403 && code === 'SUPER_ADMIN_UPDATE_FORBIDDEN') return 'Você só pode reativar outro Super Admin. As demais alterações devem ser feitas pelo próprio usuário.'
         if (status === 409 && code === 'LAST_SUPER_ADMIN') return 'Você é o único Super Admin ativo. Promova um administrador ativo ou reative outro Super Admin antes de excluir, desativar ou rebaixar sua conta.'

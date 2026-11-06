@@ -1,5 +1,5 @@
 import './App.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import MainPage from './pages/mainPage/MainPage'
 import LoginPage from './pages/loginPage/LoginPage'
 import PasswordRecoveryPage from './pages/loginPage/PasswordRecoveryPage'
@@ -11,9 +11,22 @@ import AccountPage from './pages/accountPage/AccountPage'
 import PricingCalculatorPage from './pages/pricingCalculatorPage/PricingCalculatorPage'
 import ProducersPage from './pages/producersPage/ProducersPage'
 import ProducerProfilePage from './pages/producersPage/ProducerProfilePage'
+import type { AdminSection } from './components/AdminSideNav/AdminSideNav'
+import { getAdminSection } from './services/adminNavigation'
+import { getAccountReturnTarget, type AccountReturnTarget } from './services/profileNavigation'
+import { AUTH_STATE_CHANGE_EVENT, dismissAdminAccessIssue, getAdminAccessIssue } from './services/authToken'
+import AdminDisabledPage from './pages/loginPage/AdminDisabledPage'
+import { useAdminSessionMonitor } from './hooks/useAdminSessionMonitor'
+
+const subscribeAuthState = (onChange: () => void) => {
+  window.addEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
+  return () => window.removeEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
+}
 
 type AppRoute =
-  | { page: 'home' | 'login' | 'admin' | 'contact' | 'calendar' | 'account' | 'calculator' | 'producers' }
+  | { page: 'home' | 'login' | 'contact' | 'calendar' | 'calculator' | 'producers' }
+  | { page: 'admin'; section: AdminSection }
+  | { page: 'account'; returnTarget: AccountReturnTarget }
   | { page: 'producer'; producerSlug: string }
   | { page: 'event'; eventId: string }
   | { page: 'forgot-password' }
@@ -43,8 +56,11 @@ function getCurrentRoute(): AppRoute {
     const query = new URLSearchParams(hash.split('?')[1] || '')
     return { page: 'reset-password', token: query.get('token') || '' }
   }
-  if (hash === '#/minha-conta') return { page: 'account' }
-  if (hash === '#/admin') return { page: 'admin' }
+  if (hash.split('?')[0] === '#/minha-conta') {
+    const query = new URLSearchParams(hash.slice(hash.indexOf('?') + 1))
+    return { page: 'account', returnTarget: getAccountReturnTarget(query.get('origem')) }
+  }
+  if (hash.split('?')[0] === '#/admin') return { page: 'admin', section: getAdminSection(hash) }
   if (hash === '#/produtores') return { page: 'producers' }
   if (hash === '#contato' || hash === '#/contato') return { page: 'contact' }
   if (hash === '#/calendario') return { page: 'calendar' }
@@ -73,6 +89,10 @@ function getCurrentRoute(): AppRoute {
 
 function App() {
   const [route, setRoute] = useState<AppRoute>(getCurrentRoute)
+  const accessIssue = useSyncExternalStore(subscribeAuthState, getAdminAccessIssue)
+  const protectedPage = route.page === 'admin' || route.page === 'account'
+  const showAccessNotice = Boolean(accessIssue) && (protectedPage || route.page === 'login')
+  useAdminSessionMonitor(protectedPage && !accessIssue)
 
   useEffect(() => {
     const syncRoute = () => setRoute(getCurrentRoute())
@@ -90,21 +110,27 @@ function App() {
   }, [route])
 
   useEffect(() => {
-    document.title = `${pageTitles[route.page]} | Brotando Feiras`
-  }, [route.page])
+    document.title = `${showAccessNotice ? 'Acesso administrativo indisponível' : pageTitles[route.page]} | Brotando Feiras`
+  }, [route.page, showAccessNotice])
+
+  if (showAccessNotice && accessIssue) return <AdminDisabledPage reason={accessIssue} onReturnToLogin={() => {
+    window.location.hash = '#/admin/login'
+    setRoute({ page: 'login' })
+    dismissAdminAccessIssue()
+  }} />
 
   if (route.page === 'login') {
     return <LoginPage onLoginSuccess={() => { window.location.hash = '#/admin' }} />
   }
 
   if (route.page === 'admin') {
-    return <AdminArea />
+    return <AdminArea activeSection={route.section} />
   }
 
   if (route.page === 'forgot-password') return <PasswordRecoveryPage key="request" mode="request" />
   if (route.page === 'reset-password') return <PasswordRecoveryPage key={route.token} mode="reset" token={route.token} />
 
-  if (route.page === 'account') return <AccountPage />
+  if (route.page === 'account') return <AccountPage returnTarget={route.returnTarget} />
   if (route.page === 'calculator') return <PricingCalculatorPage />
   if (route.page === 'producers') return <ProducersPage />
   if (route.page === 'producer') return <ProducerProfilePage producerSlug={route.producerSlug} />
