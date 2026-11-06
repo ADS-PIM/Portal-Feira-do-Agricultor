@@ -31,7 +31,7 @@ export default function LocationMap({ coordinates, onSelect, label, editable = f
     useEffect(() => {
         if (!container.current) return
         const element = container.current
-        const instance = L.map(element, { scrollWheelZoom: editable }).setView(defaultCenter, 13)
+        const instance = L.map(element, { scrollWheelZoom: true }).setView(defaultCenter, 13)
         map.current = instance
         L.control.zoom({ position: 'topright', zoomInTitle: 'Aproximar', zoomOutTitle: 'Afastar' }).addTo(instance)
         instance.zoomControl.remove()
