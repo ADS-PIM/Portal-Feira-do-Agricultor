@@ -4,6 +4,7 @@
     --calculator-muted: var(--text-muted);
     --calculator-border: var(--border-default);
     --calculator-soft: var(--brand-green-soft);
+    --calculator-field-gap: 36px;
     background: var(--surface-page);
     color: var(--calculator-text);
     line-height: 1.5;
@@ -47,7 +48,7 @@
 .markup-field-group { min-width: 0; margin: 0; padding: 0; border: 0; }
 .markup-field-group legend { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 14px; padding: 0; color: var(--calculator-green); font-size: 16px; font-weight: 700; }
 .markup-field-group legend svg { flex-shrink: 0; font-size: 18px; }
-.markup-field + .markup-field { margin-top: 16px; }
+.markup-field + .markup-field { margin-top: var(--calculator-field-gap); }
 .markup-field-group[hidden] { display: none; }
 .markup-percentage-field .markup-field-heading { display: flex; flex-wrap: wrap; }
 .markup-percentage-field .markup-field-label { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-width: 0; }
@@ -62,11 +63,11 @@
 .markup-page .markup-field .markup-unit-select { width: auto; max-width: 100%; }
 .markup-page .markup-field select:focus { outline: none; border-color: var(--calculator-green); box-shadow: 0 0 0 3px rgb(7 131 46 / 13%); }
 .markup-page .markup-field select[aria-invalid="true"] { border-color: #a73324; }
-.markup-time-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
+.markup-time-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--calculator-field-gap) 16px; margin: var(--calculator-field-gap) 0; }
 .markup-time-fields > .markup-field { min-width: 0; }
 .markup-time-fields > .markup-field + .markup-field { margin-top: 0; }
 .markup-time-fields .markup-field-heading { min-height: 36px; }
-.markup-measurement-fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; min-width: 0; }
+.markup-measurement-fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--calculator-field-gap) 16px; min-width: 0; }
 .advanced-field-grid > .markup-measurement-fields { grid-column: 1 / -1; }
 .markup-measurement-fields > .markup-field + .markup-field { margin-top: 0; }
 @media (min-width: 601px) {

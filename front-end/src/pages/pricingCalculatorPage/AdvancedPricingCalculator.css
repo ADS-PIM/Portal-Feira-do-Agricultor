@@ -1,6 +1,6 @@
 .advanced-calculator .markup-field { min-width: 0; }
 .advanced-calculator .markup-field-heading { min-height: 36px; }
-.advanced-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.advanced-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--calculator-field-gap) 16px; }
 .advanced-field-grid .markup-field + .markup-field { margin-top: 0; }
 .advanced-section-hint { margin: 0 0 16px; }
 .advanced-rows { display: grid; gap: 18px; }
@@ -8,7 +8,7 @@
 .advanced-rows .advanced-item { margin-bottom: 0; }
 .advanced-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .advanced-item-heading h3 { color: var(--calculator-green); font-size: 15px; }
-.advanced-item > .advanced-field-grid { margin-top: 16px; }
+.advanced-item > .advanced-field-grid { margin-top: var(--calculator-field-gap); }
 .advanced-item-summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--calculator-border); color: var(--calculator-muted); font-size: 14px; }
 .advanced-item-summary strong { color: var(--calculator-green); overflow-wrap: anywhere; }
 .markup-page .advanced-remove { display: grid; flex-shrink: 0; place-items: center; width: 38px; height: 38px; padding: 0; border: 1px solid var(--calculator-border); border-radius: 9px; background: #fff; color: var(--calculator-green); font-size: 15px; }
@@ -16,7 +16,7 @@
 .advanced-remove:disabled { opacity: 0.4; cursor: default; }
 .markup-page .advanced-add { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; max-width: 100%; margin-top: 14px; padding: 10px 14px; border: 1px solid var(--calculator-border); border-radius: 9px; background: #fff; color: var(--calculator-green); font-size: 13px; }
 .advanced-add:hover { background: var(--calculator-soft); }
-.advanced-expense-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) 38px; align-items: start; gap: 12px; margin-bottom: 18px; }
+.advanced-expense-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) 38px; align-items: start; gap: var(--calculator-field-gap) 12px; margin-bottom: var(--calculator-field-gap); }
 .advanced-expense-row .markup-field + .markup-field { margin-top: 0; }
 .advanced-expense-row > .advanced-remove { margin-top: 43px; }
 .advanced-variable-expenses { margin: 22px 0; padding-top: 18px; border-top: 1px solid var(--calculator-border); }
@@ -26,7 +26,7 @@
 .advanced-variable-item { min-width: 0; padding: 16px; border: 1px solid var(--calculator-border); border-radius: 12px; background: var(--surface-page); }
 .advanced-variable-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .advanced-variable-item-heading h4 { color: var(--calculator-green); font-size: 14px; }
-.advanced-variable-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); align-items: start; gap: 14px; }
+.advanced-variable-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); align-items: start; gap: var(--calculator-field-gap) 14px; }
 .advanced-variable-fields > .markup-field + .markup-field { margin-top: 0; }
 .advanced-variable-fields > .markup-field > .markup-field-heading { display: flex; align-items: center; min-height: 36px; }
 .advanced-variable-fields .markup-percentage-field { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; }
