@@ -397,7 +397,8 @@
     box-sizing: border-box;
 }
 
-.admin-managers-form label {
+.admin-managers-form label,
+.admin-managers-form-field {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -427,6 +428,63 @@
     border-color: var(--brand-green-dark);
     box-shadow: 0 0 0 3px rgba(10, 145, 52, 0.12);
     outline: none;
+}
+
+.admin-managers-password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.admin-managers-form .admin-managers-password-wrapper input {
+    padding-right: 44px;
+}
+
+.admin-managers-password-wrapper input::-ms-reveal {
+    display: none;
+}
+
+.admin-managers-toggle-visibility {
+    position: absolute;
+    right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.admin-managers-toggle-visibility:focus-visible {
+    outline: 2px solid var(--brand-green-dark);
+    outline-offset: 1px;
+}
+
+.admin-managers-toggle-visibility svg {
+    width: 20px;
+    height: 20px;
+}
+
+.admin-managers-form input[aria-invalid="true"] {
+    border-color: #b42318;
+}
+
+.admin-managers-form input[aria-invalid="true"]:focus {
+    box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.12);
+}
+
+.admin-managers-field-error {
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
 }
 
 .admin-managers-submit-button {
@@ -610,7 +668,8 @@
         gap: 12px;
     }
 
-    .admin-managers-form label {
+    .admin-managers-form label,
+    .admin-managers-form-field {
         min-width: 0;
         gap: 6px;
     }
@@ -677,7 +736,8 @@
         gap: 10px;
     }
 
-    .admin-managers-form label {
+    .admin-managers-form label,
+    .admin-managers-form-field {
         gap: 4px;
     }
 

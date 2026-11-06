@@ -10,6 +10,7 @@ type AdminFormState = {
     name: string
     email: string
     password: string
+    confirmPassword: string
     role: 'ADMIN' | 'SUPER_ADMIN'
 }
 
@@ -17,7 +18,14 @@ const emptyForm: AdminFormState = {
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
     role: 'ADMIN',
+}
+
+const getEmailError = (input: HTMLInputElement) => {
+    if (input.validity.valueMissing) return 'Informe o e-mail do administrador.'
+    if (!input.validity.valid) return 'Informe um e-mail válido, como nome@exemplo.com.'
+    return null
 }
 
 const formatDate = (value?: string | null) => {
@@ -75,6 +83,14 @@ const AdminAdministrators = () => {
 
     const [admins, setAdmins] = useState<AdminRecord[]>([])
     const [form, setForm] = useState<AdminFormState>(emptyForm)
+    const [emailError, setEmailError] = useState<string | null>(null)
+    const [confirmationTouched, setConfirmationTouched] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmation, setShowConfirmation] = useState(false)
+    const confirmationRef = useRef<HTMLInputElement>(null)
+    const confirmationError = confirmationTouched && form.password !== form.confirmPassword
+        ? 'As senhas não coincidem. Repita a mesma senha.'
+        : null
     const [isLoading, setIsLoading] = useState(true)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [editingAdminId, setEditingAdminId] = useState<string | null>(null)
@@ -129,9 +145,19 @@ const AdminAdministrators = () => {
     const activeAdmins = admins.filter(admin => admin.active).length
     const latestAdmin = [...admins].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())[0]
 
+    const resetPasswordFeedback = () => {
+        setConfirmationTouched(false)
+        setShowPassword(false)
+        setShowConfirmation(false)
+    }
+
     const handleFieldChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = event.target
         setForm(current => ({ ...current, [name]: value }))
+        if (name === 'confirmPassword') setConfirmationTouched(true)
+        if (name === 'email' && emailError && event.target instanceof HTMLInputElement) {
+            setEmailError(getEmailError(event.target))
+        }
         if (error) setError(null)
         if (success) setSuccess(null)
     }
@@ -142,6 +168,13 @@ const AdminAdministrators = () => {
 
         if (!form.name.trim() || !form.email.trim()) {
             setError('Preencha nome e e-mail para continuar.')
+            return
+        }
+
+        if (form.password !== form.confirmPassword) {
+            setConfirmationTouched(true)
+            setSuccess(null)
+            confirmationRef.current?.focus()
             return
         }
 
@@ -179,6 +212,8 @@ const AdminAdministrators = () => {
             }
 
             setForm(emptyForm)
+            resetPasswordFeedback()
+            setEmailError(null)
             setEditingAdminId(null)
             await loadAdmins()
         } catch (submissionError) {
@@ -329,10 +364,13 @@ const AdminAdministrators = () => {
                                                 disabled={admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId()}
                                                 onClick={() => {
                                                     setEditingAdminId(admin.id)
+                                                    setEmailError(null)
+                                                    resetPasswordFeedback()
                                                     setForm({
                                                         name: admin.name,
                                                         email: admin.email,
                                                         password: '',
+                                                        confirmPassword: '',
                                                         role: admin.role,
                                                     })
                                                     setError(null)
@@ -380,10 +418,20 @@ const AdminAdministrators = () => {
                                 <input
                                     type="email"
                                     name="email"
+                                    required
                                     value={form.email}
                                     onChange={handleFieldChange}
+                                    onBlur={event => setEmailError(getEmailError(event.currentTarget))}
+                                    onInvalid={event => {
+                                        event.preventDefault()
+                                        setEmailError(getEmailError(event.currentTarget))
+                                        event.currentTarget.focus()
+                                    }}
+                                    aria-invalid={Boolean(emailError)}
+                                    aria-describedby={emailError ? 'admin-manager-email-error' : undefined}
                                     placeholder="exemplo@brotandofeiras..."
                                 />
+                                {emailError && <small id="admin-manager-email-error" className="admin-managers-field-error" role="alert">{emailError}</small>}
                             </label>
 
                             <label>
@@ -394,19 +442,63 @@ const AdminAdministrators = () => {
                                 </select>
                             </label>
 
-                            <label>
-                                <span>Senha</span>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={form.password}
-                                    onChange={handleFieldChange}
-                                    placeholder="Digite uma senha"
-                                />
-                            </label>
+                            <div className="admin-managers-form-field">
+                                <label htmlFor="admin-manager-password">Senha</label>
+                                <div className="admin-managers-password-wrapper">
+                                    <input
+                                        id="admin-manager-password"
+                                        type={showPassword ? 'text' : 'password'}
+                                        name="password"
+                                        autoComplete="new-password"
+                                        required={!editingAdminId}
+                                        value={form.password}
+                                        onChange={handleFieldChange}
+                                        placeholder="Digite uma senha"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="admin-managers-toggle-visibility"
+                                        onClick={() => setShowPassword(visible => !visible)}
+                                        aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                                        aria-pressed={showPassword}
+                                        aria-controls="admin-manager-password"
+                                    >
+                                        <Icon name={showPassword ? 'eye' : 'eyeSlash'} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="admin-managers-form-field">
+                                <label htmlFor="admin-manager-confirm-password">Repetir senha</label>
+                                <div className="admin-managers-password-wrapper">
+                                    <input
+                                        ref={confirmationRef}
+                                        id="admin-manager-confirm-password"
+                                        type={showConfirmation ? 'text' : 'password'}
+                                        name="confirmPassword"
+                                        autoComplete="new-password"
+                                        value={form.confirmPassword}
+                                        onChange={handleFieldChange}
+                                        aria-invalid={Boolean(confirmationError)}
+                                        aria-describedby={confirmationError ? 'admin-manager-confirm-password-error' : undefined}
+                                        placeholder="Repita a senha"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="admin-managers-toggle-visibility"
+                                        onClick={() => setShowConfirmation(visible => !visible)}
+                                        aria-label={showConfirmation ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'}
+                                        aria-pressed={showConfirmation}
+                                        aria-controls="admin-manager-confirm-password"
+                                    >
+                                        <Icon name={showConfirmation ? 'eye' : 'eyeSlash'} />
+                                    </button>
+                                </div>
+                                {confirmationError && <small id="admin-manager-confirm-password-error" className="admin-managers-field-error" role="alert">{confirmationError}</small>}
+                            </div>
 
                             <button type="submit" className="admin-managers-submit-button" disabled={isSubmitting}>
-                                {isSubmitting ? 'Salvando...' : editingAdminId ? 'Salvar Alterações' : 'Salvar e Enviar Convite'}
+                                {isSubmitting ? (editingAdminId ? 'Salvando...' : 'Cadastrando...') : editingAdminId ? 'Salvar Alterações' : 'Cadastrar'}
                             </button>
 
                             {editingAdminId && (
@@ -416,6 +508,8 @@ const AdminAdministrators = () => {
                                     onClick={() => {
                                         setEditingAdminId(null)
                                         setForm(emptyForm)
+                                        resetPasswordFeedback()
+                                        setEmailError(null)
                                         setError(null)
                                         setSuccess(null)
                                     }}
