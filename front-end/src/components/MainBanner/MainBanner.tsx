@@ -1,4 +1,4 @@
-import feiraImage from '../../assets/Placeholder-Feira-de-Agricultura.jpg'
+import feiraImage from '../../assets/main_banner_protal.jpg'
 import { defaultBusinessDescription } from '../../utils/businessDescription'
 import './MainBanner.css'
 
