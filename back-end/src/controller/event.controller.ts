@@ -5,6 +5,7 @@ import { EventCreateDTO, EventUpdateDTO } from '../dto/event.dto';
 import { EventService } from '../service/event.service';
 import { AuthRequest } from '../../authMiddleware'
 import { validCoordinatePair } from '../util/eventCoordinates';
+import { ActionError } from '../model/actionError';
 
 export class EventController {
     public constructor(private eventService: EventService) {}
@@ -18,12 +19,15 @@ export class EventController {
             eventCreateDTO.adminId = req.admin?.adminId as string// não vai dar errado por causa da rota ser protegida
             const errors = await validate(eventCreateDTO);
             if (errors.length > 0) {
-                return res.status(400).json({ errors });
+                return res.status(400).json({ code: 'EVENT_INVALID_DATA', errors });
             }
 
             const id = await this.eventService.create(eventCreateDTO)
             return res.status(201).json({ id, message: 'Event creating successfully' })
         } catch (error: any) {
+            if (error instanceof ActionError) {
+                return res.status(error.status).json({ code: error.code, error: error.message });
+            }
             return res.status(500).json({  error: error.message })
         }
     }
@@ -37,14 +41,14 @@ export class EventController {
             const eventUpdateDTO = plainToInstance(EventUpdateDTO, req.body)
             const errors = await validate(eventUpdateDTO)
             if (errors.length > 0) {
-                return res.status(400).json({ errors })
+                return res.status(400).json({ code: 'EVENT_INVALID_DATA', errors })
             }
 
             await this.eventService.update(targetEventId, eventUpdateDTO)
             return res.status(201).json({  message: 'Event updated successfully' })
         } catch (error: any) {
-            if (error.message.includes === 'Event not found') {
-                return res.status(404).json({ error: 'Event not found' });
+            if (error instanceof ActionError) {
+                return res.status(error.status).json({ code: error.code, error: error.message });
             }
             return res.status(500).json({ error: error.message });
         }
@@ -56,8 +60,8 @@ export class EventController {
             await this.eventService.delete(targetEventId)
             return res.status(200).json({ message: 'Event deleted successfully' })
         } catch (error: any) {
-            if (error.message.includes === 'Event not found') {
-                return res.status(404).json({ error: 'Event not found' });
+            if (error instanceof ActionError) {
+                return res.status(error.status).json({ code: error.code, error: error.message });
             }
             return res.status(500).json({ error: error.message });
         }
@@ -129,7 +133,7 @@ export class EventController {
             const eventId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const event = await this.eventService.searchById(eventId);
             if (!event) {
-                return res.status(404).json({ error: 'Event not found' })
+                return res.status(404).json({ code: 'EVENT_NOT_FOUND', error: 'Event not found' })
             }
             return res.status(200).json(event);
         } catch (error: any) {

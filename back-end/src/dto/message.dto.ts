@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, IsEmail } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 import { MessageSubject } from "../model/message";
 import { IsContact } from './contact.validator';
 
@@ -10,7 +10,7 @@ export class MessageCreateDTO {
 
     @Transform(({ value }) => typeof value === 'string' ? value.trim() || undefined : value)
     @IsOptional()
-    @IsEmail({}, { message: 'Informe um e-mail válido, como nome@exemplo.com.' })
+    @IsContact('email')
     email?: string;
 
     @Transform(({ value }) => typeof value === 'string' ? value.trim() || undefined : value)

@@ -85,9 +85,7 @@ export function getContactPhoneValidation(value: unknown) {
 export function getContactEmailError(value: string): string {
   const email = value.trim()
   if (!email) return ''
-  return email.length <= 254 && email.split('@')[0].length <= 64 && emailPattern.test(email)
-    ? ''
-    : CONTACT_EMAIL_ERROR
+  return getContactEmailValidation(email)?.message ?? ''
 }
 
 export function getContactPhoneError(value: string): string {

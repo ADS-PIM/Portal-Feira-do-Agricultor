@@ -1,23 +1,20 @@
 import { BusinessInfoDAO, BusinessInfoUpdateData } from "../dao/businessInfo.dao";
 import { BusinessInfoCreateDTO, BusinessInfoUpdateDTO } from "../dto/businessInfo.dto";
 import { BusinessInfo } from "../model/businessInfo";
+import { ActionError } from '../model/actionError';
 
 
 export class BusinessInfoService {
     public constructor(private businessInfoDAO: BusinessInfoDAO) {}
 
     public async register(businessInfoCreateDTO: BusinessInfoCreateDTO): Promise<void> {
-        try {
-            const existing = await this.businessInfoDAO.searchFirst();
-            if (existing) {
-                throw new Error('Business info already exists');
-            }
-
-            const businessInfo = BusinessInfo.construct(businessInfoCreateDTO);
-            await this.businessInfoDAO.register(businessInfo)
-        } catch (error: any) {
-            throw new Error('Error registering business info: ' + error.message)
+        const existing = await this.businessInfoDAO.searchFirst();
+        if (existing) {
+            throw new ActionError(409, 'BUSINESS_INFO_EXISTS', 'Business info already exists');
         }
+
+        const businessInfo = BusinessInfo.construct(businessInfoCreateDTO);
+        await this.businessInfoDAO.register(businessInfo)
     }
 
     public async getInfo(): Promise<BusinessInfo | null> {
@@ -28,7 +25,7 @@ export class BusinessInfoService {
     public async update(businessInfoUpdateDTO: BusinessInfoUpdateDTO): Promise <void> {
         const businessInfo = await this.businessInfoDAO.searchFirst();
         if (!businessInfo) {
-            throw new Error('Business info not found');
+            throw new ActionError(404, 'BUSINESS_INFO_NOT_FOUND', 'Business info not found');
         }
 
         const data: BusinessInfoUpdateData = {...businessInfoUpdateDTO}
@@ -38,7 +35,7 @@ export class BusinessInfoService {
     public async delete(): Promise<void> {
         const businessInfo = await this.businessInfoDAO.searchFirst();
         if (!businessInfo) {
-            throw new Error('Business info not found');
+            throw new ActionError(404, 'BUSINESS_INFO_NOT_FOUND', 'Business info not found');
         }
 
         await this.businessInfoDAO.delete(businessInfo.id);

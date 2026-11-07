@@ -7,6 +7,7 @@ import { BusinessInfoService } from '../service/businessInfo.service';
 import { AuthRequest } from '../../authMiddleware';
 import { getInstagramAccountError } from '../util/instagramAccount';
 import { getContactEmailValidation, getContactPhoneValidation } from '../util/contactValidation';
+import { ActionError } from '../model/actionError';
 
 function businessInfoValidationResponse(errors: ValidationError[]) {
     if (errors.some(error => error.property === 'description' && error.constraints?.maxLength)) {
@@ -42,6 +43,9 @@ export class BusinessInfoController {
             await this.businessInfoService.register(businessInfoCreateDTO);
             return res.status(201).json({ message: 'Business info registered successfully' })
         } catch (error: any) {
+            if (error instanceof ActionError) {
+                return res.status(error.status).json({ code: error.code, error: error.message });
+            }
             return res.status(500).json({ error: error.message });
         }
     }
@@ -80,8 +84,8 @@ export class BusinessInfoController {
             await this.businessInfoService.update(businessInfoUpdateDTO);
             return res.status(200).json({ message: 'Business info updated successfully' })
         } catch (error: any) {
-            if (error.message.includes('Business info not found')) {
-                return res.status(404).json({ error: error.message });
+            if (error instanceof ActionError) {
+                return res.status(error.status).json({ code: error.code, error: error.message });
             }
             return res.status(500).json({ error: error.message });
         }
@@ -92,8 +96,8 @@ export class BusinessInfoController {
             await this.businessInfoService.delete();
             return res.status(200).json({ message: 'Business info deleted successfully' });
         } catch (error: any) {
-            if (error.message.includes('not found')) {
-                return res.status(404).json({ error: error.message });
+            if (error instanceof ActionError) {
+                return res.status(error.status).json({ code: error.code, error: error.message });
             }
             return res.status(500).json({ error: error.message });
         }

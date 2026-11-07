@@ -5,6 +5,7 @@ import type { EventImageSearchByEventId } from './eventImage.dto';
 export class EventCreateDTO {
     @IsNotEmpty()
     @IsString()
+    @MaxLength(255)
     title: string;
 
     @IsNotEmpty()
@@ -13,6 +14,7 @@ export class EventCreateDTO {
 
     @IsOptional()
     @IsString()
+    @MaxLength(1000)
     description?: string;
 
     @IsNotEmpty()
@@ -46,6 +48,7 @@ export class EventCreateDTO {
 
     @IsOptional()
     @IsString()
+    @MaxLength(2048)
     bannerImage?: string | null;
 
     @IsNotEmpty()
@@ -56,18 +59,20 @@ export class EventCreateDTO {
 export class EventUpdateDTO {
     @IsOptional()
     @IsString()
+    @MaxLength(255)
     title?: string;
 
     @IsOptional()
-    @IsString()
+    @IsDateString()
     date?: Date;
 
     @IsOptional()
     @IsString()
+    @MaxLength(1000)
     description?: string;
 
     @IsOptional()
-    @IsString()
+    @IsMilitaryTime()
     startAt: string;
 
     @IsOptional()
@@ -97,6 +102,7 @@ export class EventUpdateDTO {
 
     @IsOptional()
     @IsString()
+    @MaxLength(2048)
     bannerImage?: string | null;
 }
 

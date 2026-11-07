@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import Icon from '../../components/Icon'
 import { createAdmin, deleteAdmin, getAdmins, updateAdmin, type AdminRecord } from '../../services/adminService'
 import { AUTH_STATE_CHANGE_EVENT, getAdminId, getAdminProfile } from '../../services/authToken'
+import { getUserFacingError } from '../../services/errors'
 import './AdminAdministrators.css'
 import './AdminEvents.css'
 
@@ -124,8 +125,8 @@ const AdminAdministrators = () => {
             setIsLoading(true)
             const data = await getAdmins()
             setAdmins(data)
-        } catch {
-            setError('Não foi possível carregar os administradores.')
+        } catch (loadingError) {
+            setError(`A ação foi concluída, mas não foi possível atualizar a lista de administradores. ${getUserFacingError(loadingError, 'Atualize a página para conferir.')}`)
         } finally {
             setIsLoading(false)
         }
@@ -139,8 +140,8 @@ const AdminAdministrators = () => {
             .then(data => {
                 if (active) setAdmins(data)
             })
-            .catch(() => {
-                if (active) setError('Não foi possível carregar os administradores.')
+            .catch(loadingError => {
+                if (active) setError(getUserFacingError(loadingError, 'Não foi possível carregar os administradores.'))
             })
             .finally(() => {
                 if (active) setIsLoading(false)
@@ -226,8 +227,7 @@ const AdminAdministrators = () => {
             setEditingAdminId(null)
             await loadAdmins()
         } catch (submissionError) {
-            const message = submissionError instanceof Error ? submissionError.message : 'Não foi possível salvar o administrador.'
-            setError(message)
+            setError(getUserFacingError(submissionError, 'Não foi possível salvar o administrador.'))
         } finally {
             setIsSubmitting(false)
         }
@@ -246,12 +246,13 @@ const AdminAdministrators = () => {
         }
 
         try {
+            setError(null)
+            setSuccess(null)
             await updateAdmin(admin.id, { active: !admin.active })
             setSuccess(admin.active ? 'Administrador desativado com sucesso.' : 'Administrador ativado com sucesso.')
             await loadAdmins()
         } catch (toggleError) {
-            const message = toggleError instanceof Error ? toggleError.message : 'Não foi possível atualizar o status do administrador.'
-            setError(message)
+            setError(getUserFacingError(toggleError, 'Não foi possível atualizar o status do administrador.'))
         }
     }
 
@@ -289,8 +290,7 @@ const AdminAdministrators = () => {
             setSuccess('Administrador removido com sucesso.')
             await loadAdmins()
         } catch (deleteError) {
-            const message = deleteError instanceof Error ? deleteError.message : 'Não foi possível remover o administrador.'
-            setDeleteError(message)
+            setDeleteError(getUserFacingError(deleteError, 'Não foi possível remover o administrador.'))
         } finally {
             setIsDeleting(false)
         }

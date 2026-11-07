@@ -27,9 +27,8 @@ export async function getBusinessInfo(signal?: AbortSignal): Promise<BusinessInf
     return response.businessInfo
 }
 
-export async function upsertBusinessInfo(payload: BusinessInfoPayload, currentId?: string, signal?: AbortSignal): Promise<void> {
-    const method = currentId ? 'PATCH' : 'POST'
-    const body = currentId ? { ...payload } : { ...payload }
+export async function upsertBusinessInfo(payload: BusinessInfoPayload, existing?: string | boolean, signal?: AbortSignal): Promise<void> {
+    const method = existing ? 'PATCH' : 'POST'
 
     await apiFetch<{ message: string }>('business-info', {
         method,
@@ -37,6 +36,6 @@ export async function upsertBusinessInfo(payload: BusinessInfoPayload, currentId
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(payload),
     })
 }

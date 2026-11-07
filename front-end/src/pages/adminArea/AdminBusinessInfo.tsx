@@ -26,6 +26,8 @@ type BusinessInfoFormValues = {
     description: string
 }
 
+type BusinessInfoSnapshot = Omit<BusinessInfo, 'id'>
+
 const emptyValues: BusinessInfoFormValues = {
     instagramAccount: '',
     whatsappNumber: '',
@@ -33,7 +35,7 @@ const emptyValues: BusinessInfoFormValues = {
     description: '',
 }
 
-const toValues = (businessInfo: BusinessInfo | null): BusinessInfoFormValues => ({
+const toValues = (businessInfo: BusinessInfoSnapshot | null): BusinessInfoFormValues => ({
     instagramAccount: businessInfo?.instagramAccount?.trim() ?? '',
     whatsappNumber: formatPhoneInput(businessInfo?.whatsappNumber ?? '') ?? businessInfo?.whatsappNumber?.trim() ?? '',
     businessEmail: businessInfo?.businessEmail?.trim() ?? '',
@@ -66,7 +68,8 @@ const AdminBusinessInfo = () => {
     const [values, setValues] = useState<BusinessInfoFormValues>(emptyValues)
     const descriptionLength = Array.from(values.description).length
     const descriptionExceedsLimit = descriptionLength > businessDescriptionMaxLength
-    const [businessInfo, setBusinessInfo] = useState<BusinessInfo | null>(null)
+    const [businessInfo, setBusinessInfo] = useState<BusinessInfoSnapshot | null>(null)
+    const [hasBusinessInfo, setHasBusinessInfo] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -101,6 +104,7 @@ const AdminBusinessInfo = () => {
                 setIsLoading(true)
                 const info = await getBusinessInfo(controller.signal)
                 setBusinessInfo(info)
+                setHasBusinessInfo(Boolean(info))
                 setValues(toValues(info))
                 const parsedHours = parseWeeklyBusinessHours(info?.businessHours)
                 setWeeklyHours(parsedHours ?? createEmptyWeeklyBusinessHours())
@@ -230,15 +234,25 @@ const AdminBusinessInfo = () => {
         setStatusMessage(null)
 
         try {
-            await upsertBusinessInfo(payload, businessInfo?.id)
-            const refreshed = await getBusinessInfo()
-            setBusinessInfo(refreshed)
-            setValues(toValues(refreshed))
+            await upsertBusinessInfo(payload, hasBusinessInfo)
+            // The singleton exists once the write succeeds, even if the following read fails.
+            setHasBusinessInfo(true)
+            const savedInfo: BusinessInfoSnapshot = { ...payload, updatedAt: new Date().toISOString() }
+            setBusinessInfo(savedInfo)
+            setValues(toValues(savedInfo))
             setTouchedContacts({})
-            const parsedHours = parseWeeklyBusinessHours(refreshed?.businessHours)
-            setWeeklyHours(parsedHours ?? createEmptyWeeklyBusinessHours())
-            setLegacyHours(refreshed?.businessHours?.trim() && !parsedHours ? refreshed.businessHours : null)
             setStatusMessage('Informações salvas com sucesso.')
+            try {
+                const refreshed = await getBusinessInfo()
+                setBusinessInfo(refreshed)
+                setHasBusinessInfo(Boolean(refreshed))
+                setValues(toValues(refreshed))
+                const parsedHours = parseWeeklyBusinessHours(refreshed?.businessHours)
+                setWeeklyHours(parsedHours ?? createEmptyWeeklyBusinessHours())
+                setLegacyHours(refreshed?.businessHours?.trim() && !parsedHours ? refreshed.businessHours : null)
+            } catch (loadingError) {
+                setError(`As informações foram salvas, mas não foi possível recarregá-las. ${getUserFacingError(loadingError, 'Atualize a página para conferir.')}`)
+            }
         } catch (submissionError) {
             setError(getUserFacingError(submissionError, 'Não foi possível salvar as informações da feira.'))
         } finally {

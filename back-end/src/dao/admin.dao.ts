@@ -11,6 +11,15 @@ export type AdminDeleteResult = 'deleted' | 'not_found' | 'super_admin' | 'activ
 // decide that the other principal administrator will remain available.
 const lockAdministrators = 'SELECT id, role, active FROM administrators ORDER BY id FOR UPDATE';
 
+function adminWriteError(error: unknown): unknown {
+    const databaseError = error as { code?: string; sqlMessage?: string } | null;
+    if (databaseError?.code === 'ER_DUP_ENTRY' &&
+        /for key ['`](?:[^'`]+\.)?administrators_unique['`]/i.test(databaseError.sqlMessage ?? '')) {
+        return new AdminActionError(409, 'ADMIN_EMAIL_IN_USE', 'Email already registered');
+    }
+    return error;
+}
+
 export type AdminUpdateData = {
     name?: string;
     email?: string;
@@ -46,8 +55,8 @@ export class AdminDAO {
                 'INSERT INTO administrators (id, name, email, hashPassword, role, active, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
                 [admin.id, admin.name, admin.email, admin.password, admin.role, admin.active, admin.createdAt]
             );
-        } catch (error: any) {
-            throw new Error('Error registering admin: ' + error.message);
+        } catch (error) {
+            throw adminWriteError(error);
         }
     }
 
@@ -176,7 +185,7 @@ export class AdminDAO {
             await db.commit();
         } catch (error) {
             await db.rollback();
-            throw error;
+            throw adminWriteError(error);
         } finally {
             db.release();
         }

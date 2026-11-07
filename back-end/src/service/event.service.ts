@@ -2,34 +2,31 @@ import { EventDAO, EventUpdateData } from '../dao/event.dao';
 import { AdminEventSearchDTO, EventAgendaSearchDTO, EventCreateDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO, EventUpdateDTO } from '../dto/event.dto';
 import { Event } from '../model/event'
 import { EventImageDAO } from '../dao/eventImage.dao';
+import { ActionError } from '../model/actionError';
 
 export class EventService {
     public constructor(private eventDAO: EventDAO) {}
 
     public async create(eventCreateDTO: EventCreateDTO): Promise<string> {
-        try {
-            if (eventCreateDTO.startAt >= eventCreateDTO.endAt) {
-                throw new Error('startAt must be before endAt');
-            }
-
-            const event = Event.construct(eventCreateDTO);
-            await this.eventDAO.create(event)
-            return event.id;
-        } catch (error: any) {
-            throw new Error('Error creating Event: ' + error.message);
+        if (eventCreateDTO.startAt >= eventCreateDTO.endAt) {
+            throw new ActionError(400, 'INVALID_EVENT_TIME_RANGE', 'startAt must be before endAt');
         }
+
+        const event = Event.construct(eventCreateDTO);
+        await this.eventDAO.create(event)
+        return event.id;
     }
 
     public async update(id: string, eventUpdateDTO: EventUpdateDTO): Promise<void> {
         const event = await this.eventDAO.searchById(id)
         if (!event) {
-            throw new Error('Event not Found')
+            throw new ActionError(404, 'EVENT_NOT_FOUND', 'Event not found')
         }
 
         const startAt = eventUpdateDTO.startAt ?? event.startAt;
         const endAt = eventUpdateDTO.endAt ?? event.endAt;
         if (startAt >= endAt) {
-            throw new Error('startAt must be before endAt')
+            throw new ActionError(400, 'INVALID_EVENT_TIME_RANGE', 'startAt must be before endAt')
         }
 
         const data: EventUpdateData = { ...eventUpdateDTO};
@@ -39,7 +36,7 @@ export class EventService {
     public async delete(id: string): Promise<void> {
         const event = await this.eventDAO.searchById(id)
         if (!event) {
-            throw new Error('Event not found');
+            throw new ActionError(404, 'EVENT_NOT_FOUND', 'Event not found');
         }
 
         await this.eventDAO.delete(id)

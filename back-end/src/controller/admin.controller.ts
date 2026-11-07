@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
+import { validate, type ValidationError } from 'class-validator';
 import { PasswordCrypto } from '../service/passwordCrypto'
 import { AdminCreateDTO, AdminLoginDTO, AdminUpdateDTO } from '../dto/admin.dto';
 import { AdminService } from '../service/admin.service';
@@ -11,6 +11,14 @@ import { AdminRole } from '../model/admin';
 import { AuthRequest } from '../../authMiddleware';
 import { refreshCookieOptions } from '../util/adminSessionCookie';
 
+function adminValidationResponse(errors: ValidationError[]) {
+    const fields: Record<string, string> = {
+        name: 'ADMIN_NAME_INVALID', email: 'ADMIN_EMAIL_INVALID', role: 'ADMIN_ROLE_INVALID',
+    };
+    const field = errors.find(error => fields[error.property]);
+    return { code: field ? fields[field.property] : 'ADMIN_INVALID_DATA' };
+}
+
 export class AdminController {
     private adminService: AdminService;
 
@@ -20,16 +28,22 @@ export class AdminController {
 
     public async register(req: Request, res: Response ) {
         try {
+            if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+                return res.status(400).json({ code: 'ADMIN_INVALID_DATA' });
+            }
             const adminCreateDTO = plainToInstance(AdminCreateDTO, req.body);
             const errors = await validate(adminCreateDTO);
 
             if (errors.length > 0) {
-                return res.status(400).json({errors});
+                return res.status(400).json(adminValidationResponse(errors));
             }
 
             await this.adminService.register(adminCreateDTO);
             return res.status(201).json({ message: 'Admin registred succesfully' })
         } catch (error: any) {
+            if (error instanceof AdminActionError) {
+                return res.status(error.status).json({ code: error.code, error: error.message });
+            }
             return res.status(500).json({error: error.message});
         }
     }
@@ -170,6 +184,9 @@ export class AdminController {
             if (!authenticatedAdminId || typeof targetAdminId !== 'string') {
                 return res.status(401).json({ error: 'Invalid authenticated admin' });
             }
+            if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+                return res.status(400).json({ code: 'ADMIN_INVALID_DATA' });
+            }
 
             //Verificação interna para não criar duas rotas diferentes, uma para super admin e outra para self update, já que a rota é a mesma, apenas o comportamento muda de acordo com o tipo de usuário.
             const isSelfUpdate = authenticatedAdminId === targetAdminId;
@@ -179,7 +196,7 @@ export class AdminController {
             const requestedFields = Object.keys(req.body);
 
             if (errors.length > 0 || requestedFields.length === 0) {
-                return res.status(400).json({ errors });
+                return res.status(400).json(adminValidationResponse(errors));
             }
 
             const selfAllowedFields = ['name', 'password', 'profile_picture'];
@@ -198,7 +215,7 @@ export class AdminController {
 
             const targetAdmin = await this.adminService.searchById(targetAdminId);
             if (!targetAdmin) {
-                return res.status(404).json({ error: 'Admin not found' });
+                return res.status(404).json({ code: 'ADMIN_NOT_FOUND', error: 'Admin not found' });
             }
 
             const updateData = Object.fromEntries(
@@ -210,9 +227,6 @@ export class AdminController {
         } catch (error: any) {
             if (error instanceof AdminActionError) {
                 return res.status(error.status).json({ error: error.message, code: error.code });
-            }
-            if (error.message === 'Email already registered') {
-                return res.status(409).json({ error: error.message });
             }
             console.error('Error updating admin:', error);
             return res.status(500).json({ error: error.message || 'Error updating admin' });

@@ -1,9 +1,11 @@
-import { IsNotEmpty, IsString, IsEmail, IsEnum, IsOptional, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, IsEnum, IsOptional, IsBoolean, Matches, MaxLength, ValidateIf } from 'class-validator';
 import { AdminRole } from '../model/admin';
 
 export class AdminCreateDTO {
     @IsNotEmpty()
     @IsString()
+    @Matches(/\S/)
+    @MaxLength(255)
     name: string;
 
     @IsNotEmpty()
@@ -30,29 +32,33 @@ export class AdminLoginDTO {
 }
 
 export class AdminUpdateDTO {
-    @IsOptional()
+    @ValidateIf((_object, value) => value !== undefined)
     @IsNotEmpty()
     @IsString()
+    @Matches(/\S/)
+    @MaxLength(255)
     name?: string;
 
-    @IsOptional()
+    @ValidateIf((_object, value) => value !== undefined)
     @IsEmail()
     email?: string;
 
-    @IsOptional()
+    @ValidateIf((_object, value) => value !== undefined)
+    @IsNotEmpty()
     @IsString()
     password?: string;
 
-    @IsOptional()
+    @ValidateIf((_object, value) => value !== undefined)
     @IsEnum(AdminRole)
     role?: AdminRole;
 
-    @IsOptional()
+    @ValidateIf((_object, value) => value !== undefined)
     @IsBoolean()
     active?: boolean;
 
     @IsOptional()
     @IsString()
+    @MaxLength(2048)
     profile_picture?: string | null;
 }
 

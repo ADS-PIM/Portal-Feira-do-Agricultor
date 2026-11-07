@@ -280,7 +280,7 @@ const AdminEvents = ({
                 const result = await loadEvents()
                 setEvents(result ?? [])
             } catch (error) {
-                setLoadError(getUserFacingError(error, 'O evento foi salvo, mas não foi possível atualizar a lista.'))
+                setLoadError(`O evento foi salvo, mas não foi possível atualizar a lista. ${getUserFacingError(error, 'Atualize a página para conferir.')}`)
             } finally {
                 setIsLoading(false)
             }

@@ -9,22 +9,18 @@ export class AdminService {
     public constructor(private adminDAO: AdminDAO) {}
 
     public async register(adminCreateDTO: AdminCreateDTO) {
-        try {
-            if (!adminCreateDTO.name || !adminCreateDTO.email || !adminCreateDTO.password || !adminCreateDTO.role) {
-                throw new Error('Missing required fields');
-            }
-
-            if (await this.searchByEmail(adminCreateDTO.email)) {
-                throw new Error('Email already registered');
-            }
-
-            adminCreateDTO.password = await PasswordCrypto.hashPassword(adminCreateDTO.password);
-            const admin = Admin.construct(adminCreateDTO);
-
-            await this.adminDAO.register(admin);
-        } catch (error: any) {
-            throw new Error('Error registering admin: ' + error.message);
+        if (!adminCreateDTO.name || !adminCreateDTO.email || !adminCreateDTO.password || !adminCreateDTO.role) {
+            throw new AdminActionError(400, 'ADMIN_INVALID_DATA', 'Missing required fields');
         }
+
+        if (await this.searchByEmail(adminCreateDTO.email)) {
+            throw new AdminActionError(409, 'ADMIN_EMAIL_IN_USE', 'Email already registered');
+        }
+
+        const password = await PasswordCrypto.hashPassword(adminCreateDTO.password);
+        const admin = Admin.construct({ ...adminCreateDTO, password });
+
+        await this.adminDAO.register(admin);
     }
 
     public async delete(id: string, actorId: string, currentPassword?: unknown): Promise<void> {
@@ -88,7 +84,7 @@ export class AdminService {
         if (data.email !== undefined) {
             const adminWithEmail = await this.searchByEmail(data.email);
             if (adminWithEmail && adminWithEmail.id !== id) {
-                throw new Error('Email already registered');
+                throw new AdminActionError(409, 'ADMIN_EMAIL_IN_USE', 'Email already registered');
             }
         }
 

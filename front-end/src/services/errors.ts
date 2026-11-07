@@ -18,6 +18,26 @@ export class ApiRequestError extends Error {
 }
 
 function getApiErrorMessage(status: number, endpoint: string, code?: string): string {
+    const adminAccountEndpoint = /^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)
+        && !/^admin\/(?:login|refresh|logout|forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)
+    if (adminAccountEndpoint) {
+        if (status === 409 && code === 'ADMIN_EMAIL_IN_USE') return 'Este e-mail já está cadastrado em outra conta.'
+        if (status === 400) {
+            if (code === 'ADMIN_NAME_INVALID') return 'Informe um nome válido com até 255 caracteres.'
+            if (code === 'ADMIN_EMAIL_INVALID') return 'Informe um e-mail válido.'
+            if (code === 'ADMIN_ROLE_INVALID') return 'Selecione um perfil de acesso válido.'
+            if (code === 'ADMIN_INVALID_DATA') return 'Revise os dados do administrador e tente novamente.'
+        }
+    }
+    if (/^event(?:\/|$|\?)/.test(endpoint)) {
+        if (status === 400 && code === 'EVENT_INVALID_DATA') return 'Revise os dados do evento: título e endereço de até 255 caracteres, descrição de até 1000, data e horários válidos.'
+        if (status === 400 && code === 'INVALID_EVENT_TIME_RANGE') return 'O horário de término deve ser posterior ao horário de início.'
+        if (status === 404 && code === 'EVENT_NOT_FOUND') return 'Evento não encontrado. Ele pode ter sido excluído por outro administrador. Atualize a lista e tente novamente.'
+    }
+    if (/^business-info(?:\/|$|\?)/.test(endpoint)) {
+        if (status === 409 && code === 'BUSINESS_INFO_EXISTS') return 'As informações da feira já foram cadastradas. Atualize a página para editar os dados existentes.'
+        if (status === 404 && code === 'BUSINESS_INFO_NOT_FOUND') return 'As informações da feira não foram encontradas. Atualize a página antes de continuar.'
+    }
     if (status === 400 && /^(?:message\/create|business-info)(?:\/|$|\?)/.test(endpoint)) {
         const contactMessage = Object.entries(CONTACT_VALIDATION_MESSAGES).find(([errorCode]) => errorCode === code)?.[1]
         if (contactMessage) return contactMessage
@@ -56,7 +76,7 @@ function getApiErrorMessage(status: number, endpoint: string, code?: string): st
 
     if (status === 401) return 'Sua sessão expirou. Entre novamente.'
     if (status === 403) return 'Você não tem autorização para realizar esta ação.'
-    if (status === 409 && /^admin\//.test(endpoint)) return 'Este e-mail já está cadastrado em outra conta.'
+    if (status === 409) return 'Os dados foram alterados ou já estão cadastrados. Atualize a página e tente novamente.'
     if (status === 404) return 'O conteúdo solicitado não está disponível.'
     if (status === 429) return 'Muitas tentativas. Aguarde um pouco e tente novamente.'
     if (status >= 500) return 'O serviço está temporariamente indisponível. Tente novamente mais tarde.'
