@@ -74,7 +74,7 @@ const fieldHelp: Record<Field, { explanation: string; example: string; effect: s
     effect: 'Os minutos são divididos por 60 antes de multiplicar pelo valor da sua hora. Com a hora a R$ 20, uma unidade que leva 30 minutos tem R$ 10 de mão de obra.',
   },
   hourlyRate: {
-    explanation: 'Informe quanto você quer receber por uma hora do seu trabalho. Seu trabalho também tem um custo, mesmo quando é você quem produz.',
+    explanation: 'Informe o valor de uma hora do seu trabalho. Seu trabalho também tem um custo, mesmo quando é você quem produz.',
     example: 'Se sua hora vale R$ 20 e uma unidade leva meia hora para ficar pronta, o custo do trabalho dessa unidade é R$ 10.',
     effect: 'Quanto maior o valor da hora, maior o preço calculado. Esse pagamento pelo trabalho é separado do lucro do negócio.',
   },
