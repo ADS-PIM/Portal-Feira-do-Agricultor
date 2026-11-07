@@ -1,3 +1,5 @@
+import josefaPhoto from '../../assets/producers/josefa-alexandre-barreto.jpeg'
+
 export type ProducerProduct = {
   name: string
   description: string
@@ -15,14 +17,39 @@ export type Producer = {
   description: string
   story: string
   productsCount: number
-  experience: string
+  experience?: string
   highlights: string[]
-  image: string
+  image: string | null
+  imagePosition?: string
 }
 
 export const categories = ['Todos', 'Frutas', 'Verduras', 'Legumes', 'Artesanato', 'Mel', 'Orgânicos']
 
 export const producers: Producer[] = [
+  {
+    slug: 'josefa-alexandre-barreto',
+    name: 'Josefa Alexandre Barreto',
+    location: 'Tapera',
+    community: 'Tabuleiro do Norte',
+    category: 'Verduras',
+    specialities: ['Panelada / Galinha', 'Cheiro verde', 'Pimentão', 'Couve manteiga', 'Manga', 'Alface', 'Salsinha', 'Coentro'],
+    products: [
+      { name: 'Panelada / Galinha', description: 'Pratos comercializados por Josefa na feira.', image: null },
+      { name: 'Cheiro verde', description: 'Tempero para diferentes preparos do dia a dia.', image: null },
+      { name: 'Pimentão', description: 'Para saladas, refogados e outras receitas.', image: null },
+      { name: 'Couve manteiga', description: 'Folhas para saladas, refogados e acompanhamentos.', image: null },
+      { name: 'Manga', description: 'Fruta para consumir ao natural ou preparar sucos e sobremesas.', image: null },
+      { name: 'Alface', description: 'Folhas para saladas e acompanhamentos.', image: null },
+      { name: 'Salsinha', description: 'Erva para temperar e finalizar pratos.', image: null },
+      { name: 'Coentro', description: 'Tempero para diferentes receitas.', image: null },
+    ],
+    description: 'Da comunidade Tapera, em Tabuleiro do Norte, Josefa comercializa panelada, galinha, verduras, temperos e manga.',
+    story: 'Josefa Alexandre Barreto é da comunidade Tapera, em Tabuleiro do Norte. Na feira, comercializa panelada / galinha, cheiro verde, pimentão, couve manteiga, manga, alface, salsinha e coentro.',
+    productsCount: 8,
+    highlights: ['Comunidade Tapera', 'Verduras e temperos', 'Panelada / Galinha'],
+    image: josefaPhoto,
+    imagePosition: '50% 30%',
+  },
   {
     slug: 'ze-do-corrego',
     name: 'Seu Zé do Córrego',
@@ -40,7 +67,7 @@ export const producers: Producer[] = [
     productsCount: 12,
     experience: '20 anos',
     highlights: ['Pontos de venda locais', 'Produção em pequena escala', 'Frescor diário'],
-    image: 'https://images.unsplash.com/photo-1464226184884-fa52ac9c0cdd?auto=format&fit=crop&w=1200&q=80',
+    image: null,
   },
   {
     slug: 'dona-maria-de-fatima',
@@ -59,7 +86,7 @@ export const producers: Producer[] = [
     productsCount: 24,
     experience: '18 anos',
     highlights: ['Frutas da estação', 'Doces artesanais', 'Produção familiar'],
-    image: 'https://images.unsplash.com/photo-1471193945509-9ad0617afabf?auto=format&fit=crop&w=1200&q=80',
+    image: null,
   },
   {
     slug: 'francisco-da-barra',
@@ -78,7 +105,7 @@ export const producers: Producer[] = [
     productsCount: 8,
     experience: '15 anos',
     highlights: ['Cultivos de raiz', 'Tempo de produção sustentável', 'Apoio à agricultura familiar'],
-    image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80',
+    image: null,
   },
   {
     slug: 'chicao-do-mel',
@@ -97,7 +124,7 @@ export const producers: Producer[] = [
     productsCount: 6,
     experience: '12 anos',
     highlights: ['Mel artesanal', 'Queijo caseiro', 'Tradição local'],
-    image: 'https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=1200&q=80',
+    image: null,
   },
   {
     slug: 'dona-francisca-das-flores',
@@ -116,7 +143,7 @@ export const producers: Producer[] = [
     productsCount: 15,
     experience: '25 anos',
     highlights: ['Produtos artesanais', 'Flores regionais', 'Trabalho manual'],
-    image: 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80',
+    image: null,
   },
   {
     slug: 'seu-antonio-das-frutas',
@@ -135,7 +162,7 @@ export const producers: Producer[] = [
     productsCount: 10,
     experience: '16 anos',
     highlights: ['Frutas orgânicas', 'Colheita local', 'Qualidade constante'],
-    image: 'https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1200&q=80',
+    image: null,
   },
 ]
 

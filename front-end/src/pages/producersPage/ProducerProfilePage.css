@@ -97,7 +97,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 420px;
+    min-width: 0;
+    height: 420px;
     border-radius: 22px;
     background: linear-gradient(135deg, var(--theme-surface-muted, #dfe7df) 0%, var(--theme-surface-muted, #eef3ee) 100%);
 
@@ -105,11 +106,11 @@
 }
 
 .producer-profile-hero-image {
-    width: min(100%, 560px);
-    height: 420px;
+    display: block;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     border-radius: 22px;
-
 }
 
 .producer-profile-details {
@@ -402,12 +403,8 @@
         font-size: 2.3rem;
     }
 
-    .producer-profile-hero-image {
-        height: 320px;
-    }
-
     .producer-profile-visual {
-        min-height: clamp(220px, 65vw, 320px);
+        height: 320px;
     }
 
     .producer-profile-tabs {

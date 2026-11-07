@@ -63,7 +63,17 @@ const ProducerProfilePage = ({ producerSlug }: ProducerProfilePageProps) => {
               </p>
             </div>
 
-            <div className="producer-profile-visual" aria-hidden="true" />
+            <div className="producer-profile-visual">
+              {producer.image && (
+                <img
+                  className="producer-profile-hero-image"
+                  src={producer.image}
+                  alt={producer.name}
+                  style={{ objectPosition: producer.imagePosition }}
+                  decoding="async"
+                />
+              )}
+            </div>
           </section>
 
           <section className="producer-profile-details">
@@ -81,20 +91,9 @@ const ProducerProfilePage = ({ producerSlug }: ProducerProfilePageProps) => {
               <div className="producer-profile-story-panel">
                 <span className="producer-profile-section-tag">{producer.location.toUpperCase()} • {producer.community.toUpperCase()}</span>
 
-                <h2>
-                  Uma vida plantando.<br />
-                  Uma comunidade colhendo.
-                </h2>
+                <h2>Sobre {producer.name}</h2>
 
                 <p>{producer.story}</p>
-
-                <p>
-                  Em {producer.location}, sua horta é cuidada em família. Da semente ao cuidado diário, cada etapa do cultivo é feita com atenção, respeito e tradição.
-                </p>
-
-                <blockquote>
-                  “O que a gente leva pra feira é o mesmo que põe na mesa de casa.”
-                </blockquote>
 
                 <div className="producer-profile-signature">
                   <span>{producer.name}</span>

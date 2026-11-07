@@ -70,7 +70,17 @@ const ProducersPage = () => {
             {filteredProducers.length > 0 ? (
               filteredProducers.map((producer) => (
                 <article key={producer.slug} className="producer-card">
-                  <div className="producer-card-identity producer-card-identity--placeholder">
+                  <div className={`producer-card-identity${producer.image ? '' : ' producer-card-identity--placeholder'}`}>
+                    {producer.image && (
+                      <img
+                        className="producer-card-photo"
+                        src={producer.image}
+                        alt={producer.name}
+                        style={{ objectPosition: producer.imagePosition }}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
                     <span className="producer-card-category">{producer.category}</span>
                   </div>
 
