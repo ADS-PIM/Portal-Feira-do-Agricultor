@@ -34,11 +34,13 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     const headerRef = useRef<HTMLElement>(null)
     const menuButtonRef = useRef<HTMLButtonElement>(null)
     const navigationId = useId()
+    const [authenticated, setAuthenticated] = useState(isAuthenticated)
     const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(() => getAdminProfile())
     const [hasCheckedSession, setHasCheckedSession] = useState(false)
     const [currentHash, setCurrentHash] = useState(() => window.location.hash)
     const lastVisibilityChangeY = useRef(0);
     const hasInitializedScrollPosition = useRef(false)
+    const visibleNavigationLinks = navigationLinks.filter(({ href }) => href !== '#/admin' || authenticated)
 
     useEffect(() => {
         const syncHash = () => setCurrentHash(window.location.hash)
@@ -102,6 +104,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     useEffect(() => {
         const syncAuthState = () => {
             const profile = getAdminProfile()
+            setAuthenticated(isAuthenticated())
             setAdminProfile(profile)
             if (profile || !isAuthenticated()) setHasCheckedSession(true)
         }
@@ -112,7 +115,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
                 console.error('Não foi possível restaurar o perfil do administrador:', error)
             })
             .finally(() => {
-                setAdminProfile(getAdminProfile())
+                syncAuthState()
                 setHasCheckedSession(true)
             })
 
@@ -151,7 +154,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     }, [])
 
     return (
-        <header ref={headerRef} className={`site-header${isVisible || isMenuOpen ? '' : ' is-hidden'}${isMenuOpen ? ' is-menu-open' : ''}`}>
+        <header ref={headerRef} className={`site-header${authenticated ? '' : ' is-guest'}${isVisible || isMenuOpen ? '' : ' is-hidden'}${isMenuOpen ? ' is-menu-open' : ''}`}>
             <a className="site-header-brand" href="#inicio" aria-label="Brotando Feiras - início" onClick={() => setIsMenuOpen(false)}>
                 <img src={logo} alt="Brotando Feiras" />
             </a>
@@ -173,7 +176,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
             </button>
 
             <nav id={navigationId} className="site-header-navigation" aria-label="Navegação principal">
-                {navigationLinks.map(({ href, label }) => (
+                {visibleNavigationLinks.map(({ href, label }) => (
                     <a
                         key={href}
                         className={activeLink === href ? 'is-active' : ''}

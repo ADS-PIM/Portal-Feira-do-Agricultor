@@ -215,6 +215,12 @@
     }
 }
 
+@media (min-width: 1201px) {
+    .site-header.is-guest {
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    }
+}
+
 /* Keep this breakpoint in sync with the menu listener in Header.tsx. */
 @media (max-width: 1200px) {
     .site-header {
