@@ -18,6 +18,7 @@ const ProducersPage = () => {
         producer.location,
         producer.community,
         producer.category,
+        producer.brand,
         producer.specialities.join(' '),
       ].join(' ').toLowerCase()
 

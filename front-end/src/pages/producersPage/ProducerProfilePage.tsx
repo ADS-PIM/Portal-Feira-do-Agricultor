@@ -48,7 +48,7 @@ const ProducerProfilePage = ({ producerSlug }: ProducerProfilePageProps) => {
           <section className="producer-profile-hero">
             <div className="producer-profile-copy">
               <span className="producer-profile-category">
-                {producer.specialities.slice(0, 2).join(' e ').toUpperCase()}
+                {(producer.brand ? `${producer.brand} • ${producer.category}` : producer.specialities.slice(0, 2).join(' e ')).toUpperCase()}
               </span>
 
               <h1>{producer.name}</h1>
