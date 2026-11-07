@@ -1,6 +1,6 @@
 import './LoginPainel.css'
 import { useState, type FormEvent } from 'react'
-import logo from '../../assets/instituto_brotar_logo_preto.png'
+import logo from '../../assets/instituto_brotar_logo_transparente.svg'
 import Icon from '../Icon'
 
 export type LoginCredentials = {

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import Header from '../../components/Header/Header'
 import Icon from '../../components/Icon'
-import logo from '../../assets/instituto_brotar_logo_preto.png'
+import logo from '../../assets/instituto_brotar_logo_transparente.svg'
 import { apiFetch } from '../../services/api'
 import { clearAccessToken } from '../../services/authToken'
 import { ApiRequestError, getUserFacingError } from '../../services/errors'

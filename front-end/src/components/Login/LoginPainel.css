@@ -26,6 +26,10 @@
     object-fit: contain;
 }
 
+:root[data-theme="dark"] .login-painel-logo {
+    filter: brightness(0) invert(1);
+}
+
 .login-painel-subtitle {
     margin: 0;
     font-size: 0.85rem;

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import Header from '../../components/Header/Header'
 import Icon from '../../components/Icon'
-import logo from '../../assets/instituto_brotar_logo_preto.png'
+import logo from '../../assets/instituto_brotar_logo_transparente.svg'
 import './LoginPage.css'
 import '../../components/Login/LoginPainel.css'
 import './AdminDisabledPage.css'
