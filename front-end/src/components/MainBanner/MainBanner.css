@@ -62,10 +62,10 @@
     justify-content: center;
     min-height: 44px;
     padding: 0 26px;
-    border: 1px solid #fff;
+    border: 1px solid var(--theme-border, #fff);
     border-radius: 999px;
-    background: #fff;
-    color: var(--brand-green-dark);
+    background: var(--theme-surface, #fff);
+    color: var(--theme-accent, var(--brand-green-dark));
     font: inherit;
     font-size: 14px;
     font-weight: 700;

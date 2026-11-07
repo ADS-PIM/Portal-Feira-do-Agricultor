@@ -1,35 +1,35 @@
 .calendar-status--PENDING {
     --calendar-status-color: #eab308;
-    --calendar-status-soft: #fef9c3;
-    --calendar-status-text: #713f12;
+    --calendar-status-soft: var(--theme-warning-surface, #fef9c3);
+    --calendar-status-text: var(--theme-warning-text, #713f12);
     --calendar-status-on-color: #422006;
 }
 
 .calendar-status--HAPPENING {
     --calendar-status-color: #2563eb;
-    --calendar-status-soft: #dbeafe;
-    --calendar-status-text: #1e40af;
+    --calendar-status-soft: var(--theme-info-surface, #dbeafe);
+    --calendar-status-text: var(--theme-info-text, #1e40af);
     --calendar-status-on-color: #fff;
 }
 
 .calendar-status--CONCLUDED {
     --calendar-status-color: #15803d;
-    --calendar-status-soft: #dcfce7;
-    --calendar-status-text: #166534;
+    --calendar-status-soft: var(--theme-success-surface, #dcfce7);
+    --calendar-status-text: var(--theme-accent, #166534);
     --calendar-status-on-color: #fff;
 }
 
 .calendar-status--CANCELED {
     --calendar-status-color: #dc2626;
-    --calendar-status-soft: #fee2e2;
-    --calendar-status-text: #991b1b;
+    --calendar-status-soft: var(--theme-danger-surface, #fee2e2);
+    --calendar-status-text: var(--theme-danger-text, #991b1b);
     --calendar-status-on-color: #fff;
 }
 
 .calendar-status--RESCHEDULED {
     --calendar-status-color: #f97316;
-    --calendar-status-soft: #ffedd5;
-    --calendar-status-text: #9a3412;
+    --calendar-status-soft: var(--theme-warning-surface, #ffedd5);
+    --calendar-status-text: var(--theme-warning-text, #9a3412);
     --calendar-status-on-color: #431407;
 }
 

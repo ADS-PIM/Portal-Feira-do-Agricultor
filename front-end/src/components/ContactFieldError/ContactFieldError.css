@@ -1,7 +1,7 @@
 .contact-validation-error {
     display: block;
     margin: 0;
-    color: #b42318;
+    color: var(--theme-danger-text, #b42318);
     font-size: 12px;
     font-weight: 400;
     line-height: 1.5;

@@ -8,7 +8,7 @@
 }
 
 .dashboard-eyebrow {
-    color: #52785c;
+    color: var(--theme-accent, #52785c);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -16,7 +16,7 @@
 
 .dashboard-overview-heading h2 {
     margin: 7px 0;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: clamp(21px, 2vw, 27px);
     letter-spacing: -0.04em;
 }
@@ -46,21 +46,21 @@
 }
 
 .dashboard-metric {
-    --metric-color: #267448;
-    --metric-background: #edf6ee;
+    --metric-color: var(--theme-accent, #267448);
+    --metric-background: var(--theme-surface-muted, #edf6ee);
     display: flex;
     flex-direction: column;
     min-width: 0;
     padding: 16px;
     border: 1px solid var(--border-default);
     border-radius: 16px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     box-shadow: 0 3px 12px rgb(28 61 37 / 3%);
 }
 
-.dashboard-metric.is-orange { --metric-color: var(--brand-orange); --metric-background: #fff3e7; }
-.dashboard-metric.is-blue { --metric-color: #38689e; --metric-background: #edf4fc; }
-.dashboard-metric.is-purple { --metric-color: #7c5aa2; --metric-background: #f4effa; }
+.dashboard-metric.is-orange { --metric-color: var(--brand-orange); --metric-background: var(--theme-warning-surface, #fff3e7); }
+.dashboard-metric.is-blue { --metric-color: var(--theme-info-text, #38689e); --metric-background: var(--theme-info-surface, #edf4fc); }
+.dashboard-metric.is-purple { --metric-color: var(--theme-purple-text, #7c5aa2); --metric-background: var(--theme-surface-muted, #f4effa); }
 
 .dashboard-metric-heading {
     display: flex;
@@ -91,7 +91,7 @@
 
 .dashboard-metric-value {
     margin-top: 8px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 32px;
     font-weight: 700;
     line-height: 1.2;
@@ -115,9 +115,9 @@
     margin-top: auto;
     padding: 8px 0 0;
     border: 0;
-    border-top: 1px solid #eef1ed;
+    border-top: 1px solid var(--theme-border, #eef1ed);
     background: transparent;
-    color: #22673d;
+    color: var(--theme-accent, #22673d);
     font-size: 11px !important;
     font-weight: 600 !important;
     text-align: left;
@@ -125,7 +125,7 @@
 }
 
 .dashboard-text-action svg { width: 12px; height: 12px; }
-.dashboard-text-action:hover { color: #0b8a39; }
+.dashboard-text-action:hover { color: var(--theme-accent, #0b8a39); }
 
 .dashboard-insights {
     display: grid;
@@ -139,14 +139,14 @@
     padding: 18px;
     border: 1px solid var(--border-default);
     border-radius: 16px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
 }
 
 .dashboard-insights .dashboard-next-event {
     display: flex;
     flex-direction: column;
-    border-color: #24553a;
-    background: linear-gradient(125deg, #214b34, #2c6343);
+    border-color: var(--theme-border, #24553a);
+    background: var(--theme-feature-surface, linear-gradient(125deg, #214b34, #2c6343));
     color: #fff;
 }
 
@@ -170,9 +170,9 @@
 
 .dashboard-tag {
     padding: 5px 9px;
-    border: 1px solid #63866c;
+    border: 1px solid var(--theme-border, #63866c);
     border-radius: 999px;
-    color: #e5f1dc;
+    color: var(--theme-text-secondary, #e5f1dc);
     font-size: 9px;
 }
 
@@ -192,7 +192,7 @@
     flex: 0 0 62px;
     gap: 4px;
     padding: 12px 0;
-    border: 1px solid #698773;
+    border: 1px solid var(--theme-border, #698773);
     border-radius: 12px;
     background: rgb(255 255 255 / 9%);
     text-align: center;
@@ -226,10 +226,10 @@
 .dashboard-panel-caption { margin: 0 0 12px; color: var(--text-muted); font-size: 10px; line-height: 1.6; }
 .dashboard-panel-heading .dashboard-panel-caption { margin: 0; }
 
-.dashboard-status-bar { display: flex; gap: 3px; height: 9px; overflow: hidden; border-radius: 5px; background: #eef1ed; margin-bottom: 20px; }
+.dashboard-status-bar { display: flex; gap: 3px; height: 9px; overflow: hidden; border-radius: 5px; background: var(--theme-surface-muted, #eef1ed); margin-bottom: 20px; }
 .dashboard-status-legend { display: grid; gap: 12px; list-style: none; margin: 0; padding: 0; }
 .dashboard-status-legend li { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 11px; }
-.dashboard-status-legend strong { margin-left: auto; color: var(--brand-green-dark); font-variant-numeric: tabular-nums; }
+.dashboard-status-legend strong { margin-left: auto; color: var(--theme-accent, var(--brand-green-dark)); font-variant-numeric: tabular-nums; }
 .dashboard-status-dot { width: 7px; height: 7px; border-radius: 50%; }
 .dashboard-status-panel .is-pending { background: #3d915b; }
 .dashboard-status-panel .is-happening { background: #4e83b9; }
@@ -244,9 +244,9 @@
     width: 100%;
     margin-top: 10px;
     padding: 13px 10px;
-    border: 1px solid #ece9df;
+    border: 1px solid var(--theme-border, #ece9df);
     border-radius: 9px;
-    background: #fcfaf5;
+    background: var(--theme-surface-muted, #fcfaf5);
     color: var(--brand-orange);
     text-align: left;
     font-size: 11px !important;
@@ -257,8 +257,8 @@
 .dashboard-quality-item:not(:disabled) > svg { color: var(--brand-orange); }
 .dashboard-quality-item > svg:last-child { width: 9px; height: 9px; }
 .dashboard-quality-item strong { margin-left: auto; font-size: 14px; }
-.dashboard-quality-item:hover:not(:disabled) { border-color: #b6a27e; background: #f8f2e5; }
-.dashboard-quality-item:disabled { background: #f7faf6; border-color: #e6ece3; color: #65775e; cursor: default; }
+.dashboard-quality-item:hover:not(:disabled) { border-color: var(--theme-warning-border, #b6a27e); background: var(--theme-warning-surface, #f8f2e5); }
+.dashboard-quality-item:disabled { background: var(--theme-surface-muted, #f7faf6); border-color: var(--theme-border, #e6ece3); color: var(--theme-text-secondary, #65775e); cursor: default; }
 .dashboard-quality-note { margin: 14px 0 0; color: var(--text-muted); font-size: 10px; line-height: 1.7; }
 .dashboard-overview button:focus-visible,
 .dashboard-overview a:focus-visible { outline: 3px solid var(--brand-orange); outline-offset: 4px; }

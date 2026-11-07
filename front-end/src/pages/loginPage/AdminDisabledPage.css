@@ -19,7 +19,7 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: #fff4e4;
+    background: var(--theme-warning-surface, #fff4e4);
     color: var(--brand-orange-dark);
     font-size: 1.6rem;
 }

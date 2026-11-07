@@ -2,9 +2,9 @@
     width: 100%;
     max-width: 370px;
     padding: 2.5rem 2rem 2rem;
-    background: #ffffff;
+    background: var(--theme-surface, #ffffff);
     border-radius: 20px;
-    border: 1px solid #ece9e2;
+    border: 1px solid var(--theme-border, #ece9e2);
     box-shadow: 0 20px 45px -25px rgba(31, 36, 33, 0.35);
     display: flex;
     flex-direction: column;
@@ -43,8 +43,8 @@
     margin: 0;
     padding: 0.65rem 0.85rem;
     border-radius: 10px;
-    background: #fdecec;
-    color: #b3261e;
+    background: var(--theme-danger-surface, #fdecec);
+    color: var(--theme-danger-text, #b3261e);
     font-size: 0.85rem;
 }
 
@@ -74,7 +74,7 @@
     padding: 0;
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     cursor: pointer;
 }
 

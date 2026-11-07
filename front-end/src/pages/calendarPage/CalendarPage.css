@@ -22,7 +22,7 @@
 
 .calendar-page-header h1 {
     margin: 0;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: clamp(30px, 4vw, 42px);
     font-weight: 700;
     line-height: 1.2;

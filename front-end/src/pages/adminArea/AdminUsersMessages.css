@@ -19,7 +19,7 @@
 .admin-user-messages-heading {
     padding: 15px 24px 13px;
     border-bottom: 1px solid var(--border-default);
-    background: #fff;
+    background: var(--theme-surface, #fff);
 }
 
 .admin-user-messages-heading h1 {
@@ -56,7 +56,7 @@
     padding: 20px;
     border: 1px solid var(--border-default);
     border-radius: 14px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
 }
 
 .admin-user-message-stats h2 {
@@ -68,14 +68,14 @@
 
 .admin-user-message-stats strong {
     display: block;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 30px;
     font-variant-numeric: tabular-nums;
     line-height: 1.15;
 }
 
 .admin-user-message-stats strong.is-green {
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
 }
 
 .admin-user-message-stats p {
@@ -94,20 +94,20 @@
     height: 36px;
     place-items: center;
     border-radius: 11px;
-    background: #edf4e9;
-    color: #3f7550;
+    background: var(--theme-surface-muted, #edf4e9);
+    color: var(--theme-accent, #3f7550);
 }
 
 .admin-message-stat-icon svg { width: 17px; height: 17px; }
-.admin-user-message-stats .is-attention .admin-message-stat-icon { background: #fff2df; color: var(--brand-orange); }
-.admin-user-message-stats article:last-child .admin-message-stat-icon { background: #edf3fa; color: #5276a1; }
+.admin-user-message-stats .is-attention .admin-message-stat-icon { background: var(--theme-warning-surface, #fff2df); color: var(--brand-orange); }
+.admin-user-message-stats article:last-child .admin-message-stat-icon { background: var(--theme-surface-muted, #edf3fa); color: var(--theme-info-text, #5276a1); }
 
 .admin-user-messages-list {
     min-width: 0;
     padding: 22px;
     border: 1px solid var(--border-default);
     border-radius: 16px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
 }
 
 .admin-user-messages-list-header {
@@ -123,14 +123,14 @@
     align-items: center;
     gap: 9px;
     margin: 0;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 17px;
     font-weight: 700;
 }
 
 .admin-user-messages-list-header h2 svg { width: 18px; height: 18px; }
 .admin-message-filter-count { padding: 2px 6px; border-radius: 5px; background: rgb(99 135 94 / 10%); font-size: 10px; }
-.admin-user-messages-filters .is-active .admin-message-filter-count { background: rgb(255 255 255 / 20%); }
+.admin-user-messages-filters .is-active .admin-message-filter-count { background: var(--theme-active-count-surface, rgb(255 255 255 / 20%)); }
 
 .admin-user-messages-list-header p {
     margin: 3px 0 0;
@@ -157,8 +157,8 @@
     padding: 0 12px;
     border: 1px solid var(--border-default);
     border-radius: 9px;
-    background: #fff;
-    color: #49634f;
+    background: var(--theme-surface, #fff);
+    color: var(--theme-text-secondary, #49634f);
     font: inherit;
     font-size: 12px;
     font-weight: 600;
@@ -197,7 +197,7 @@
 
 .admin-user-messages-table th {
     padding: 12px;
-    background: #f5f7f2;
+    background: var(--theme-surface-muted, #f5f7f2);
     border-bottom: 1px solid var(--border-default);
     color: var(--text-muted);
     font-size: 12px;
@@ -214,9 +214,9 @@
     vertical-align: middle;
 }
 
-.admin-user-messages-table tbody tr:hover { background: #fafbf8; }
-.admin-user-messages-table tbody tr.is-unread { background: #f3f9ee; }
-.admin-user-messages-table tr.is-unread .admin-message-title-cell { color: var(--brand-green-dark); font-weight: 700; }
+.admin-user-messages-table tbody tr:hover { background: var(--theme-surface-muted, #fafbf8); }
+.admin-user-messages-table tbody tr.is-unread { background: var(--theme-surface-muted, #f3f9ee); }
+.admin-user-messages-table tr.is-unread .admin-message-title-cell { color: var(--theme-accent, var(--brand-green-dark)); font-weight: 700; }
 .admin-message-title-cell { min-width: 150px; max-width: 260px; overflow-wrap: anywhere; }
 .admin-user-messages-table td:nth-child(4) { max-width: 230px; overflow-wrap: anywhere; }
 .admin-user-messages-table td:nth-child(5) { white-space: nowrap; font-size: 11px; }
@@ -242,7 +242,7 @@
 
 .admin-user-messages-table td:first-child > span {
     margin-top: 3px;
-    color: #8b8984;
+    color: var(--theme-text-muted, #8b8984);
     font-size: 12px;
 }
 
@@ -253,7 +253,7 @@
     gap: 5px;
     padding: 0 9px;
     border-radius: 999px;
-    background: #f0f1ee;
+    background: var(--theme-surface-muted, #f0f1ee);
     color: var(--text-muted);
     font-size: 10px;
     font-weight: 600;
@@ -281,8 +281,8 @@
 }
 
 .admin-user-message-status.is-unread {
-    background: #e8f5eb;
-    color: #2d7b3b;
+    background: var(--theme-surface-muted, #e8f5eb);
+    color: var(--theme-accent, #2d7b3b);
 }
 
 .admin-user-message-row-actions {
@@ -312,18 +312,18 @@
 
 .admin-user-message-dialog-actions button:hover,
 .admin-user-message-confirm-actions .is-secondary:hover {
-    border-color: #cbd5cb;
-    background: #f3f7f3;
+    border-color: var(--theme-border, #cbd5cb);
+    background: var(--theme-surface-muted, #f3f7f3);
 }
 
 .admin-user-message-row-actions .is-delete {
     min-height: 36px;
     gap: 6px;
     padding: 0 12px;
-    border-color: #e1ddd8;
+    border-color: var(--theme-border, #e1ddd8);
     border-radius: 7px;
-    background: #fff;
-    color: #d94a32;
+    background: var(--theme-surface, #fff);
+    color: var(--theme-danger-text, #d94a32);
 }
 
 .admin-user-message-row-actions .is-delete svg {
@@ -335,7 +335,7 @@
 
 .admin-user-message-row-actions .is-delete:hover,
 .admin-user-message-row-actions .is-delete:focus-visible {
-    background: #f8f7f5;
+    background: var(--theme-surface-muted, #f8f7f5);
     border-color: currentColor;
 }
 
@@ -360,7 +360,7 @@
     padding: 32px 24px;
     border: 1px solid var(--border-default);
     border-radius: 16px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     text-align: center;
 }
 
@@ -371,8 +371,8 @@
     place-items: center;
     margin-bottom: 13px;
     border-radius: 50%;
-    background: #edf5e9;
-    color: var(--brand-green-dark);
+    background: var(--theme-surface-muted, #edf5e9);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 23px;
     font-weight: 700;
 }
@@ -387,8 +387,8 @@
 }
 
 .admin-user-messages-state.is-error .admin-user-messages-state-icon {
-    background: #fff0eb;
-    color: #a4472f;
+    background: var(--theme-danger-surface, #fff0eb);
+    color: var(--theme-danger-text, #a4472f);
 }
 
 .admin-user-messages-state h2 {
@@ -407,7 +407,7 @@
 }
 
 .admin-user-messages-state.is-error p {
-    color: #9a4936;
+    color: var(--theme-danger-text, #9a4936);
 }
 
 .admin-user-messages-state button {
@@ -431,10 +431,10 @@
 .admin-user-messages-alert {
     margin: 0 0 14px;
     padding: 10px 12px;
-    border: 1px solid #f0c9bd;
+    border: 1px solid var(--theme-danger-border, #f0c9bd);
     border-radius: 9px;
-    background: #fff4ef;
-    color: #9a4936;
+    background: var(--theme-danger-surface, #fff4ef);
+    color: var(--theme-danger-text, #9a4936);
     font-size: 12px;
     line-height: 1.5;
 }
@@ -462,8 +462,8 @@
     padding: 0 16px;
     border: 1px solid var(--border-default);
     border-radius: 9px;
-    background: #fff;
-    color: #49634f;
+    background: var(--theme-surface, #fff);
+    color: var(--theme-text-secondary, #49634f);
     font: inherit;
     font-size: 13px;
     font-weight: 700;
@@ -488,8 +488,8 @@
 
 .admin-user-message-reply-button {
     border-color: var(--brand-green-dark);
-    background: #fff;
-    color: var(--brand-green-dark);
+    background: var(--theme-surface, #fff);
+    color: var(--theme-accent, var(--brand-green-dark));
 }
 
 .admin-user-message-reply-button:disabled {
@@ -498,12 +498,12 @@
 }
 
 .admin-user-message-reply-button:not(:disabled):hover {
-    background: #edf5e9;
+    background: var(--theme-surface-muted, #edf5e9);
 }
 
 .admin-user-message-reply-button.is-whatsapp:not(:disabled):hover {
-    border-color: #25d366;
-    background: #eaf7ee;
+    border-color: var(--theme-success-border, #25d366);
+    background: var(--theme-surface-muted, #eaf7ee);
 }
 
 .admin-user-message-back-button:hover {
@@ -512,9 +512,9 @@
 }
 
 .admin-user-message-delete-button:hover {
-    border-color: #d8b9af;
-    background: #fff4ef;
-    color: #9a4936;
+    border-color: var(--theme-danger-border, #d8b9af);
+    background: var(--theme-danger-surface, #fff4ef);
+    color: var(--theme-danger-text, #9a4936);
 }
 
 .admin-user-message-back-button svg,
@@ -539,7 +539,7 @@
     padding: 22px 24px 24px;
     border: 1px solid var(--border-default);
     border-radius: 16px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
 }
 
 .admin-user-message-detail-header {
@@ -552,7 +552,7 @@
 
 .admin-user-message-detail-header h2 {
     margin: 0;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 19px;
     font-weight: 700;
 }
@@ -564,22 +564,22 @@
 }
 
 .admin-user-message-read-status > span {
-    color: #85817c;
+    color: var(--theme-text-muted, #85817c);
     font-size: 11px;
 }
 
 .admin-user-message-read-status strong {
     padding: 5px 9px;
     border-radius: 999px;
-    background: #f0f1ee;
+    background: var(--theme-surface-muted, #f0f1ee);
     color: var(--text-muted);
     font-size: 11px;
     font-weight: 700;
 }
 
 .admin-user-message-read-status strong.is-unread {
-    background: #e8f5eb;
-    color: #2d7b3b;
+    background: var(--theme-surface-muted, #e8f5eb);
+    color: var(--theme-accent, #2d7b3b);
 }
 
 .admin-user-message-detail-metadata {
@@ -616,7 +616,7 @@
 
 .admin-user-message-detail-body h3 {
     margin: 0 0 10px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 14px;
     font-weight: 700;
 }
@@ -649,7 +649,7 @@
     padding: 22px;
     border: 1px solid var(--border-default);
     border-radius: 16px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     box-shadow: 0 24px 70px rgb(0 0 0 / 20%);
     text-align: center;
 }
@@ -661,8 +661,8 @@
     place-items: center;
     margin: 0 auto 12px;
     border-radius: 50%;
-    background: #fff0eb;
-    color: #a4472f;
+    background: var(--theme-danger-surface, #fff0eb);
+    color: var(--theme-danger-text, #a4472f);
     font-size: 22px;
     font-weight: 700;
 }
@@ -692,14 +692,14 @@
 }
 
 .admin-user-message-confirm-actions .is-danger {
-    border-color: #a4472f;
-    background: #a4472f;
+    border-color: var(--theme-danger-button, #a4472f);
+    background: var(--theme-danger-button, #a4472f);
     color: #fff;
 }
 
 .admin-user-message-confirm-actions .is-danger:hover {
-    border-color: #843a29;
-    background: #843a29;
+    border-color: var(--theme-danger-button-hover, #843a29);
+    background: var(--theme-danger-button-hover, #843a29);
 }
 
 .admin-user-message-confirm-actions button:disabled {
@@ -753,7 +753,7 @@
         gap: 8px 10px;
         align-content: start;
         padding: 12px;
-        border: 1px solid #e3e7de;
+        border: 1px solid var(--theme-border, #e3e7de);
         border-radius: 10px;
     }
 
@@ -807,7 +807,7 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         padding-top: 8px;
-        border-top: 1px solid #e3e7de;
+        border-top: 1px solid var(--theme-border, #e3e7de);
     }
 
     .admin-user-message-row-actions button {

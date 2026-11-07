@@ -1,9 +1,10 @@
 import './Header.css'
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import logo from '../../assets/brotando-feiras-alinhada-direita-tons.png'
 import Icon from '../Icon'
 import { restoreAdminProfile } from '../../services/api'
 import { getProfileHref } from '../../services/profileNavigation'
+import { getTheme, subscribeTheme, toggleTheme } from '../../services/theme'
 import {
     AUTH_STATE_CHANGE_EVENT,
     getAdminProfile,
@@ -34,6 +35,8 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     const headerRef = useRef<HTMLElement>(null)
     const menuButtonRef = useRef<HTMLButtonElement>(null)
     const navigationId = useId()
+    const theme = useSyncExternalStore(subscribeTheme, getTheme)
+    const themeButtonLabel = theme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'
     const [authenticated, setAuthenticated] = useState(isAuthenticated)
     const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(() => getAdminProfile())
     const [hasCheckedSession, setHasCheckedSession] = useState(false)
@@ -193,6 +196,15 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
             </nav>
 
             <div className="site-header-account">
+                <button
+                    className="site-header-theme-toggle"
+                    type="button"
+                    aria-label={themeButtonLabel}
+                    title={themeButtonLabel}
+                    onClick={toggleTheme}
+                >
+                    <Icon name={theme === 'light' ? 'moon' : 'sun'} />
+                </button>
                 {adminProfile ? (
                     <a className="site-header-profile" href={getProfileHref(currentHash)} aria-label="Visualizar minha conta" aria-current={initialActiveLink === '#/minha-conta' ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>
                         <div className="site-header-profile-info">

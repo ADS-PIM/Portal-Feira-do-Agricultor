@@ -15,10 +15,10 @@
     justify-content: center;
     margin: 24px auto 32px;
     padding: 30px 32px;
-    border: 1px solid #e4e1d8;
+    border: 1px solid var(--theme-border, #e4e1d8);
     border-radius: 20px;
-    background: #fdfcf9;
-    color: #b83a2b;
+    background: var(--theme-surface-muted, #fdfcf9);
+    color: var(--theme-danger-text, #b83a2b);
     font-size: 15px;
     line-height: 1.5;
     text-align: center;
@@ -58,7 +58,7 @@
 
 .home-producers-header h2 {
     margin: 0;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: clamp(2.1rem, 3vw, 3.1rem);
     line-height: 1.08;
     letter-spacing: -0.06em;
@@ -89,7 +89,7 @@
     min-height: 100%;
     border: 1px solid rgba(20, 57, 40, 0.08);
     border-radius: 24px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     box-shadow: 0 10px 24px rgba(37, 57, 42, 0.05);
     overflow: hidden;
     transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
@@ -107,7 +107,7 @@
     justify-content: flex-start;
     min-height: 230px;
     padding: 16px;
-    background: linear-gradient(135deg, #dfeae0 0%, #edf4ee 100%);
+    background: linear-gradient(135deg, var(--theme-surface-muted, #dfeae0) 0%, var(--theme-surface-muted, #edf4ee) 100%);
 }
 
 .home-producer-visual span {
@@ -117,8 +117,8 @@
     padding: 7px 10px;
     border: 1px solid rgba(18, 79, 46, 0.08);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.72);
-    color: var(--brand-green-dark);
+    background: var(--theme-surface, rgba(255, 255, 255, 0.72));
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -135,7 +135,7 @@
 
 .home-producer-card-body h3 {
     margin: 0;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: clamp(1.3rem, 1.3vw, 1.7rem);
     line-height: 1.2;
 }

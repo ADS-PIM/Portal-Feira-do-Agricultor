@@ -27,7 +27,7 @@
 
 .contact-section-header h2 {
     margin: 0 0 12px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: clamp(30px, 3vw, 40px);
     font-weight: 700;
     line-height: 1.2;
@@ -41,7 +41,7 @@
 
 .contact-section-error {
     margin: -30px auto 24px;
-    color: #a23825;
+    color: var(--theme-danger-text, #a23825);
     text-align: center;
 }
 
@@ -59,7 +59,7 @@
     flex-direction: column;
     align-items: center;
     padding: 30px 20px;
-    border: 1px solid #e1e3db;
+    border: 1px solid var(--theme-border, #e1e3db);
     border-radius: 24px;
     text-align: center;
 }
@@ -70,10 +70,10 @@
     height: 55px;
     place-items: center;
     margin-bottom: 23px;
-    border: 1px solid #e1e3db;
+    border: 1px solid var(--theme-border, #e1e3db);
     border-radius: 50%;
-    background: #fff;
-    color: var(--brand-green-dark);
+    background: var(--theme-surface, #fff);
+    color: var(--theme-accent, var(--brand-green-dark));
 }
 
 .contact-card-icon svg {
@@ -87,7 +87,7 @@
 
 .contact-card h3 {
     margin: 0 0 4px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 19px;
     font-weight: 700;
 }
@@ -127,15 +127,15 @@
     max-width: 760px;
     margin: 32px auto 0;
     padding: 22px 26px;
-    border: 1px solid #e1e3db;
+    border: 1px solid var(--theme-border, #e1e3db);
     border-radius: 18px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     text-align: center;
 }
 
 .contact-section-hours h3 {
     margin: 0 0 10px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 18px;
 }
 
@@ -237,7 +237,7 @@
         min-height: 0;
         padding: 14px;
         border-radius: 14px;
-        background: #fff;
+        background: var(--theme-surface, #fff);
         text-align: left;
     }
 
@@ -249,7 +249,7 @@
         margin: 0;
         border: 0;
         border-radius: 12px;
-        background: #edf5e9;
+        background: var(--theme-surface-muted, #edf5e9);
     }
 
     .contact-card-icon svg {
@@ -286,16 +286,16 @@
         min-height: 40px;
         margin-top: 4px;
         padding: 7px 12px;
-        border: 1px solid #dce8d5;
+        border: 1px solid var(--theme-border, #dce8d5);
         border-radius: 9px;
-        background: #f3f8ef;
-        color: var(--brand-green-dark);
+        background: var(--theme-surface-muted, #f3f8ef);
+        color: var(--theme-accent, var(--brand-green-dark));
         font-size: 12px;
         text-decoration: none;
     }
 
     .contact-card a:hover {
-        background: #e7f2df;
+        background: var(--theme-success-surface, #e7f2df);
     }
 
     .contact-section-hours {

@@ -98,6 +98,7 @@ textarea {
 }
 
 :root {
+    color-scheme: light;
     --font-family-base: "Now", sans-serif;
     --home-section-label-font-size: 1.04rem;
     --brand-green: #0a9134;
@@ -123,4 +124,52 @@ textarea {
     width: 1em;
     height: 1em;
     vertical-align: -0.125em;
+}
+
+/* Theme tokens keep the original colors as fallbacks in component styles. */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --brand-green: #327d51;
+    --brand-green-dark: #286641;
+    --brand-green-hover: #205435;
+    --brand-green-light: #2a2b30;
+    --brand-green-soft: #222328;
+    --brand-orange-dark: #ffbc70;
+    --brand-pink: #ff7890;
+    --brand-charcoal: #f0f0f2;
+    --brand-white: #1d1e22;
+    --text-secondary: #c8c8ce;
+    --text-muted: #abaeb6;
+    --text-placeholder: #989ca6;
+    --border-default: #383b43;
+    --surface-page: #121316;
+    --surface-admin: #15161a;
+    --surface-input: #18191d;
+    --theme-text: var(--brand-charcoal);
+    --theme-text-secondary: var(--text-secondary);
+    --theme-text-muted: var(--text-muted);
+    --theme-accent: #e4e4e7;
+    --theme-surface: var(--brand-white);
+    --theme-surface-muted: #25272c;
+    --theme-border: var(--border-default);
+    --theme-sidebar: #17181c;
+    --theme-feature-surface: #282b32;
+    --theme-on-orange: #271909;
+    --theme-active-count-surface: rgb(0 0 0 / 20%);
+    --theme-success-surface: #27312b;
+    --theme-success-border: #435b4b;
+    --theme-danger-text: #ff6b61;
+    --theme-danger-surface: #3c2423;
+    --theme-danger-border: #bb4349;
+    --theme-danger-button: #c5252f;
+    --theme-danger-button-hover: #d52c35;
+    --theme-warning-text: #ffb432;
+    --theme-warning-surface: #362d1d;
+    --theme-warning-border: #976412;
+    --theme-info-text: #62a7ff;
+    --theme-info-surface: #1d2e45;
+    --theme-info-border: #2e72ca;
+    --theme-purple-text: #ba83ff;
+    --theme-purple-surface: #30253e;
+    --theme-purple-border: #8950d2;
 }

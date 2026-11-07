@@ -6,7 +6,7 @@
     height: auto;
     flex: 0 0 200px;
     overflow: visible;
-    background: var(--brand-charcoal);
+    background: var(--theme-sidebar, var(--brand-charcoal));
     color: #d7d9d6;
     font-family: var(--font-family-base);
 }
@@ -76,7 +76,7 @@
     width: 18px;
     height: 18px;
     flex: 0 0 18px;
-    color: #aeb5af;
+    color: var(--theme-text-muted, #aeb5af);
 }
 
 .admin-side-nav-item.is-active .admin-side-nav-icon {

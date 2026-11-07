@@ -19,7 +19,7 @@
 
 .producers-page-header h1 {
     margin: 0 0 8px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: clamp(2.5rem, 4vw, 4.1rem);
     line-height: 1.02;
     letter-spacing: -0.065em;
@@ -50,7 +50,7 @@
     padding: 0 16px;
     border: 1px solid rgba(20, 46, 30, 0.14);
     border-radius: 14px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
     transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
@@ -100,7 +100,7 @@
     border: 1px solid rgba(9, 92, 42, 0.12);
     border-radius: 10px;
     background: var(--surface-admin);
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font: inherit;
     font-size: 0.78rem;
     font-weight: 600;
@@ -111,7 +111,7 @@
 .producers-filter-list button:hover,
 .producers-filter-list button:focus-visible {
     border-color: rgba(9, 92, 42, 0.18);
-    background: #eaf4ed;
+    background: var(--theme-surface-muted, #eaf4ed);
     transform: translateY(-1px);
 }
 
@@ -141,7 +141,7 @@
     padding: 0;
     border: 1px solid rgba(12, 62, 39, 0.08);
     border-radius: 24px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     box-shadow: 0 10px 28px rgba(46, 69, 52, 0.05);
     overflow: hidden;
     transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
@@ -161,11 +161,11 @@
     justify-content: flex-start;
     min-height: 220px;
     padding: 16px;
-    background: #dfe7df;
+    background: var(--theme-surface-muted, #dfe7df);
 }
 
 .producer-card-identity--placeholder {
-    background: linear-gradient(135deg, #dfe7df 0%, #eef3ee 100%);
+    background: linear-gradient(135deg, var(--theme-surface-muted, #dfe7df) 0%, var(--theme-surface-muted, #eef3ee) 100%);
 }
 
 .producer-card-photo {
@@ -183,9 +183,9 @@
     display: inline-block;
     padding: 6px 10px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.82);
+    background: var(--theme-surface, rgba(255, 255, 255, 0.82));
     backdrop-filter: blur(5px);
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 0.63rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -201,7 +201,7 @@
 
 .producer-card-body h2 {
     margin: 0 0 8px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: clamp(1.2rem, 1.8vw, 1.7rem);
     line-height: 1.2;
 }
@@ -211,13 +211,13 @@
     align-items: center;
     gap: 7px;
     margin-bottom: 12px;
-    color: #3f5253;
+    color: var(--theme-text-secondary, #3f5253);
     font-size: 0.82rem;
     font-weight: 600;
 }
 
 .producer-card-location span {
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 0.74rem;
 }
 
@@ -243,7 +243,7 @@
     border: 1px solid rgba(8, 117, 43, 0.14);
     border-radius: 10px;
     background: var(--brand-green-light);
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font: inherit;
     font-size: 0.8rem;
     font-weight: 700;
@@ -253,7 +253,7 @@
 
 .producer-card-footer button:hover,
 .producer-card-footer button:focus-visible {
-    background: #dff3e4;
+    background: var(--theme-success-surface, #dff3e4);
     box-shadow: 0 8px 18px rgba(10, 145, 52, 0.12);
     transform: translateY(-1px);
 }
@@ -269,13 +269,13 @@
     padding: 28px 20px;
     border: 1px solid rgba(11, 78, 43, 0.08);
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--theme-surface, rgba(255, 255, 255, 0.5));
     text-align: center;
 }
 
 .producer-empty-state h2 {
     margin: 0 0 8px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
 }
 
 .producer-empty-state p {

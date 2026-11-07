@@ -8,7 +8,7 @@
 .admin-business-info-header {
     padding: 15px 30px 13px;
     border-bottom: 1px solid var(--border-default);
-    background: #fff;
+    background: var(--theme-surface, #fff);
 }
 
 .admin-business-info-header h1 {
@@ -39,7 +39,7 @@
     max-width: 100%;
     border: 1px solid var(--border-default);
     border-radius: 12px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     box-shadow: none;
 }
 
@@ -78,9 +78,9 @@
     box-sizing: border-box;
     width: 100%;
     min-width: 0;
-    border: 1px solid #aebca8;
+    border: 1px solid var(--theme-border, #aebca8);
     border-radius: 9px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     color: var(--brand-charcoal);
     font: inherit;
     font-weight: 400;
@@ -122,7 +122,7 @@
 
 .admin-business-info-character-count.is-over-limit,
 .admin-business-info-field-error {
-    color: #b42318;
+    color: var(--theme-danger-text, #b42318);
 }
 
 .admin-business-info-field-error {
@@ -182,16 +182,16 @@
     gap: 14px;
     min-width: 0;
     padding: 16px 14px;
-    border: 1px solid #cddfce;
+    border: 1px solid var(--theme-border, #cddfce);
     border-top: 3px solid #3b7950;
     border-radius: 12px;
-    background: #f6faf5;
+    background: var(--theme-surface-muted, #f6faf5);
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .admin-business-hours-day.is-closed {
-    border-color: #e3e4e0;
-    background: #fafaf8;
+    border-color: var(--theme-border, #e3e4e0);
+    background: var(--theme-surface-muted, #fafaf8);
 }
 
 .admin-business-hours-day:focus-within {
@@ -200,7 +200,7 @@
 
 .admin-business-hours-dayHeader {
     padding-bottom: 14px;
-    border-bottom: 1px solid #e1e9dd;
+    border-bottom: 1px solid var(--theme-border, #e1e9dd);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -217,7 +217,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    color: #53624f;
+    color: var(--theme-text-secondary, #53624f);
     font-size: 12px;
     font-weight: 600;
 }
@@ -227,9 +227,9 @@
     width: 100%;
     min-height: 42px;
     padding: 9px 10px;
-    border: 1px solid #bdceba;
+    border: 1px solid var(--theme-border, #bdceba);
     border-radius: 8px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     color: var(--brand-charcoal);
     font: inherit;
     font-weight: 400;
@@ -245,8 +245,8 @@
 }
 
 .admin-business-hours-time input:disabled {
-    border-color: #e1e3dd;
-    background: #f0f1ed;
+    border-color: var(--theme-border, #e1e3dd);
+    background: var(--theme-surface-muted, #f0f1ed);
     color: var(--text-muted);
     cursor: not-allowed;
 }
@@ -257,7 +257,7 @@
     align-items: center;
     gap: 8px;
     min-height: 28px;
-    color: #346943;
+    color: var(--theme-accent, #346943);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -324,9 +324,9 @@
 
 .admin-business-hours-legacy {
     padding: 12px;
-    border: 1px solid #e8d7a8;
+    border: 1px solid var(--theme-warning-border, #e8d7a8);
     border-radius: 9px;
-    background: #fff9e9;
+    background: var(--theme-warning-surface, #fff9e9);
 }
 
 .admin-business-hours-legacy-value {
@@ -337,9 +337,9 @@
 .admin-business-hours-legacy button {
     margin-top: 10px;
     padding: 7px 11px;
-    border: 1px solid #d4d3ce;
+    border: 1px solid var(--theme-border, #d4d3ce);
     border-radius: 7px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     color: var(--brand-charcoal);
     font: inherit;
     font-size: 12px;
@@ -356,9 +356,9 @@
     max-width: 100%;
     min-height: 42px;
     padding: 16px 12px;
-    border: 1px solid #dedbd7;
+    border: 1px solid var(--theme-border, #dedbd7);
     border-radius: 9px;
-    background: #fafbf8;
+    background: var(--theme-surface-muted, #fafbf8);
     box-sizing: border-box;
 }
 
@@ -368,8 +368,8 @@
     width: 30px;
     height: 30px;
     border-radius: 8px;
-    background: #eaf3e4;
-    color: #43734b;
+    background: var(--theme-success-surface, #eaf3e4);
+    color: var(--theme-accent, #43734b);
 }
 
 .admin-business-info-iconWrap svg {
@@ -379,8 +379,8 @@
 
 .admin-business-info-row input {
     min-height: 40px;
-    border: 1px solid #aebca8;
-    background: #fff;
+    border: 1px solid var(--theme-border, #aebca8);
+    background: var(--theme-surface, #fff);
     padding: 9px 10px;
     font-size: 13px;
     color: var(--brand-charcoal);
@@ -390,9 +390,9 @@
     position: relative;
     width: 36px;
     height: 20px;
-    border: 1px solid #c8cec6;
+    border: 1px solid var(--theme-border, #c8cec6);
     border-radius: 999px;
-    background: #dfe3dc;
+    background: var(--theme-surface-muted, #dfe3dc);
     cursor: pointer;
     transition: all 0.2s ease;
     padding: 0;
@@ -428,7 +428,7 @@
     gap: 12px;
     margin-top: 10px;
     padding-top: 12px;
-    border-top: 1px solid #e6e2dd;
+    border-top: 1px solid var(--theme-border, #e6e2dd);
 }
 
 .admin-business-info-updateStamp {
@@ -468,8 +468,8 @@
 }
 
 .admin-business-info-button.is-secondary {
-    border-color: #d4d3ce;
-    background: #f8f8f5;
+    border-color: var(--theme-border, #d4d3ce);
+    background: var(--theme-surface-muted, #f8f8f5);
     color: var(--brand-charcoal);
 }
 
@@ -492,19 +492,19 @@
 
 .admin-business-info-alert.is-error {
     border: 1px solid rgba(226, 43, 43, 0.15);
-    background: rgba(255, 245, 245, 0.8);
-    color: #b42318;
+    background: var(--theme-surface-muted, rgba(255, 245, 245, 0.8));
+    color: var(--theme-danger-text, #b42318);
 }
 
 .admin-business-info-alert.is-success {
     border: 1px solid rgba(10, 145, 52, 0.18);
-    background: rgba(233, 247, 237, 0.85);
-    color: var(--brand-green-dark);
+    background: var(--theme-surface-muted, rgba(233, 247, 237, 0.85));
+    color: var(--theme-accent, var(--brand-green-dark));
 }
 
 .admin-business-info-loading {
     padding: 36px 18px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-weight: 700;
     text-align: center;
 }
@@ -526,7 +526,7 @@
     height: 20px;
     flex: 0 0 20px;
     overflow: visible;
-    color: #3b7950;
+    color: var(--theme-accent, #3b7950);
 }
 
 .admin-business-contact-field input::placeholder,
@@ -538,14 +538,14 @@
 .admin-business-info-row input:hover,
 .admin-business-info-field textarea:hover,
 .admin-business-hours-time input:hover:not(:disabled) {
-    border-color: #72916b;
+    border-color: var(--theme-border, #72916b);
 }
 .admin-business-info-intro p,
 .admin-business-info-contact-heading p { margin: 7px 0 0; color: var(--text-muted); font-size: 11px; line-height: 1.7; }
 .admin-business-info-contact-heading,
-.admin-business-hours { margin-top: 8px; padding-top: 22px; border-top: 1px solid #edf0e9; }
+.admin-business-hours { margin-top: 8px; padding-top: 22px; border-top: 1px solid var(--theme-border, #edf0e9); }
 .admin-business-contact-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.admin-business-contact-field > span { color: #4a644d; font-size: 11px; font-weight: 600; }
+.admin-business-contact-field > span { color: var(--theme-text-secondary, #4a644d); font-size: 11px; font-weight: 600; }
 .admin-business-info-row input[aria-invalid="true"] { border-color: #b42318; }
 .admin-business-contact-error { grid-column: 1 / -1; margin: 0; }
 .admin-business-info-button svg,

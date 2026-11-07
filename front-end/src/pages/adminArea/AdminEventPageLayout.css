@@ -3,7 +3,7 @@
 .admin-events-heading {
     padding: 15px 30px 13px;
     border-bottom: 1px solid var(--border-default);
-    background: #fff;
+    background: var(--theme-surface, #fff);
 }
 
 .admin-dashboard-header h1,

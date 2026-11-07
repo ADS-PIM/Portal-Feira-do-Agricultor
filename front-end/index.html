@@ -3,6 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Apply the saved theme before the page is painted.
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem('brotando-feiras-theme') === 'dark' ? 'dark' : 'light'
+      } catch {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
     <title>Início | Brotando Feiras</title>
     <link rel="icon" type="image/png" href="public/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="public/favicon.svg" />

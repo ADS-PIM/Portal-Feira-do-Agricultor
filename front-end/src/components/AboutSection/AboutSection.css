@@ -6,7 +6,7 @@
     align-items: center;
     justify-content: center;
     padding: 72px 24px;
-    background: #f8efd9;
+    background: var(--theme-surface-muted, #f8efd9);
     color: var(--text-muted);
     font-family: var(--font-family-base);
     text-align: center;
@@ -22,7 +22,7 @@
 .about-section h2 {
     max-width: 1000px;
     margin: 0 0 12px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: clamp(30px, 3vw, 40px);
     font-weight: 700;
     line-height: 1.2;

@@ -13,9 +13,9 @@
     min-width: 0;
     margin: 0;
     padding: 32px;
-    border: 1px solid #e2eee4;
+    border: 1px solid var(--theme-border, #e2eee4);
     border-radius: 24px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     color: var(--brand-charcoal);
     font-family: var(--font-family-base);
 }
@@ -52,10 +52,10 @@
     min-width: calc(5ch + 2rem);
     flex: 0 0 auto;
     padding: 2px 0.75rem 2px 0.4rem;
-    border: 1px solid #e2eee4;
+    border: 1px solid var(--theme-border, #e2eee4);
     border-radius: 8px;
-    background-color: #fdfcf9;
-    color: #000;
+    background-color: var(--theme-surface-muted, #fdfcf9);
+    color: var(--theme-text, #000);
     font: inherit;
     font-size: 0.82em;
     font-weight: 700;
@@ -63,9 +63,9 @@
 }
 
 .calendar-year-select:hover {
-    border-color: #cbd8cd;
+    border-color: var(--theme-border, #cbd8cd);
     background-color: var(--brand-green-light);
-    color: #000;
+    color: var(--theme-text, #000);
 }
 
 .calendar-year-select:focus-visible {
@@ -92,9 +92,9 @@
     height: 42px;
     place-items: center;
     padding: 0;
-    border: 1px solid #e2eee4;
+    border: 1px solid var(--theme-border, #e2eee4);
     border-radius: 10px;
-    background: #fdfcf9;
+    background: var(--theme-surface-muted, #fdfcf9);
     color: var(--brand-charcoal);
     cursor: pointer;
     transition: background-color 150ms ease, border-color 150ms ease;
@@ -168,11 +168,11 @@
 }
 
 .calendar-day-button:hover {
-    background: #f1f3ef;
+    background: var(--theme-surface-muted, #f1f3ef);
 }
 
 .calendar-day-button.has-events {
-    background: var(--calendar-status-soft, #f1f3ef);
+    background: var(--calendar-status-soft, var(--theme-surface-muted, #f1f3ef));
     color: var(--calendar-status-text, var(--brand-charcoal));
     font-weight: 700;
 }
@@ -225,7 +225,7 @@
 
 .calendar-error {
     margin: 0 0 16px;
-    color: #9f2d24;
+    color: var(--theme-danger-text, #9f2d24);
     font-size: 14px;
     line-height: 1.5;
 }
@@ -234,12 +234,12 @@
     margin-top: 24px;
     padding: 20px 22px;
     border-radius: 16px;
-    background: #f7f8f5;
+    background: var(--theme-surface-muted, #f7f8f5);
 }
 
 .calendar-selected-events h3 {
     margin: 0 0 12px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 17px;
     font-weight: 700;
     text-transform: capitalize;
@@ -263,7 +263,7 @@
     display: grid;
     gap: 4px;
     padding-top: 12px;
-    border-top: 1px solid #e2eee4;
+    border-top: 1px solid var(--theme-border, #e2eee4);
     color: var(--text-muted);
     font-size: 14px;
     line-height: 1.45;

@@ -2,7 +2,7 @@
     box-sizing: border-box;
     width: 100%;
     padding: 48px 5.6% 64px;
-    background: #fff8ed;
+    background: var(--theme-surface-muted, #fff8ed);
     color: var(--brand-charcoal);
     font-family: var(--font-family-base);
 }
@@ -24,7 +24,7 @@
 
 .panel-header h2 {
     margin: 0;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: clamp(30px, 3vw, 40px);
     font-weight: 700;
     line-height: 1.2;
@@ -47,9 +47,9 @@
     justify-content: center;
     margin: 0 auto;
     padding: 36px 48px;
-    border: 1px solid #eadfca;
+    border: 1px solid var(--theme-border, #eadfca);
     border-radius: 24px;
-    background: rgb(255 255 255 / 55%);
+    background: var(--theme-surface, rgb(255 255 255 / 55%));
     text-align: center;
 }
 
@@ -60,7 +60,7 @@
     place-items: center;
     margin-bottom: 20px;
     border-radius: 50%;
-    background: #fff0dc;
+    background: var(--theme-warning-surface, #fff0dc);
     color: var(--brand-orange);
 }
 
@@ -75,7 +75,7 @@
 
 .event-empty-state h3 {
     margin: 0 0 8px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 22px;
     font-weight: 700;
     line-height: 1.35;
@@ -102,7 +102,7 @@
     overflow: hidden;
     aspect-ratio: 1.04;
     border-radius: 22px;
-    background: #eadfca;
+    background: var(--theme-warning-surface, #eadfca);
 }
 
 .event-image.is-missing {
@@ -133,7 +133,7 @@
 
 .event-info h3 {
     margin: 0 0 12px;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 27px;
     font-weight: 700;
     line-height: 1.25;
@@ -163,7 +163,7 @@
     display: grid;
     gap: 16px;
     padding-top: 27px;
-    border-top: 1px solid #e9dfcd;
+    border-top: 1px solid var(--theme-border, #e9dfcd);
 }
 
 .event-detail {
@@ -179,7 +179,7 @@
     flex: 0 0 40px;
     place-items: center;
     border-radius: 50%;
-    background: #fff0dc;
+    background: var(--theme-warning-surface, #fff0dc);
     color: var(--brand-orange);
 }
 

@@ -12,7 +12,7 @@
     border: 1px solid var(--border-default);
     border-radius: 20px;
     background: var(--brand-green-soft);
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     text-align: center;
 }
 

@@ -41,7 +41,7 @@
 }
 
 .admin-dashboard-agenda .admin-events-day-button.has-events {
-    background: var(--calendar-status-soft, #f1f3ef);
+    background: var(--calendar-status-soft, var(--theme-surface-muted, #f1f3ef));
     color: var(--calendar-status-text, var(--brand-charcoal));
 }
 
@@ -258,7 +258,7 @@
 }
 
 .admin-dashboard-period-month {
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font-size: 18px;
     font-weight: 700;
     line-height: 1.4;
@@ -279,18 +279,18 @@
     height: 36px;
     padding: 0 30px 0 12px;
     appearance: none;
-    border: 1px solid #d8e5d2;
+    border: 1px solid var(--theme-border, #d8e5d2);
     border-radius: 9px;
-    background: #f3f8ef;
-    color: #3f6544;
+    background: var(--theme-surface-muted, #f3f8ef);
+    color: var(--theme-accent, #3f6544);
     font-size: 13px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
 }
 
 .admin-dashboard-period-year .admin-events-calendar-year:hover {
-    border-color: #9bb792;
-    background: #eaf3e5;
+    border-color: var(--theme-border, #9bb792);
+    background: var(--theme-surface-muted, #eaf3e5);
 }
 
 .admin-dashboard-period-year > svg {
@@ -298,7 +298,7 @@
     right: 11px;
     width: 10px;
     height: 10px;
-    color: #63815b;
+    color: var(--theme-text-muted, #63815b);
     pointer-events: none;
     transform: rotate(90deg);
 }
@@ -367,12 +367,12 @@
     padding: 12px 14px 14px;
     border: 1px solid var(--border-default);
     border-radius: 14px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     box-shadow: none;
 }
 
 .admin-dashboard-stat-card.is-subtle {
-    background: #f8faf8;
+    background: var(--theme-surface-muted, #f8faf8);
 }
 
 .admin-dashboard-stat-card-header {
@@ -389,7 +389,7 @@
     padding: 10px 0 0;
     border: 0;
     background: transparent;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -398,7 +398,7 @@
 }
 
 .admin-dashboard-stat-shortcut:hover {
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     text-decoration: underline;
     text-underline-offset: 3px;
 }
@@ -483,7 +483,7 @@
 
 .admin-dashboard-stat-pill {
     background: rgba(116, 172, 127, 0.18);
-    color: #226d3b;
+    color: var(--theme-accent, #226d3b);
 }
 
 .admin-dashboard-stat-action {
@@ -511,15 +511,15 @@
 
 .admin-dashboard-alert.is-error {
     border: 1px solid rgba(226, 43, 43, 0.15);
-    background: rgba(255, 245, 245, 0.8);
-    color: #b42318;
+    background: var(--theme-surface-muted, rgba(255, 245, 245, 0.8));
+    color: var(--theme-danger-text, #b42318);
 }
 
 .admin-dashboard-calendar-panel,
 .admin-dashboard-events-panel {
     border: 1px solid var(--border-default);
     border-radius: 12px;
-    background: #fff;
+    background: var(--theme-surface, #fff);
     padding: 18px 18px 16px;
 }
 
@@ -588,7 +588,7 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: var(--brand-green-dark);
+    color: var(--theme-accent, var(--brand-green-dark));
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -639,7 +639,7 @@
     height: 24px;
     border: 0;
     border-radius: 6px;
-    background: #f2f3f0;
+    background: var(--theme-surface-muted, #f2f3f0);
     color: var(--brand-charcoal);
     cursor: pointer;
 }
@@ -672,9 +672,9 @@
     place-items: center;
     width: 32px;
     height: 32px;
-    border: 1px solid #d9d2cb;
+    border: 1px solid var(--theme-border, #d9d2cb);
     border-radius: 8px;
-    background: #f8f7f5;
+    background: var(--theme-surface-muted, #f8f7f5);
     color: var(--brand-charcoal);
     cursor: pointer;
     font-size: 20px;
@@ -723,16 +723,16 @@
 }
 
 .admin-dashboard-day-cell:hover {
-    background: #f0f5f0;
+    background: var(--theme-surface-muted, #f0f5f0);
 }
 
 .admin-dashboard-day-cell.is-muted {
-    color: #a19b96;
+    color: var(--theme-text-muted, #a19b96);
 }
 
 .admin-dashboard-day-cell.is-event {
     background: rgba(92, 163, 112, 0.18);
-    color: #1c6d3b;
+    color: var(--theme-accent, #1c6d3b);
     border-radius: 999px;
     box-shadow: inset 0 0 0 1px rgba(92, 163, 112, 0.12);
 }
@@ -755,9 +755,9 @@
     gap: 14px;
     margin-top: 16px;
     padding: 12px 14px;
-    border: 1px solid #dfe8df;
+    border: 1px solid var(--theme-border, #dfe8df);
     border-radius: 9px;
-    background: #f7faf7;
+    background: var(--theme-surface-muted, #f7faf7);
 }
 
 .admin-dashboard-calendar-selection > div {
@@ -811,9 +811,9 @@
     gap: 16px;
     align-items: center;
     padding: 12px 14px;
-    border: 1px solid #e5e0da;
+    border: 1px solid var(--theme-border, #e5e0da);
     border-radius: 12px;
-    background: #f9f7f5;
+    background: var(--theme-surface-muted, #f9f7f5);
 }
 
 .admin-dashboard-event-date {
@@ -824,8 +824,8 @@
     width: 72px;
     height: 72px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #dfeee6, #d4e9dc);
-    color: #0d6d35;
+    background: linear-gradient(135deg, var(--theme-success-surface, #dfeee6), var(--theme-success-surface, #d4e9dc));
+    color: var(--theme-accent, #0d6d35);
     text-align: center;
 }
 
@@ -897,10 +897,10 @@
     align-items: center;
     justify-content: center;
     padding: 0 9px;
-    border: 1px solid #d9e5da;
+    border: 1px solid var(--theme-border, #d9e5da);
     border-radius: 6px;
-    background: #fff;
-    color: var(--brand-green-dark);
+    background: var(--theme-surface, #fff);
+    color: var(--theme-accent, var(--brand-green-dark));
     font: inherit;
     font-size: 11px;
     font-weight: 700;
@@ -911,17 +911,17 @@
 .admin-dashboard-event-actions a:hover,
 .admin-dashboard-event-actions button:hover {
     border-color: var(--brand-green-dark);
-    background: #f4faf5;
+    background: var(--theme-surface-muted, #f4faf5);
 }
 
 .admin-dashboard-event-actions button.is-danger {
-    border-color: #efd7d3;
-    color: #a33b31;
+    border-color: var(--theme-border, #efd7d3);
+    color: var(--theme-danger-text, #a33b31);
 }
 
 .admin-dashboard-event-actions button.is-danger:hover {
-    border-color: #dba69e;
-    background: #fff7f5;
+    border-color: var(--theme-danger-border, #dba69e);
+    background: var(--theme-surface-muted, #fff7f5);
 }
 
 .admin-dashboard-event-actions a:focus-visible,
