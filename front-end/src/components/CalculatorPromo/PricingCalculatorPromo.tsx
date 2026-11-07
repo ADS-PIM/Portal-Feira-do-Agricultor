@@ -30,7 +30,7 @@ const PricingCalculatorPromo = () => {
                     <ul>
                         <li>Insumos</li>
                         <li>Operação</li>
-                        <li>Transporte e labor</li>
+                        <li>Transporte e trabalho</li>
                     </ul>
                 </aside>
             </div>

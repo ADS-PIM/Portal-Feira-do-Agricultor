@@ -75,7 +75,7 @@ const MainPage = () => {
                 <section className="home-producers-section" aria-labelledby="home-producers-title">
                     <div className="home-producers-header">
                         <p className="home-producers-kicker">NOSSAS RAÍZES</p>
-                        <h2 id="home-producers-title">Gente que faz brotar com carinho</h2>
+                        <h2 id="home-producers-title">Nossos Produtores</h2>
                         <p>
                             Conheça as famílias que dedicam seu tempo e cuidado à terra, trazendo sabor e frescor para a feira.
                         </p>
@@ -96,7 +96,7 @@ const MainPage = () => {
                     </div>
 
                     <div className="home-producers-actions">
-                        <a href="#/produtores" className="event-agenda-calendar-button home-producers-cta">Conhecer Todos os Produtores</a>
+                        <a href="#/produtores" className="event-agenda-calendar-button home-producers-cta">Conhecer os Produtores</a>
                     </div>
                 </section>
                 <PricingCalculatorPromo />

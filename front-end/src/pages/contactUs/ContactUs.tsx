@@ -231,7 +231,7 @@ const ContactUsPage = () => {
                       value={formData.email}
                       onChange={handleChange}
                       onInvalid={(event) => event.currentTarget.setCustomValidity(CONTACT_EMAIL_ERROR)}
-                      placeholder="seu-email@exemplo.com (Opicional)"
+                      placeholder="seu-email@exemplo.com (Opcional)"
                       autoComplete="email"
                       maxLength={254}
                     />
@@ -253,7 +253,7 @@ const ContactUsPage = () => {
                       autoComplete="tel-national"
                       pattern={PHONE_PATTERN}
                       title="Informe um telefone com DDD: (88) 3333-4444 ou (88) 99999-9999, sem letras."
-                      placeholder="(88) 99999-9999 (Opicional)"
+                      placeholder="(88) 99999-9999 (Opcional)"
                     />
                     <ContactFieldError id="contact-phone-error" className="contact-field-error" message={phoneError} />
                   </div>
