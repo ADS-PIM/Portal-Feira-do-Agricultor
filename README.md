@@ -353,6 +353,48 @@ Validação local: `npm.cmd test` e `npm.cmd run build` em `back-end`;
 `npm.cmd run lint` em `front-end`. Os testes simulam os provedores e o MySQL;
 um upload real e a migração real precisam das credenciais configuradas.
 
+### Status automáticos dos eventos
+
+O backend usa a data e os horários cadastrados no fuso `America/Sao_Paulo`,
+independentemente do fuso do servidor ou do visitante:
+
+- **Agendado** e **Reagendado** passam a **Em andamento** no horário de início.
+- Ao atingir o horário de término, passam a **Concluído**, inclusive quando o
+  evento ficou pendente durante todo o período ou já terminou em dias anteriores.
+- **Cancelado** e **Concluído** são preservados. Para reabrir um evento concluído,
+  ajuste a data/horários e selecione **Agendado** ou **Reagendado** ao salvar.
+- Um reagendamento segue a nova data e os novos horários registrados. Apenas
+  selecionar **Reagendado** sem alterar uma data passada fará o evento concluir
+  novamente; cadastre a nova programação na mesma edição.
+
+As mudanças são persistidas no MySQL antes das consultas de listagem pública,
+painel administrativo, detalhe, próximo evento e agenda. Criação e edição também
+aplicam a regra na mesma transação. Assim, eventos já vencidos são corrigidos na
+primeira consulta após publicar esta versão, sem migration nem edição manual.
+As respostas de eventos usam `Cache-Control: no-store`. Páginas já abertas
+recebem os novos status na próxima consulta à API.
+
+Com `npm run dev` ou outro servidor Node contínuo, a rotina executa ao iniciar e
+a cada minuto, mesmo sem visitas. Falhas são registradas e a próxima execução
+tenta novamente; execuções periódicas não se sobrepõem no mesmo processo.
+
+Na Vercel, `back-end/vercel.json` agenda `GET /internal/event-status` uma vez por
+dia às **03:00 UTC** (meia-noite em São Paulo), também para períodos sem visitas.
+O agendamento diário é compatível com o plano Hobby, que pode dispará-lo em
+qualquer momento dessa hora. As consultas sempre atualizam os status antes de
+retornar, sem esperar a execução diária. Para persistência em intervalos menores
+mesmo sem tráfego, use um agendador externo autenticado ou ajuste a expressão
+cron conforme o plano contratado.
+
+Configure **`CRON_SECRET`** nas variáveis de produção do projeto **backend** e
+publique novamente o backend com Root Directory `back-end`. Gere um segredo
+aleatório exclusivo com pelo menos 32 caracteres. A Vercel envia automaticamente
+`Authorization: Bearer <CRON_SECRET>`; a rota rejeita chamadas sem o segredo e
+retorna 503 quando ele não está configurado. A atualização durante as consultas
+funciona independentemente desse segredo. Confira o agendamento no painel
+**Cron Jobs** após o deploy. Referências: [limites do cron](https://vercel.com/docs/cron-jobs/usage-and-pricing)
+e [proteção com CRON_SECRET](https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs).
+
 ### Publicação na Vercel
 
 Configure o frontend e o backend como projetos separados. No frontend, defina

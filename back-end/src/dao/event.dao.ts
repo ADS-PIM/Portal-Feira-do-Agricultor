@@ -1,9 +1,30 @@
 import { connection } from '../util/connection'
 import { randomUUID } from 'node:crypto'
-import type { PoolConnection } from 'mysql2/promise'
+import type { Pool, PoolConnection, ResultSetHeader } from 'mysql2/promise'
 import { rememberEventLocation } from './eventLocation.dao'
 import { Event, EventState } from '../model/event'
 import { AdminEventSearchDTO, EventAgendaSearchDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
+import { eventLocalTimestamp } from '../util/eventTime'
+
+async function synchronizeEventStates(db: Pick<PoolConnection, 'query'>, now: Date, eventId?: string): Promise<number> {
+    const timestamp = eventLocalTimestamp(now)
+    // One conditional UPDATE keeps concurrent edits/cancellations safe and repeated
+    // executions harmless. Terminal states are never reopened automatically.
+    const [result] = await db.query<ResultSetHeader>(`
+        UPDATE events
+        SET state = CASE WHEN TIMESTAMP(date, endAt) <= ? THEN ? ELSE ? END
+        WHERE (
+            (state IN (?, ?) AND TIMESTAMP(date, startAt) <= ?)
+            OR (state = ? AND TIMESTAMP(date, endAt) <= ?)
+        )${eventId === undefined ? '' : ' AND id = ?'}
+    `, [
+        timestamp, EventState.CONCLUDED, EventState.HAPPENING,
+        EventState.PENDING, EventState.RESCHEDULED, timestamp,
+        EventState.HAPPENING, timestamp,
+        ...(eventId === undefined ? [] : [eventId]),
+    ])
+    return result.affectedRows
+}
 
 export type EventUpdateData = {
     title?: string;
@@ -19,8 +40,14 @@ export type EventUpdateData = {
 }
 
 export class EventDAO {
+    constructor(private pool: Pool = connection, private now: () => Date = () => new Date()) {}
+
+    public async synchronizeStates(): Promise<number> {
+        return synchronizeEventStates(this.pool, this.now())
+    }
+
     public async create(event: Event): Promise <void> {
-        const dbConnection = await connection.getConnection()
+        const dbConnection = await this.pool.getConnection()
         try {
             await dbConnection.beginTransaction()
             await dbConnection.query('INSERT INTO events (id, title, date, description, startAt, endAt, localAddress, localLatitude, localLongitude, state, bannerImage, createdAt, administratorId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(6), ?) ', [
@@ -41,6 +68,7 @@ export class EventDAO {
                 await this.syncBannerImage(dbConnection, event.id, event.bannerImage)
             }
             if (event.latitude != null && event.longitude != null) await rememberEventLocation(dbConnection, event.id)
+            await synchronizeEventStates(dbConnection, this.now(), event.id)
             await dbConnection.commit()
         } catch (error: any) {
             await dbConnection.rollback()
@@ -52,7 +80,8 @@ export class EventDAO {
 
     public async searchById(id: string): Promise<EventSearchByIdDTO | null> {
         try {
-            const [events]: any = await connection.query('SELECT * FROM events WHERE id = ?', [id]);
+            await this.synchronizeStates()
+            const [events]: any = await this.pool.query('SELECT * FROM events WHERE id = ?', [id]);
             if (events.length === 0) {
                 return null
             }
@@ -65,7 +94,8 @@ export class EventDAO {
 
     public async searchAll(): Promise<EventSearchDTO[] | null> {
         try {
-            const [events]: any = await connection.query(
+            await this.synchronizeStates()
+            const [events]: any = await this.pool.query(
                 "SELECT id, title, date, description, startAt, endAt, localAddress, localLatitude, localLongitude, state, bannerImage, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i:%s.%f') AS createdAt FROM events ORDER BY createdAt DESC, id DESC"
             );
             return events.length === 0 ? null : events;
@@ -75,7 +105,8 @@ export class EventDAO {
     }
 
     public async searchForAdmin(): Promise<AdminEventSearchDTO[]> {
-        const [events]: any = await connection.query(`
+        await this.synchronizeStates()
+        const [events]: any = await this.pool.query(`
             SELECT e.id, e.title, e.date, e.description, e.startAt, e.endAt, e.localAddress,
                 e.localLatitude, e.localLongitude, e.state, e.bannerImage, DATE_FORMAT(e.createdAt, '%Y-%m-%d %H:%i:%s.%f') AS createdAt,
                 e.administratorId, a.name AS administratorName, a.active AS administratorActive
@@ -91,13 +122,14 @@ export class EventDAO {
 
     public async searchNearest(date: string): Promise<EventNearestSearchDTO | null> {
         try {
-            const [events]: any = await connection.query(
+            await this.synchronizeStates()
+            const [events]: any = await this.pool.query(
                 `SELECT id, title, description, localAddress, date, startAt, endAt, bannerImage
                 FROM events
-                WHERE date >= ? AND state IN (?, ?)
+                WHERE date >= ? AND state IN (?, ?, ?)
                 ORDER BY date ASC, startAt ASC
                 LIMIT 1`,
-                [date, EventState.HAPPENING, EventState.PENDING]
+                [date, EventState.HAPPENING, EventState.PENDING, EventState.RESCHEDULED]
             );
             return events.length === 0 ? null : events[0];
         } catch (error: any) {
@@ -107,15 +139,16 @@ export class EventDAO {
 
     public async searchAgenda(date: string, scope: 'upcoming' | 'month' = 'upcoming'): Promise<EventAgendaSearchDTO[]> {
         try {
+            await this.synchronizeStates()
             const monthStart = `${date.slice(0, 7)}-01`;
-            const [events]: any = await connection.query(
+            const [events]: any = await this.pool.query(
                 `SELECT id, title, DATE_FORMAT(date, '%Y-%m-%d') AS date, startAt, endAt, localAddress, state
                 FROM events
                 WHERE ${scope === 'month'
                     ? 'date >= ? AND date < DATE_ADD(?, INTERVAL 1 MONTH)'
-                    : 'date >= ? AND state IN (?, ?)'}
+                    : 'date >= ? AND state IN (?, ?, ?)'}
                 ORDER BY date ASC, startAt ASC, id ASC`,
-                scope === 'month' ? [monthStart, monthStart] : [date, EventState.HAPPENING, EventState.PENDING]
+                scope === 'month' ? [monthStart, monthStart] : [date, EventState.HAPPENING, EventState.PENDING, EventState.RESCHEDULED]
             );
             return events;
         } catch (error: any) {
@@ -171,7 +204,7 @@ export class EventDAO {
             return;
         }
 
-        const dbConnection = await connection.getConnection()
+        const dbConnection = await this.pool.getConnection()
         try {
             await dbConnection.beginTransaction()
             if (fields.length > 0) {
@@ -183,6 +216,7 @@ export class EventDAO {
             if (data.latitude !== undefined || data.longitude !== undefined || data.localAddress !== undefined) {
                 await rememberEventLocation(dbConnection, id)
             }
+            await synchronizeEventStates(dbConnection, this.now(), id)
             await dbConnection.commit()
         } catch (error: any) {
             await dbConnection.rollback()
@@ -215,7 +249,7 @@ export class EventDAO {
     }
 
     public async delete(id: string): Promise<void> {
-        const dbConnection = await connection.getConnection()
+        const dbConnection = await this.pool.getConnection()
         try {
             await dbConnection.beginTransaction()
             await dbConnection.query('DELETE FROM images WHERE eventId = ?', [id])

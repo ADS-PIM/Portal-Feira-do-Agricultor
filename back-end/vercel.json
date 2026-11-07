@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/internal/event-status",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}

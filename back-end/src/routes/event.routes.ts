@@ -11,6 +11,11 @@ const eventDAO = new EventDAO();
 const eventService = new EventService(eventDAO);
 const eventController = new EventController(eventService);
 
+eventRoutes.use((_req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    next();
+});
+
 eventRoutes.use('/locations', eventLocationRoutes);
 
 eventRoutes
