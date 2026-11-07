@@ -8,8 +8,11 @@ import { getTheme, subscribeTheme, toggleTheme } from '../../services/theme'
 import {
     AUTH_STATE_CHANGE_EVENT,
     getAdminProfile,
+    getAuthDisplayState,
+    getCachedHeaderProfile,
     isAuthenticated,
     type AdminProfile,
+    type HeaderProfile,
 } from '../../services/authToken'
 
 const navigationLinks = [
@@ -55,12 +58,13 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     const theme = useSyncExternalStore(subscribeTheme, getTheme)
     const themeButtonLabel = theme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'
     const [authenticated, setAuthenticated] = useState(isAuthenticated)
-    const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(() => getAdminProfile())
-    const [hasCheckedSession, setHasCheckedSession] = useState(() => hasCheckedHeaderSession || Boolean(getAdminProfile()))
+    const [adminProfile, setAdminProfile] = useState<HeaderProfile | null>(() => getAdminProfile() ?? getCachedHeaderProfile())
+    const [hasCheckedSession, setHasCheckedSession] = useState(() => hasCheckedHeaderSession || Boolean(getAdminProfile()) || (!isAuthenticated() && getAuthDisplayState() === 'guest'))
     const [currentHash, setCurrentHash] = useState(() => window.location.hash)
     const lastVisibilityChangeY = useRef(0);
     const hasInitializedScrollPosition = useRef(false)
-    const visibleNavigationLinks = navigationLinks.filter(({ href }) => href !== '#/admin' || authenticated)
+    const hasAccountDisplay = authenticated || Boolean(adminProfile)
+    const visibleNavigationLinks = navigationLinks.filter(({ href }) => href !== '#/admin' || hasAccountDisplay)
 
     useEffect(() => {
         const syncHash = () => setCurrentHash(window.location.hash)
@@ -124,18 +128,20 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     useEffect(() => {
         const syncAuthState = () => {
             const profile = getAdminProfile()
-            setAuthenticated(isAuthenticated())
-            setAdminProfile(profile)
-            if (profile || !isAuthenticated()) setHasCheckedSession(true)
+            const authenticated = isAuthenticated()
+            setAuthenticated(authenticated)
+            // A refresh token arrives before the profile: keep the current display in between.
+            setAdminProfile(current => profile ?? (authenticated ? current : null))
+            if (profile || !authenticated) setHasCheckedSession(true)
         }
 
         window.addEventListener(AUTH_STATE_CHANGE_EVENT, syncAuthState)
         void restoreHeaderSession()
+            .then(() => syncAuthState())
             .catch((error: unknown) => {
                 console.error('Não foi possível restaurar o perfil do administrador:', error)
             })
             .finally(() => {
-                syncAuthState()
                 setHasCheckedSession(true)
             })
 
@@ -174,7 +180,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     }, [])
 
     return (
-        <header ref={headerRef} className={`site-header${authenticated ? '' : ' is-guest'}${isVisible || isMenuOpen ? '' : ' is-hidden'}${isMenuOpen ? ' is-menu-open' : ''}`}>
+        <header ref={headerRef} className={`site-header${hasAccountDisplay ? '' : ' is-guest'}${isVisible || isMenuOpen ? '' : ' is-hidden'}${isMenuOpen ? ' is-menu-open' : ''}`}>
             <a className="site-header-brand" href="#inicio" aria-label="Brotando Feiras - início" onClick={() => setIsMenuOpen(false)}>
                 <img src={logo} alt="Brotando Feiras" />
             </a>
@@ -253,7 +259,9 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
                     <button type="button" onClick={() => { setIsMenuOpen(false); window.location.hash = '#/admin/login' }}>
                         Entrar
                     </button>
-                ) : null}
+                ) : (
+                    <span className="site-header-session-placeholder" aria-hidden="true" />
+                )}
             </div>
         </header>
     )

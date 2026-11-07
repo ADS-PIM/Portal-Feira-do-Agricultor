@@ -140,6 +140,15 @@
     justify-self: end;
 }
 
+.site-header-session-placeholder {
+    box-sizing: border-box;
+    flex: 0 0 77px;
+    height: 36px;
+    border: 1px solid var(--border-default);
+    border-radius: 999px;
+    background: var(--theme-surface-muted, #f3f5f1);
+}
+
 .site-header-account .site-header-theme-toggle {
     display: inline-flex;
     align-items: center;
@@ -337,6 +346,10 @@
 
     .site-header-account button {
         min-height: 44px;
+    }
+
+    .site-header-session-placeholder {
+        height: 44px;
     }
 
     .site-header-profile {
