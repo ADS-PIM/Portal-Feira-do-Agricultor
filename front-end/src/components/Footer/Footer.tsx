@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import instituteLogo from '../../assets/instituto_brotar_logo_1.png'
+import instituteLogo from '../../assets/instituto_brotar_logo_footer.svg'
 import Icon from '../Icon'
 import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoService'
 import { getUserFacingError } from '../../services/errors'
@@ -55,7 +55,7 @@ const Footer = () => {
             <div className="site-footer-main">
                 <div className="site-footer-brand">
                     <a className="site-footer-brand-heading" href="#inicio">
-                        <img src={instituteLogo} alt="Instituto Brotar" />
+                        <img src={instituteLogo} alt="Instituto Brotar" width={1131} height={487} />
                     </a>
                     <p>
                         Fortalecendo o agricultor familiar de Tabuleiro do Norte - CE e levando
