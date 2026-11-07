@@ -27,6 +27,23 @@ type HeaderProps = {
     initialActiveLink?: string
 }
 
+// Keep the completed check across page mounts, without persisting session data.
+let hasCheckedHeaderSession = false
+let headerSessionInFlight: Promise<AdminProfile | null> | null = null
+
+const restoreHeaderSession = (): Promise<AdminProfile | null> => {
+    if (hasCheckedHeaderSession && !isAuthenticated()) return Promise.resolve(null)
+    if (!headerSessionInFlight) {
+        headerSessionInFlight = restoreAdminProfile()
+            .then(profile => {
+                hasCheckedHeaderSession = true
+                return profile
+            })
+            .finally(() => { headerSessionInFlight = null })
+    }
+    return headerSessionInFlight
+}
+
 const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
 
     const [activeLink, setActiveLink] = useState(initialActiveLink);
@@ -39,7 +56,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     const themeButtonLabel = theme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'
     const [authenticated, setAuthenticated] = useState(isAuthenticated)
     const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(() => getAdminProfile())
-    const [hasCheckedSession, setHasCheckedSession] = useState(false)
+    const [hasCheckedSession, setHasCheckedSession] = useState(() => hasCheckedHeaderSession || Boolean(getAdminProfile()))
     const [currentHash, setCurrentHash] = useState(() => window.location.hash)
     const lastVisibilityChangeY = useRef(0);
     const hasInitializedScrollPosition = useRef(false)
@@ -113,7 +130,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
         }
 
         window.addEventListener(AUTH_STATE_CHANGE_EVENT, syncAuthState)
-        void restoreAdminProfile()
+        void restoreHeaderSession()
             .catch((error: unknown) => {
                 console.error('Não foi possível restaurar o perfil do administrador:', error)
             })
