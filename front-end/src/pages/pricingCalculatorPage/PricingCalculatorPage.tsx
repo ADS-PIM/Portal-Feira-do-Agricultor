@@ -387,27 +387,21 @@ export default function PricingCalculatorPage() {
 
             <section className="markup-guide" aria-labelledby="markup-guide-title">
               <h2 id="markup-guide-title"><Icon name="information" /> Como chegamos a esse preço</h2>
-              <p className="markup-formula">Preço = [(material + horas × valor da hora) × 100] ÷ [100 − ((despesas fixas mensais ÷ faturamento mensal × 100) + variáveis % + lucro %)]</p>
-              <div className="markup-guide-steps">
-                <div>
-                  <h3>Custo direto por unidade</h3>
-                  <p>{result ? `${currency.format(result.materialCost)} + (${decimal.format(result.productionHours)} h × ${currency.format(result.hourlyRate)})` : 'Material + (horas × valor da hora)'}</p>
-                  <strong>{result ? currency.format(result.directCost) : 'R$ —'}</strong>
-                  <p className="markup-hint">Material + mão de obra, sem duplicar custos.</p>
-                </div>
-                <div>
-                  <h3>Percentuais sobre a venda</h3>
-                  <p>{result ? `${formatPercentage(result.fixedPercentage)}% fixas + ${formatPercentage(result.variableExpenses)}% variáveis + ${formatPercentage(result.profit)}% lucro` : 'Fixas % + variáveis % + lucro %'}</p>
-                  <strong>{result ? `${formatPercentage(result.totalPercentage)}%` : '—'}</strong>
-                  <p className="markup-hint">{result ? `Fixas = ${currency.format(result.monthlyFixedExpenses)} ÷ ${currency.format(result.monthlyRevenue)} × 100.` : 'Fixas = despesas fixas mensais ÷ faturamento mensal × 100.'}</p>
-                </div>
-                <div>
-                  <h3>Preço de venda por unidade</h3>
-                  <p>{result ? `(${currency.format(result.directCost)} × 100) ÷ (100 − ${formatPercentage(result.totalPercentage)})` : '(Custo direto × 100) ÷ (100 − percentuais)'}</p>
-                  <strong>{result ? currency.format(result.price) : 'R$ —'}</strong>
-                  <p className="markup-hint">{result ? `Divisor de ${formatPercentage(100 - result.totalPercentage)}%: a parcela que cobre o custo direto.` : 'A parcela restante do preço cobre o custo direto.'}</p>
-                </div>
-              </div>
+              <p className="markup-formula">Preço por unidade = (material por unidade + mão de obra por unidade) × 100 ÷ [100 − (despesas fixas % + despesas variáveis % + lucro %)]</p>
+              <ol className="advanced-formula-steps">
+                <li><strong>Materiais e embalagens por unidade</strong><span>Soma dos materiais e da embalagem usados em uma unidade. Se produzir em lote, divida o custo total pela quantidade produzida antes de preencher.</span></li>
+                <li><strong>Tempo de trabalho por unidade</strong><span>Tempo dedicado a uma unidade. Se produzir em lote, divida o tempo total pela quantidade produzida. Quando informado em minutos, o tempo é dividido por 60 para obter as horas.</span></li>
+                <li><strong>Valor da hora trabalhada</strong><span>Valor informado para uma hora do seu trabalho. Para estimá-lo, divida a remuneração mensal desejada pelas horas produtivas do mês antes de preencher.</span></li>
+                <li><strong>Mão de obra por unidade</strong><span>Valor da hora × tempo de trabalho por unidade, em horas. Essa remuneração é separada do lucro do negócio.</span></li>
+                <li><strong>Despesas fixas mensais</strong><span>Soma das contas mensais do negócio, como aluguel e internet. Inclua somente a parte destinada ao negócio, sem repetir materiais ou mão de obra já informados.</span></li>
+                <li><strong>Percentual de despesas fixas</strong><span>Despesas fixas mensais ÷ faturamento médio mensal × 100. Esse percentual reserva uma parte de cada venda para cobrir as contas fixas.</span></li>
+                <li><strong>Despesas variáveis</strong><span>Soma dos percentuais de taxas e comissões sobre a venda. Ex.: maquininha de 3% + comissão de 2% = 5%.</span></li>
+                <li><strong>Lucro desejado</strong><span>Percentual do preço de venda que sobra depois de pagar materiais, trabalho e despesas. Uma margem de 20% reserva R$ 2 de lucro em uma venda de R$ 10.</span></li>
+                <li><strong>Custo direto por unidade</strong><span>Material por unidade + mão de obra por unidade. Esse é o custo-base usado para calcular o preço de venda.</span></li>
+                <li><strong>Total dos percentuais sobre a venda</strong><span>Despesas fixas % + despesas variáveis % + lucro %. A soma precisa ficar abaixo de 100%; a parcela restante cobre o custo direto.</span></li>
+                <li><strong>Markup</strong><span>100 ÷ [100 − (despesas fixas % + despesas variáveis % + lucro %)]. Esse multiplicador inclui as despesas e o lucro no preço de venda.</span></li>
+                <li><strong>Preço de venda sugerido</strong><span>Custo direto por unidade × markup. O resultado cobre materiais, mão de obra, despesas e o lucro desejado, conforme os valores informados.</span></li>
+              </ol>
             </section>
             <p className="markup-disclaimer">Simulação ilustrativa por unidade. Ajuste os valores à realidade do seu negócio.</p>
           </div>
