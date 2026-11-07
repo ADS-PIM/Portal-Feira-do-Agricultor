@@ -1,3 +1,4 @@
+import { navigate } from '../../services/navigation'
 import { useEffect, useState } from 'react'
 import Icon from '../Icon'
 import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoService'
@@ -135,7 +136,7 @@ const ContactSection = () => {
                 )}
             </section>
             <div className="contact-section-action">
-                <button type="button" onClick={() => { window.location.hash = '#/contato' }}>
+                <button type="button" onClick={() => { navigate('/contato') }}>
                     Enviar mensagem
                     <Icon name="arrowRight" />
                 </button>

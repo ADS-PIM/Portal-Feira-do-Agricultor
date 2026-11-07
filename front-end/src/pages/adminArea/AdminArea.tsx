@@ -1,3 +1,4 @@
+import { navigate } from '../../services/navigation'
 import { useEffect, useState } from 'react'
 import AdminSideNav, { type AdminSection } from '../../components/AdminSideNav/AdminSideNav'
 import Icon from '../../components/Icon'
@@ -147,7 +148,7 @@ const AdminArea = ({ activeSection = 'dashboard' }: { activeSection?: AdminSecti
     } | null>(null)
 
     const selectSection = (section: AdminSection) => {
-        window.location.hash = getAdminHref(section)
+        navigate(getAdminHref(section))
         if (section !== 'eventos') {
             setCreateEventRequest(null)
             setEventActionRequest(null)
@@ -157,13 +158,13 @@ const AdminArea = ({ activeSection = 'dashboard' }: { activeSection?: AdminSecti
     const createEventAtDate = (date: string | null = null) => {
         setCreateEventRequest({ date })
         setEventActionRequest(null)
-        window.location.hash = getAdminHref('eventos')
+        navigate(getAdminHref('eventos'))
     }
 
     const handleDashboardEventAction = (eventId: string, action: 'edit' | 'delete') => {
         setEventActionRequest({ eventId, action })
         setCreateEventRequest(null)
-        window.location.hash = getAdminHref('eventos')
+        navigate(getAdminHref('eventos'))
     }
 
     useEffect(() => {
@@ -175,7 +176,7 @@ const AdminArea = ({ activeSection = 'dashboard' }: { activeSection?: AdminSecti
                 if (!active) return
 
                 if (!profile || !['ADMIN', 'SUPER_ADMIN'].includes(profile.role)) {
-                    window.location.hash = '#/admin/login'
+                    navigate('/admin/login')
                     return
                 }
 
@@ -201,7 +202,7 @@ const AdminArea = ({ activeSection = 'dashboard' }: { activeSection?: AdminSecti
 
     return (
         <>
-            <Header initialActiveLink="#/admin" />
+            <Header initialActiveLink="/admin" />
             {status === 'checking' && <AdminAccessSkeleton />}
             {status === 'error' && (
                 <main className="admin-area-error-state" role="alert">

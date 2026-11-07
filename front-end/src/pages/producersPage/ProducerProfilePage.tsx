@@ -17,10 +17,10 @@ const ProducerProfilePage = ({ producerSlug }: ProducerProfilePageProps) => {
   if (!producer) {
     return (
       <>
-        <Header initialActiveLink="#/produtores" />
+        <Header initialActiveLink="/produtores" />
         <main className="producer-profile-page">
           <div className="producer-profile-shell">
-            <a className="producer-profile-back" href="#/produtores">
+            <a className="producer-profile-back" href="/produtores">
               <Icon name="arrowLeft" />
               Voltar para Produtores
             </a>
@@ -37,11 +37,11 @@ const ProducerProfilePage = ({ producerSlug }: ProducerProfilePageProps) => {
 
   return (
     <>
-      <Header initialActiveLink="#/produtores" />
+      <Header initialActiveLink="/produtores" />
 
       <main className="producer-profile-page">
         <div className="producer-profile-shell">
-          <a className="producer-profile-back" href="#/produtores">
+          <a className="producer-profile-back" href="/produtores">
             <Icon name="arrowLeft" />
             Voltar para Produtores
           </a>

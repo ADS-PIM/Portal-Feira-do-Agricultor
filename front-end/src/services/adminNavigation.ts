@@ -8,11 +8,12 @@ export const adminSectionReturnLabels: Record<AdminSection, string> = {
     mensagens: 'Voltar às mensagens',
 }
 
-export function getAdminSection(hash: string): AdminSection {
-    const section = new URLSearchParams(hash.slice(hash.indexOf('?') + 1)).get('secao')
+export function getAdminSection(path: string): AdminSection {
+    const [pathname, search = ''] = path.replace(/^#/, '').split('?')
+    const section = pathname.replace(/\/+$/, '').split('/')[2] || new URLSearchParams(search).get('secao')
     return section && Object.hasOwn(adminSectionReturnLabels, section) ? section as AdminSection : 'dashboard'
 }
 
 export function getAdminHref(section: AdminSection): string {
-    return section === 'dashboard' ? '#/admin' : `#/admin?secao=${section}`
+    return section === 'dashboard' ? '/admin' : `/admin/${section}`
 }

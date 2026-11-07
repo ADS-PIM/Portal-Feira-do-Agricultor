@@ -475,7 +475,7 @@ const AdminEvents = ({
                                     <div className="admin-event-actions">
                                         <a
                                             className="admin-event-action is-view"
-                                            href={`#/evento/${encodeURIComponent(event.id)}`}
+                                            href={`/evento/${encodeURIComponent(event.id)}`}
                                             aria-label={`Ver evento ${event.title}`}
                                             title="Ver evento"
                                         >

@@ -9,9 +9,16 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       proxy: {
-        '/admin': { target: apiTarget, changeOrigin: true },
+        '/admin': {
+          target: apiTarget,
+          changeOrigin: true,
+          // Page loads share this prefix with the API; let Vite serve the SPA.
+          bypass(request) {
+            if (request.method === 'GET' && request.headers.accept?.includes('text/html')) return '/index.html'
+          },
+        },
         '/business-info': { target: apiTarget, changeOrigin: true },
-        '/event': { target: apiTarget, changeOrigin: true },
+        '^/event(?:/|$|\\?)': { target: apiTarget, changeOrigin: true },
         '/message': { target: apiTarget, changeOrigin: true },
       },
     },

@@ -54,7 +54,7 @@ const Footer = () => {
         <footer className="site-footer">
             <div className="site-footer-main">
                 <div className="site-footer-brand">
-                    <a className="site-footer-brand-heading" href="#inicio">
+                    <a className="site-footer-brand-heading" href="/">
                         <img src={instituteLogo} alt="Instituto Brotar" width={1131} height={487} />
                     </a>
                     <p>
@@ -84,13 +84,13 @@ const Footer = () => {
                 <nav className="site-footer-links" aria-label="Links do rodapé">
                     <div>
                         <h2>Menu Rápido</h2>
-                        <a href="#sobre">Sobre Nós</a>
-                        <a href="#/produtores">Nossos Agricultores</a>
-                        <a href="#/calendario">Calendário de Eventos</a>
+                        <a href="/sobre">Sobre Nós</a>
+                        <a href="/produtores">Nossos Agricultores</a>
+                        <a href="/calendario">Calendário de Eventos</a>
                     </div>
                     <div>
                         <h2>Serviços &amp; Links</h2>
-                        <a href="#/calculadora">Calculadora de Preço</a>
+                        <a href="/calculadora">Calculadora de Preço</a>
                         <span>Documentação</span>
                     </div>
                 </nav>

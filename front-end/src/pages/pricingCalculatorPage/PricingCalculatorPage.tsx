@@ -220,7 +220,7 @@ export default function PricingCalculatorPage() {
 
   return (
     <>
-      <Header initialActiveLink="#/calculadora" />
+      <Header initialActiveLink="/calculadora" />
       <main className="markup-page">
         <div className="markup-shell">
           <header className="markup-heading">

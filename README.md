@@ -76,8 +76,8 @@ representar as quebras de linha ao cadastrar a variável).
 ### Recuperação de senha com Resend
 
 O login oferece **Esqueci minha senha**. O formulário em
-`#/admin/esqueci-minha-senha` solicita o link; o e-mail abre a nova tela
-`#/admin/redefinir-senha?token=...` para cadastrar e confirmar a senha.
+`/admin/esqueci-minha-senha` solicita o link; o e-mail abre a nova tela
+`/admin/redefinir-senha?token=...` para cadastrar e confirmar a senha.
 
 Configure estas variáveis no `back-end/.env` e no projeto **backend** da Vercel:
 

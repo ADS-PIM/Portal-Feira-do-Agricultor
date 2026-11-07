@@ -1,3 +1,4 @@
+import { getCurrentPath, navigate, subscribeNavigation } from '../../services/navigation'
 import './Header.css'
 import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import logo from '../../assets/brotando-feiras-alinhada-direita-tons.png'
@@ -16,17 +17,17 @@ import {
 } from '../../services/authToken'
 
 const navigationLinks = [
-    { href: '#inicio', label: 'Início' },
-    { href: '#/calendario', label: 'Calendário' },
-    { href: '#/produtores', label: 'Produtores' },
-    { href: '#contato', label: 'Fale Conosco' },
-    { href: '#/calculadora', label: 'Calculadora de Preços' },
-    { href: '#/admin', label: 'Área administrativa' },
+    { href: '/', label: 'Início' },
+    { href: '/calendario', label: 'Calendário' },
+    { href: '/produtores', label: 'Produtores' },
+    { href: '/contato', label: 'Fale Conosco' },
+    { href: '/calculadora', label: 'Calculadora de Preços' },
+    { href: '/admin', label: 'Área administrativa' },
 ]
 
 type HeaderProps = {
     // Permite que uma página específica (como a de login) force qual link
-    // começa demarcado, em vez de sempre abrir em '#inicio'.
+    // começa demarcado, em vez de sempre abrir em '/'.
     initialActiveLink?: string
 }
 
@@ -47,7 +48,7 @@ const restoreHeaderSession = (): Promise<AdminProfile | null> => {
     return headerSessionInFlight
 }
 
-const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
+const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
 
     const [activeLink, setActiveLink] = useState(initialActiveLink);
     const [isVisible, setIsVisible] = useState(true);
@@ -60,17 +61,11 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
     const [authenticated, setAuthenticated] = useState(isAuthenticated)
     const [adminProfile, setAdminProfile] = useState<HeaderProfile | null>(() => getAdminProfile() ?? getCachedHeaderProfile())
     const [hasCheckedSession, setHasCheckedSession] = useState(() => hasCheckedHeaderSession || Boolean(getAdminProfile()) || (!isAuthenticated() && getAuthDisplayState() === 'guest'))
-    const [currentHash, setCurrentHash] = useState(() => window.location.hash)
+    const currentPath = useSyncExternalStore(subscribeNavigation, getCurrentPath)
     const lastVisibilityChangeY = useRef(0);
     const hasInitializedScrollPosition = useRef(false)
     const hasAccountDisplay = authenticated || Boolean(adminProfile)
-    const visibleNavigationLinks = navigationLinks.filter(({ href }) => href !== '#/admin' || hasAccountDisplay)
-
-    useEffect(() => {
-        const syncHash = () => setCurrentHash(window.location.hash)
-        window.addEventListener('hashchange', syncHash)
-        return () => window.removeEventListener('hashchange', syncHash)
-    }, [])
+    const visibleNavigationLinks = navigationLinks.filter(({ href }) => href !== '/admin' || hasAccountDisplay)
 
     useLayoutEffect(() => {
         const header = headerRef.current
@@ -115,12 +110,12 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
 
         document.addEventListener('keydown', handleKeyDown)
         document.addEventListener('pointerdown', handlePointerDown)
-        window.addEventListener('hashchange', closeMenu)
+        const unsubscribeNavigation = subscribeNavigation(closeMenu)
         compactViewport.addEventListener('change', handleViewportChange)
         return () => {
             document.removeEventListener('keydown', handleKeyDown)
             document.removeEventListener('pointerdown', handlePointerDown)
-            window.removeEventListener('hashchange', closeMenu)
+            unsubscribeNavigation()
             compactViewport.removeEventListener('change', handleViewportChange)
         }
     }, [isMenuOpen])
@@ -181,7 +176,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
 
     return (
         <header ref={headerRef} className={`site-header${hasAccountDisplay ? '' : ' is-guest'}${isVisible || isMenuOpen ? '' : ' is-hidden'}${isMenuOpen ? ' is-menu-open' : ''}`}>
-            <a className="site-header-brand" href="#inicio" aria-label="Brotando Feiras - início" onClick={() => setIsMenuOpen(false)}>
+            <a className="site-header-brand" href="/" aria-label="Brotando Feiras - início" onClick={() => setIsMenuOpen(false)}>
                 <img src={logo} alt="Brotando Feiras" />
             </a>
 
@@ -229,7 +224,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
                     <Icon name={theme === 'light' ? 'moon' : 'sun'} />
                 </button>
                 {adminProfile ? (
-                    <a className="site-header-profile" href={getProfileHref(currentHash)} aria-label="Visualizar minha conta" aria-current={initialActiveLink === '#/minha-conta' ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>
+                    <a className="site-header-profile" href={getProfileHref(currentPath)} aria-label="Visualizar minha conta" aria-current={initialActiveLink === '/minha-conta' ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>
                         <div className="site-header-profile-info">
                             <span className="site-header-profile-name">{adminProfile.name}</span>
                             <span className="site-header-profile-role">
@@ -256,7 +251,7 @@ const Header = ({ initialActiveLink = '#inicio' }: HeaderProps) => {
                         </div>
                     </a>
                 ) : hasCheckedSession ? (
-                    <button type="button" onClick={() => { setIsMenuOpen(false); window.location.hash = '#/admin/login' }}>
+                    <button type="button" onClick={() => { setIsMenuOpen(false); navigate('/admin/login') }}>
                         Entrar
                     </button>
                 ) : (

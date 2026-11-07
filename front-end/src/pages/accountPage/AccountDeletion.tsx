@@ -1,3 +1,4 @@
+import { navigate } from '../../services/navigation'
 import { useEffect, useState, type FormEvent } from 'react'
 import { deleteOwnAdmin, getAdmins } from '../../services/adminService'
 import type { AdminProfile } from '../../services/authToken'
@@ -61,7 +62,7 @@ export default function AccountDeletion({ profile, disabled, onBusyChange }: {
         try {
             await deleteOwnAdmin(profile.id, password)
             setPassword('')
-            window.location.hash = '#/admin/login'
+            navigate('/admin/login')
         } catch (requestError) {
             setPassword('')
             if (requestError instanceof ApiRequestError && requestError.code === 'LAST_SUPER_ADMIN') {

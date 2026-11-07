@@ -191,7 +191,7 @@ const ContactUsPage = () => {
 
   return (
     <>
-      <Header initialActiveLink="#contato" />
+      <Header initialActiveLink="/contato" />
 
       <main className="contact-page">
         <div className="contact-page-shell">

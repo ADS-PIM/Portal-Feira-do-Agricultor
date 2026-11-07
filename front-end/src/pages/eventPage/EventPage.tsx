@@ -182,11 +182,11 @@ function EventPage({ eventId }: { eventId: string }) {
 
     return (
         <>
-            <Header initialActiveLink="#/calendario" />
+            <Header initialActiveLink="/calendario" />
             <main className="event-page">
                 <div className="event-page-content">
                     <div className="event-page-toolbar">
-                        <a className="event-page-back" href="#/calendario">
+                        <a className="event-page-back" href="/calendario">
                             <Icon name="arrowLeft" />
                             Voltar para o Calendário
                         </a>
@@ -201,7 +201,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                             : direction === 'previous' ? 'Não há evento anterior' : 'Não há próximo evento'
                                     return target ? (
                                         <a key={direction} className="event-page-navigation-arrow"
-                                            href={`#/evento/${encodeURIComponent(target.id)}`}
+                                            href={`/evento/${encodeURIComponent(target.id)}`}
                                             aria-label={`${label}: ${target.title}`}
                                             title={`${label}: ${target.title} — ${formatDate(target.date)}, ${formatTime(target.startAt)}`}>
                                             <Icon name={icon} />
@@ -252,7 +252,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                 >
                                     Tentar novamente
                                 </button>
-                                <a href="#/calendario">Voltar para o Calendário</a>
+                                <a href="/calendario">Voltar para o Calendário</a>
                             </div>
                         </section>
                     )}

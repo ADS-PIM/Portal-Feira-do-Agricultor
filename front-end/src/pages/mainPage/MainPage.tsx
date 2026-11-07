@@ -91,7 +91,7 @@ const MainPage = () => {
                                     <span>{producer.category}</span>
                                 </div>
                                 <div className="home-producer-card-body">
-                                    <h3><a href={`#/produtor/${encodeURIComponent(producer.slug)}`}>{producer.name}</a></h3>
+                                    <h3><a href={`/produtor/${encodeURIComponent(producer.slug)}`}>{producer.name}</a></h3>
                                     <p>{producer.description}</p>
                                 </div>
                             </article>
@@ -99,7 +99,7 @@ const MainPage = () => {
                     </div>
 
                     <div className="home-producers-actions">
-                        <a href="#/produtores" className="event-agenda-calendar-button home-producers-cta">Conhecer os Produtores</a>
+                        <a href="/produtores" className="event-agenda-calendar-button home-producers-cta">Conhecer os Produtores</a>
                     </div>
                 </section>
                 <PricingCalculatorPromo />

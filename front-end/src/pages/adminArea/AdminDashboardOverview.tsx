@@ -64,7 +64,7 @@ export default function AdminDashboardOverview({ admins, events, messages, isLoa
                                 <div><h4>{next.title}</h4><p>{new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${next.date.slice(0, 10)}T12:00:00`))}</p><p>{next.startAt.slice(0, 5)} às {next.endAt.slice(0, 5)}</p></div>
                             </div>
                             <p className="dashboard-next-location"><Icon name="location" />{next.localAddress || 'Local não informado'}</p>
-                            <a className="dashboard-next-link" href={`#/evento/${encodeURIComponent(next.id)}`}>Ver evento<Icon name="arrowRight" /></a>
+                            <a className="dashboard-next-link" href={`/evento/${encodeURIComponent(next.id)}`}>Ver evento<Icon name="arrowRight" /></a>
                         </>
                     ) : <div className="dashboard-next-empty"><h4>Espaço para a próxima feira</h4><p>Nenhum evento futuro agendado. Crie um evento para atualizar a programação do portal.</p><button type="button" className="dashboard-next-link" onClick={onCreateEvent}>Criar evento<Icon name="plus" /></button></div>}
                 </article>

@@ -6,7 +6,7 @@ import './CalendarPage.css'
 const CalendarPage = () => {
     return (
         <>
-            <Header initialActiveLink="#/calendario" />
+            <Header initialActiveLink="/calendario" />
             <main className="calendar-page">
                 <header className="calendar-page-header">
                     <p>FIQUE POR DENTRO</p>

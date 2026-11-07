@@ -15,7 +15,7 @@ export default function AdminDisabledPage({ onReturnToLogin, reason = 'disabled'
 
     return (
         <div className="login-page admin-disabled-page">
-            <Header initialActiveLink="#/admin" />
+            <Header initialActiveLink="/admin" />
             <main className="login-page-content">
                 <section className="login-painel admin-disabled-panel" aria-labelledby={titleId}>
                     <img className="login-painel-logo" src={logo} alt="Instituto Brotar" />
@@ -25,7 +25,7 @@ export default function AdminDisabledPage({ onReturnToLogin, reason = 'disabled'
                         <p>{revoked ? 'Seu acesso à área administrativa foi removido. Sua sessão foi encerrada.' : 'O acesso desta conta administrativa foi desativado.'}</p>
                         <p>{revoked ? 'Se precisar de acesso novamente, entre em contato com o administrador principal.' : 'Para solicitar a reativação, entre em contato com o administrador principal.'}</p>
                     </div>
-                    <a className="login-painel-submit admin-disabled-back" href="#/admin/login" onClick={onReturnToLogin}>
+                    <a className="login-painel-submit admin-disabled-back" href="/admin/login" onClick={onReturnToLogin}>
                         <Icon name="arrowLeft" /> Voltar para o login
                     </a>
                 </section>

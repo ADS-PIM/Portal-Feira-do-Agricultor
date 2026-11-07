@@ -30,7 +30,7 @@ const AgendaEventCard = ({ event }: { event: AgendaEvent }) => {
     const { day } = getDateParts(event.date)
 
     return (
-        <a className='event-agenda-card' href={`#/evento/${encodeURIComponent(event.id)}`}>
+        <a className='event-agenda-card' href={`/evento/${encodeURIComponent(event.id)}`}>
             <time className='event-agenda-date' dateTime={event.date.slice(0, 10)}>
                 <strong>{day}</strong>
                 <span>{formatMonth(event.date)}</span>
@@ -108,7 +108,7 @@ const EventPainel = () => {
                     </div>
                 </>
             )}
-            <a className='event-agenda-calendar-button' href='#/calendario'>
+            <a className='event-agenda-calendar-button' href='/calendario'>
                 Ver Calendário Completo
             </a>
         </section>

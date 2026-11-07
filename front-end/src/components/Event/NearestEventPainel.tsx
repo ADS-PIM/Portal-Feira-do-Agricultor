@@ -61,7 +61,7 @@ const NearestEventPainel = ({ event }: NearestEventPainelProps) => {
                             </div>
                         </div>
                         <div className='event-actions'>
-                            <a href={`#/evento/${encodeURIComponent(event.id)}`}>
+                            <a href={`/evento/${encodeURIComponent(event.id)}`}>
                                 Ver detalhes
                                 <Icon name="arrowRight" />
                             </a>

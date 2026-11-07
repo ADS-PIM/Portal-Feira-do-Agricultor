@@ -1,5 +1,19 @@
 # React + TypeScript + Vite
 
+## Navegação
+
+Os links internos usam caminhos sem `#`: `/`, `/sobre`, `/contato`, `/calendario`,
+`/produtores`, `/produtor/:slug`, `/evento/:id`, `/calculadora`, `/minha-conta`
+e `/admin`. As seções administrativas usam `/admin/eventos`,
+`/admin/informacoes`, `/admin/administradores` e `/admin/mensagens`.
+Links antigos com `#` continuam abrindo o destino e são convertidos para `/`.
+
+O arquivo `vercel.json` encaminha as rotas do frontend para `index.html`,
+permitindo acesso direto e atualização da página. Outras hospedagens devem
+aplicar o mesmo fallback de SPA, preservando arquivos estáticos e rotas da API.
+No Vite, requisições de página em `/admin` usam esse fallback; as chamadas de
+API continuam sendo encaminhadas ao backend pelo proxy.
+
 ## Backend API
 
 Frontend API requests use the shared `apiFetch` helper in `src/services/api.ts`.

@@ -1,3 +1,4 @@
+import { navigate } from '../../services/navigation'
 import { useMemo, useState } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
@@ -30,7 +31,7 @@ const ProducersPage = () => {
 
   return (
     <>
-      <Header initialActiveLink="#/produtores" />
+      <Header initialActiveLink="/produtores" />
 
       <main className="producers-page">
         <div className="producers-page-shell">
@@ -98,8 +99,8 @@ const ProducersPage = () => {
                       <button
                         type="button"
                         onClick={() => {
-                          const nextPath = `#/produtor/${encodeURIComponent(producer.slug)}`
-                          window.location.hash = nextPath
+                          const nextPath = `/produtor/${encodeURIComponent(producer.slug)}`
+                          navigate(nextPath)
                         }}
                       >
                         Ver Perfil

@@ -1,3 +1,4 @@
+import { navigate } from '../../services/navigation'
 import './LoginPage.css'
 import { useEffect, useState } from 'react'
 import Header from '../../components/Header/Header'
@@ -89,7 +90,7 @@ const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
 
     return (
         <div className="login-page">
-            <Header initialActiveLink="#/admin" />
+            <Header initialActiveLink="/admin" />
             <div className="login-page-content">
                 {isCheckingSession || sessionRestored ? (
                     <p role="status">
@@ -98,7 +99,7 @@ const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
                 ) : (
                     <LoginPainel
                         onSubmit={handleSubmit}
-                        onForgotPassword={() => { window.location.hash = '#/admin/esqueci-minha-senha' }}
+                        onForgotPassword={() => { navigate('/admin/esqueci-minha-senha') }}
                         isLoading={isLoading}
                         errorMessage={errorMessage}
                     />

@@ -19,7 +19,8 @@ export class PasswordResetService {
         const admin = await this.dao.issue(email.trim().toLowerCase(), tokenHash);
         if (!admin) return;
         const link = new URL(config.frontendUrl);
-        link.hash = `/admin/redefinir-senha?token=${token}`;
+        link.pathname = `${link.pathname.replace(/\/$/, '')}/admin/redefinir-senha`;
+        link.searchParams.set('token', token);
         try {
             await this.sendEmail(config, admin.email, link.href);
         } catch {

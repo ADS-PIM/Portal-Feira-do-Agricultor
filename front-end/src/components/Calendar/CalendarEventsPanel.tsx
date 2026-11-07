@@ -67,7 +67,7 @@ function CalendarEventCard({ event }: { event: AgendaEvent }) {
                         <span>{event.localAddress}</span>
                     </p>
                 </div>
-                <a className="calendar-event-details-button" href={`#/evento/${encodeURIComponent(event.id)}`}>
+                <a className="calendar-event-details-button" href={`/evento/${encodeURIComponent(event.id)}`}>
                     <span>Ver detalhes</span>
                     <Icon name="arrowRight" />
                 </a>

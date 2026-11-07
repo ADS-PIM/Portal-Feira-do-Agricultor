@@ -17,6 +17,7 @@ import { getAccountReturnTarget, type AccountReturnTarget } from './services/pro
 import { AUTH_STATE_CHANGE_EVENT, dismissAdminAccessIssue, getAdminAccessIssue } from './services/authToken'
 import AdminDisabledPage from './pages/loginPage/AdminDisabledPage'
 import { useAdminSessionMonitor } from './hooks/useAdminSessionMonitor'
+import { getCurrentPath, installNavigation, navigate, subscribeNavigation } from './services/navigation'
 
 const subscribeAuthState = (onChange: () => void) => {
   window.addEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
@@ -47,26 +48,27 @@ const pageTitles: Record<AppRoute['page'], string> = {
   event: 'Detalhes do evento',
 }
 
-function getCurrentRoute(): AppRoute {
-  const hash = (window.location.hash || '#inicio').replace(/\/+$/, '')
+function getCurrentRoute(path: string): AppRoute {
+  const [pathname, search = ''] = path.split('?')
+  const query = new URLSearchParams(search)
 
-  if (hash === '#/admin/login') return { page: 'login' }
-  if (hash === '#/admin/esqueci-minha-senha') return { page: 'forgot-password' }
-  if (hash.split('?')[0] === '#/admin/redefinir-senha') {
-    const query = new URLSearchParams(hash.split('?')[1] || '')
+  if (pathname === '/admin/login') return { page: 'login' }
+  if (pathname === '/admin/esqueci-minha-senha') return { page: 'forgot-password' }
+  if (pathname === '/admin/redefinir-senha') {
     return { page: 'reset-password', token: query.get('token') || '' }
   }
-  if (hash.split('?')[0] === '#/minha-conta') {
-    const query = new URLSearchParams(hash.slice(hash.indexOf('?') + 1))
+  if (pathname === '/minha-conta') {
     return { page: 'account', returnTarget: getAccountReturnTarget(query.get('origem')) }
   }
-  if (hash.split('?')[0] === '#/admin') return { page: 'admin', section: getAdminSection(hash) }
-  if (hash === '#/produtores') return { page: 'producers' }
-  if (hash === '#contato' || hash === '#/contato') return { page: 'contact' }
-  if (hash === '#/calendario') return { page: 'calendar' }
-  if (hash === '#/calculadora' || hash === '#calculadora') return { page: 'calculator' }
+  if (pathname === '/admin' || /^\/admin\/(?:dashboard|eventos|informacoes|administradores|mensagens)$/.test(pathname)) {
+    return { page: 'admin', section: getAdminSection(path) }
+  }
+  if (pathname === '/produtores') return { page: 'producers' }
+  if (pathname === '/contato') return { page: 'contact' }
+  if (pathname === '/calendario') return { page: 'calendar' }
+  if (pathname === '/calculadora') return { page: 'calculator' }
 
-  const producerRoute = /^#\/produtor\/([^/?#]+)\/?$/.exec(hash)
+  const producerRoute = /^\/produtor\/([^/?#]+)$/.exec(pathname)
   if (producerRoute) {
     try {
       return { page: 'producer', producerSlug: decodeURIComponent(producerRoute[1]) }
@@ -75,7 +77,7 @@ function getCurrentRoute(): AppRoute {
     }
   }
 
-  const eventRoute = /^#\/evento\/([^/?#]+)$/.exec(hash)
+  const eventRoute = /^\/evento\/([^/?#]+)$/.exec(pathname)
   if (eventRoute) {
     try {
       return { page: 'event', eventId: decodeURIComponent(eventRoute[1]) }
@@ -88,39 +90,39 @@ function getCurrentRoute(): AppRoute {
 }
 
 function App() {
-  const [route, setRoute] = useState<AppRoute>(getCurrentRoute)
+  const [path, setPath] = useState(getCurrentPath)
+  const route = getCurrentRoute(path)
   const accessIssue = useSyncExternalStore(subscribeAuthState, getAdminAccessIssue)
   const protectedPage = route.page === 'admin' || route.page === 'account'
   const showAccessNotice = Boolean(accessIssue) && (protectedPage || route.page === 'login')
   useAdminSessionMonitor(protectedPage && !accessIssue)
 
   useEffect(() => {
-    const syncRoute = () => setRoute(getCurrentRoute())
-    window.addEventListener('hashchange', syncRoute)
-    return () => window.removeEventListener('hashchange', syncRoute)
+    const unsubscribe = subscribeNavigation(() => setPath(getCurrentPath()))
+    const uninstall = installNavigation()
+    return () => { unsubscribe(); uninstall() }
   }, [])
 
   useEffect(() => {
-    if (route.page === 'home' && window.location.hash === '#sobre') {
+    if (path === '/sobre') {
       document.getElementById('sobre')?.scrollIntoView()
       return
     }
 
     window.scrollTo(0, 0)
-  }, [route])
+  }, [path])
 
   useEffect(() => {
     document.title = `${showAccessNotice ? 'Acesso administrativo indisponível' : pageTitles[route.page]} | Brotando Feiras`
   }, [route.page, showAccessNotice])
 
   if (showAccessNotice && accessIssue) return <AdminDisabledPage reason={accessIssue} onReturnToLogin={() => {
-    window.location.hash = '#/admin/login'
-    setRoute({ page: 'login' })
+    navigate('/admin/login')
     dismissAdminAccessIssue()
   }} />
 
   if (route.page === 'login') {
-    return <LoginPage onLoginSuccess={() => { window.location.hash = '#/admin' }} />
+    return <LoginPage onLoginSuccess={() => { navigate('/admin') }} />
   }
 
   if (route.page === 'admin') {

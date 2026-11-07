@@ -52,7 +52,7 @@ export default function PasswordRecoveryPage({ mode, token }: Props) {
                 setPassword('')
                 setConfirmation('')
                 // Remove the used credential from the current history entry.
-                window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#/admin/redefinir-senha`)
+                window.history.replaceState(null, '', '/admin/redefinir-senha')
             }
             setSuccess(true)
         } catch (caught) {
@@ -65,7 +65,7 @@ export default function PasswordRecoveryPage({ mode, token }: Props) {
 
     return (
         <div className="login-page password-recovery-page">
-            <Header initialActiveLink="#/admin" />
+            <Header initialActiveLink="/admin" />
             <main className="login-page-content">
                 <section className="login-painel password-recovery-panel" aria-labelledby="recovery-title">
                     <div className="login-painel-brand">
@@ -86,7 +86,7 @@ export default function PasswordRecoveryPage({ mode, token }: Props) {
                     ) : invalidLink ? (
                         <div className="password-recovery-invalid">
                             <p className="login-painel-error" role="alert">Este link é inválido ou expirou. Solicite um novo link para redefinir sua senha.</p>
-                            <a className="login-painel-submit password-recovery-action" href="#/admin/esqueci-minha-senha">Solicitar novo link</a>
+                            <a className="login-painel-submit password-recovery-action" href="/admin/esqueci-minha-senha">Solicitar novo link</a>
                         </div>
                     ) : (
                         <form className="login-painel-form" onSubmit={handleSubmit} aria-busy={loading}>
@@ -123,7 +123,7 @@ export default function PasswordRecoveryPage({ mode, token }: Props) {
                         </form>
                     )}
                     {success && !isReset && <button type="button" className="login-painel-forgot" onClick={() => { setSuccess(false); setError(null) }}>Solicitar outro link</button>}
-                    <a className="password-recovery-back" href="#/admin/login">Voltar para o login</a>
+                    <a className="password-recovery-back" href="/admin/login">Voltar para o login</a>
                 </section>
             </main>
         </div>

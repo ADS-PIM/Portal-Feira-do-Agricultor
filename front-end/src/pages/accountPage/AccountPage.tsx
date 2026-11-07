@@ -1,3 +1,4 @@
+import { navigate } from '../../services/navigation'
 import { useEffect, useState, type FormEvent } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
@@ -41,7 +42,7 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
         setError(null)
         try {
             await logoutAdmin()
-            window.location.hash = '#/admin/login'
+            navigate('/admin/login')
         } catch (requestError) {
             setError(getUserFacingError(requestError, 'Não foi possível encerrar a sessão. Tente sair novamente.'))
         } finally { setLoggingOut(false) }
@@ -133,7 +134,7 @@ export default function AccountPage({ returnTarget = getAccountReturnTarget(null
         void restoreAdminProfile().then(result => {
             if (!active) return
             if (!result || !['ADMIN', 'SUPER_ADMIN'].includes(result.role)) {
-                window.location.hash = '#/admin/login'
+                navigate('/admin/login')
                 return
             }
             setProfile(result)
@@ -144,7 +145,7 @@ export default function AccountPage({ returnTarget = getAccountReturnTarget(null
                 return
             }
             if (requestError instanceof ApiRequestError && requestError.status === 401) {
-                window.location.hash = '#/admin/login'
+                navigate('/admin/login')
                 return
             }
             setError(getUserFacingError(requestError, 'Não foi possível carregar sua conta. Tente novamente.'))
@@ -152,5 +153,5 @@ export default function AccountPage({ returnTarget = getAccountReturnTarget(null
         return () => { active = false }
     }, [attempt])
     if (adminDisabled) return <AdminDisabledPage />
-    return <><Header initialActiveLink="#/minha-conta" /><main className="account-page"><div className="account-container"><a className="account-back" href={returnTarget.href}><Icon name="arrowLeft" />{returnTarget.label}</a><header className="account-heading"><span>SEU PERFIL</span><h1>Minha conta</h1><p>Gerencie suas informações e seu acesso ao portal.</p></header>{profile ? <AccountDetails initialProfile={profile} /> : error ? <section className="account-card"><p role="alert">{error}</p><button type="button" className="account-button" onClick={() => { setError(null); setAttempt(current => current + 1) }}>Tentar novamente</button></section> : <section className="account-card" role="status">Carregando sua conta...</section>}</div></main><Footer /></>
+    return <><Header initialActiveLink="/minha-conta" /><main className="account-page"><div className="account-container"><a className="account-back" href={returnTarget.href}><Icon name="arrowLeft" />{returnTarget.label}</a><header className="account-heading"><span>SEU PERFIL</span><h1>Minha conta</h1><p>Gerencie suas informações e seu acesso ao portal.</p></header>{profile ? <AccountDetails initialProfile={profile} /> : error ? <section className="account-card"><p role="alert">{error}</p><button type="button" className="account-button" onClick={() => { setError(null); setAttempt(current => current + 1) }}>Tentar novamente</button></section> : <section className="account-card" role="status">Carregando sua conta...</section>}</div></main><Footer /></>
 }

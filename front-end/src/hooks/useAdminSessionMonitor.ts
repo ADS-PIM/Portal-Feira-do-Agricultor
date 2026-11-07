@@ -1,3 +1,4 @@
+import { navigate } from '../services/navigation'
 import { useEffect } from 'react'
 import { restoreAdminProfile } from '../services/api'
 import { getAccessToken, getAdminAccessIssue, getAdminId } from '../services/authToken'
@@ -12,7 +13,7 @@ export function useAdminSessionMonitor(enabled: boolean): void {
             checking = true
             try {
                 const profile = await restoreAdminProfile()
-                if (active && !profile && !getAdminAccessIssue()) window.location.hash = '#/admin/login'
+                if (active && !profile && !getAdminAccessIssue()) navigate('/admin/login')
             } catch {
                 // The API handles lost access globally; temporary connection errors preserve the session.
             } finally { checking = false }
