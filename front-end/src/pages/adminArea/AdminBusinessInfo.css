@@ -276,7 +276,9 @@
 
 .admin-business-hours-switch {
     position: relative;
-    flex: 0 0 34px;
+    /* Include the switch in Firefox's intrinsic sizing of the enclosing label. */
+    width: 34px;
+    flex: 0 0 auto;
     height: 20px;
     border-radius: 20px;
     background: #8a9185;
