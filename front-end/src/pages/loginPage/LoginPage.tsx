@@ -64,8 +64,8 @@ const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
                 body: JSON.stringify(credentials),
             })
 
-            setAccessToken(accessToken)
             setAdminId(userId)
+            setAccessToken(accessToken)
 
             const admin = await restoreAdminProfile()
             if (!admin) return

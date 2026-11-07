@@ -49,6 +49,7 @@ export class AdminController {
     }
 
     public async login(req: Request, res: Response) {
+        res.setHeader('Cache-Control', 'no-store');
         try{
             const adminLoginDTO = plainToInstance(AdminLoginDTO, req.body);
             const errors = await validate(adminLoginDTO);
@@ -93,6 +94,7 @@ export class AdminController {
     }
 
     public async refresh(req: Request, res: Response) {
+        res.setHeader('Cache-Control', 'no-store');
         try{
             const refreshToken = (req as Request & { cookies?: Record<string, string> }).cookies?.refreshToken;
             if (!refreshToken) return res.status(401).json({ message: 'Refresh token is missing' });
@@ -147,12 +149,13 @@ export class AdminController {
             const newRefreshTokenId = crypto.randomUUID();
             const newRefreshToken = jwt.sign({ adminId, role: admin.role }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d', jwtid: newRefreshTokenId });
             const newRefreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-            if (!await refreshTokenDAO.rotate(refreshToken, newRefreshTokenId, newRefreshToken, adminId, newRefreshExpiresAt)) {
+            const rotation = await refreshTokenDAO.rotate(refreshToken, newRefreshTokenId, newRefreshToken, adminId, newRefreshExpiresAt);
+            if (!rotation) {
                 if (!await findAvailableAdmin()) return;
                 return res.status(401).json({ message: 'Invalid or expired refresh token' });
             }
         
-            res.cookie('refreshToken', newRefreshToken, refreshCookieOptions);
+            res.cookie('refreshToken', rotation.token, { ...refreshCookieOptions, maxAge: Math.max(0, rotation.expiresAt.getTime() - Date.now()) });
             res.status(200).json({ accessToken: newAccessToken, userId: adminId });
         } catch (error: any) {
             console.error('Error during token refresh:', error);

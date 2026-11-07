@@ -71,8 +71,12 @@ create table `refresh_tokens` (
     `createdAt` date not null,
     `expiresAt` datetime not null,
     `revokedAt` date default null,
+    `sessionId` char(36) default null,
+    `replacedByTokenId` char(36) default null,
+    `rotatedAt` datetime(3) default null,
     primary key (`id`),
     key `refreshTokens_administrators_FK` (`adminId`),
+    key `refreshTokens_session_idx` (`sessionId`),
     constraint `refreshTokens_administrators_FK` foreign key (`adminId`) references `administrators` (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
 

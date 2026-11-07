@@ -3,6 +3,7 @@ import {
     getAccessToken,
     getAdminId,
     getAdminAccessIssue,
+    getSessionRevision,
     invalidateAdminAccess,
     setAccessToken,
     setAdminId,
@@ -29,12 +30,16 @@ async function readErrorCode(response: Response): Promise<string | undefined> {
 }
 
 async function refreshAccessToken(): Promise<string | null> {
+    const revision = getSessionRevision()
     const response = await fetch(makeApiUrl('admin/refresh'), {
         method: 'POST',
         credentials: 'include',
+        cache: 'no-store',
     })
 
     const code = response.ok ? undefined : await readErrorCode(response)
+    // A login or logout may have completed while this older request was pending.
+    if (revision !== getSessionRevision()) return getAccessToken()
     checkAdminAccess(response, 'admin/refresh', code)
     if (response.status === 401) {
         clearAccessToken()
@@ -64,8 +69,9 @@ async function refreshAccessToken(): Promise<string | null> {
         throw new Error('Não foi possível validar sua sessão.')
     }
 
-    setAccessToken(result.accessToken)
+    if (revision !== getSessionRevision()) return getAccessToken()
     setAdminId(result.userId)
+    setAccessToken(result.accessToken)
     return result.accessToken
 }
 
@@ -115,6 +121,8 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     const sessionEndpoint = isSessionEndpoint(path)
     const headers = new Headers(options?.headers)
     const token = sessionEndpoint ? null : getAccessToken()
+    const revision = getSessionRevision()
+    const adminId = getAdminId()
     if (token) headers.set('Authorization', `Bearer ${token}`)
 
     const requestOptions: RequestInit = {
@@ -124,16 +132,23 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     }
     let response = await fetch(makeApiUrl(path), requestOptions)
     let code = response.ok ? undefined : await readErrorCode(response)
-    checkAdminAccess(response, path, code)
+    if (sessionEndpoint || revision === getSessionRevision()) checkAdminAccess(response, path, code)
 
     if (response.status === 401 && token && !sessionEndpoint) {
-        const refreshedToken = await getRefreshedAccessToken()
-        if (refreshedToken) {
+        // Delayed 401s must reuse a token already renewed by another request.
+        // Never retry an old user's request under a different account.
+        const refreshedToken = revision !== getSessionRevision()
+            ? (adminId === getAdminId() ? getAccessToken() : null)
+            : await getRefreshedAccessToken()
+        if (refreshedToken && adminId === getAdminId()) {
+            const retryRevision = getSessionRevision()
             headers.set('Authorization', `Bearer ${refreshedToken}`)
             response = await fetch(makeApiUrl(path), requestOptions)
             code = response.ok ? undefined : await readErrorCode(response)
-            checkAdminAccess(response, path, code)
-            if (response.status === 401) clearAccessToken()
+            if (retryRevision === getSessionRevision()) {
+                checkAdminAccess(response, path, code)
+                if (response.status === 401) clearAccessToken()
+            }
         }
     }
 

@@ -1,5 +1,7 @@
 let accessToken: string | null = null
 let adminId: string | null = null
+let sessionRevision = 0
+export const getSessionRevision = () => sessionRevision
 export interface AdminProfile {
     id: string
     name: string
@@ -78,6 +80,7 @@ export const authToken = {
     setAccessToken: (token: string) => {
         if (adminAccessIssue) return
         accessToken = token
+        sessionRevision++
         rememberAuthDisplayState('authenticated')
         notifyAuthStateChange()
     },
@@ -88,6 +91,7 @@ export const authToken = {
 
     clearAccessToken: () => {
         accessToken = null
+        sessionRevision++
         adminId = null
         adminProfile = null
         rememberHeaderProfile(null)
@@ -122,6 +126,7 @@ export const authToken = {
         // Keep the reason until acknowledged, including when older requests finish later.
         if (adminAccessIssue !== 'revoked') adminAccessIssue = reason
         accessToken = null
+        sessionRevision++
         adminId = null
         adminProfile = null
         rememberHeaderProfile(null)

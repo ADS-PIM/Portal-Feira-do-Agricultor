@@ -132,6 +132,21 @@ reais com respostas simuladas, verifica larguras de 320 a 1440 px e salva captur
 em `output/password-recovery`. Usa o Edge sem janela no Windows; para outro
 navegador Chromium, informe o executável em `BROWSER_PATH`.
 
+### Renovação da sessão administrativa
+
+Recarregamentos e abas simultâneas podem enviar o mesmo cookie para
+`POST /admin/refresh`. A rotação preserva a relação entre os tokens e, por até
+30 segundos, devolve o sucessor válido da mesma sessão. Isso permite recuperar
+uma resposta perdida sem encerrar o login. Expiração, conta desativada e sessão
+revogada continuam sendo rejeitadas. O logout revoga toda a sequência daquela
+sessão, sem encerrar sessões independentes em outros navegadores.
+
+Antes de publicar o backend, execute `npm run db:migrate` dentro de `back-end`
+para aplicar `20261107163000-refresh-session-rotation-overlap.js`. A migração
+adiciona campos opcionais e um índice; os cookies de sessões existentes continuam
+válidos. O frontend descarta respostas de autenticação anteriores a um novo login
+ou logout e reaproveita um token que outra requisição já tenha renovado.
+
 ### Exclusão de administradores
 
 `DELETE /admin/:id` exige uma sessão autenticada. Um `SUPER_ADMIN` pode excluir
