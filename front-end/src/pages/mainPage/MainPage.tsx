@@ -10,25 +10,18 @@ import ContactSection from '../../components/ContactSection/ContactSection';
 import Footer from '../../components/Footer/Footer';
 import { getNearestEvent, type NearestEvent } from '../../services/eventService';
 import { getUserFacingError } from '../../services/errors';
+import { producers } from '../producersPage/producersData';
 import './MainPage.css';
 
-const producerHighlights = [
-    {
-        name: 'Seu Zé do Córrego',
-        title: 'Hortaliças e Folhagens',
-        description: 'Planta de maneira limpa há mais de 25 anos no Córrego de Areia, trazendo as alfaces mais crocantes.',
-    },
-    {
-        name: 'Dona Maria de Fátima',
-        title: 'Frutas e Doces Caseiros',
-        description: 'Especialista em cultivo de bananas, mamão e produtos do melhor sabor da região.',
-    },
-    {
-        name: 'Francisco da Barra',
-        title: 'Tubérculos e Raízes',
-        description: 'Do distrito da Barra, cultiva macaxeiras e mandioca com capricho e tradição familiar.',
-    },
-];
+// Choose once per page load, keeping the selection stable during navigation.
+const producerHighlights = (() => {
+    const shuffled = [...producers];
+    for (let index = shuffled.length - 1; index > 0; index--) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+    }
+    return shuffled.slice(0, 3);
+})();
 
 const MainPage = () => {
     const [nearestEvent, setNearestEvent] = useState<NearestEvent | null>(null);
@@ -83,12 +76,22 @@ const MainPage = () => {
 
                     <div className="home-producers-grid">
                         {producerHighlights.map((producer) => (
-                            <article key={producer.name} className="home-producer-card">
-                                <div className="home-producer-visual" aria-hidden="true">
-                                    <span>{producer.title}</span>
+                            <article key={producer.slug} className="home-producer-card">
+                                <div className="home-producer-visual">
+                                    {producer.image && (
+                                        <img
+                                            className="home-producer-photo"
+                                            src={producer.image}
+                                            alt={producer.name}
+                                            style={{ objectPosition: producer.imagePosition }}
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                    )}
+                                    <span>{producer.category}</span>
                                 </div>
                                 <div className="home-producer-card-body">
-                                    <h3>{producer.name}</h3>
+                                    <h3><a href={`#/produtor/${encodeURIComponent(producer.slug)}`}>{producer.name}</a></h3>
                                     <p>{producer.description}</p>
                                 </div>
                             </article>
