@@ -373,14 +373,14 @@ um upload real e a migração real precisam das credenciais configuradas.
 O backend usa a data e os horários cadastrados no fuso `America/Sao_Paulo`,
 independentemente do fuso do servidor ou do visitante:
 
-- **Agendado** e **Reagendado** passam a **Em andamento** no horário de início.
+- **Agendado** passa a **Em andamento** no horário de início.
 - Ao atingir o horário de término, passam a **Concluído**, inclusive quando o
   evento ficou pendente durante todo o período ou já terminou em dias anteriores.
-- **Cancelado** e **Concluído** são preservados. Para reabrir um evento concluído,
-  ajuste a data/horários e selecione **Agendado** ou **Reagendado** ao salvar.
-- Um reagendamento segue a nova data e os novos horários registrados. Apenas
-  selecionar **Reagendado** sem alterar uma data passada fará o evento concluir
-  novamente; cadastre a nova programação na mesma edição.
+- **Cancelado**, **Reagendado** e **Concluído** são preservados pela atualização
+  automática, mesmo após a data ou os horários cadastrados. Esses status só mudam
+  quando o usuário seleciona outro status ao editar o evento.
+- Para retomar a atualização automática, ajuste a data/horários e selecione
+  **Agendado** ao salvar.
 
 As mudanças são persistidas no MySQL antes das consultas de listagem pública,
 painel administrativo, detalhe, próximo evento e agenda. Criação e edição também

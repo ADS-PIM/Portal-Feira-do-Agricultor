@@ -9,17 +9,17 @@ import { eventLocalTimestamp } from '../util/eventTime'
 async function synchronizeEventStates(db: Pick<PoolConnection, 'query'>, now: Date, eventId?: string): Promise<number> {
     const timestamp = eventLocalTimestamp(now)
     // One conditional UPDATE keeps concurrent edits/cancellations safe and repeated
-    // executions harmless. Terminal states are never reopened automatically.
+    // executions harmless. Canceled, rescheduled and concluded states are preserved.
     const [result] = await db.query<ResultSetHeader>(`
         UPDATE events
         SET state = CASE WHEN TIMESTAMP(date, endAt) <= ? THEN ? ELSE ? END
         WHERE (
-            (state IN (?, ?) AND TIMESTAMP(date, startAt) <= ?)
+            (state = ? AND TIMESTAMP(date, startAt) <= ?)
             OR (state = ? AND TIMESTAMP(date, endAt) <= ?)
         )${eventId === undefined ? '' : ' AND id = ?'}
     `, [
         timestamp, EventState.CONCLUDED, EventState.HAPPENING,
-        EventState.PENDING, EventState.RESCHEDULED, timestamp,
+        EventState.PENDING, timestamp,
         EventState.HAPPENING, timestamp,
         ...(eventId === undefined ? [] : [eventId]),
     ])
