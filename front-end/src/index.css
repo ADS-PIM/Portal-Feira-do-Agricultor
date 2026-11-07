@@ -156,8 +156,9 @@ textarea {
     --theme-feature-surface: #282b32;
     --theme-on-orange: #271909;
     --theme-active-count-surface: rgb(0 0 0 / 20%);
-    --theme-success-surface: #27312b;
-    --theme-success-border: #435b4b;
+    --theme-success-text: #86efac;
+    --theme-success-surface: #193c29;
+    --theme-success-border: #43855b;
     --theme-danger-text: #ff6b61;
     --theme-danger-surface: #3c2423;
     --theme-danger-border: #bb4349;
@@ -172,4 +173,98 @@ textarea {
     --theme-purple-text: #ba83ff;
     --theme-purple-surface: #30253e;
     --theme-purple-border: #8950d2;
+}
+
+/* Semantic feedback colors are independent of the neutral dark-theme accent. */
+:root[data-theme="dark"] :is(
+    .admin-managers-alert.is-success,
+    .admin-business-info-alert.is-success,
+    .admin-events-alert.is-success,
+    .contact-form-feedback.success,
+    .account-feedback:not(.is-error),
+    .password-recovery-success
+) {
+    border-color: var(--theme-success-border);
+    background: var(--theme-success-surface);
+    color: var(--theme-success-text);
+}
+
+:root[data-theme="dark"] :is(
+    .admin-managers-alert.is-error,
+    .admin-business-info-alert.is-error,
+    .admin-dashboard-alert.is-error,
+    .admin-events-alert.is-error,
+    .contact-form-feedback.error,
+    .account-feedback.is-error,
+    .location-map-error
+) {
+    border-color: var(--theme-danger-border);
+    background: var(--theme-danger-surface);
+    color: var(--theme-danger-text);
+}
+
+:root[data-theme="dark"] .event-page-feedback.is-error > p {
+    color: var(--theme-danger-text);
+}
+
+/* Target cancellation actions explicitly: secondary navigation stays neutral. */
+:root[data-theme="dark"] :is(
+    .admin-managers-cancel-button,
+    .admin-business-info-form-actions .is-secondary,
+    .admin-event-form-actions .is-secondary,
+    .admin-event-delete-dialog .is-secondary,
+    .admin-user-message-confirm-actions .is-secondary,
+    .admin-event-photo-confirm .admin-event-upload-button:not(.is-danger),
+    .account-form-actions .account-button.is-secondary,
+    .account-photo-actions .account-photo-cancel,
+    .image-crop-footer button:not(.is-primary),
+    .event-location-dialog-footer .location-button:not(.is-primary)
+) {
+    border-color: var(--theme-danger-border);
+    background: var(--theme-danger-surface);
+    color: var(--theme-danger-text);
+}
+
+:root[data-theme="dark"] :is(
+    .admin-managers-cancel-button,
+    .admin-business-info-form-actions .is-secondary,
+    .admin-event-form-actions .is-secondary,
+    .admin-event-delete-dialog .is-secondary,
+    .admin-user-message-confirm-actions .is-secondary,
+    .admin-event-photo-confirm .admin-event-upload-button:not(.is-danger),
+    .account-form-actions .account-button.is-secondary,
+    .account-photo-actions .account-photo-cancel,
+    .image-crop-footer button:not(.is-primary),
+    .event-location-dialog-footer .location-button:not(.is-primary)
+):is(:hover, :focus-visible):not(:disabled) {
+    border-color: var(--theme-danger-button-hover);
+    background: var(--theme-danger-button);
+    color: #fff;
+}
+
+:root[data-theme="dark"] :is(
+    .admin-managers-submit-button,
+    .admin-business-info-button.is-primary,
+    .admin-event-form-actions .is-primary,
+    .account-form-actions .account-button:not(.is-secondary, .is-danger),
+    .account-photo-save,
+    .image-crop-footer button.is-primary,
+    .event-location-dialog-footer .location-button.is-primary
+) {
+    border-color: var(--brand-green-dark);
+    background: var(--brand-green-dark);
+    color: #fff;
+}
+
+:root[data-theme="dark"] :is(
+    .admin-managers-submit-button,
+    .admin-business-info-button.is-primary,
+    .admin-event-form-actions .is-primary,
+    .account-form-actions .account-button:not(.is-secondary, .is-danger),
+    .account-photo-save,
+    .image-crop-footer button.is-primary,
+    .event-location-dialog-footer .location-button.is-primary
+):is(:hover, :focus-visible):not(:disabled) {
+    border-color: var(--brand-green-hover);
+    background: var(--brand-green-hover);
 }
