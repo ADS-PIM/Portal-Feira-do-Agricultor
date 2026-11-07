@@ -95,6 +95,7 @@ const AdminAdministrators = () => {
     const [isDeleting, setIsDeleting] = useState(false)
     const [deleteError, setDeleteError] = useState<string | null>(null)
     const deleteDialogRef = useRef<HTMLElement>(null)
+    const formPanelRef = useRef<HTMLElement>(null)
 
     useEffect(() => {
         const syncProfile = () => {
@@ -384,6 +385,17 @@ const AdminAdministrators = () => {
                                                     })
                                                     setError(null)
                                                     setSuccess(null)
+                                                    requestAnimationFrame(() => {
+                                                        const panel = formPanelRef.current
+                                                        const list = panel?.previousElementSibling
+                                                        if (!panel || !list || panel.getBoundingClientRect().top < list.getBoundingClientRect().bottom) return
+
+                                                        panel.querySelector('h2')?.focus({ preventScroll: true })
+                                                        panel.scrollIntoView({
+                                                            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+                                                            block: 'start',
+                                                        })
+                                                    })
                                                 }}
                                                 aria-label={`Editar ${admin.name}`}
                                                 title={admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId() ? 'Cada Super Admin gerencia a própria conta' : 'Editar'}
@@ -407,8 +419,8 @@ const AdminAdministrators = () => {
                         )}
                     </div>
 
-                    {canManageAdmins && <aside className="admin-managers-form-panel">
-                        <h2>{editingAdminId ? 'Editar Admin' : 'Cadastrar Novo Admin'}</h2>
+                    {canManageAdmins && <aside ref={formPanelRef} className="admin-managers-form-panel">
+                        <h2 tabIndex={-1}>{editingAdminId ? 'Editar Admin' : 'Cadastrar Novo Admin'}</h2>
 
                         <form className="admin-managers-form" onSubmit={handleSubmit}>
                             <label>

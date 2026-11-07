@@ -111,6 +111,10 @@
     padding: 22px;
 }
 
+.admin-managers-form-panel {
+    scroll-margin-top: 100px;
+}
+
 .admin-managers-list-panel h2,
 .admin-managers-form-panel h2 {
     margin: 0 0 14px;
