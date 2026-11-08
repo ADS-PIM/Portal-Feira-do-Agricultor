@@ -236,13 +236,13 @@ const AdminAdministrators = () => {
 
     const handleToggleStatus = async (admin: AdminRecord) => {
         if (!canManageAdmins) return
-        if (admin.role === 'SUPER_ADMIN' && admin.active) {
-            setError('Você pode reativar outro Super Admin, mas não pode desativá-lo.')
-            return
-        }
         const currentUserId = getAdminId()
         if (admin.id === currentUserId) {
             setError('Você não pode desativar o seu próprio acesso administrativo.')
+            return
+        }
+        if (admin.role === 'SUPER_ADMIN' && admin.active) {
+            setError('Você pode reativar outro Super Admin, mas não pode desativá-lo.')
             return
         }
 
@@ -364,7 +364,7 @@ const AdminAdministrators = () => {
                                                 disabled={admin.role === 'SUPER_ADMIN' && Boolean(admin.active)}
                                                 onClick={() => handleToggleStatus(admin)}
                                                 aria-label={admin.active ? 'Desativar administrador' : 'Ativar administrador'}
-                                                title={admin.role === 'SUPER_ADMIN' ? admin.active ? 'Você não pode desativar outro Super Admin' : 'Reativar Super Admin' : admin.active ? 'Desativar' : 'Ativar'}
+                                                title={admin.id === getAdminId() ? 'Você não pode desativar o seu próprio acesso administrativo.' : admin.role === 'SUPER_ADMIN' ? admin.active ? 'Você não pode desativar outro Super Admin' : 'Reativar Super Admin' : admin.active ? 'Desativar' : 'Ativar'}
                                             >
                                                 {admin.active ? 'Desativar' : admin.role === 'SUPER_ADMIN' ? 'Reativar' : 'Ativar'}
                                             </button>
