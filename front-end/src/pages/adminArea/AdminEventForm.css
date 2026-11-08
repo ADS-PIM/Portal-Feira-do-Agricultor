@@ -48,7 +48,7 @@
     font-size: 14px;
     font-weight: 400;
     line-height: 1.45;
-    color-scheme: light;
+    color-scheme: inherit;
 }
 .admin-event-editor .admin-event-form input::placeholder,
 .admin-event-editor .admin-event-form textarea::placeholder { color: var(--text-placeholder); }
