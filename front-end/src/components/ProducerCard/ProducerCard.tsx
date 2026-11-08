@@ -25,7 +25,6 @@ const ProducerCard = ({ producer }: ProducerCardProps) => {
       <div className="producer-card-body">
         <h2 className="producer-card-title">{producer.name}</h2>
         <div className="producer-card-location">
-          <span aria-hidden="true">📍</span>
           <span>{producer.location}, {producer.community}</span>
         </div>
 

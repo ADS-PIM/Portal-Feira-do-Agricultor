@@ -50,7 +50,7 @@ const ProducersPage = () => {
                 type="text"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Digite seu nome..."
+                placeholder="Digite o nome de um produtor, produto ou local"
               />
             </label>
 
