@@ -98,9 +98,22 @@ export function calculateAdvancedPricing(input: AdvancedPricingInput) {
     monthlyFixedExpenses, monthlyRevenue: input.monthlyRevenue, variableExpenses, profit: input.profit })
   if (!markup || !nonnegative(markup.price * input.producedQuantity)) return null
 
+  // Price minus materials, per-unit labor and sales fees. Fixed costs are
+  // covered by this margin, so subtracting them here would count them twice.
+  // The equivalent sum below avoids cancellation when the margin is zero.
+  const contributionMarginPercentage = markup.fixedPercentage + input.profit
+  const contributionMarginRatio = contributionMarginPercentage / 100
+  const contributionMarginPerUnit = markup.price * contributionMarginRatio
+  const monthlyContributionMargin = input.monthlyRevenue * contributionMarginRatio
+  const breakEvenRevenue = monthlyFixedExpenses === 0 ? 0 : monthlyFixedExpenses / contributionMarginRatio
+  const breakEvenQuantity = monthlyFixedExpenses === 0 ? 0 : monthlyFixedExpenses / contributionMarginPerUnit
+
   return { ...markup, productName: input.productName.trim(),
     producedQuantity: input.producedQuantity, ingredients: ingredients.map(item => item!), equipment,
     recipeCost, monthlyProductiveHours, timePerUnit, monthlyDepreciation, fixedExpensesTotal,
+    contributionMarginPerUnit, contributionMarginPercentage, monthlyContributionMargin,
+    breakEvenRevenue: nonnegative(breakEvenRevenue) ? breakEvenRevenue : null,
+    breakEvenQuantity: nonnegative(breakEvenQuantity) ? breakEvenQuantity : null,
     batchPrice: markup.price * input.producedQuantity }
 }
 
