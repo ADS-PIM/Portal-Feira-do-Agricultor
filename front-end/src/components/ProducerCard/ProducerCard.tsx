@@ -19,7 +19,6 @@ const ProducerCard = ({ producer }: ProducerCardProps) => {
             decoding="async"
           />
         )}
-        <span className="producer-card-category">{producer.category}</span>
       </div>
 
       <div className="producer-card-body">
