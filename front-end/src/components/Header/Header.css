@@ -117,6 +117,10 @@
     font-weight: 500;
 }
 
+:root[data-theme="dark"] .site-header-navigation a.is-active {
+    color: #0a9134;
+}
+
 .site-header-account button {
     min-width: 77px;
     min-height: 36px;

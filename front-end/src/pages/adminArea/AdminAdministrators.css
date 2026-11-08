@@ -270,19 +270,22 @@
     min-width: 72px;
     min-height: 28px;
     padding: 4px 10px;
+    border: 1px solid transparent;
     border-radius: 999px;
     font-size: 11px;
     font-weight: 700;
 }
 
 .admin-managers-status-badge.is-active {
-    background: var(--brand-green-light);
-    color: var(--theme-accent, var(--brand-green-dark));
+    border-color: var(--theme-success-border, #a9caae);
+    background: var(--theme-success-surface, var(--brand-green-light));
+    color: var(--theme-success-text, var(--brand-green-dark));
 }
 
 .admin-managers-status-badge.is-inactive {
-    background: var(--theme-surface-muted, #f3efe8);
-    color: var(--text-muted);
+    border-color: var(--theme-danger-border, #e9aaaa);
+    background: var(--theme-danger-surface, #fff0f0);
+    color: var(--theme-danger-text, #b42318);
 }
 
 .admin-managers-actions {
@@ -293,6 +296,9 @@
 }
 
 .admin-managers-action-button {
+    --action-background: var(--theme-surface-muted, #f3f5f0);
+    --action-border: var(--theme-border, #d9dfd3);
+    --action-color: var(--theme-text-secondary, #44513e);
     box-sizing: border-box;
     display: inline-flex;
     align-items: center;
@@ -300,8 +306,10 @@
     min-width: 36px;
     height: 36px;
     padding: 0 8px;
-    border: 1px solid transparent;
+    border: 1px solid var(--action-border);
     border-radius: 8px;
+    background: var(--action-background);
+    color: var(--action-color);
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -309,78 +317,48 @@
     transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.admin-managers-action-button:hover:not(:disabled) {
+.admin-managers-action-button:is(:hover, :focus-visible):not(:disabled) {
+    background: color-mix(in srgb, var(--action-background) 82%, var(--action-color));
     box-shadow: 0 2px 4px #26362412;
 }
 
 .admin-managers-action-button:focus-visible {
-    outline: 2px solid var(--brand-green);
+    outline: 2px solid var(--action-color);
     outline-offset: 3px;
 }
 
 .admin-managers-action-button.is-toggle {
+    --action-background: var(--theme-warning-surface, #fff4dc);
+    --action-border: var(--theme-warning-border, #d9a441);
+    --action-color: var(--theme-warning-text, #855000);
     min-width: 80px;
-    background: var(--theme-surface-muted, #f3f5f0);
-    border-color: var(--theme-border, #d9dfd3);
-    color: var(--theme-text-secondary, #44513e);
-}
-
-.admin-managers-action-button.is-toggle:hover:not(:disabled) {
-    background: var(--theme-surface-muted, #e8ede3);
-    border-color: var(--theme-border, #b8c5af);
 }
 
 .admin-managers-action-button.is-edit {
-    background: var(--theme-surface-muted, #f5f9ff);
-    border-color: var(--theme-border, #dbe7ff);
-    color: var(--theme-info-text, #1f56d9);
-}
-
-.admin-managers-action-button.is-edit:hover:not(:disabled) {
-    background: var(--theme-info-surface, #e8f0ff);
-    border-color: var(--theme-info-border, #aac5f5);
+    --action-background: var(--theme-info-surface, #e8f0ff);
+    --action-border: var(--theme-info-border, #aac5f5);
+    --action-color: var(--theme-info-text, #1f56d9);
 }
 
 .admin-managers-action-button.is-delete {
-    background: var(--theme-danger-surface, #fff0f0);
-    border-color: var(--theme-border, #f2d4d4);
-    color: var(--theme-danger-text, #bf2d2d);
-}
-
-.admin-managers-action-button.is-delete:hover:not(:disabled) {
-    background: var(--theme-danger-surface, #ffe3e3);
-    border-color: var(--theme-danger-border, #e9aaaa);
+    --action-background: var(--theme-danger-surface, #fff0f0);
+    --action-border: var(--theme-danger-border, #e9aaaa);
+    --action-color: var(--theme-danger-text, #bf2d2d);
 }
 
 .admin-managers-action-button.is-reactivate {
-    background: var(--theme-surface-muted, #edf7ee);
-    border-color: var(--theme-border, #c8dfcb);
-    color: var(--theme-accent, #236634);
-}
-
-.admin-managers-action-button.is-reactivate:hover:not(:disabled) {
-    background: var(--theme-success-surface, #dfefdf);
-    border-color: var(--theme-border, #a9caae);
+    --action-background: var(--theme-success-surface, #edf7ee);
+    --action-border: var(--theme-success-border, #a9caae);
+    --action-color: var(--theme-success-text, #236634);
 }
 
 .admin-managers-action-button:disabled {
     background: var(--theme-surface-muted, #f6f6f4);
     border-color: var(--theme-border, #e8e8e3);
     color: var(--theme-text-muted, #a7aaa2);
+    opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
-}
-
-.admin-managers-action-button.is-edit:disabled {
-    background: var(--theme-surface-muted, #f7f9fc);
-    border-color: var(--theme-border, #e7ebf3);
-    color: #a8b5ce;
-}
-
-.admin-managers-action-button.is-delete:disabled {
-    background: var(--theme-surface-muted, #fff8f7);
-    border-color: var(--theme-border, #f3e6e3);
-    color: #d1aca6;
 }
 
 .admin-managers-action-button svg {

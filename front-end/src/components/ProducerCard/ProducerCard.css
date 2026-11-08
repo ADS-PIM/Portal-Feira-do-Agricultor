@@ -81,8 +81,7 @@
 }
 
 .producer-card-location [aria-hidden="true"] {
-    color: var(--theme-success-text, var(--brand-green-dark));
-    font-size: 0.74rem;
+    font-size: 1em;
     flex-shrink: 0;
 }
 
