@@ -91,7 +91,7 @@ const MainPage = () => {
                                     <span>{producer.category}</span>
                                 </div>
                                 <div className="home-producer-card-body">
-                                    <h3><a href={`/produtor/${encodeURIComponent(producer.slug)}`}>{producer.name}</a></h3>
+                                    <h3><a href="/produtores">{producer.name}</a></h3>
                                     <p>{producer.description}</p>
                                 </div>
                             </article>

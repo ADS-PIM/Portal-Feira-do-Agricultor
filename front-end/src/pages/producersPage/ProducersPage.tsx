@@ -1,26 +1,27 @@
-import { navigate } from '../../services/navigation'
 import { useMemo, useState } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
+import ProducerCard from '../../components/ProducerCard/ProducerCard'
 import { categories, producers } from './producersData'
 import './ProducersPage.css'
 
 const ProducersPage = () => {
   const [query, setQuery] = useState('')
-  const [activeCategory, setActiveCategory] = useState('Todos')
+  const [activeCategory, setActiveCategory] = useState<typeof categories[number]['id']>('all')
 
   const filteredProducers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
 
     return producers.filter((producer) => {
-      const matchesCategory = activeCategory === 'Todos' || producer.category === activeCategory
+      const matchesCategory = activeCategory === 'all'
+        || producer.products.some((product) => product.group === activeCategory)
       const searchableText = [
         producer.name,
         producer.location,
         producer.community,
         producer.category,
         producer.brand,
-        producer.specialities.join(' '),
+        producer.products.map((product) => product.name).join(' '),
       ].join(' ').toLowerCase()
 
       const matchesQuery = !normalizedQuery || searchableText.includes(normalizedQuery)
@@ -53,16 +54,16 @@ const ProducersPage = () => {
               />
             </label>
 
-            <div className="producers-filter-list" aria-label="Categorias de produtores">
+            <div className="producers-filter-list" role="group" aria-label="Filtrar produtores por tipo de produto">
               {categories.map((category) => (
                 <button
-                  key={category}
+                  key={category.id}
                   type="button"
-                  className={activeCategory === category ? 'is-active' : ''}
-                  aria-pressed={activeCategory === category}
-                  onClick={() => setActiveCategory(category)}
+                  className={`producer-filter--${category.color}${activeCategory === category.id ? ' is-active' : ''}`}
+                  aria-pressed={activeCategory === category.id}
+                  onClick={() => setActiveCategory(category.id)}
                 >
-                  {category}
+                  {category.label}
                 </button>
               ))}
             </div>
@@ -71,43 +72,7 @@ const ProducersPage = () => {
           <section className="producers-grid" aria-label="Lista de produtores da feira">
             {filteredProducers.length > 0 ? (
               filteredProducers.map((producer) => (
-                <article key={producer.slug} className="producer-card">
-                  <div className={`producer-card-identity${producer.image ? '' : ' producer-card-identity--placeholder'}`}>
-                    {producer.image && (
-                      <img
-                        className="producer-card-photo"
-                        src={producer.image}
-                        alt={producer.name}
-                        style={{ objectPosition: producer.imagePosition }}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    )}
-                    <span className="producer-card-category">{producer.category}</span>
-                  </div>
-
-                  <div className="producer-card-body">
-                    <h2>{producer.name}</h2>
-                    <div className="producer-card-location">
-                      <span aria-hidden="true">•</span>
-                      {producer.location}
-                    </div>
-
-                    <p>{producer.description}</p>
-
-                    <div className="producer-card-footer">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextPath = `/produtor/${encodeURIComponent(producer.slug)}`
-                          navigate(nextPath)
-                        }}
-                      >
-                        Ver Perfil
-                      </button>
-                    </div>
-                  </div>
-                </article>
+                <ProducerCard key={producer.slug} producer={producer} />
               ))
             ) : (
               <div className="producer-empty-state" role="status">

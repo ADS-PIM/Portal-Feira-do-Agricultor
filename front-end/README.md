@@ -3,10 +3,11 @@
 ## Navegação
 
 Os links internos usam caminhos sem `#`: `/`, `/sobre`, `/contato`, `/calendario`,
-`/produtores`, `/produtor/:slug`, `/evento/:id`, `/calculadora`, `/minha-conta`
+`/produtores`, `/evento/:id`, `/calculadora`, `/minha-conta`
 e `/admin`. As seções administrativas usam `/admin/eventos`,
 `/admin/informacoes`, `/admin/administradores` e `/admin/mensagens`.
 Links antigos com `#` continuam abrindo o destino e são convertidos para `/`.
+Os antigos links `/produtor/:slug` abrem a listagem de produtores, que agora inclui os produtos de cada um nos cards.
 
 O arquivo `vercel.json` encaminha as rotas do frontend para `index.html`,
 permitindo acesso direto e atualização da página. Outras hospedagens devem

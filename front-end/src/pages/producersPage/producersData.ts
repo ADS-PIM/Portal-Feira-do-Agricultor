@@ -5,8 +5,22 @@ import nubiaPhoto from '../../assets/producers/nubia-moreira-maia.jpeg'
 import ocimarPhoto from '../../assets/producers/ocimar.jpeg'
 import franciscaDianaPhoto from '../../assets/producers/francisca-diana-alves-de-almeida.jpeg'
 
+const productGroups = [
+  { id: 'vegetables', label: 'Verduras e temperos', color: 'green' },
+  { id: 'fruits', label: 'Frutas', color: 'green' },
+  { id: 'plants', label: 'Mudas e sementes', color: 'green' },
+  { id: 'pantry', label: 'Alimentos e ingredientes', color: 'orange' },
+  { id: 'meals', label: 'Comidas prontas', color: 'orange' },
+  { id: 'drinks', label: 'Bebidas', color: 'orange' },
+  { id: 'handicrafts', label: 'Artesanato', color: 'pink' },
+  { id: 'care', label: 'Cuidados pessoais', color: 'pink' },
+] as const
+
+type ProducerProductGroup = typeof productGroups[number]['id']
+
 export type ProducerProduct = {
   name: string
+  group: ProducerProductGroup
   description: string
   image: string | null
 }
@@ -17,6 +31,7 @@ export type Producer = {
   location: string
   community: string
   category: string
+  primaryProductGroup: ProducerProductGroup
   brand?: string
   specialities: string[]
   products: ProducerProduct[]
@@ -36,16 +51,17 @@ export const producers: Producer[] = [
     location: 'Tapera',
     community: 'Tabuleiro do Norte',
     category: 'Verduras',
+    primaryProductGroup: 'vegetables',
     specialities: ['Panelada / Galinha', 'Cheiro verde', 'Pimentão', 'Couve manteiga', 'Manga', 'Alface', 'Salsinha', 'Coentro'],
     products: [
-      { name: 'Panelada / Galinha', description: 'Pratos comercializados por Josefa na feira.', image: null },
-      { name: 'Cheiro verde', description: 'Tempero para diferentes preparos do dia a dia.', image: null },
-      { name: 'Pimentão', description: 'Para saladas, refogados e outras receitas.', image: null },
-      { name: 'Couve manteiga', description: 'Folhas para saladas, refogados e acompanhamentos.', image: null },
-      { name: 'Manga', description: 'Fruta para consumir ao natural ou preparar sucos e sobremesas.', image: null },
-      { name: 'Alface', description: 'Folhas para saladas e acompanhamentos.', image: null },
-      { name: 'Salsinha', description: 'Erva para temperar e finalizar pratos.', image: null },
-      { name: 'Coentro', description: 'Tempero para diferentes receitas.', image: null },
+      { name: 'Panelada / Galinha', group: 'meals', description: 'Pratos comercializados por Josefa na feira.', image: null },
+      { name: 'Cheiro verde', group: 'vegetables', description: 'Tempero para diferentes preparos do dia a dia.', image: null },
+      { name: 'Pimentão', group: 'vegetables', description: 'Para saladas, refogados e outras receitas.', image: null },
+      { name: 'Couve manteiga', group: 'vegetables', description: 'Folhas para saladas, refogados e acompanhamentos.', image: null },
+      { name: 'Manga', group: 'fruits', description: 'Fruta para consumir ao natural ou preparar sucos e sobremesas.', image: null },
+      { name: 'Alface', group: 'vegetables', description: 'Folhas para saladas e acompanhamentos.', image: null },
+      { name: 'Salsinha', group: 'vegetables', description: 'Erva para temperar e finalizar pratos.', image: null },
+      { name: 'Coentro', group: 'vegetables', description: 'Tempero para diferentes receitas.', image: null },
     ],
     description: 'Da comunidade Tapera, em Tabuleiro do Norte, Josefa comercializa panelada, galinha, verduras, temperos e manga.',
     story: 'Josefa Alexandre Barreto é da comunidade Tapera, em Tabuleiro do Norte. Na feira, comercializa panelada / galinha, cheiro verde, pimentão, couve manteiga, manga, alface, salsinha e coentro.',
@@ -60,6 +76,7 @@ export const producers: Producer[] = [
     location: 'Cajueiros',
     community: 'Tabuleiro do Norte',
     category: 'Produtos Naturais',
+    primaryProductGroup: 'pantry',
     brand: 'Sabor e Saúde',
     specialities: [
       'Colorau caseiro / Colorau líquido',
@@ -74,16 +91,16 @@ export const producers: Producer[] = [
       'Limão',
     ],
     products: [
-      { name: 'Colorau caseiro / Colorau líquido', description: 'Colorau nas versões caseira e líquida para temperar suas receitas.', image: null },
-      { name: 'Pão', description: 'Pão comercializado por Neutânia na feira.', image: null },
-      { name: 'Óleo de coco', description: 'Óleo de coco da linha Sabor e Saúde.', image: null },
-      { name: 'Chips de banana / Farinha de banana / Farinha de coco', description: 'Chips de banana e farinhas de banana e de coco.', image: null },
-      { name: 'Sal temperado', description: 'Sal temperado para diferentes preparos do dia a dia.', image: null },
-      { name: 'Farofa de soja', description: 'Farofa de soja para acompanhar refeições.', image: null },
-      { name: 'Sais de banho / Sabonete de babosa com alecrim', description: 'Sais de banho e sabonete de babosa com alecrim para cuidados pessoais.', image: null },
-      { name: 'Escalda-pé', description: 'Produto para o preparo de escalda-pés.', image: null },
-      { name: 'Mamão', description: 'Fruta para consumir ao natural ou preparar vitaminas e saladas de frutas.', image: null },
-      { name: 'Limão', description: 'Fruta para sucos, temperos e outras receitas.', image: null },
+      { name: 'Colorau caseiro / Colorau líquido', group: 'pantry', description: 'Colorau nas versões caseira e líquida para temperar suas receitas.', image: null },
+      { name: 'Pão', group: 'pantry', description: 'Pão comercializado por Neutânia na feira.', image: null },
+      { name: 'Óleo de coco', group: 'pantry', description: 'Óleo de coco da linha Sabor e Saúde.', image: null },
+      { name: 'Chips de banana / Farinha de banana / Farinha de coco', group: 'pantry', description: 'Chips de banana e farinhas de banana e de coco.', image: null },
+      { name: 'Sal temperado', group: 'pantry', description: 'Sal temperado para diferentes preparos do dia a dia.', image: null },
+      { name: 'Farofa de soja', group: 'pantry', description: 'Farofa de soja para acompanhar refeições.', image: null },
+      { name: 'Sais de banho / Sabonete de babosa com alecrim', group: 'care', description: 'Sais de banho e sabonete de babosa com alecrim para cuidados pessoais.', image: null },
+      { name: 'Escalda-pé', group: 'care', description: 'Produto para o preparo de escalda-pés.', image: null },
+      { name: 'Mamão', group: 'fruits', description: 'Fruta para consumir ao natural ou preparar vitaminas e saladas de frutas.', image: null },
+      { name: 'Limão', group: 'fruits', description: 'Fruta para sucos, temperos e outras receitas.', image: null },
     ],
     description: 'Da comunidade Cajueiros, Neutânia participa da feira há aproximadamente 8 anos com a Sabor e Saúde, comercializando produtos naturais, pães e frutas.',
     story: 'Neutânia Soares é da comunidade Cajueiros, em Tabuleiro do Norte, e participa da feira há aproximadamente 8 anos. Com a Sabor e Saúde – Produtos Naturais, comercializa temperos, pão, óleo de coco, chips e farinhas, produtos de cuidado pessoal, mamão e limão.',
@@ -99,14 +116,15 @@ export const producers: Producer[] = [
     location: 'Barra do Feijão',
     community: 'Tabuleiro do Norte',
     category: 'Mel',
+    primaryProductGroup: 'pantry',
     specialities: ['Mel', 'Laranja', 'Bolo liso', 'Cuscuz recheado', 'Coco ralado', 'Café'],
     products: [
-      { name: 'Mel', description: 'Mel comercializado por Marinalva na feira.', image: null },
-      { name: 'Laranja', description: 'Fruta para consumir ao natural ou preparar sucos e outras receitas.', image: null },
-      { name: 'Bolo liso', description: 'Bolo liso para acompanhar o café ou compor o lanche.', image: null },
-      { name: 'Cuscuz recheado', description: 'Cuscuz recheado comercializado por Marinalva na feira.', image: null },
-      { name: 'Coco ralado', description: 'Coco ralado para diferentes preparos e receitas.', image: null },
-      { name: 'Café', description: 'Café disponível na banca de Marinalva.', image: null },
+      { name: 'Mel', group: 'pantry', description: 'Mel comercializado por Marinalva na feira.', image: null },
+      { name: 'Laranja', group: 'fruits', description: 'Fruta para consumir ao natural ou preparar sucos e outras receitas.', image: null },
+      { name: 'Bolo liso', group: 'meals', description: 'Bolo liso para acompanhar o café ou compor o lanche.', image: null },
+      { name: 'Cuscuz recheado', group: 'meals', description: 'Cuscuz recheado comercializado por Marinalva na feira.', image: null },
+      { name: 'Coco ralado', group: 'pantry', description: 'Coco ralado para diferentes preparos e receitas.', image: null },
+      { name: 'Café', group: 'drinks', description: 'Café disponível na banca de Marinalva.', image: null },
     ],
     description: 'Da comunidade Barra do Feijão, em Tabuleiro do Norte, Marinalva comercializa mel, laranja, bolo liso, cuscuz recheado, coco ralado e café.',
     story: 'Marinalva é da comunidade Barra do Feijão, em Tabuleiro do Norte. Na feira, comercializa mel, laranja, bolo liso, cuscuz recheado, coco ralado e café.',
@@ -121,16 +139,17 @@ export const producers: Producer[] = [
     location: 'Gangorrinha',
     community: 'Tabuleiro do Norte',
     category: 'Comidas e Bebidas',
+    primaryProductGroup: 'meals',
     specialities: ['Tapioca de forno', 'Caldo', 'Cuscuz temperado', 'Bandeja de ovos', 'Amendoim', 'Café', 'Bolo', 'Suco'],
     products: [
-      { name: 'Tapioca de forno', description: 'Tapioca de forno comercializada por Núbia na feira.', image: null },
-      { name: 'Caldo', description: 'Caldo disponível na banca de Núbia.', image: null },
-      { name: 'Cuscuz temperado', description: 'Cuscuz temperado para compor a refeição.', image: null },
-      { name: 'Bandeja de ovos', description: 'Ovos comercializados em bandeja.', image: null },
-      { name: 'Amendoim', description: 'Amendoim disponível na banca de Núbia.', image: null },
-      { name: 'Café', description: 'Café para acompanhar o lanche ou a refeição.', image: null },
-      { name: 'Bolo', description: 'Bolo comercializado por Núbia na feira.', image: null },
-      { name: 'Suco', description: 'Suco disponível na banca de Núbia.', image: null },
+      { name: 'Tapioca de forno', group: 'meals', description: 'Tapioca de forno comercializada por Núbia na feira.', image: null },
+      { name: 'Caldo', group: 'meals', description: 'Caldo disponível na banca de Núbia.', image: null },
+      { name: 'Cuscuz temperado', group: 'meals', description: 'Cuscuz temperado para compor a refeição.', image: null },
+      { name: 'Bandeja de ovos', group: 'pantry', description: 'Ovos comercializados em bandeja.', image: null },
+      { name: 'Amendoim', group: 'pantry', description: 'Amendoim disponível na banca de Núbia.', image: null },
+      { name: 'Café', group: 'drinks', description: 'Café para acompanhar o lanche ou a refeição.', image: null },
+      { name: 'Bolo', group: 'meals', description: 'Bolo comercializado por Núbia na feira.', image: null },
+      { name: 'Suco', group: 'drinks', description: 'Suco disponível na banca de Núbia.', image: null },
     ],
     description: 'Da comunidade Gangorrinha, em Tabuleiro do Norte, Núbia comercializa tapioca de forno, caldo, cuscuz temperado, ovos, amendoim, café, bolo e suco.',
     story: 'Núbia Moreira Maia é da comunidade Gangorrinha, em Tabuleiro do Norte. Na feira, comercializa tapioca de forno, caldo, cuscuz temperado, bandeja de ovos, amendoim, café, bolo e suco.',
@@ -145,13 +164,14 @@ export const producers: Producer[] = [
     location: 'São Gerardo',
     community: 'Tabuleiro do Norte',
     category: 'Frutas',
+    primaryProductGroup: 'fruits',
     specialities: ['Mamão', 'Cheiro verde', 'Banana', 'Limão', 'Jerimum'],
     products: [
-      { name: 'Mamão', description: 'Fruta para consumir ao natural ou preparar vitaminas e saladas de frutas.', image: null },
-      { name: 'Cheiro verde', description: 'Tempero para diferentes preparos do dia a dia.', image: null },
-      { name: 'Banana', description: 'Fruta para consumir ao natural ou usar em receitas.', image: null },
-      { name: 'Limão', description: 'Fruta para sucos, temperos e outras receitas.', image: null },
-      { name: 'Jerimum', description: 'Jerimum para sopas, cozidos e acompanhamentos.', image: null },
+      { name: 'Mamão', group: 'fruits', description: 'Fruta para consumir ao natural ou preparar vitaminas e saladas de frutas.', image: null },
+      { name: 'Cheiro verde', group: 'vegetables', description: 'Tempero para diferentes preparos do dia a dia.', image: null },
+      { name: 'Banana', group: 'fruits', description: 'Fruta para consumir ao natural ou usar em receitas.', image: null },
+      { name: 'Limão', group: 'fruits', description: 'Fruta para sucos, temperos e outras receitas.', image: null },
+      { name: 'Jerimum', group: 'vegetables', description: 'Jerimum para sopas, cozidos e acompanhamentos.', image: null },
     ],
     description: 'Da comunidade São Gerardo, Ocimar comercializa mamão, cheiro verde, banana, limão e jerimum.',
     story: 'Ocimar é da comunidade São Gerardo. Na feira, comercializa mamão, cheiro verde, banana, limão e jerimum.',
@@ -166,15 +186,16 @@ export const producers: Producer[] = [
     location: 'Tapera',
     community: 'Tabuleiro do Norte',
     category: 'Mudas e Plantas',
+    primaryProductGroup: 'plants',
     specialities: ['Mudas medicinais, frutíferas e ornamentais', 'Manga', 'Acerola', 'Limão', 'Tamarindo', 'Sementes de flores', 'Artesanatos de crochê'],
     products: [
-      { name: 'Mudas medicinais, frutíferas e ornamentais', description: 'Mudas de plantas medicinais, árvores frutíferas e plantas ornamentais.', image: null },
-      { name: 'Manga', description: 'Fruta para consumir ao natural ou preparar sucos e sobremesas.', image: null },
-      { name: 'Acerola', description: 'Fruta para sucos e outras receitas.', image: null },
-      { name: 'Limão', description: 'Fruta para sucos, temperos e outras receitas.', image: null },
-      { name: 'Tamarindo', description: 'Fruta para preparar sucos, doces e outras receitas.', image: null },
-      { name: 'Sementes de flores', description: 'Sementes de flores para plantio.', image: null },
-      { name: 'Artesanatos de crochê', description: 'Peças de crochê comercializadas por Francisca na feira.', image: null },
+      { name: 'Mudas medicinais, frutíferas e ornamentais', group: 'plants', description: 'Mudas de plantas medicinais, árvores frutíferas e plantas ornamentais.', image: null },
+      { name: 'Manga', group: 'fruits', description: 'Fruta para consumir ao natural ou preparar sucos e sobremesas.', image: null },
+      { name: 'Acerola', group: 'fruits', description: 'Fruta para sucos e outras receitas.', image: null },
+      { name: 'Limão', group: 'fruits', description: 'Fruta para sucos, temperos e outras receitas.', image: null },
+      { name: 'Tamarindo', group: 'fruits', description: 'Fruta para preparar sucos, doces e outras receitas.', image: null },
+      { name: 'Sementes de flores', group: 'plants', description: 'Sementes de flores para plantio.', image: null },
+      { name: 'Artesanatos de crochê', group: 'handicrafts', description: 'Peças de crochê comercializadas por Francisca na feira.', image: null },
     ],
     description: 'Da comunidade Tapera, em Tabuleiro do Norte, Francisca comercializa mudas medicinais, frutíferas e ornamentais, frutas, sementes de flores e artesanatos de crochê.',
     story: 'Francisca Diana Alves de Almeida é da comunidade Tapera, em Tabuleiro do Norte. Na feira, comercializa mudas medicinais, frutíferas e ornamentais, manga, acerola, limão, tamarindo, sementes de flores e artesanatos de crochê.',
@@ -185,8 +206,23 @@ export const producers: Producer[] = [
   },
 ]
 
-export const categories = ['Todos', ...new Set(producers.map(({ category }) => category))]
+export const categories = [
+  { id: 'all', label: 'Todos', color: 'green' } as const,
+  ...productGroups.filter((group) => (
+    producers.some((producer) => producer.products.some((product) => product.group === group.id))
+  )),
+]
 
-export function getProducerBySlug(slug: string) {
-  return producers.find((producer) => producer.slug === slug) ?? null
+export function getProducerProductGroups(producer: Producer) {
+  return productGroups
+    .map((group) => ({
+      ...group,
+      products: producer.products
+        .filter((product) => product.group === group.id)
+        .flatMap((product) => product.name.split(' / ')),
+    }))
+    .filter((group) => group.products.length > 0)
+    .sort((first, second) => (
+      Number(second.id === producer.primaryProductGroup) - Number(first.id === producer.primaryProductGroup)
+    ))
 }

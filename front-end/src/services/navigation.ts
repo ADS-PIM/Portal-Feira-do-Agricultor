@@ -5,6 +5,7 @@ export function normalizePortalPath(value: string): string {
     const path = value.replace(/^#/, '')
     const [pathname, ...query] = path.split('?')
     const cleanPath = pathname.replace(/\/+$/, '') || '/'
+    if (/^\/produtor\/[^/?#]+$/.test(cleanPath)) return '/produtores'
     const aliases: Record<string, string> = {
         inicio: '/', '/inicio': '/', sobre: '/sobre', contato: '/contato', calculadora: '/calculadora',
     }
