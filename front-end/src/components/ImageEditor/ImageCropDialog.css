@@ -1,6 +1,6 @@
 .image-crop-dialog { --image-crop-height: 32dvh; box-sizing: border-box; width: min(580px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); margin: auto; padding: 0; overflow: auto; border: 0; border-radius: 16px; background: var(--theme-surface, #fff); color: var(--brand-charcoal, var(--theme-text, #27352b)); font-family: var(--font-family-base, sans-serif); box-shadow: 0 20px 70px #0005; }
 .image-crop-dialog *, .image-crop-dialog *::before, .image-crop-dialog *::after { box-sizing: border-box; }
-.image-crop-dialog::backdrop { background: rgb(15 30 19 / 65%); }
+.image-crop-dialog::backdrop { background: rgb(0 0 0 / 65%); }
 .image-crop-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 24px 16px; border-bottom: 1px solid var(--theme-border, #e4eadd); }
 .image-crop-header h2 { margin: 0; font-size: 20px; }
 .image-crop-header p { margin: 6px 0 0; color: var(--theme-text-secondary, #647260); font-size: 12px; line-height: 1.5; }

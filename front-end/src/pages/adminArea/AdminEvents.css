@@ -618,7 +618,7 @@
     overflow-y: auto;
     place-items: center;
     padding: 24px;
-    background: rgb(20 29 23 / 52%);
+    background: rgb(0 0 0 / 52%);
 }
 
 .admin-event-modal {

@@ -89,7 +89,7 @@
 .admin-event-photo-remove svg { width: 16px; height: 16px; }
 .admin-event-photo-remove.is-delete { color: var(--theme-danger-text, #a33a2e); }
 .admin-event-photo-delete-popup { box-sizing: border-box; width: min(420px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 0; border: 0; border-radius: 14px; background: var(--theme-surface, #fff); color: var(--brand-charcoal); box-shadow: 0 20px 70px #0004; }
-.admin-event-photo-delete-popup::backdrop { background: rgb(20 29 23 / 55%); }
+.admin-event-photo-delete-popup::backdrop { background: rgb(0 0 0 / 55%); }
 .admin-event-photo-confirm { padding: 28px 24px 24px; text-align: center; }
 .admin-event-photo-delete-icon { display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 16px; border-radius: 50%; background: var(--theme-danger-surface, #fff2ee); color: var(--theme-danger-text, #a33a2e); }
 .admin-event-photo-delete-icon svg { width: 22px; height: 22px; }
