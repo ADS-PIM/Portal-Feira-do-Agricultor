@@ -1,4 +1,5 @@
 import { getProducerProductGroups, type Producer } from '../../pages/producersPage/producersData'
+import Icon from '../Icon'
 import './ProducerCard.css'
 
 type ProducerCardProps = {
@@ -24,6 +25,7 @@ const ProducerCard = ({ producer }: ProducerCardProps) => {
       <div className="producer-card-body">
         <h2 className="producer-card-title">{producer.name}</h2>
         <div className="producer-card-location">
+          <Icon name="location" />
           <span>{producer.location}, {producer.community}</span>
         </div>
 

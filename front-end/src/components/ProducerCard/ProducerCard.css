@@ -65,6 +65,10 @@
     font-weight: 600;
 }
 
+.producer-card-location > .font-awesome-icon {
+    flex-shrink: 0;
+}
+
 .producer-card-location > span:last-child {
     min-width: 0;
 }
