@@ -562,13 +562,22 @@
 }
 
 .admin-event-action.is-delete {
-    color: var(--theme-danger-text, #d94a32);
+    border-color: var(--theme-danger-text, #c5252f);
+    color: var(--theme-danger-text, #c5252f);
+    font-weight: 700;
 }
 
 .admin-event-action:hover,
 .admin-event-action:focus-visible {
     background: var(--theme-surface-muted, #f8f7f5);
     border-color: currentColor;
+}
+
+.admin-event-action.is-delete:hover,
+.admin-event-action.is-delete:focus-visible {
+    background: var(--theme-danger-surface, #fff0f1);
+    border-color: currentColor;
+    color: var(--theme-danger-text, #a61f27);
 }
 
 .admin-events :is(button, a):focus-visible {
@@ -940,10 +949,17 @@
 
 .admin-event-delete-actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     width: 100%;
     margin-top: 22px;
+}
+
+.admin-event-delete-actions .admin-event-button {
+    min-height: 44px;
+    padding: 10px 20px;
+    font-size: 14px;
 }
 
 .admin-event-button.is-danger {

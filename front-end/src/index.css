@@ -212,8 +212,6 @@ textarea {
     .admin-managers-cancel-button,
     .admin-business-info-form-actions .is-secondary,
     .admin-event-form-actions .is-secondary,
-    .admin-event-delete-dialog .is-secondary,
-    .admin-user-message-confirm-actions .is-secondary,
     .admin-event-photo-confirm .admin-event-upload-button:not(.is-danger),
     .account-form-actions .account-button.is-secondary,
     .account-photo-actions .account-photo-cancel,
@@ -229,13 +227,29 @@ textarea {
     .admin-managers-cancel-button,
     .admin-business-info-form-actions .is-secondary,
     .admin-event-form-actions .is-secondary,
-    .admin-event-delete-dialog .is-secondary,
-    .admin-user-message-confirm-actions .is-secondary,
     .admin-event-photo-confirm .admin-event-upload-button:not(.is-danger),
     .account-form-actions .account-button.is-secondary,
     .account-photo-actions .account-photo-cancel,
     .image-crop-footer button:not(.is-primary),
     .event-location-dialog-footer .location-button:not(.is-primary)
+):is(:hover, :focus-visible):not(:disabled) {
+    border-color: var(--theme-danger-button-hover);
+    background: var(--theme-danger-button);
+    color: #fff;
+}
+
+:root[data-theme="dark"] :is(
+    .admin-event-delete-dialog .is-secondary,
+    .admin-user-message-confirm-actions .is-secondary
+) {
+    border-color: var(--theme-danger-text);
+    background: transparent;
+    color: var(--theme-danger-text);
+}
+
+:root[data-theme="dark"] :is(
+    .admin-event-delete-dialog .is-secondary,
+    .admin-user-message-confirm-actions .is-secondary
 ):is(:hover, :focus-visible):not(:disabled) {
     border-color: var(--theme-danger-button-hover);
     background: var(--theme-danger-button);
