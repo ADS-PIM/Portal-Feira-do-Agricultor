@@ -4,6 +4,7 @@ import Footer from '../../components/Footer/Footer'
 import Icon, { type IconName } from '../../components/Icon'
 import { calculateMarkup, parsePricingNumber, parseProductionHours, type MarkupInput, type ProductionTimeUnit } from '../../utils/pricingCalculator'
 import AdvancedPricingCalculator from './AdvancedPricingCalculator'
+import PricingBreakEven from './PricingBreakEven'
 import PercentageField from './PercentageField'
 import CalculatorFieldHelp from './CalculatorFieldHelp'
 import { CalculatorSteps, CalculatorStepActions } from './CalculatorSteps'
@@ -362,6 +363,7 @@ export default function PricingCalculatorPage() {
                     <p>O resultado é atualizado automaticamente conforme você preenche os campos.</p>
                   </div>
                   <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${decimal.format(result.multiplier)}×` : '—'}</strong></div>
+                  <PricingBreakEven result={result} titleId="markup-break-even-title" />
                 </div>
 
                 <section className="markup-breakdown" aria-labelledby="markup-breakdown-title">

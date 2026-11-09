@@ -41,17 +41,6 @@
 .advanced-calculator .markup-fixed-percentage strong { flex-shrink: 1; overflow-wrap: anywhere; }
 .advanced-batch-price { margin-top: 16px; }
 .advanced-batch-price strong { font-size: 16px; }
-.advanced-break-even { margin-top: 22px; padding-top: 22px; border-top: 1px solid rgb(255 255 255 / 25%); }
-.advanced-break-even h3 { color: inherit; font-size: 17px; line-height: 1.5; }
-.advanced-break-even p { margin-top: 10px; color: #d2ecd8; font-size: 12px; line-height: 1.7; }
-.advanced-break-even dl { margin: 16px 0 0; }
-.advanced-break-even dl > div { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; margin-top: 12px; font-size: 13px; }
-.advanced-break-even dt { flex: 1 1 150px; line-height: 1.5; }
-.advanced-break-even dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
-.advanced-break-even-values dd { font-size: 19px; }
-.advanced-break-even-help { margin-top: 16px; }
-.advanced-break-even-help summary { width: fit-content; max-width: 100%; cursor: pointer; font-size: 12px; line-height: 1.7; text-decoration: underline; text-underline-offset: 3px; }
-.advanced-break-even-help summary:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 2px; }
 .advanced-summary dt { line-height: 1.5; }
 .advanced-example-note { margin: 14px 7px; }
 .advanced-formula-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 30px; margin: 22px 0 0; padding-left: 22px; }

@@ -11,6 +11,7 @@ import CalculatorFieldHelp from './CalculatorFieldHelp'
 import { getAdvancedFieldHelp } from './advancedFieldHelp'
 import ProductionTimeUnitField from './ProductionTimeUnitField'
 import { calculatorErrors } from './calculatorValidation'
+import PricingBreakEven from './PricingBreakEven'
 
 const steps = ['Produto', 'Insumos', 'Trabalho', 'Gastos fixos', 'Equipamentos', 'Taxas e lucro'] as const
 function stepForField(name: string) {
@@ -377,30 +378,7 @@ export default function AdvancedPricingCalculator() {
             </div>
             <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${numeric(result.multiplier)}×` : '—'}</strong></div>
             <div className="markup-multiplier advanced-batch-price"><span>Venda de todo o lote</span><strong>{result ? money(result.batchPrice) : 'R$ —'}</strong></div>
-            <section className="advanced-break-even" aria-labelledby="advanced-break-even-title">
-              <h3 id="advanced-break-even-title">Ponto de equilíbrio mensal</h3>
-              <p>Quanto vender para cobrir os custos, sem lucro nem prejuízo.</p>
-              <dl className="advanced-break-even-values" role="status" aria-live="polite" aria-atomic="true">
-                <div><dt>Faturamento necessário</dt><dd>{result?.breakEvenRevenue != null ? money(result.breakEvenRevenue) : 'R$ —'}</dd></div>
-                <div><dt>Quantidade mínima</dt><dd>{result?.breakEvenQuantity != null
-                  ? `${numeric(Math.ceil(result.breakEvenQuantity))} ${Math.ceil(result.breakEvenQuantity) === 1 ? 'unidade' : 'unidades'}` : '—'}</dd></div>
-              </dl>
-              {result && result.monthlyFixedExpenses === 0 && <p>Sem gastos fixos cadastrados, o mínimo para cobri-los é zero.</p>}
-              {result && (result.breakEvenRevenue === null || result.breakEvenQuantity === null)
-                && <p>Não foi possível calcular o ponto de equilíbrio com estes valores. Revise os custos e a margem de contribuição.</p>}
-              <details className="advanced-break-even-help">
-                <summary>Como é calculado?</summary>
-                <p>A margem de contribuição é o preço de venda menos materiais, mão de obra por unidade e taxas de venda. Ela cobre os gastos fixos e, depois, gera lucro.</p>
-                <dl>
-                  <div><dt>Gastos fixos por mês, com depreciação</dt><dd>{result ? money(result.monthlyFixedExpenses) : 'R$ —'}</dd></div>
-                  <div><dt>Margem de contribuição por unidade</dt><dd>{result ? `${money(result.contributionMarginPerUnit)} (${numeric(result.contributionMarginPercentage)}%)` : 'R$ —'}</dd></div>
-                  <div><dt>Margem de contribuição mensal estimada</dt><dd>{result ? money(result.monthlyContributionMargin) : 'R$ —'}</dd></div>
-                </dl>
-                <p>PE em valor = (gastos fixos ÷ margem de contribuição mensal) × faturamento mensal.</p>
-                <p>PE em quantidade = gastos fixos mensais ÷ margem de contribuição por unidade.</p>
-                <p>A margem mensal considera o faturamento informado e a proporção de custos deste produto. A mão de obra acompanha a quantidade produzida, como no cálculo do preço.</p>
-              </details>
-            </section>
+            <PricingBreakEven result={result} titleId="advanced-break-even-title" fixedExpensesLabel="Gastos fixos por mês, com depreciação" />
           </div>
           <section className="markup-breakdown" aria-labelledby="advanced-breakdown-title">
             <h3 id="advanced-breakdown-title">Para onde vai cada parte do preço?</h3>

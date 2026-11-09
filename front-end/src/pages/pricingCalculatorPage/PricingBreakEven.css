@@ -1,0 +1,11 @@
+.markup-break-even { margin-top: 22px; padding-top: 22px; border-top: 1px solid rgb(255 255 255 / 25%); }
+.markup-break-even h3 { color: inherit; font-size: 17px; line-height: 1.5; }
+.markup-break-even p { margin-top: 10px; color: #d2ecd8; font-size: 12px; line-height: 1.7; }
+.markup-break-even dl { margin: 16px 0 0; }
+.markup-break-even dl > div { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; margin-top: 12px; font-size: 13px; }
+.markup-break-even dt { flex: 1 1 150px; line-height: 1.5; }
+.markup-break-even dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+.markup-break-even-values dd { font-size: 19px; }
+.markup-break-even-help { margin-top: 16px; }
+.markup-break-even-help summary { width: fit-content; max-width: 100%; cursor: pointer; font-size: 12px; line-height: 1.7; text-decoration: underline; text-underline-offset: 3px; }
+.markup-break-even-help summary:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 2px; }
