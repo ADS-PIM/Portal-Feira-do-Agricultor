@@ -1,20 +1,41 @@
 import { useMemo, useState } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
+import Icon from '../../components/Icon'
 import ProducerCard from '../../components/ProducerCard/ProducerCard'
 import { categories, producers } from './producersData'
 import './ProducersPage.css'
 
+type CategoryId = typeof categories[number]['id']
+type ProductCategoryId = Exclude<CategoryId, 'all'>
+
 const ProducersPage = () => {
   const [query, setQuery] = useState('')
-  const [activeCategory, setActiveCategory] = useState<typeof categories[number]['id']>('all')
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [activeCategories, setActiveCategories] = useState<ProductCategoryId[]>([])
+  const activeFilterCount = activeCategories.length
+
+  const isCategoryActive = (categoryId: CategoryId) => categoryId === 'all'
+    ? activeFilterCount === 0
+    : activeCategories.includes(categoryId)
+
+  const toggleCategory = (categoryId: CategoryId) => {
+    if (categoryId === 'all') {
+      setActiveCategories([])
+      return
+    }
+
+    setActiveCategories((current) => current.includes(categoryId)
+      ? current.filter((id) => id !== categoryId)
+      : [...current, categoryId])
+  }
 
   const filteredProducers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
 
     return producers.filter((producer) => {
-      const matchesCategory = activeCategory === 'all'
-        || producer.products.some((product) => product.group === activeCategory)
+      const matchesCategory = activeCategories.length === 0
+        || producer.products.some((product) => activeCategories.includes(product.group))
       const searchableText = [
         producer.name,
         producer.location,
@@ -28,7 +49,7 @@ const ProducersPage = () => {
 
       return matchesCategory && matchesQuery
     })
-  }, [activeCategory, query])
+  }, [activeCategories, query])
 
   return (
     <>
@@ -44,24 +65,37 @@ const ProducersPage = () => {
           </header>
 
           <section className="producers-toolbar" aria-label="Busca e filtros de produtores">
-            <label className="producers-search" aria-label="Buscar produtor por nome">
-              <span className="producers-search-icon" aria-hidden="true">⌕</span>
-              <input
-                type="text"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Digite o nome de um produtor, produto ou local"
-              />
-            </label>
+            <div className="producers-search-row">
+              <label className="producers-search" aria-label="Buscar produtor por nome">
+                <span className="producers-search-icon" aria-hidden="true">⌕</span>
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Digite o nome de um produtor, produto ou local"
+                />
+              </label>
+              <button
+                type="button"
+                className={`producers-filter-toggle${activeFilterCount > 0 ? ' has-active-filter' : ''}`}
+                aria-label={activeFilterCount > 0 ? `Filtros (${activeFilterCount} ${activeFilterCount === 1 ? 'ativo' : 'ativos'})` : 'Filtros'}
+                aria-expanded={filtersOpen}
+                aria-controls="producers-category-filters"
+                onClick={() => setFiltersOpen((open) => !open)}
+              >
+                <Icon name="sliders" />
+                Filtros{activeFilterCount > 0 && <span className="producers-filter-count" aria-hidden="true">{activeFilterCount}</span>}
+              </button>
+            </div>
 
-            <div className="producers-filter-list" role="group" aria-label="Filtrar produtores por tipo de produto">
+            <div id="producers-category-filters" className="producers-filter-list" role="group" aria-label="Filtrar produtores por tipo de produto" hidden={!filtersOpen}>
               {categories.map((category) => (
                 <button
                   key={category.id}
                   type="button"
-                  className={`producer-filter--${category.color}${activeCategory === category.id ? ' is-active' : ''}`}
-                  aria-pressed={activeCategory === category.id}
-                  onClick={() => setActiveCategory(category.id)}
+                  className={`producer-filter--${category.color}${isCategoryActive(category.id) ? ' is-active' : ''}`}
+                  aria-pressed={isCategoryActive(category.id)}
+                  onClick={() => toggleCategory(category.id)}
                 >
                   {category.label}
                 </button>
