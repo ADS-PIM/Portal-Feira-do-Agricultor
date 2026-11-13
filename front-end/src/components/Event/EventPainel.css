@@ -208,7 +208,7 @@
     text-align: center;
     text-decoration: none;
     cursor: pointer;
-    transition: background-color 150ms ease, color 150ms ease;
+    transition: background-color 300ms ease-in-out, border-color 300ms ease-in-out, color 300ms ease-in-out;
 }
 
 .event-agenda-calendar-button:hover,
