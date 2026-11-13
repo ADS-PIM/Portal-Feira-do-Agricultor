@@ -122,11 +122,11 @@
 .about-text-link { display: inline-flex; align-items: center; gap: 10px; color: var(--about-accent); font-size: 14px; font-weight: 600; line-height: 1.5; text-decoration: none; }
 .about-text-link:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-.about-visit { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 32px; border-radius: 20px; background: var(--brand-green-dark); color: #fff; }
+.about-visit { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 32px; border-radius: 20px; background: var(--theme-feature-surface, var(--brand-green-dark)); color: #fff; }
 .about-visit .about-eyebrow { color: var(--brand-orange); }
 .about-visit h2 { margin-bottom: 12px; color: #fff; }
 .about-calendar-button { flex-shrink: 0; max-width: 100%; line-height: 1.35; text-align: center; text-decoration: none; }
-.about-visit p { color: #e2f3e7; font-size: 15px; }
+.about-visit p { color: rgb(255 255 255 / 88%); font-size: 15px; }
 .about-page :is(.about-button, .about-portal-link) { display: inline-flex; flex-shrink: 0; gap: 12px; margin: 0; }
 .about-button svg, .about-text-link svg, .about-portal-link svg { width: 16px; height: 16px; flex-shrink: 0; }
 .about-page .about-text-link:focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 4px; }
@@ -170,4 +170,12 @@
     .about-photo figcaption { padding-inline: 4px; font-size: 12px; }
     .about-visit .about-calendar-button, .about-portal-link { width: 100%; }
     .about-team-coming { padding: 22px; }
+}
+
+:root[data-theme="dark"] .about-location svg {
+    color: var(--theme-success-text);
+}
+
+:root[data-theme="dark"] .about-value--pink .about-value-icon {
+    color: var(--brand-pink);
 }
