@@ -118,7 +118,10 @@ const EventPainel = () => {
         return () => controller.abort()
     }, [])
 
-    const visibleEvents = events.slice(0, VISIBLE_EVENT_COUNT)
+    const agendaLoading = loading || nearestLoading
+    const visibleEvents = events
+        .filter(event => event.id !== nearestEvent?.id)
+        .slice(0, VISIBLE_EVENT_COUNT)
 
     return (
         <section className="event-agenda" id="agenda" aria-labelledby="upcoming-events-title">
@@ -139,12 +142,16 @@ const EventPainel = () => {
                     </div>
 
                     <div className="upcoming-events-agenda">
-                        {loading && <EventLoading message="Carregando agenda de eventos..." />}
+                        {agendaLoading && <EventLoading message="Carregando agenda de eventos..." />}
                         {error && <p className="event-agenda-message is-error" role="alert">{error}</p>}
-                        {!loading && !error && events.length === 0 && (
-                            <p className="event-agenda-message" role="status">Ainda não há eventos futuros programados. Volte em breve para conferir as novidades.</p>
+                        {!agendaLoading && !error && visibleEvents.length === 0 && (
+                            <p className="event-agenda-message" role="status">
+                                {nearestEvent
+                                    ? 'Não há outros eventos programados no momento. Volte em breve para conferir as novidades.'
+                                    : 'Ainda não há eventos futuros programados. Volte em breve para conferir as novidades.'}
+                            </p>
                         )}
-                        {!loading && !error && events.length > 0 && (
+                        {!agendaLoading && !error && visibleEvents.length > 0 && (
                             <div className="event-agenda-list" role="region" aria-label="Agenda de próximos eventos" tabIndex={0}>
                                 {visibleEvents.map(event => <AgendaEventCard key={event.id} event={event} />)}
                             </div>
