@@ -65,8 +65,8 @@
     margin: 0 0 14px;
     padding: 6px 10px;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--brand-pink) 10%, var(--theme-surface, #fff));
-    color: var(--theme-danger-text, #b31b3a);
+    background: color-mix(in srgb, var(--brand-orange) 10%, var(--theme-surface, #fff));
+    color: var(--brand-orange);
     font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
