@@ -1,6 +1,7 @@
 import './App.css'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import MainPage from './pages/mainPage/MainPage'
+import AboutPage from './pages/aboutPage/AboutPage'
 import LoginPage from './pages/loginPage/LoginPage'
 import PasswordRecoveryPage from './pages/loginPage/PasswordRecoveryPage'
 import ContactUsPage from './pages/contactUs/ContactUs'
@@ -24,7 +25,7 @@ const subscribeAuthState = (onChange: () => void) => {
 }
 
 type AppRoute =
-  | { page: 'home' | 'login' | 'contact' | 'calendar' | 'calculator' | 'producers' }
+  | { page: 'home' | 'login' | 'contact' | 'calendar' | 'calculator' | 'producers' | 'about' }
   | { page: 'admin'; section: AdminSection }
   | { page: 'account'; returnTarget: AccountReturnTarget }
   | { page: 'event'; eventId: string }
@@ -32,6 +33,7 @@ type AppRoute =
   | { page: 'reset-password'; token: string }
 
 const pageTitles: Record<AppRoute['page'], string> = {
+  about: 'Sobre nós',
   home: 'Início',
   login: 'Entrar na área administrativa',
   'forgot-password': 'Recuperar senha',
@@ -60,6 +62,7 @@ function getCurrentRoute(path: string): AppRoute {
   if (pathname === '/admin' || /^\/admin\/(?:dashboard|eventos|informacoes|administradores|mensagens)$/.test(pathname)) {
     return { page: 'admin', section: getAdminSection(path) }
   }
+  if (pathname === '/sobre') return { page: 'about' }
   if (pathname === '/produtores') return { page: 'producers' }
   if (pathname === '/contato') return { page: 'contact' }
   if (pathname === '/calendario') return { page: 'calendar' }
@@ -92,11 +95,6 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (path === '/sobre') {
-      document.getElementById('sobre')?.scrollIntoView()
-      return
-    }
-
     window.scrollTo(0, 0)
   }, [path])
 
@@ -121,6 +119,7 @@ function App() {
   if (route.page === 'reset-password') return <PasswordRecoveryPage key={route.token} mode="reset" token={route.token} />
 
   if (route.page === 'account') return <AccountPage returnTarget={route.returnTarget} />
+  if (route.page === 'about') return <AboutPage />
   if (route.page === 'calculator') return <PricingCalculatorPage />
   if (route.page === 'producers') return <ProducersPage />
 

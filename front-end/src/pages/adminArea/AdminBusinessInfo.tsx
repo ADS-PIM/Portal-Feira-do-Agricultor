@@ -3,7 +3,7 @@ import Icon from '../../components/Icon'
 import ContactFieldError from '../../components/ContactFieldError/ContactFieldError'
 import { getBusinessInfo, type BusinessInfo, upsertBusinessInfo } from '../../services/businessInfoService'
 import { getUserFacingError } from '../../services/errors'
-import { businessDescriptionMaxLength, businessDescriptionTooLong, defaultBusinessDescription } from '../../utils/businessDescription'
+import { businessDescriptionMaxLength, businessDescriptionTooLong, defaultUpcomingEventsDescription } from '../../utils/businessDescription'
 import { getBusinessContactErrors, type BusinessContactField } from '../../utils/businessContacts'
 import { normalizeInstagramAccount } from '../../utils/instagramAccount'
 import { CONTACT_REVIEW_ERROR } from '../../utils/contactValidation'
@@ -291,7 +291,7 @@ const AdminBusinessInfo = () => {
                                     rows={3}
                                     value={values.description}
                                     onChange={handleFieldChange}
-                                    placeholder={defaultBusinessDescription}
+                                    placeholder={defaultUpcomingEventsDescription}
                                     aria-invalid={descriptionExceedsLimit}
                                     aria-describedby={descriptionExceedsLimit ? 'businessInfo-description-count businessInfo-description-error' : 'businessInfo-description-count'}
                                 />

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { apiFetch } from '../../services/api'
 import { ApiRequestError } from '../../services/errors'
 import Icon from '../../components/Icon'
+import ImageDropzone from '../../components/ImageUpload/ImageDropzone'
 import ImageCropDialog from '../../components/ImageEditor/ImageCropDialog'
 import type { AdjustedImage } from '../../utils/imageCrop'
 
@@ -19,6 +20,17 @@ export default function ProfilePictureUpload({ disabled, currentPhoto, onBusyCha
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
     const input = useRef<HTMLInputElement>(null)
+
+    const choosePhoto = (selected?: File) => {
+        if (!selected || disabled || uploading || removing || editingImage) return
+        setError('')
+        setMessage('')
+        if (!['image/jpeg', 'image/png'].includes(selected.type) || selected.size === 0 || selected.size > 4 * 1024 * 1024) {
+            setError('Selecione uma imagem JPG ou PNG de até 4 MB.')
+            return
+        }
+        setEditingImage({ source: selected })
+    }
 
     async function removePhoto() {
         setRemoving(true)
@@ -70,28 +82,19 @@ export default function ProfilePictureUpload({ disabled, currentPhoto, onBusyCha
     return <div className="account-full-width account-photo-upload">
         <span className="account-photo-label" id="account-photo-label">Foto de perfil</span>
         <div className={`account-photo-card${file ? ' has-selection' : ''}`} role="group" aria-labelledby="account-photo-label" aria-busy={uploading || removing}>
-            <div className="account-photo-info">
-                <strong title={file?.name}>{file ? file.name : 'Escolha sua foto de perfil'}</strong>
-                <small id="account-photo-hint">JPG ou PNG de até 4 MB</small>
-            </div>
-        <input ref={input} hidden aria-label="Selecionar foto de perfil" id="account-photo" type="file" accept="image/jpeg,image/png" disabled={disabled}
-            aria-describedby="account-photo-hint" onChange={event => {
-                const selected = event.target.files?.[0] ?? null
-                setError(''); setMessage('')
-                event.target.value = ''
-                if (!selected) return
-                if (!['image/jpeg', 'image/png'].includes(selected.type) || selected.size === 0 || selected.size > 4 * 1024 * 1024) {
-                    setError('Selecione uma imagem JPG ou PNG de até 4 MB.')
-                    event.target.value = ''
-                    return
-                }
-                setEditingImage({ source: selected })
-            }} />
-            <div className="account-photo-actions">
+            {file && <div className="account-photo-info">
+                <strong title={file.name}>{file.name}</strong>
+            </div>}
+            <ImageDropzone title="Arraste sua foto de perfil aqui" hint="JPG ou PNG de até 4 MB"
+                disabled={disabled || uploading || removing || Boolean(editingImage)}
+                onBrowse={() => input.current?.click()} onFiles={files => choosePhoto(files[0])} />
+            <input ref={input} hidden aria-label="Selecionar foto de perfil" id="account-photo" type="file" accept="image/jpeg,image/png" disabled={disabled}
+                onChange={event => {
+                    choosePhoto(event.target.files?.[0])
+                    event.currentTarget.value = ''
+                }} />
+            {(prepared || currentPhoto) && <div className="account-photo-actions">
                 <div className="account-photo-edit-actions">
-                <button type="button" className="account-button is-secondary" disabled={disabled} onClick={() => input.current?.click()}>
-                    <Icon name="image" />{file ? 'Trocar foto' : 'Selecionar foto'}
-                </button>
                 {prepared && <button type="button" className="account-button is-secondary" disabled={disabled}
                     title="Visualizar e ajustar o enquadramento da foto"
                     onClick={() => setEditingImage({ source: prepared.source, previous: prepared })}><Icon name="sliders" />Ajustar foto</button>}
@@ -107,7 +110,7 @@ export default function ProfilePictureUpload({ disabled, currentPhoto, onBusyCha
                         <Icon name="check" />{uploading ? 'Salvando...' : 'Salvar foto'}
                     </button>
                 </div>}
-            </div>
+            </div>}
         </div>
         {error && <p className="account-feedback is-error" role="alert">{error}</p>}
         {message && <p className="account-feedback" role="status">{message}</p>}

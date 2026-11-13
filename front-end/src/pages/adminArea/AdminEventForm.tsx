@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Icon from '../../components/Icon'
+import ImageDropzone from '../../components/ImageUpload/ImageDropzone'
 import { createEventImage, deleteEventImage, getEventImages, uploadEventBanner, type AdminEvent, type EventImage } from '../../services/eventService'
 import { getEventImageProps } from '../../services/eventImageUrl'
 import { getUserFacingError } from '../../services/errors'
@@ -63,7 +64,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
     const dialog = useRef<HTMLElement>(null)
     const bannerInput = useRef<HTMLInputElement>(null)
     const galleryInput = useRef<HTMLInputElement>(null)
-    const addPhotosButton = useRef<HTMLButtonElement>(null)
+    const galleryUploadButton = useRef<HTMLButtonElement>(null)
     const errorBox = useRef<HTMLParagraphElement>(null)
     const photoDeleteDialog = useRef<HTMLDialogElement>(null)
     const keepPhotoButton = useRef<HTMLButtonElement>(null)
@@ -110,7 +111,7 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
     }, [error, validationError])
 
     useEffect(() => {
-        if (galleryMessage) addPhotosButton.current?.focus()
+        if (galleryMessage) galleryUploadButton.current?.focus()
     }, [galleryMessage])
 
     const makePreview = (file: File) => {
@@ -124,14 +125,14 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
         previews.current.delete(url)
     }
     const chooseBanner = (file?: File) => {
-        if (!file) return
+        if (!file || isBusy || editingImage || photoToDelete) return
         const message = validateEventImage(file)
         setFileError(message)
         if (message) return
         setEditingImage({ target: 'banner', source: file })
     }
-    const choosePhotos = (files: FileList | null) => {
-        if (!files?.length) return
+    const choosePhotos = (files: FileList | File[] | null) => {
+        if (!files?.length || isBusy || editingImage || photoToDelete) return
         const additions: PendingEventPhoto[] = []
         const rejected: string[] = []
         for (const file of Array.from(files)) {
@@ -266,33 +267,36 @@ export default function AdminEventForm({ initialValues, eventId, isSaving, error
                                 <div className="admin-event-editor-column admin-event-media-column">
                                     <section className="admin-event-editor-section" aria-labelledby="event-cover-title">
                                         <div><h3 id="event-cover-title">Imagem de capa <span>Opcional</span></h3><p className="admin-event-help">Imagem principal exibida na divulgação do evento.</p></div>
-                                        <div className={`admin-event-cover${cover ? ' has-image' : ''}`}>
-                                            {cover ? <img {...getEventImageProps(cover, '(max-width: 680px) 90vw, 560px')} alt="Prévia da capa do evento" /> : <div className="admin-event-cover-empty"><Icon name="image" /><span>Adicione uma capa ao evento</span></div>}
+                                        {cover && <div className="admin-event-cover has-image">
+                                            <img {...getEventImageProps(cover, '(max-width: 680px) 90vw, 560px')} alt="Prévia da capa do evento" />
                                             {cover && <button type="button" className="admin-event-photo-remove" title="Remover capa" aria-label="Remover imagem de capa" onClick={() => {
                                                 revokePreview(bannerPreview); setBannerFile(null); setBannerPreview(null)
                                                 setPreparedBanner(null); session.current.banner = undefined
                                                 setValues(current => ({ ...current, bannerImage: null }))
                                             }}><Icon name="close" /></button>}
-                                        </div>
-                                        <div className="admin-event-upload-row">
-                                            <button type="button" className="admin-event-upload-button" onClick={() => bannerInput.current?.click()}><Icon name="image" />{cover ? 'Trocar capa' : 'Selecionar capa'}</button>
-                                            {preparedBanner && <button type="button" className="admin-event-upload-button" onClick={() => setEditingImage({
+                                        </div>}
+                                        <ImageDropzone title={cover ? 'Arraste uma nova capa aqui' : 'Arraste a capa do evento aqui'}
+                                            hint={`JPG ou PNG · até ${EVENT_IMAGE_MAX_MB} MB`} disabled={isBusy || Boolean(editingImage) || Boolean(photoToDelete)}
+                                            onBrowse={() => bannerInput.current?.click()} onFiles={files => chooseBanner(files[0])} />
+                                        {preparedBanner && <div className="admin-event-upload-row">
+                                            <button type="button" className="admin-event-upload-button" onClick={() => setEditingImage({
                                                 target: 'banner', source: preparedBanner.source, adjustment: preparedBanner.adjustment,
-                                            })}><Icon name="edit" />Ajustar capa</button>}
-                                            <small>JPG ou PNG · até {EVENT_IMAGE_MAX_MB} MB</small>
-                                        </div>
+                                            })}><Icon name="edit" />Ajustar capa</button>
+                                        </div>}
                                         <input ref={bannerInput} hidden type="file" accept="image/jpeg,image/png" aria-label="Selecionar imagem de capa" onChange={event => { chooseBanner(event.target.files?.[0]); event.currentTarget.value = '' }} />
                                     </section>
                                     <section className="admin-event-editor-section" aria-labelledby="event-gallery-title">
                                         <div className="admin-event-gallery-heading"><h3 id="event-gallery-title">Galeria de fotos <span>{existingPhotos.length + photos.length}</span></h3>
-                                            <button ref={addPhotosButton} type="button" className="admin-event-upload-button" onClick={() => galleryInput.current?.click()}><Icon name="plus" />Adicionar fotos</button>
                                         </div>
-                                        <p className="admin-event-help">Selecione várias fotos. JPG ou PNG, até {EVENT_IMAGE_MAX_MB} MB por imagem. As novas fotos serão publicadas ao salvar o evento.</p>
+                                        <p className="admin-event-help">As novas fotos serão publicadas ao salvar o evento.</p>
+                                        <ImageDropzone buttonRef={galleryUploadButton} title="Arraste as fotos da galeria aqui"
+                                            hint={`JPG ou PNG · até ${EVENT_IMAGE_MAX_MB} MB por imagem · seleção múltipla`} multiple
+                                            disabled={isBusy || Boolean(editingImage) || Boolean(photoToDelete)}
+                                            onBrowse={() => galleryInput.current?.click()} onFiles={choosePhotos} />
                                         <input ref={galleryInput} hidden type="file" multiple accept="image/jpeg,image/png" aria-label="Selecionar fotos para a galeria" onChange={event => { choosePhotos(event.target.files); event.currentTarget.value = '' }} />
                                         {galleryLoading && <p className="admin-event-help" role="status">Carregando fotos...</p>}
                                         {galleryMessage && <p className="admin-event-help" role="status">{galleryMessage}</p>}
                                         {galleryError && <div className="admin-event-gallery-error" role="alert"><p>{galleryError}</p><button type="button" className="admin-event-upload-button" onClick={() => { setGalleryError(null); setGalleryLoading(true); setReloadGallery(current => current + 1) }}>Tentar novamente</button></div>}
-                                        {!galleryLoading && !galleryError && !existingPhotos.length && !photos.length && <div className="admin-event-gallery-empty"><Icon name="image" /><p>Ainda não há fotos na galeria.</p></div>}
                                         {(existingPhotos.length > 0 || photos.length > 0) && <div className="admin-event-gallery-grid">
                                             {existingPhotos.map((photo, index) => <figure key={photo.id} className="admin-event-photo">
                                                 <img {...getEventImageProps(photo.imageURL, '(max-width: 680px) 45vw, 240px', 320)} loading="lazy" alt={photo.description || 'Foto do evento'} />

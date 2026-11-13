@@ -1,0 +1,38 @@
+.about-page {
+    background: var(--surface-page);
+    color: var(--brand-charcoal);
+}
+
+.about-page-shell {
+    box-sizing: border-box;
+    width: min(100% - 48px, 1100px);
+    margin: 0 auto;
+    padding: 48px 0 64px;
+}
+
+.about-page h1 {
+    margin: 0;
+    color: var(--theme-accent, var(--brand-green-dark));
+    font-size: clamp(2.25rem, 4vw, 3.5rem);
+    line-height: 1.15;
+}
+
+.about-page-story {
+    margin-top: 32px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.about-page-story img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 20px;
+}
+
+@media (max-width: 640px) {
+    .about-page-shell {
+        width: calc(100% - 36px);
+        padding-top: 32px;
+    }
+}

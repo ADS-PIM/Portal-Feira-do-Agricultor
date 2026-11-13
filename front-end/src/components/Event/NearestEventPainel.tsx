@@ -10,74 +10,51 @@ interface NearestEventPainelProps {
 const formatDate = (value: string) => {
     const dateParts = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
     if (!dateParts) return value
-
     const [, year, month, day] = dateParts
     return `${day}/${month}/${year}`
 }
 
-const formatTime = (value: string) => {
-    const timeParts = /^(\d{1,2}):(\d{2})/.exec(value)
-    if (!timeParts) return value
-
-    const [, hours, minutes] = timeParts
-    return `${hours.padStart(2, '0')}:${minutes}h`
-}
+const formatTime = (value: string) => `${value.slice(0, 5)}h`
 
 const NearestEventPainel = ({ event }: NearestEventPainelProps) => {
+    if (!event) return (
+        <div className="featured-event-empty" role="status">
+            <Icon name="seedling" />
+            <h3>Nenhum evento programado por enquanto</h3>
+            <p>Estamos preparando novos encontros. Volte em breve para descobrir a próxima feira.</p>
+        </div>
+    )
+
     return (
-        <section id={event?.id} className={`nearest-event-painel${event ? '' : ' is-empty'}`}>
-            <div className='panel-header'>
-                <h2>Próximo Evento</h2>
-                <p>Venha nos visitar</p>
+        <article className="nearest-event-painel" aria-labelledby="featured-event-title">
+            <div className={`featured-event-image${event.bannerImage ? '' : ' is-missing'}`}>
+                {event.bannerImage
+                    ? <img {...getEventImageProps(event.bannerImage, '(max-width: 560px) 100vw, 240px')} alt={event.title} />
+                    : <><Icon name="calendar" /><p>Evento sem banner</p></>}
             </div>
-            {event ? (
-                <div className='panel-body'>
-                    <div className={`event-image${event.bannerImage ? '' : ' is-missing'}`}>
-                        {event.bannerImage
-                            ? <img {...getEventImageProps(event.bannerImage, '(max-width: 640px) 100vw, (max-width: 980px) 40vw, 480px')} alt={event.title} />
-                            : <p>Evento sem banner</p>}
+            <div className="featured-event-info">
+                <p className="featured-event-eyebrow">Próximo encontro</p>
+                <h3 id="featured-event-title">{event.title}</h3>
+                {event.description && <p className="featured-event-description" tabIndex={0}>{event.description}</p>}
+                <dl className="featured-event-details">
+                    <div>
+                        <dt><Icon name="location" /><span>Endereço</span></dt>
+                        <dd>{event.localAddress}</dd>
                     </div>
-                    <div className='event-info'>
-                        <h3>{event.title}</h3>
-                        {event.description && <p className='event-description' tabIndex={0}>{event.description}</p>}
-                        <div className='event-details'>
-                            <div className='event-detail'>
-                                <span className='event-detail-icon' aria-hidden='true'>
-                                    <Icon name="location" />
-                                </span>
-                                <p><strong>Endereço Completo</strong><span>{event.localAddress}</span></p>
-                            </div>
-                            <div className='event-detail'>
-                                <span className='event-detail-icon' aria-hidden='true'>
-                                    <Icon name="calendar" />
-                                </span>
-                                <p><strong>Data</strong><span>{formatDate(event.date)}</span></p>
-                            </div>
-                            <div className='event-detail'>
-                                <span className='event-detail-icon' aria-hidden='true'>
-                                    <Icon name="clock" />
-                                </span>
-                                <p><strong>Horário</strong><span>{formatTime(event.startAt)} - {formatTime(event.endAt)}</span></p>
-                            </div>
-                        </div>
-                        <div className='event-actions'>
-                            <a href={`/evento/${encodeURIComponent(event.id)}`}>
-                                Ver detalhes
-                                <Icon name="arrowRight" />
-                            </a>
-                        </div>
+                    <div>
+                        <dt><Icon name="calendar" /><span>Data</span></dt>
+                        <dd><time dateTime={event.date.slice(0, 10)}>{formatDate(event.date)}</time></dd>
                     </div>
-                </div>
-            ) : (
-                <div className='event-empty-state' role='status'>
-                    <div className='event-empty-icon' aria-hidden='true'>
-                        <Icon name="seedling" />
+                    <div>
+                        <dt><Icon name="clock" /><span>Horário</span></dt>
+                        <dd>{formatTime(event.startAt)} às {formatTime(event.endAt)}</dd>
                     </div>
-                    <h3>Nenhum evento programado por enquanto</h3>
-                    <p>Estamos preparando novos encontros. Volte em breve para descobrir a próxima feira.</p>
-                </div>
-            )}
-        </section>
+                </dl>
+                <a className="featured-event-details-link" href={`/evento/${encodeURIComponent(event.id)}`}>
+                    Ver detalhes <Icon name="arrowRight" />
+                </a>
+            </div>
+        </article>
     )
 }
 

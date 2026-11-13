@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import Icon from '../Icon'
 import EventLoading from './EventLoading'
-import { getEventAgenda, type AgendaEvent } from '../../services/eventService'
+import NearestEventPainel from './NearestEventPainel'
+import { getEventAgenda, getNearestEvent, type AgendaEvent, type NearestEvent } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
+import { getBusinessInfo } from '../../services/businessInfoService'
+import { defaultUpcomingEventsDescription } from '../../utils/businessDescription'
 import './EventPainel.css'
 
 const VISIBLE_EVENT_COUNT = 6
@@ -51,6 +54,25 @@ const AgendaEventCard = ({ event }: { event: AgendaEvent }) => {
 }
 
 const EventPainel = () => {
+    const [description, setDescription] = useState(defaultUpcomingEventsDescription)
+
+    useEffect(() => {
+        const controller = new AbortController()
+        void getBusinessInfo(controller.signal)
+            .then((info) => {
+                if (!controller.signal.aborted) {
+                    setDescription(info?.description?.trim() || defaultUpcomingEventsDescription)
+                }
+            })
+            .catch(() => {
+                // Keep the default introduction when public information is unavailable.
+            })
+        return () => controller.abort()
+    }, [])
+
+    const [nearestEvent, setNearestEvent] = useState<NearestEvent | null>(null)
+    const [nearestLoading, setNearestLoading] = useState(true)
+    const [nearestError, setNearestError] = useState<string | null>(null)
     const [events, setEvents] = useState<AgendaEvent[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -65,7 +87,8 @@ const EventPainel = () => {
 
         const loadAgenda = async () => {
             try {
-                setEvents(await getEventAgenda(today, controller.signal))
+                const agenda = await getEventAgenda(today, controller.signal)
+                if (!controller.signal.aborted) setEvents(agenda)
             } catch (requestError) {
                 if (!controller.signal.aborted) {
                     setError(getUserFacingError(requestError, 'Não foi possível carregar a agenda de eventos. Tente novamente mais tarde.'))
@@ -77,40 +100,61 @@ const EventPainel = () => {
             }
         }
 
+        const loadNearestEvent = async () => {
+            try {
+                const event = await getNearestEvent(today, controller.signal)
+                if (!controller.signal.aborted) setNearestEvent(event)
+            } catch (requestError) {
+                if (!controller.signal.aborted) {
+                    setNearestError(getUserFacingError(requestError, 'Não foi possível carregar o próximo evento. Tente novamente mais tarde.'))
+                }
+            } finally {
+                if (!controller.signal.aborted) setNearestLoading(false)
+            }
+        }
+
+        void loadNearestEvent()
         void loadAgenda()
         return () => controller.abort()
     }, [])
 
     const visibleEvents = events.slice(0, VISIBLE_EVENT_COUNT)
-    const eventCountClass = visibleEvents.length < 3
-        ? `event-agenda-list--${visibleEvents.length}`
-        : 'event-agenda-list--three'
 
     return (
-        <section className='event-agenda' id='agenda'>
-            <header className='event-agenda-header'>
-                <h2>Agenda de Eventos</h2>
-                <p className='event-agenda-eyebrow'>FIQUE POR DENTRO</p>
-                <p className='event-agenda-intro'>
-                    A nossa feira é também um polo de cultura e aprendizado. Participe de oficinas, festivais e feiras sazonais especiais.
-                </p>
-            </header>
+        <section className="event-agenda" id="agenda" aria-labelledby="upcoming-events-title">
+            <div className="event-agenda-shell">
+                <header className="event-agenda-header">
+                    <h2 id="upcoming-events-title">Próximos eventos</h2>
+                    <p className="event-agenda-eyebrow">VENHA NOS VISITAR</p>
+                    <p className="event-agenda-intro">
+                        {description}
+                    </p>
+                </header>
 
-            {loading && <EventLoading message="Carregando agenda de eventos..." />}
-            {error && <p className='event-agenda-message is-error' role='alert'>Erro ao carregar a agenda: {error}</p>}
-            {!loading && !error && events.length === 0 && (
-                <p className='event-agenda-message' role='status'>Ainda não há eventos futuros programados. Volte em breve para conferir as novidades.</p>
-            )}
-            {!loading && !error && events.length > 0 && (
-                <>
-                    <div className={`event-agenda-list ${eventCountClass}`}>
-                        {visibleEvents.map(event => <AgendaEventCard key={event.id} event={event} />)}
+                <div className="upcoming-events-layout">
+                    <div className="upcoming-events-feature">
+                        {nearestLoading && <EventLoading message="Carregando próximo evento..." />}
+                        {nearestError && <p className="event-agenda-message is-error" role="alert">{nearestError}</p>}
+                        {!nearestLoading && !nearestError && <NearestEventPainel event={nearestEvent} />}
                     </div>
-                </>
-            )}
-            <a className='event-agenda-calendar-button' href='/calendario'>
-                Ver Calendário Completo
-            </a>
+
+                    <div className="upcoming-events-agenda">
+                        {loading && <EventLoading message="Carregando agenda de eventos..." />}
+                        {error && <p className="event-agenda-message is-error" role="alert">{error}</p>}
+                        {!loading && !error && events.length === 0 && (
+                            <p className="event-agenda-message" role="status">Ainda não há eventos futuros programados. Volte em breve para conferir as novidades.</p>
+                        )}
+                        {!loading && !error && events.length > 0 && (
+                            <div className="event-agenda-list" role="region" aria-label="Agenda de próximos eventos" tabIndex={0}>
+                                {visibleEvents.map(event => <AgendaEventCard key={event.id} event={event} />)}
+                            </div>
+                        )}
+                        <a className="event-agenda-calendar-button" href="/calendario">
+                            Ver Calendário Completo
+                        </a>
+                    </div>
+                </div>
+            </div>
         </section>
     )
 }

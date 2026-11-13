@@ -1,0 +1,115 @@
+.image-dropzone {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    border: 1.5px dashed color-mix(in srgb, var(--brand-green) 45%, var(--border-default));
+    border-radius: 14px;
+    background: var(--brand-green-soft);
+    color: var(--text-secondary);
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.image-dropzone:not(.is-disabled):hover,
+.image-dropzone.is-dragging {
+    border-color: var(--brand-green);
+    background: var(--brand-green-light);
+}
+
+.image-dropzone.is-dragging {
+    border-style: solid;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-green) 15%, transparent);
+}
+
+.image-dropzone:focus-within {
+    outline: 2px solid var(--brand-orange);
+    outline-offset: 3px;
+}
+
+.image-dropzone .image-dropzone-trigger {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+    min-height: 110px;
+    padding: 20px;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.image-dropzone .image-dropzone-trigger:focus-visible {
+    outline: none;
+}
+
+.image-dropzone-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--theme-surface, #fff);
+    color: var(--brand-green);
+}
+
+.image-dropzone-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.image-dropzone-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.image-dropzone-copy strong {
+    color: var(--theme-accent, var(--brand-green-dark));
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.image-dropzone-link {
+    color: var(--theme-accent, var(--brand-green-dark));
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.image-dropzone-copy small {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.image-dropzone.is-disabled {
+    opacity: 0.6;
+}
+
+.image-dropzone.is-disabled .image-dropzone-trigger {
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .image-dropzone .image-dropzone-trigger {
+        flex-direction: column;
+        gap: 10px;
+        padding: 18px 12px;
+        text-align: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .image-dropzone {
+        transition: none;
+    }
+}
