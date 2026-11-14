@@ -56,11 +56,11 @@ function AdvancedField({ name, label, value, onChange, error, hint, unit, text, 
         {unit === 'R$' && <span aria-hidden="true">R$</span>}
         <input id={id} name={name} type="text" inputMode={text ? 'text' : 'decimal'} value={value}
           maxLength={text ? 120 : 20} placeholder={placeholder} aria-invalid={Boolean(error)}
-          aria-describedby={[hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined}
+          aria-describedby={[hint && !error && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined}
           onChange={event => onChange(event.currentTarget.value)} />
         {unit && unit !== 'R$' && <span aria-hidden="true">{unit}</span>}
       </div>
-      {hint && <p id={`${id}-hint`} className="markup-hint">{hint}</p>}
+      {hint && !error && <p id={`${id}-hint`} className="markup-hint">{hint}</p>}
       {error && <p id={`${id}-error`} className="markup-error">{error}</p>}
     </div>
   )
@@ -192,19 +192,18 @@ export default function AdvancedPricingCalculator() {
             <h2 id="advanced-form-title">Vamos detalhar seus custos?</h2>
             <button className="markup-example" type="button" onClick={useExample}>Usar exemplo</button>
           </div>
-          <p className="markup-help-intro">Preencha um tópico por vez. Use Voltar e Próximo para revisar seus custos e toque na interrogação (?) para entender os campos e ver exemplos. Os valores ficam preservados entre as etapas.</p>
+          <p className="markup-help-intro">Preencha por etapas. Toque em ? para ver explicações e exemplos.</p>
           <form ref={formRef} className="markup-form" onSubmit={handleSubmit} onChangeCapture={touchField} onBlurCapture={touchField} noValidate autoComplete="off">
             <CalculatorSteps steps={steps} current={step} incompleteSteps={incompleteSteps} onSelect={goToStep} />
             <fieldset className="markup-field-group" data-step="0" hidden={step !== 0}>
               <legend tabIndex={-1}><Icon name="box" /> 1. Seu produto e a produção</legend>
               <div className="advanced-field-grid">
                 {baseField('productName', 'Nome do produto', { text: true, placeholder: 'Ex.: produto personalizado' })}
-                {baseField('producedQuantity', 'Quantidade produzida por lote', { placeholder: 'Ex.: 2', hint: 'Quantidade pronta para vender em cada lote, depois das perdas.' })}
+                {baseField('producedQuantity', 'Quantidade produzida por lote', { placeholder: 'Ex.: 2', hint: 'Conte apenas o que fica pronto para vender.' })}
                 <div className="markup-measurement-fields">
                   {baseField('productionTime', 'Tempo total de trabalho no lote', {
                     unit: values.timeUnit === 'minute' ? 'minutos' : 'horas',
                     placeholder: values.timeUnit === 'minute' ? 'Ex.: 30' : 'Ex.: 2',
-                    hint: `Informe o tempo de trabalho dedicado a todo o lote, em ${values.timeUnit === 'minute' ? 'minutos' : 'horas'}.`,
                   })}
                   <ProductionTimeUnitField id="advanced-timeUnit" value={values.timeUnit} onChange={value => update('timeUnit', value)} />
                 </div>
@@ -213,7 +212,7 @@ export default function AdvancedPricingCalculator() {
 
             <fieldset className="markup-field-group" data-step="1" hidden={step !== 1}>
               <legend tabIndex={-1}><Icon name="seedling" /> 2. Insumos e embalagens</legend>
-              <p className="markup-hint advanced-section-hint">Cadastre cada material, embalagem ou recurso consumido na produção do lote. O valor pago deve corresponder à quantidade comprada ou à duração total informada.</p>
+              <p className="markup-hint advanced-section-hint">Inclua materiais, embalagens e recursos consumidos no lote.</p>
               <div className="advanced-rows">
                 {values.ingredients.map((row, index) => {
                   const key = `ingredients.${row.id}`
@@ -277,16 +276,15 @@ export default function AdvancedPricingCalculator() {
             <fieldset className="markup-field-group" data-step="2" hidden={step !== 2}>
               <legend tabIndex={-1}><Icon name="clock" /> 3. Valor do seu trabalho</legend>
               <div className="advanced-field-grid advanced-work-fields">
-                {baseField('monthlyPay', 'Quanto quer receber por mês pelo trabalho?', { unit: 'R$', placeholder: 'Ex.: 1.600,00', hint: 'Sua remuneração pelo trabalho, separada do lucro do negócio.' })}
-                {baseField('hoursPerDay', 'Horas produtivas por dia', { unit: 'h', placeholder: 'Ex.: 8', hint: 'Somente horas dedicadas à produção, até 24 por dia.' })}
+                {baseField('monthlyPay', 'Quanto quer receber por mês pelo trabalho?', { unit: 'R$', placeholder: 'Ex.: 1.600,00', hint: 'Pagamento pelo seu trabalho, separado do lucro.' })}
+                {baseField('hoursPerDay', 'Horas produtivas por dia', { unit: 'h', placeholder: 'Ex.: 8', hint: 'Desconte pausas e tarefas fora da produção.' })}
                 {baseField('daysPerMonth', 'Dias trabalhados no mês', { unit: 'dias', placeholder: 'Ex.: 20' })}
               </div>
-              <p className="markup-hint">Horas por mês = horas produtivas por dia × dias trabalhados. Valor da hora = remuneração mensal ÷ horas produtivas mensais.</p>
             </fieldset>
 
             <fieldset className="markup-field-group" data-step="3" hidden={step !== 3}>
               <legend tabIndex={-1}><Icon name="store" /> 4. Gastos fixos mensais</legend>
-              <p className="markup-hint advanced-section-hint">Inclua a parte do aluguel, internet e outras contas destinada ao negócio. Evite repetir materiais, consumo ou trabalho já contabilizados.</p>
+              <p className="markup-hint advanced-section-hint">Inclua apenas a parte das contas usada no negócio.</p>
               {values.fixedExpenses.map((row, index) => (
                 <div className="advanced-expense-row" key={row.id}>
                   <AdvancedField name={`fixedExpenses.${row.id}.name`} label={`Gasto fixo ${index + 1}`} text value={row.name} error={error(`fixedExpenses.${row.id}.name`)}
@@ -301,7 +299,7 @@ export default function AdvancedPricingCalculator() {
 
             <fieldset className="markup-field-group" data-step="4" hidden={step !== 4}>
               <legend tabIndex={-1}><Icon name="sliders" /> 5. Desgaste dos equipamentos</legend>
-              <p className="markup-hint advanced-section-hint">A depreciação mensal é o valor atual do equipamento dividido pelos meses que ele ainda deve durar. Ela será somada aos gastos fixos.</p>
+              <p className="markup-hint advanced-section-hint">O desgaste mensal dos equipamentos entra nos gastos fixos.</p>
               {values.equipment.map((row, index) => (
                 <div className="advanced-item" key={row.id}>
                   <div className="advanced-item-heading"><h3>Equipamento {index + 1}</h3><RemoveRow label={`Remover equipamento ${index + 1}`} onClick={() => update('equipment', values.equipment.filter(item => item.id !== row.id))} /></div>
@@ -317,25 +315,23 @@ export default function AdvancedPricingCalculator() {
                 </div>
               ))}
               <button className="advanced-add" type="button" onClick={() => update('equipment', [...values.equipment, newEquipment()])}><Icon name="plus" /> Adicionar equipamento</button>
-              <p className="markup-hint">Sem equipamentos ou contas fixas para incluir? Você pode deixar essas listas vazias.</p>
+              <p className="markup-hint">Sem equipamentos? Deixe a lista vazia.</p>
             </fieldset>
 
             <fieldset className="markup-field-group" data-step="5" hidden={step !== 5}>
               <legend tabIndex={-1}><Icon name="percent" /> 6. Faturamento, taxas e lucro</legend>
-              {baseField('monthlyRevenue', 'Faturamento médio mensal', { unit: 'R$', placeholder: 'Ex.: 10.000,00', hint: 'Total médio recebido com as vendas, antes de pagar as contas. Deve ser maior que zero.' })}
+              {baseField('monthlyRevenue', 'Faturamento médio mensal', { unit: 'R$', placeholder: 'Ex.: 10.000,00', hint: 'Vendas do mês, antes de pagar as contas.' })}
               <div className="markup-fixed-percentage"><span>Gastos fixos com depreciação / mês</span><strong>{money(validation.monthlyFixed)}</strong></div>
               <div className="markup-fixed-percentage"><span>Percentual de gastos fixos sobre as vendas</span><strong>{numeric(validation.fixedPercentage)}%</strong></div>
               <p id="advanced-revenue-effect" className="markup-hint">{validation.monthlyFixed === 0
-                ? 'Sem gastos fixos ou depreciação, mudar o faturamento não altera o preço sugerido.'
-                : Number.isFinite(validation.fixedPercentage)
-                  ? `${money(validation.monthlyFixed)} de gastos fixos ÷ ${money(validation.input.monthlyRevenue)} de faturamento × 100 = ${numeric(validation.fixedPercentage)}%. Esse percentual entra no markup.`
-                  : 'O faturamento distribui os gastos fixos entre as vendas. Ele altera o percentual de gastos fixos usado no markup.'}</p>
+                ? 'Sem gastos fixos, o faturamento não altera o preço.'
+                : 'Os gastos fixos são divididos entre as vendas do mês.'}</p>
               <section className="advanced-variable-expenses" aria-labelledby="advanced-variable-expenses-title">
                 <div className="advanced-variable-heading">
                   <h3 id="advanced-variable-expenses-title">Taxas e comissões</h3>
                   {variableExpenseHelp && <CalculatorFieldHelp label="Taxas e comissões" help={variableExpenseHelp} />}
                 </div>
-                <p className="markup-hint advanced-section-hint">Cadastre cada taxa com seu percentual sobre a venda. Ex.: maquininha 3% e comissão 2%.</p>
+                <p className="markup-hint advanced-section-hint">Inclua taxas da maquininha e comissões.</p>
                 <div className="advanced-variable-list">
                   {values.variableExpenses.map((row, index) => (
                     <div className="advanced-variable-item" key={row.id} role="group" aria-labelledby={`advanced-variable-${row.id}-title`}>
@@ -354,11 +350,11 @@ export default function AdvancedPricingCalculator() {
                 </div>
                 <button className="advanced-add" type="button" onClick={() => update('variableExpenses', [...values.variableExpenses, newExpense()])}><Icon name="plus" /> Adicionar taxa ou comissão</button>
               </section>
-              {baseField('profit', 'Lucro desejado sobre a venda', { unit: '%', hint: 'Parcela do preço que sobra para o negócio após os custos e a remuneração do seu trabalho.' })}
+              {baseField('profit', 'Lucro desejado sobre a venda', { unit: '%', hint: 'Parte da venda que sobra após todos os custos.' })}
               <div className={`markup-total${Number.isFinite(validation.totalPercentage) && validation.totalPercentage >= 100 ? ' has-error' : ''}`}>
                 <span>Gastos fixos % + despesas variáveis % + lucro %</span><strong>{numeric(validation.totalPercentage)}%</strong>
               </div>
-              <p className="markup-hint">A soma precisa ficar abaixo de 100% para calcular o markup.</p>
+              {!(validation.totalPercentage >= 100) && <p className="markup-hint">A soma deve ficar abaixo de 100%.</p>}
             </fieldset>
             {((attemptedSteps.includes(step) && currentErrors.length > 0) || validation.errors.calculation)
               && <p className="markup-error" role="alert">{validation.errors.calculation || calculatorErrors.reviewStep}</p>}
@@ -374,7 +370,6 @@ export default function AdvancedPricingCalculator() {
               <strong className="markup-price">{result ? money(result.price) : 'R$ —'}</strong>
               <p>{result ? `${result.productName} · ${numeric(result.producedQuantity)} ${result.producedQuantity === 1 ? 'unidade produzida' : 'unidades produzidas'} por lote.`
                 : 'Preencha ou corrija os campos necessários para ver o preço sugerido.'}</p>
-              <p>O resultado é atualizado automaticamente conforme você preenche os campos.</p>
             </div>
             <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${numeric(result.multiplier)}×` : '—'}</strong></div>
             <div className="markup-multiplier advanced-batch-price"><span>Venda de todo o lote</span><strong>{result ? money(result.batchPrice) : 'R$ —'}</strong></div>
@@ -406,8 +401,6 @@ export default function AdvancedPricingCalculator() {
               ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
             </dl>
           </section>
-          <p className="markup-local-note"><Icon name="shieldCheck" /><span>Seus valores ajudam a planejar uma venda que remunera seu trabalho e mantém o negócio saudável.</span></p>
-          {isExample && <p className="markup-hint advanced-example-note">Exemplo ilustrativo: recurso de consumo a R$ 125,00, duração total de 320 horas e uso de 4 horas por lote. Ajuste esses dados à sua realidade.</p>}
         </aside>
       </div>
 
