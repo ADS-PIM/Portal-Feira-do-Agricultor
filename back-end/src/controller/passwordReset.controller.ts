@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { isEmail } from 'class-validator';
 import { PasswordResetService } from '../service/passwordReset.service';
+import { AdminActionError } from '../model/adminActionError';
 
 export const recoveryMessage = 'Se este e-mail estiver associado a uma conta ativa, você receberá um link para redefinir sua senha. Confira também a pasta de spam.';
 
@@ -37,7 +38,8 @@ export class PasswordResetController {
             const secure = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
             res.clearCookie('refreshToken', { httpOnly: true, secure, sameSite: secure ? 'none' : 'lax', path: '/admin' });
             return res.status(200).json({ message: 'Senha alterada com sucesso. Entre com sua nova senha.' });
-        } catch {
+        } catch (error) {
+            if (error instanceof AdminActionError) return res.status(error.status).json({ code: error.code });
             console.error('Password reset failed. Check database availability.');
             return res.status(503).json({ error: 'Não foi possível alterar a senha. Tente novamente mais tarde.' });
         }

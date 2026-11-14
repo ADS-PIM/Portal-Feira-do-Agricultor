@@ -1,5 +1,7 @@
 import type { Pool, RowDataPacket } from 'mysql2/promise';
 import { connection } from '../util/connection';
+import { PasswordCrypto } from '../service/passwordCrypto';
+import { AdminActionError } from '../model/adminActionError';
 
 export class PasswordResetDAO {
     constructor(private pool: Pool = connection) {}
@@ -10,9 +12,9 @@ export class PasswordResetDAO {
             await db.beginTransaction();
             // The administrator lock serializes issuing and consuming links.
             const [admins] = await db.execute<RowDataPacket[]>(
-                'SELECT id, email, hashPassword, active FROM administrators WHERE email = ? FOR UPDATE', [email]);
+                'SELECT id, email, hashPassword, active, anonymizedAt FROM administrators WHERE email = ? FOR UPDATE', [email]);
             const admin = admins[0];
-            if (!admin?.active) {
+            if (!admin?.active || admin.anonymizedAt) {
                 await db.rollback();
                 return null;
             }
@@ -37,7 +39,7 @@ export class PasswordResetDAO {
         await this.pool.execute('DELETE FROM password_reset_tokens WHERE tokenHash = ?', [tokenHash]);
     }
 
-    async consume(tokenHash: string, passwordHash: string): Promise<boolean> {
+    async consume(tokenHash: string, passwordHash: string, newPassword?: string): Promise<boolean> {
         const db = await this.pool.getConnection();
         try {
             await db.beginTransaction();
@@ -49,19 +51,22 @@ export class PasswordResetDAO {
             }
             const adminId = candidates[0].adminId;
             const [admins] = await db.execute<RowDataPacket[]>(
-                'SELECT email, hashPassword, active FROM administrators WHERE id = ? FOR UPDATE', [adminId]);
+                'SELECT email, hashPassword, active, mustResetPassword, anonymizedAt FROM administrators WHERE id = ? FOR UPDATE', [adminId]);
             // Locking read observes a concurrently consumed/replaced token, even under REPEATABLE READ.
             const [tokens] = await db.execute<RowDataPacket[]>(`SELECT passwordHashAtRequest, emailAtRequest
                 FROM password_reset_tokens WHERE adminId = ? AND tokenHash = ?
                 AND expiresAt > CURRENT_TIMESTAMP FOR UPDATE`, [adminId, tokenHash]);
             const admin = admins[0];
             const token = tokens[0];
-            if (!admin?.active || !token || token.passwordHashAtRequest !== admin.hashPassword
+            if (!admin?.active || admin.anonymizedAt || !token || token.passwordHashAtRequest !== admin.hashPassword
                 || token.emailAtRequest !== admin.email) {
                 await db.rollback();
                 return false;
             }
-            await db.execute('UPDATE administrators SET hashPassword = ? WHERE id = ?', [passwordHash, adminId]);
+            if (admin.mustResetPassword && (!newPassword || await PasswordCrypto.verifyPassword(newPassword, admin.hashPassword))) {
+                throw new AdminActionError(400, 'PASSWORD_REUSE_FORBIDDEN', 'Choose a password different from the previous one');
+            }
+            await db.execute('UPDATE administrators SET hashPassword = ?, mustResetPassword = 0 WHERE id = ?', [passwordHash, adminId]);
             await db.execute('DELETE FROM password_reset_tokens WHERE adminId = ?', [adminId]);
             await db.execute('DELETE FROM refresh_tokens WHERE adminId = ?', [adminId]);
             await db.commit();

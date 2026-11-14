@@ -21,6 +21,7 @@ export default function PasswordRecoveryPage({ mode, token }: Props) {
     const [success, setSuccess] = useState(false)
     const [invalidLink, setInvalidLink] = useState(mode === 'reset' && !/^[a-f0-9]{64}$/.test(token || ''))
     const isReset = mode === 'reset'
+    const isRequired = !isReset && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('required') === '1'
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -70,9 +71,11 @@ export default function PasswordRecoveryPage({ mode, token }: Props) {
                 <section className="login-painel password-recovery-panel" aria-labelledby="recovery-title">
                     <div className="login-painel-brand">
                         <img className="login-painel-logo" src={logo} alt="Instituto Brotar" />
-                        <h1 id="recovery-title">{isReset ? 'Redefinir senha' : 'Esqueci minha senha'}</h1>
+                        <h1 id="recovery-title">{isReset ? 'Redefinir senha' : isRequired ? 'Crie uma nova senha' : 'Esqueci minha senha'}</h1>
                         {!success && !invalidLink && <p className="login-painel-subtitle">
-                            {isReset ? 'Crie uma nova senha para acessar sua conta.' : 'Informe seu e-mail administrativo para receber um link de recuperação.'}
+                            {isReset ? 'Crie uma nova senha para acessar sua conta.' : isRequired
+                                ? 'Sua conta foi reativada. Informe seu e-mail para receber o link e criar uma nova senha.'
+                                : 'Informe seu e-mail administrativo para receber um link de recuperação.'}
                         </p>}
                     </div>
 

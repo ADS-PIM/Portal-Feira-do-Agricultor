@@ -77,8 +77,13 @@ export async function authToken(req: AuthRequest, res: Response, next: NextFunct
             res.status(403).json({ code: 'ADMIN_ACCESS_REVOKED', error: 'Administrative access has been removed' });
             return;
         }
-        if (!currentAdmin.active) {
+        if (!currentAdmin.active || currentAdmin.anonymizedAt) {
             res.status(403).json({ code: 'ADMIN_DISABLED', error: 'Administrator account is disabled' });
+            return;
+        }
+        if (currentAdmin.mustResetPassword) {
+            res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+            res.status(403).json({ code: 'ADMIN_PASSWORD_RESET_REQUIRED', error: 'Reset your password before accessing the portal' });
             return;
         }
         req.admin = { ...admin, role: currentAdmin.role };

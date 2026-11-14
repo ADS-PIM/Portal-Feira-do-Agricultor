@@ -20,6 +20,8 @@ export type AdminRecord = {
     email: string
     role: AdminRole
     active: boolean
+    mustResetPassword?: boolean
+    anonymizedAt?: string | null
     password?: string
     profile_picture: string | null
     createdAt?: string | null
@@ -69,4 +71,8 @@ export async function updateAdmin(id: string, payload: Partial<AdminRecord>): Pr
         })
     }
     return result
+}
+
+export async function reactivateAdmin(id: string): Promise<{ mustResetPassword: true }> {
+    return apiFetch<{ mustResetPassword: true }>(`admin/${encodeURIComponent(id)}/reactivate`, { method: 'PATCH' })
 }

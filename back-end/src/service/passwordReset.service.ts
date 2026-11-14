@@ -32,6 +32,6 @@ export class PasswordResetService {
 
     async reset(token: string, password: string): Promise<boolean> {
         const passwordHash = await PasswordCrypto.hashPassword(password);
-        return this.dao.consume(hashResetToken(token), passwordHash);
+        return this.dao.consume(hashResetToken(token), passwordHash, password);
     }
 }

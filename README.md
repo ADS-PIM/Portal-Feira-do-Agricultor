@@ -150,9 +150,10 @@ ou logout e reaproveita um token que outra requisição já tenha renovado.
 ### Desativação de administradores
 
 As contas dos dois perfis são preservadas no banco. Um Super Admin ativo pode
-ativar ou desativar outra conta com `PATCH /admin/:id` e corpo exclusivamente
-`{ "active": true }` ou `{ "active": false }`. A autoria dos eventos, os dados e o
-perfil permanecem vinculados ao mesmo ID.
+desativar outra conta com `PATCH /admin/:id` e `{ "active": false }`.
+A lista começa nos ativos; **Ver admins desativados** abre as contas recuperáveis.
+**Reativar** chama `PATCH /admin/:id/reactivate`, sem corpo. A autoria dos eventos,
+os dados e o perfil permanecem vinculados ao mesmo ID.
 
 Nenhum perfil pode desativar a própria conta. O último Super Admin ativo também
 não pode ser rebaixado. As verificações usam os registros atuais sob bloqueio
@@ -165,10 +166,39 @@ trata a perda de acesso nas respostas e na verificação periódica de sessão.
 `DELETE /admin/:id` retorna `405 ADMIN_DELETION_DISABLED`; a exclusão foi
 retirada do painel e de Minha conta.
 
-Esta alteração não exige migração. O formato e os prazos dos tokens permanecem
-os anteriores: acesso de cinco minutos e renovação de sete dias. Após uma
-reativação, um JWT de acesso anterior ainda não expirado pode voltar a ser aceito;
-os refresh tokens removidos não são restaurados.
+### Reativação com nova senha obrigatória
+
+Antes de iniciar esta versão, o responsável pelo banco deve aplicar
+`20261114150000-admin-reactivation-password-reset.js`, executando
+`npm run db:migrate` em `back-end`. A migração está preparada no projeto e não
+altera o formato dos JWTs nem a coluna `refresh_tokens.tokenHash`.
+
+A reativação exige conta inativa, não anonimizada e um Super Admin ativo sem
+pendência de senha. Na mesma transação, limpa `deactivatedAt`, registra
+`reactivatedAt` e `reactivatedBy`, define `mustResetPassword = true` e remove
+sessões de renovação e links de senha anteriores. Contas já ativas retornam
+`409 ADMIN_ALREADY_ACTIVE`; anonimizadas retornam `409 ADMIN_ANONYMIZED`.
+O antigo PATCH com `active: true` aplica as mesmas travas, sem permitir contorno.
+Esses campos de segurança não são aceitos nos corpos de criação ou edição.
+
+Não é enviado e-mail no clique em Reativar. Ao tentar entrar com a senha antiga,
+o usuário é encaminhado para **Crie uma nova senha**, onde solicita o link pelo
+fluxo existente de **Esqueci minha senha**. Login, renovação e rotas protegidas
+retornam `403 ADMIN_PASSWORD_RESET_REQUIRED` enquanto a flag estiver marcada.
+Somente a conclusão do link válido de recuperação remove a trava; a nova senha
+deve ser diferente da anterior. Alteração da senha, remoção da flag e consumo
+do link ocorrem na mesma transação. Falha no envio permite solicitar outro link.
+
+O único Super Admin ativo também pode usar **Esqueci minha senha**, sem depender
+de outro administrador. Contas inativas ou com `anonymizedAt` preenchido não
+recebem nem consomem links de recuperação. `anonymizedAt` é a marcação que deve
+ser preenchida ao anonimizar uma conta; esta alteração não implementa a rotina
+de anonimização de dados pessoais.
+
+O formato e os prazos dos tokens continuam os anteriores: acesso de cinco minutos
+e renovação de sete dias. A trava de recuperação consulta o estado da conta no
+banco. JWTs de acesso antigos ainda não expirados seguem a política existente
+após a conclusão da redefinição; refresh tokens removidos não são restaurados.
 
 `npm test` cobre permissões, autodesativação, sessões e erros da API.
 `npm run test:admin-deactivation:mysql` valida preservação de autoria, revogação,

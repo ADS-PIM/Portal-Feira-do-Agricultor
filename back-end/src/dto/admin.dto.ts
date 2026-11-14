@@ -67,6 +67,8 @@ export class AdminSearchDTO {//Não tem necessidade de validação pq vai ser us
     email: string;
     role: AdminRole;
     active: boolean;
+    mustResetPassword: boolean;
+    anonymizedAt: Date | null;
     createdAt: Date;
     profile_picture: string | null;
 }
@@ -77,5 +79,7 @@ export class AdminSearchByIdDTO {
     email: string;
     role: AdminRole;
     active: boolean;
+    mustResetPassword: boolean;
+    anonymizedAt: Date | null;
     profile_picture: string | null;
 }

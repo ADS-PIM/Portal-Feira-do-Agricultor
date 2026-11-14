@@ -64,9 +64,14 @@ export class AdminController {
                 return res.status(401).json({error: 'Invalid email or password'});
             }
 
-            if (!admin.active) {
+            if (!admin.active || admin.anonymizedAt) {
                 res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
                 return res.status(403).json({ code: 'ADMIN_DISABLED', error: 'Administrator account is disabled' });
+            }
+
+            if (admin.mustResetPassword) {
+                res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+                return res.status(403).json({ code: 'ADMIN_PASSWORD_RESET_REQUIRED', error: 'Reset your password before signing in' });
             }
 
             const accessSecret = process.env.JWT_ACCESS_SECRET;
@@ -126,10 +131,15 @@ export class AdminController {
                     res.status(403).json({ code: 'ADMIN_ACCESS_REVOKED', error: 'Administrative access has been removed' });
                     return null;
                 }
-                if (!admin.active) {
+                if (!admin.active || admin.anonymizedAt) {
                     await refreshTokenDAO.deleteByUserId(adminId);
                     res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
                     res.status(403).json({ code: 'ADMIN_DISABLED', error: 'Administrator account is disabled' });
+                    return null;
+                }
+                if (admin.mustResetPassword) {
+                    res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
+                    res.status(403).json({ code: 'ADMIN_PASSWORD_RESET_REQUIRED', error: 'Reset your password before signing in' });
                     return null;
                 }
                 return admin;
@@ -232,6 +242,27 @@ export class AdminController {
             }
             console.error('Error updating admin:', error);
             return res.status(500).json({ error: error.message || 'Error updating admin' });
+        }
+    }
+
+    public async reactivate(req: AuthRequest, res: Response) {
+        res.setHeader('Cache-Control', 'no-store');
+        const actorId = req.admin?.adminId;
+        if (!actorId) return res.status(401).json({ error: 'Authentication is required' });
+        if (req.admin?.role !== AdminRole.SUPER_ADMIN) return res.status(403).json({ code: 'ADMIN_REACTIVATION_FORBIDDEN' });
+        const id = req.params.id;
+        if (typeof id !== 'string') return res.status(400).json({ code: 'ADMIN_INVALID_DATA' });
+        // All security fields are derived from the authenticated actor and the database.
+        if (req.body && (typeof req.body !== 'object' || Array.isArray(req.body) || Object.keys(req.body).length)) {
+            return res.status(400).json({ code: 'ADMIN_INVALID_DATA' });
+        }
+        try {
+            await this.adminService.reactivate(id, actorId);
+            return res.json({ message: 'Administrator reactivated. Password reset required', mustResetPassword: true });
+        } catch (error) {
+            if (error instanceof AdminActionError) return res.status(error.status).json({ code: error.code, error: error.message });
+            console.error('Administrator reactivation failed');
+            return res.status(500).json({ error: 'Could not reactivate administrator' });
         }
     }
 

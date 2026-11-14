@@ -5,7 +5,7 @@ import type { Pool, RowDataPacket } from 'mysql2/promise';
 import { AdminActionError } from '../model/adminActionError';
 
 // Serialize role and status changes so concurrent requests cannot remove every active super admin.
-const lockAdministrators = 'SELECT id, role, active FROM administrators ORDER BY id FOR UPDATE';
+const lockAdministrators = 'SELECT id, role, active, mustResetPassword, anonymizedAt FROM administrators ORDER BY id FOR UPDATE';
 
 function adminWriteError(error: unknown): unknown {
     const databaseError = error as { code?: string; sqlMessage?: string } | null;
@@ -59,7 +59,7 @@ export class AdminDAO {
     async searchByEmail(email: string): Promise<Admin | null> {
         try {
             const [admin]: any = await this.pool.query(
-                'SELECT id, name, email, hashPassword AS password, role, active, createdAt, profile_picture FROM administrators WHERE email = ?',
+                'SELECT id, name, email, hashPassword AS password, role, active, mustResetPassword, anonymizedAt, createdAt, profile_picture FROM administrators WHERE email = ?',
                 [email]
             );
             if (admin.length == 0) {
@@ -74,7 +74,7 @@ export class AdminDAO {
     async searchById(id: string): Promise<Admin | null> {
         try {
             const [admins]: any = await this.pool.query(
-                'SELECT id, name, email, hashPassword AS password, role, active, createdAt, profile_picture FROM administrators WHERE id = ?',
+                'SELECT id, name, email, hashPassword AS password, role, active, mustResetPassword, anonymizedAt, createdAt, profile_picture FROM administrators WHERE id = ?',
                 [id]
             );
             return admins.length === 0 ? null : admins[0];
@@ -86,7 +86,7 @@ export class AdminDAO {
     async searchPublicById(id: string): Promise<AdminSearchByIdDTO | null> {
         try {
             const [admins]: any = await this.pool.query(
-                'SELECT id, name, email, role, active, createdAt, profile_picture FROM administrators WHERE id = ?',
+                'SELECT id, name, email, role, active, mustResetPassword, anonymizedAt, createdAt, profile_picture FROM administrators WHERE id = ?',
                 [id]
             );
             return admins.length === 0 ? null : admins[0];
@@ -98,7 +98,7 @@ export class AdminDAO {
     async searchAll(): Promise<AdminSearchDTO[] | null> {
         try {
             const [admins]: any = await this.pool.query(
-                'SELECT id, name, email, role, active, profile_picture, createdAt FROM administrators ORDER BY createdAt DESC'
+                'SELECT id, name, email, role, active, mustResetPassword, anonymizedAt, profile_picture, createdAt FROM administrators ORDER BY createdAt DESC'
             );
             return admins.length === 0 ? [] : admins;
         } catch (error: any) {
@@ -106,7 +106,11 @@ export class AdminDAO {
         }
     }
 
-    async update(id: string, data: AdminUpdateData, actorId: string): Promise<void> {
+    async reactivate(id: string, actorId: string): Promise<void> {
+        return this.update(id, { active: true }, actorId, true);
+    }
+
+    async update(id: string, data: AdminUpdateData, actorId: string, requireInactive = false): Promise<void> {
         const fields: string[] = [];
         const values: (string | boolean | null)[] = [];
 
@@ -150,11 +154,17 @@ export class AdminDAO {
             const allowedFields = isSuper
                 ? ['name', 'email', 'role', 'active', 'profile_picture', ...(isSelf ? ['password'] : [])]
                 : ['name', 'password', 'profile_picture'];
-            if (!actor?.active || (!isSelf && !isSuper) ||
+            if (!actor?.active || actor.mustResetPassword || actor.anonymizedAt || (!isSelf && !isSuper) ||
                 Object.keys(data).some(field => !allowedFields.includes(field))) {
                 throw new AdminActionError(403, 'ADMIN_UPDATE_FORBIDDEN', 'You cannot update this administrator');
             }
             if (!target) throw new AdminActionError(404, 'ADMIN_NOT_FOUND', 'Admin not found');
+            if (target.anonymizedAt) {
+                throw new AdminActionError(409, 'ADMIN_ANONYMIZED', 'An anonymized account cannot be recovered or edited');
+            }
+            if (requireInactive && target.active) {
+                throw new AdminActionError(409, 'ADMIN_ALREADY_ACTIVE', 'Administrator is already active');
+            }
             if (isSelf && data.active === false) {
                 throw new AdminActionError(403, 'ADMIN_SELF_DEACTIVATION_FORBIDDEN', 'You cannot deactivate your own account');
             }
@@ -169,6 +179,14 @@ export class AdminDAO {
             }
             const revokeSessions = (data.role !== undefined && data.role !== target.role) ||
                 (data.active !== undefined && data.active !== Boolean(target.active)) || data.password !== undefined;
+            const isReactivation = data.active === true && !target.active;
+            if (isReactivation) {
+                // Shared with PATCH /:id so legacy clients cannot bypass mandatory recovery.
+                fields.push('deactivatedAt = NULL', 'mustResetPassword = 1', 'reactivatedBy = ?', 'reactivatedAt = CURRENT_TIMESTAMP(3)');
+                values.push(actorId);
+            } else if (data.active === false && target.active) {
+                fields.push('deactivatedAt = CURRENT_TIMESTAMP(3)');
+            }
             await db.execute(
                 `UPDATE administrators SET ${fields.join(', ')} WHERE id = ?`,
                 [...values, id]
@@ -176,7 +194,7 @@ export class AdminDAO {
             if (revokeSessions) {
                 await db.execute('DELETE FROM refresh_tokens WHERE adminId = ?', [id]);
             }
-            if (data.active === false) {
+            if (data.active === false || isReactivation) {
                 await db.execute('DELETE FROM password_reset_tokens WHERE adminId = ?', [id]);
             }
             await db.commit();

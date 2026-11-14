@@ -17,13 +17,13 @@ export class RefreshTokenDAO {
             await db.beginTransaction();
             // Same lock order as password recovery: a revoked session cannot be recreated by a racing refresh.
             const [admins] = await db.execute<RowDataPacket[]>(
-                'SELECT active FROM administrators WHERE id = ? FOR UPDATE', [adminId]);
+                'SELECT active, mustResetPassword, anonymizedAt FROM administrators WHERE id = ? FOR UPDATE', [adminId]);
             const [stored] = await db.execute<RowDataPacket[]>(
                 `SELECT id, COALESCE(sessionId, id) AS sessionId, tokenHash, expiresAt, rotatedAt, replacedByTokenId,
                  rotatedAt >= DATE_SUB(CURRENT_TIMESTAMP(3), INTERVAL ${ROTATION_OVERLAP_SECONDS} SECOND) AS withinOverlap
                  FROM refresh_tokens WHERE tokenHash = ? AND adminId = ? AND expiresAt > CURRENT_TIMESTAMP
                  AND revokedAt IS NULL FOR UPDATE`, [oldToken, adminId]);
-            if (!admins[0]?.active || !stored[0]) {
+            if (!admins[0]?.active || admins[0].mustResetPassword || admins[0].anonymizedAt || !stored[0]) {
                 await db.rollback();
                 return null;
             }

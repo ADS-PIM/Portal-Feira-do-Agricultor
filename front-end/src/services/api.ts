@@ -12,11 +12,17 @@ import {
 } from './authToken'
 import { ApiRequestError } from './errors'
 import { makeApiUrl } from './apiUrl'
+import { navigate } from './navigation'
 
 const isSessionEndpoint = (endpoint: string) => /^admin\/(?:login|refresh|logout|forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)
 
 function checkAdminAccess(response: Response, endpoint: string, code?: string): void {
     if (response.status !== 403) return
+    if (code === 'ADMIN_PASSWORD_RESET_REQUIRED') {
+        clearAccessToken()
+        if (typeof window !== 'undefined') navigate('/admin/esqueci-minha-senha?required=1')
+        throw new ApiRequestError(response.status, endpoint, code)
+    }
     if (code === 'ADMIN_ACCESS_REVOKED' || code === 'ADMIN_DISABLED') {
         invalidateAdminAccess(code === 'ADMIN_ACCESS_REVOKED' ? 'revoked' : 'disabled')
         throw new ApiRequestError(response.status, endpoint, code)
@@ -132,7 +138,7 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     }
     let response = await fetch(makeApiUrl(path), requestOptions)
     let code = response.ok ? undefined : await readErrorCode(response)
-    if (sessionEndpoint || revision === getSessionRevision()) checkAdminAccess(response, path, code)
+    if (revision === getSessionRevision()) checkAdminAccess(response, path, code)
 
     if (response.status === 401 && token && !sessionEndpoint) {
         // Delayed 401s must reuse a token already renewed by another request.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import Icon from '../../components/Icon'
-import { createAdmin, getAdmins, updateAdmin, type AdminRecord } from '../../services/adminService'
+import { createAdmin, getAdmins, reactivateAdmin, updateAdmin, type AdminRecord } from '../../services/adminService'
 import { AUTH_STATE_CHANGE_EVENT, getAdminId, getAdminProfile } from '../../services/authToken'
 import { getUserFacingError } from '../../services/errors'
 import './AdminAdministrators.css'
@@ -225,14 +225,21 @@ const AdminAdministrators = () => {
             setError('Você não pode desativar o seu próprio acesso administrativo.')
             return
         }
+        if (admin.anonymizedAt) {
+            setError('Uma conta anonimizada não pode ser recuperada.')
+            return
+        }
 
         try {
             setUpdatingStatus(admin.id)
             setError(null)
             setSuccess(null)
-            await updateAdmin(admin.id, { active: !admin.active })
-            setAdmins(current => current.map(item => item.id === admin.id ? { ...item, active: !admin.active } : item))
-            setSuccess(admin.active ? 'Administrador desativado com sucesso.' : 'Administrador reativado com sucesso.')
+            if (admin.active) await updateAdmin(admin.id, { active: false })
+            else await reactivateAdmin(admin.id)
+            setAdmins(current => current.map(item => item.id === admin.id
+                ? { ...item, active: !admin.active, mustResetPassword: admin.active ? item.mustResetPassword : true } : item))
+            setSuccess(admin.active ? 'Administrador desativado com sucesso.'
+                : 'Conta reativada. O administrador deve usar “Esqueci minha senha” e criar uma nova senha para acessar.')
             await loadAdmins()
         } catch (toggleError) {
             setError(getUserFacingError(toggleError, 'Não foi possível atualizar o status do administrador.'))
@@ -314,23 +321,24 @@ const AdminAdministrators = () => {
                                                 <span className={`admin-managers-status-badge ${admin.active ? 'is-active' : 'is-inactive'}`}>
                                                     {admin.active ? 'Ativo' : 'Inativo'}
                                                 </span>
+                                                {Boolean(admin.active && admin.mustResetPassword) && <small className="admin-managers-password-pending">Nova senha pendente</small>}
                                             </span>
 
                                             {canManageAdmins && <div className="admin-managers-actions" role="cell">
                                                 <button
                                                     type="button"
                                                     className={`admin-managers-action-button is-toggle${!admin.active ? ' is-reactivate' : ''}`}
-                                                    disabled={admin.id === getAdminId() || updatingStatus !== null}
+                                                    disabled={Boolean(admin.anonymizedAt) || admin.id === getAdminId() || updatingStatus !== null}
                                                     onClick={() => handleToggleStatus(admin)}
                                                     aria-label={`${admin.active ? 'Desativar' : 'Reativar'} ${admin.name}`}
-                                                    title={admin.id === getAdminId() ? 'Você não pode desativar o seu próprio acesso administrativo.' : admin.active ? 'Desativar' : 'Reativar'}
+                                                    title={admin.anonymizedAt ? 'Conta anonimizada: recuperação indisponível.' : admin.id === getAdminId() ? 'Você não pode desativar o seu próprio acesso administrativo.' : admin.active ? 'Desativar' : 'Reativar e exigir nova senha'}
                                                 >
                                                     {admin.active ? 'Desativar' : 'Reativar'}
                                                 </button>
                                                 <button
                                                     type="button"
                                                     className="admin-managers-action-button is-edit"
-                                                    disabled={admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId()}
+                                                    disabled={Boolean(admin.anonymizedAt) || (admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId())}
                                                     onClick={() => {
                                                         setEditingAdminId(admin.id)
                                                         setEmailError(null)

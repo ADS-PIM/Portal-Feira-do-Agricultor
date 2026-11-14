@@ -42,6 +42,10 @@ export class AdminService {
         return admins;
     }
 
+    public async reactivate(id: string, actorId: string): Promise<void> {
+        await this.adminDAO.reactivate(id, actorId);
+    }
+
     public async update(id: string, data: AdminUpdateData, actorId: string): Promise<void> {
         if (data.email !== undefined) {
             const adminWithEmail = await this.searchByEmail(data.email);

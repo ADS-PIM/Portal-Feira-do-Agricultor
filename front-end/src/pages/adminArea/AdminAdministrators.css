@@ -331,6 +331,14 @@
     color: var(--theme-danger-text, #b42318);
 }
 
+.admin-managers-password-pending {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
 .admin-managers-actions {
     display: flex;
     align-items: center;
