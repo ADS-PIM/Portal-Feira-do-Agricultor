@@ -23,44 +23,6 @@ export class AdminService {
         await this.adminDAO.register(admin);
     }
 
-    public async delete(id: string, actorId: string, currentPassword?: unknown): Promise<void> {
-        const actor = await this.searchById(actorId);
-        if (!actor?.active || actor.role !== 'SUPER_ADMIN') {
-            throw new AdminActionError(403, 'ADMIN_DELETE_FORBIDDEN', 'Only an active SUPER_ADMIN can delete administrator accounts');
-        }
-        let verifiedPasswordHash: string | undefined;
-        if (id === actorId) {
-            if (!await this.adminDAO.hasOtherActiveSuperAdmin(actorId)) {
-                throw new AdminActionError(409, 'LAST_SUPER_ADMIN', 'Promote another active administrator before leaving');
-            }
-            if (typeof currentPassword !== 'string' || !currentPassword) {
-                throw new AdminActionError(400, 'CURRENT_PASSWORD_REQUIRED', 'Current password is required');
-            }
-            if (!actor?.active || !actor.password ||
-                !await PasswordCrypto.verifyPassword(currentPassword, actor.password)) {
-                throw new AdminActionError(403, 'INVALID_CURRENT_PASSWORD', 'Current password is incorrect');
-            }
-            verifiedPasswordHash = actor.password;
-        }
-        const result = await this.adminDAO.delete(id, actorId, verifiedPasswordHash);
-        switch (result) {
-            case 'not_found':
-                throw new AdminActionError(404, 'ADMIN_NOT_FOUND', 'Admin not found');
-            case 'super_admin':
-                throw new AdminActionError(403, 'SUPER_ADMIN_DELETE_FORBIDDEN', 'Cannot delete another SUPER_ADMIN');
-            case 'forbidden':
-                throw new AdminActionError(403, 'ADMIN_DELETE_FORBIDDEN', 'You cannot delete this administrator');
-            case 'invalid_password':
-                throw new AdminActionError(403, 'INVALID_CURRENT_PASSWORD', 'Current password has changed; confirm it again');
-            case 'last_super_admin':
-                throw new AdminActionError(409, 'LAST_SUPER_ADMIN', 'Promote another active administrator before leaving');
-            case 'active':
-                throw new AdminActionError(409, 'ADMIN_ACTIVE', 'Deactivate the administrator before deleting the account');
-            case 'has_events':
-                throw new AdminActionError(409, 'ADMIN_HAS_EVENTS', 'No active SUPER_ADMIN is available to take responsibility for linked events');
-        }
-    }
-
     public async searchByEmail(email: string): Promise <Admin | null> {
         const admin: Admin | null = await this.adminDAO.searchByEmail(email);
         return admin ? Admin.reconstruct(admin) : null;
@@ -78,6 +40,10 @@ export class AdminService {
     public async searchAll(): Promise<AdminSearchDTO[] | null> {
         const admins = await this.adminDAO.searchAll();
         return admins;
+    }
+
+    public async reactivate(id: string, actorId: string): Promise<void> {
+        await this.adminDAO.reactivate(id, actorId);
     }
 
     public async update(id: string, data: AdminUpdateData, actorId: string): Promise<void> {

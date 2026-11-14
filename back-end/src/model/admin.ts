@@ -12,6 +12,8 @@ export type propsAdmin = {
     password: string;
     role: AdminRole;
     active: boolean;
+    mustResetPassword?: boolean;
+    anonymizedAt?: Date | string | null;
     createdAt: Date;
     profile_picture: string | null;
 }
@@ -59,6 +61,14 @@ export class Admin {
 
     public get active () {
         return this.props.active;
+    }
+
+    public get mustResetPassword () {
+        return Boolean(this.props.mustResetPassword);
+    }
+
+    public get anonymizedAt () {
+        return this.props.anonymizedAt ?? null;
     }
 
     public get createdAt () {

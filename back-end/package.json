@@ -7,7 +7,7 @@
     "test": "tsx --test test/*.test.ts",
     "test:rate-limit:mysql": "tsx --test test/rateLimitMysql.integration.ts",
     "test:password-recovery:mysql": "tsx --test test/passwordRecoveryMysql.integration.ts",
-    "test:admin-deletion:mysql": "tsx --test test/adminDeletionMysql.integration.ts",
+    "test:admin-deactivation:mysql": "tsx --test test/adminDeactivationMysql.integration.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsc --noEmit --project ./tsconfig.json",
     "images:migrate:cloudinary": "tsx src/scripts/migrateEventImages.ts",

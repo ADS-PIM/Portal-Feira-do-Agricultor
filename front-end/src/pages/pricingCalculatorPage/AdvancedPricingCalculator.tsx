@@ -406,7 +406,6 @@ export default function AdvancedPricingCalculator() {
 
       <section className="markup-guide" aria-labelledby="advanced-guide-title">
         <h2 id="advanced-guide-title"><Icon name="information" /> Como chegamos a esse preço</h2>
-        <p className="markup-formula">Preço por unidade = (material por unidade + mão de obra por unidade) × 100 ÷ [100 − (gastos fixos % + despesas variáveis % + lucro %)]</p>
         <ol className="advanced-formula-steps">
           <li><strong>Rendimento do insumo</strong><span>Quantidade comprada ÷ quantidade usada, após converter as medidas.</span></li>
           <li><strong>Custo do insumo no lote</strong><span>Valor total pago ÷ rendimento.</span></li>
@@ -422,6 +421,7 @@ export default function AdvancedPricingCalculator() {
           <li><strong>Markup</strong><span>100 ÷ [100 − (gastos fixos % + despesas variáveis % + lucro %)].</span></li>
           <li><strong>Preço de venda sugerido</strong><span>Custo-base por unidade × markup.</span></li>
         </ol>
+        <p className="markup-formula">Preço por unidade = (material por unidade + mão de obra por unidade) × 100 ÷ [100 − (gastos fixos % + despesas variáveis % + lucro %)]</p>
       </section>
       <p className="markup-disclaimer">Simulação por unidade. Os cálculos mantêm a precisão até a exibição dos valores; ajuste custos, rendimentos e percentuais à realidade do seu negócio.</p>
     </div>

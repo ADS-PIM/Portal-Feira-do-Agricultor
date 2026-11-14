@@ -48,6 +48,8 @@ adminRoutes.delete('/me/profile-picture', authToken, authenticatedRateLimit, asy
 
 adminRoutes.post('/forgot-password', ...passwordRecoveryRateLimit, (req, res) => passwordResetController.request(req, res));
 adminRoutes.post('/reset-password', passwordResetRateLimit, (req, res) => passwordResetController.reset(req, res));
+adminRoutes.patch('/:id/reactivate', authToken, authenticatedRateLimit, isSuperAdmin,
+    (req, res) => adminController.reactivate(req, res));
 
 adminRoutes
     .route('/')

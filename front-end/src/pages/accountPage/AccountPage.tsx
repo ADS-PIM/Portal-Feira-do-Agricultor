@@ -10,7 +10,6 @@ import { ApiRequestError, getUserFacingError, isAdminDisabledError } from '../..
 import AdminDisabledPage from '../loginPage/AdminDisabledPage'
 import { accountFormValues, buildAccountUpdate, type AccountFormValues } from './accountForm'
 import './AccountPage.css'
-import AccountDeletion from './AccountDeletion'
 import ProfilePictureUpload from './ProfilePictureUpload'
 import { getAccountReturnTarget, type AccountReturnTarget } from '../../services/profileNavigation'
 
@@ -28,13 +27,12 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
     const [saving, setSaving] = useState(false)
     const [uploadingPhoto, setUploadingPhoto] = useState(false)
     const [loggingOut, setLoggingOut] = useState(false)
-    const [deleting, setDeleting] = useState(false)
     const [accessChanged, setAccessChanged] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
     const isSuper = profile.role === 'SUPER_ADMIN'
-    const busy = saving || loggingOut || deleting || uploadingPhoto
+    const busy = saving || loggingOut || uploadingPhoto
     const change = <K extends keyof AccountFormValues>(key: K, value: AccountFormValues[K]) => setValues(current => ({ ...current, [key]: value }))
 
     const logout = async () => {
@@ -110,7 +108,7 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
                             setAdminProfile(updated)
                             change('profile_picture', url ?? '')
                         }} />
-                        {isSuper && <><label>Perfil de acesso<select value={values.role} onChange={e => change('role', e.target.value as AccountFormValues['role'])}><option value="SUPER_ADMIN">Administrador principal</option><option value="ADMIN">Administrador</option></select></label><label>Status da conta<select value={String(values.active)} onChange={e => change('active', e.target.value === 'true')}><option value="true">Ativa</option><option value="false">Inativa</option></select></label>{(values.role !== profile.role || values.active !== Boolean(profile.active)) && <p className="account-access-note account-full-width">Ao salvar, sua sessão será encerrada. Uma conta inativa não pode acessar a área administrativa; mudar para administrador remove as permissões de administrador principal.</p>}</>}
+                        {isSuper && <><label>Perfil de acesso<select value={values.role} onChange={e => change('role', e.target.value as AccountFormValues['role'])}><option value="SUPER_ADMIN">Administrador principal</option><option value="ADMIN">Administrador</option></select></label>{values.role !== profile.role && <p className="account-access-note account-full-width">Ao mudar para administrador, sua sessão será encerrada e as permissões de administrador principal serão removidas.</p>}</>}
                         <div className="account-password-heading account-full-width"><h3>Alterar senha</h3><p>Deixe os campos vazios para manter sua senha atual.</p></div>
                         <label>Nova senha<input type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={values.password} onChange={e => change('password', e.target.value)} /></label>
                         <label>Confirmar nova senha<input type={showPassword ? 'text' : 'password'} autoComplete="new-password" required={Boolean(values.password)} value={values.confirmPassword} onChange={e => change('confirmPassword', e.target.value)} /></label>
@@ -119,7 +117,6 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
                     <div className="account-form-actions"><button type="button" className="account-button is-secondary" disabled={busy} onClick={() => { setValues(accountFormValues(profile)); setEditing(false); setShowPassword(false); setError(null); setSuccess(null) }}>Cancelar</button><button type="submit" className="account-button" disabled={busy}>{saving ? 'Salvando...' : 'Salvar alterações'}</button></div>
                 </form>
             )}
-            {!editing && isSuper && Boolean(profile.active) && <AccountDeletion key={`${profile.id}:${profile.role}`} profile={profile} disabled={busy || accessChanged} onBusyChange={setDeleting} />}
         </section>
     </div>
 }

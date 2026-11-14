@@ -147,46 +147,65 @@ adiciona campos opcionais e um índice; os cookies de sessões existentes contin
 válidos. O frontend descarta respostas de autenticação anteriores a um novo login
 ou logout e reaproveita um token que outra requisição já tenha renovado.
 
-### Exclusão de administradores
+### Desativação de administradores
 
-`DELETE /admin/:id` exige uma sessão autenticada. Um `SUPER_ADMIN` pode excluir
-um `ADMIN` previamente desativado, mas nunca outro `SUPER_ADMIN`. Administradores
-comuns não podem excluir outras contas. Ambos os perfis podem excluir a própria
-conta ativa em **Minha conta**, enviando a senha atual no corpo `{ "password": "..." }`.
+As contas dos dois perfis são preservadas no banco. Um Super Admin ativo pode
+desativar outra conta com `PATCH /admin/:id` e `{ "active": false }`.
+A lista começa nos ativos; **Ver admins desativados** abre as contas recuperáveis.
+**Reativar** chama `PATCH /admin/:id/reactivate`, sem corpo. A autoria dos eventos,
+os dados e o perfil permanecem vinculados ao mesmo ID.
 
-O último `SUPER_ADMIN` ativo não pode excluir, desativar ou rebaixar a própria
-conta: é preciso promover ou reativar outro Super Admin primeiro. Um Super Admin
-ativo pode reativar outro Super Admin com `PATCH /admin/:id` e corpo exclusivamente
-`{ "active": true }`. Desativação, rebaixamento e demais alterações na conta de
-outro Super Admin são bloqueados, evitando o rebaixamento seguido de exclusão.
-As verificações e alterações usam a mesma transação com
-bloqueios no banco para proteger saídas simultâneas.
+Nenhum perfil pode desativar a própria conta. O último Super Admin ativo também
+não pode ser rebaixado. As verificações usam os registros atuais sob bloqueio
+na mesma transação, protegendo alterações simultâneas. Outro Super Admin pode
+ter apenas seu status alterado; nome, e-mail e cargo continuam protegidos.
 
-Na autoexclusão, a responsabilidade pelos eventos vinculados é transferida para
-outro Super Admin ativo, sem apagar os eventos. Quando um Super Admin exclui um
-Admin comum desativado, os eventos passam para o Super Admin que confirmou a
-exclusão. Os dados dos eventos e suas imagens são preservados; o diálogo de
-confirmação informa a transferência de responsabilidade. A exclusão remove os refresh
-tokens e a conta na mesma transação; links de recuperação de senha são removidos
-pela chave estrangeira existente. O cookie e o estado local da sessão são limpos.
-Requisições autenticadas consultam a conta atual no banco, impedindo o uso de
-tokens de contas excluídas, inativas ou com permissões antigas. Não exige migration.
+Desativar remove os refresh tokens e os links de recuperação de senha.
+O middleware consulta o estado atual em cada requisição e bloqueia contas inativas; a interface
+trata a perda de acesso nas respostas e na verificação periódica de sessão.
+`DELETE /admin/:id` retorna `405 ADMIN_DELETION_DISABLED`; a exclusão foi
+retirada do painel e de Minha conta.
 
-Contas inexistentes retornam `404` (`ADMIN_NOT_FOUND`), exclusões de outros Super Admins
-retornam `403` (`SUPER_ADMIN_DELETE_FORBIDDEN`), a saída do último principal ativo
-retorna `409` (`LAST_SUPER_ADMIN`) e contas com eventos vinculados sem transferência
-retornam `409` (`ADMIN_HAS_EVENTS`). Nesse último caso, é necessário disponibilizar
-um Super Admin ativo para assumir os eventos. O painel mostra uma mensagem específica
-para cada situação.
+### Reativação com nova senha obrigatória
 
-`npm test` cobre as permissões e respostas da API.
-`npm run test:admin-deletion:mysql`, em `back-end`, reproduz a falha antiga de
-chave estrangeira e verifica exclusão, rollback e concorrência em um schema
-temporário `admin_delete_test_<uuid>`, removido ao final. No frontend,
-`node --test tests/adminDeletion.test.mjs` verifica as mensagens do painel.
-`node tests/adminPermissions.browser.mjs` verifica autoexclusão, senha, bloqueio
-do último Super Admin, encerramento de sessão e proteção entre pares nas telas
-reais com respostas simuladas, incluindo larguras de 320 a 1440 px.
+Antes de iniciar esta versão, o responsável pelo banco deve aplicar
+`20261114150000-admin-reactivation-password-reset.js`, executando
+`npm run db:migrate` em `back-end`. A migração está preparada no projeto e não
+altera o formato dos JWTs nem a coluna `refresh_tokens.tokenHash`.
+
+A reativação exige conta inativa, não anonimizada e um Super Admin ativo sem
+pendência de senha. Na mesma transação, limpa `deactivatedAt`, registra
+`reactivatedAt` e `reactivatedBy`, define `mustResetPassword = true` e remove
+sessões de renovação e links de senha anteriores. Contas já ativas retornam
+`409 ADMIN_ALREADY_ACTIVE`; anonimizadas retornam `409 ADMIN_ANONYMIZED`.
+O antigo PATCH com `active: true` aplica as mesmas travas, sem permitir contorno.
+Esses campos de segurança não são aceitos nos corpos de criação ou edição.
+
+Não é enviado e-mail no clique em Reativar. Ao tentar entrar com a senha antiga,
+o usuário é encaminhado para **Crie uma nova senha**, onde solicita o link pelo
+fluxo existente de **Esqueci minha senha**. Login, renovação e rotas protegidas
+retornam `403 ADMIN_PASSWORD_RESET_REQUIRED` enquanto a flag estiver marcada.
+Somente a conclusão do link válido de recuperação remove a trava; a nova senha
+deve ser diferente da anterior. Alteração da senha, remoção da flag e consumo
+do link ocorrem na mesma transação. Falha no envio permite solicitar outro link.
+
+O único Super Admin ativo também pode usar **Esqueci minha senha**, sem depender
+de outro administrador. Contas inativas ou com `anonymizedAt` preenchido não
+recebem nem consomem links de recuperação. `anonymizedAt` é a marcação que deve
+ser preenchida ao anonimizar uma conta; esta alteração não implementa a rotina
+de anonimização de dados pessoais.
+
+O formato e os prazos dos tokens continuam os anteriores: acesso de cinco minutos
+e renovação de sete dias. A trava de recuperação consulta o estado da conta no
+banco. JWTs de acesso antigos ainda não expirados seguem a política existente
+após a conclusão da redefinição; refresh tokens removidos não são restaurados.
+
+`npm test` cobre permissões, autodesativação, sessões e erros da API.
+`npm run test:admin-deactivation:mysql` valida preservação de autoria, revogação,
+rollback e concorrência em um schema temporário removido ao final.
+No frontend, `node --test tests/adminDeletion.test.mjs` verifica as mensagens e
+`node tests/adminPermissions.browser.mjs` verifica as ações nas telas reais
+com respostas simuladas, sem alterar contas do portal.
 
 ### Eventos por administrador
 
