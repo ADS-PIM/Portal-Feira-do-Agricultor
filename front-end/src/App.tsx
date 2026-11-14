@@ -17,6 +17,7 @@ import { AUTH_STATE_CHANGE_EVENT, dismissAdminAccessIssue, getAdminAccessIssue }
 import AdminDisabledPage from './pages/loginPage/AdminDisabledPage'
 import { useAdminSessionMonitor } from './hooks/useAdminSessionMonitor'
 import { getCurrentPath, installNavigation, navigate, subscribeNavigation } from './services/navigation'
+import LegalPage from './pages/legal/LegalPage'
 
 const subscribeAuthState = (onChange: () => void) => {
   window.addEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
@@ -24,7 +25,7 @@ const subscribeAuthState = (onChange: () => void) => {
 }
 
 type AppRoute =
-  | { page: 'home' | 'login' | 'contact' | 'calendar' | 'calculator' | 'producers' }
+  | { page: 'home' | 'login' | 'contact' | 'calendar' | 'calculator' | 'producers' | 'terms' | 'privacy' }
   | { page: 'admin'; section: AdminSection }
   | { page: 'account'; returnTarget: AccountReturnTarget }
   | { page: 'event'; eventId: string }
@@ -43,6 +44,8 @@ const pageTitles: Record<AppRoute['page'], string> = {
   calculator: 'Calculadora de precificação',
   producers: 'Produtores',
   event: 'Detalhes do evento',
+  terms: 'Termos de Uso',
+  privacy: 'Política de Privacidade',
 }
 
 function getCurrentRoute(path: string): AppRoute {
@@ -64,6 +67,8 @@ function getCurrentRoute(path: string): AppRoute {
   if (pathname === '/contato') return { page: 'contact' }
   if (pathname === '/calendario') return { page: 'calendar' }
   if (pathname === '/calculadora') return { page: 'calculator' }
+  if (pathname === '/termos-de-uso') return { page: 'terms' }
+  if (pathname === '/politica-de-privacidade') return { page: 'privacy' }
 
   const eventRoute = /^\/evento\/([^/?#]+)$/.exec(pathname)
   if (eventRoute) {
@@ -126,6 +131,10 @@ function App() {
 
   if (route.page === 'contact') {
     return <ContactUsPage />
+  }
+
+  if (route.page === 'terms' || route.page === 'privacy') {
+    return <LegalPage document={route.page} />
   }
 
   if (route.page === 'calendar') {

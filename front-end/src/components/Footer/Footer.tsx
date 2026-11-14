@@ -99,8 +99,8 @@ const Footer = () => {
             <div className="site-footer-bottom">
                 <p>Desenvolvido pela equipe Brotando Feiras — {new Date().getFullYear()}. Todos os direitos reservados.</p>
                 <nav aria-label="Informações legais">
-                    <span>Políticas de Privacidade</span>
-                    <span>Termos de Uso</span>
+                    <a href="/politica-de-privacidade">Política de Privacidade</a>
+                    <a href="/termos-de-uso">Termos de Uso</a>
                 </nav>
             </div>
         </footer>
