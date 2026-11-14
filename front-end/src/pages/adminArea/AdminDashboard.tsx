@@ -44,11 +44,13 @@ const AdminDashboard = ({
     onSelectSection,
     onCreateEventAtDate,
     onEditEvent,
+    onFilterEvents,
     onDeleteEvent,
 }: {
     onSelectSection: (section: AdminSection) => void
     onCreateEventAtDate: (date: string | null) => void
     onEditEvent: (eventId: string) => void
+    onFilterEvents: (eventIds: string[], label: string) => void
     onDeleteEvent: (eventId: string) => void
 }) => {
     const [admins, setAdmins] = useState<AdminRecord[]>([])
@@ -164,6 +166,7 @@ const AdminDashboard = ({
                     onSelectSection={onSelectSection}
                     onCreateEvent={() => onCreateEventAtDate(null)}
                     onEditEvent={onEditEvent}
+                    onFilterEvents={onFilterEvents}
                 />
 
                 <div className="admin-events admin-events-columns admin-dashboard-agenda">

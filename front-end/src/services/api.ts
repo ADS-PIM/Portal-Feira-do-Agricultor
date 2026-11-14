@@ -13,6 +13,12 @@ import {
 import { ApiRequestError } from './errors'
 import { makeApiUrl } from './apiUrl'
 import { navigate } from './navigation'
+import {
+    getOrLoadPublicData,
+    getPublicDataCacheTarget,
+    getPublicDataInvalidationScope,
+    invalidatePublicDataCache,
+} from './publicDataCache'
 
 const isSessionEndpoint = (endpoint: string) => /^admin\/(?:login|refresh|logout|forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)
 
@@ -124,6 +130,22 @@ export async function restoreAdminProfile(): Promise<AdminProfile | null> {
 
 export async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const path = endpoint.replace(/^\/+/, '')
+    const method = (options?.method ?? 'GET').toUpperCase()
+    const cacheTarget = getPublicDataCacheTarget(path, method)
+    if (cacheTarget && (!options?.cache || options.cache === 'default')) {
+        return getOrLoadPublicData(
+            cacheTarget.key,
+            cacheTarget.scope,
+            () => apiFetchNetwork<T>(path, { ...options, cache: 'reload', signal: undefined }),
+            options?.signal ?? undefined,
+        )
+    }
+    return apiFetchNetwork<T>(path, options)
+}
+
+async function apiFetchNetwork<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    const path = endpoint.replace(/^\/+/, '')
+    const method = (options?.method ?? 'GET').toUpperCase()
     const sessionEndpoint = isSessionEndpoint(path)
     const headers = new Headers(options?.headers)
     const token = sessionEndpoint ? null : getAccessToken()
@@ -161,6 +183,9 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     if (!response.ok) {
         throw new ApiRequestError(response.status, path, code)
     }
+
+    const invalidationScope = getPublicDataInvalidationScope(path, method)
+    if (invalidationScope) invalidatePublicDataCache(invalidationScope)
 
     const contentType = response.headers.get('content-type') ?? ''
     if (!/\bapplication\/(?:[\w.-]+\+)?json\b/i.test(contentType)) {

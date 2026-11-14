@@ -10,7 +10,7 @@ import './AdminDashboardOverview.css'
 
 export type DashboardFailures = { admins: boolean; events: boolean; messages: boolean }
 
-export default function AdminDashboardOverview({ admins, events, messages, isLoading, failures, onSelectSection, onCreateEvent, onEditEvent }: {
+export default function AdminDashboardOverview({ admins, events, messages, isLoading, failures, onSelectSection, onCreateEvent, onEditEvent, onFilterEvents }: {
     admins: AdminRecord[]
     events: AdminEvent[]
     messages: UserMessage[]
@@ -19,6 +19,7 @@ export default function AdminDashboardOverview({ admins, events, messages, isLoa
     onSelectSection: (section: AdminSection) => void
     onCreateEvent: () => void
     onEditEvent: (id: string) => void
+    onFilterEvents: (eventIds: string[], label: string) => void
 }) {
     const [now, setNow] = useState(() => new Date())
     useEffect(() => {
@@ -83,8 +84,20 @@ export default function AdminDashboardOverview({ admins, events, messages, isLoa
                         {([
                             { label: 'Sem imagem de capa', items: metrics.missingCover, icon: 'image' },
                             { label: 'Sem descrição', items: metrics.missingDescription, icon: 'message' },
-                        ] as const).map(item => <button type="button" className="dashboard-quality-item" key={item.label} disabled={!item.items.length} onClick={() => onEditEvent(item.items[0].id)} aria-label={`${item.label}: ${item.items.length}${item.items.length ? `. Revisar ${item.items[0].title}` : ''}`}><Icon name={item.icon} /><span>{item.label}</span><strong>{item.items.length}</strong><Icon name="chevronRight" /></button>)}
-                        <p className="dashboard-quality-note">{metrics.missingCover.length || metrics.missingDescription.length ? 'Selecione um item para revisar o evento mais próximo.' : metrics.upcomingCount ? 'Tudo pronto: os eventos futuros têm capa e descrição.' : 'Os próximos eventos aparecerão aqui para revisão.'}</p>
+                        ] as const).map(item => <button
+                            type="button"
+                            className="dashboard-quality-item"
+                            key={item.label}
+                            disabled={!item.items.length}
+                            onClick={() => {
+                                if (item.items.length === 1) onEditEvent(item.items[0].id)
+                                else onFilterEvents(item.items.map(event => event.id), item.label)
+                            }}
+                            aria-label={`${item.label}: ${item.items.length}${item.items.length === 1 ? `. Revisar ${item.items[0].title}` : item.items.length > 1 ? '. Ver eventos pendentes' : ''}`}
+                        >
+                            <Icon name={item.icon} /><span>{item.label}</span><strong>{item.items.length}</strong><Icon name="chevronRight" />
+                        </button>)}
+                        <p className="dashboard-quality-note">{metrics.missingCover.length || metrics.missingDescription.length ? 'Selecione um item para revisar ou listar os eventos pendentes.' : metrics.upcomingCount ? 'Tudo pronto: os eventos futuros têm capa e descrição.' : 'Os próximos eventos aparecerão aqui para revisão.'}</p>
                     </>}
                 </article>
             </div>

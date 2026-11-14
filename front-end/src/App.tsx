@@ -20,6 +20,7 @@ import AdminDisabledPage from './pages/loginPage/AdminDisabledPage'
 import { useAdminSessionMonitor } from './hooks/useAdminSessionMonitor'
 import { getCurrentPath, installNavigation, navigate, subscribeNavigation } from './services/navigation'
 import LegalPage from './pages/legal/LegalPage'
+import CookieBanner from './components/CookieBanner/CookieBanner'
 
 const subscribeAuthState = (onChange: () => void) => {
   window.addEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
@@ -110,6 +111,19 @@ function App() {
     document.title = `${showAccessNotice ? 'Acesso administrativo indisponível' : pageTitles[route.page]} | Brotando Feiras`
   }, [route.page, showAccessNotice])
 
+  return (
+    <>
+      <AppPage route={route} showAccessNotice={showAccessNotice} accessIssue={accessIssue} />
+      <CookieBanner />
+    </>
+  )
+}
+
+function AppPage({ route, showAccessNotice, accessIssue }: {
+  route: AppRoute
+  showAccessNotice: boolean
+  accessIssue: ReturnType<typeof getAdminAccessIssue>
+}) {
   if (showAccessNotice && accessIssue) return <AdminDisabledPage reason={accessIssue} onReturnToLogin={() => {
     navigate('/admin/login')
     dismissAdminAccessIssue()

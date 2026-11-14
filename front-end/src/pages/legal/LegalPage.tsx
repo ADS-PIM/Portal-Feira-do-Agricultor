@@ -106,7 +106,8 @@ function PrivacyPolicy() {
                     <li>
                         <strong>Preferências do navegador:</strong> a escolha entre tema claro e escuro é salva no
                         armazenamento local do navegador. Indicadores visuais de sessão e informações limitadas de perfil
-                        administrativo também podem ser guardados no armazenamento local ou de sessão.
+                        administrativo também podem ser guardados no armazenamento local ou de sessão. O portal guarda
+                        ainda no armazenamento local a informação de que o aviso de cookies foi fechado.
                     </li>
                 </ul>
                 <p>
@@ -206,7 +207,8 @@ function PrivacyPolicy() {
                     é protegido para não ser lido por scripts da página e é necessário para autenticação e segurança.
                     Cada sessão tem validade técnica de até sete dias e pode ser encerrada antes pelo logout ou pela
                     administração. O portal também usa armazenamento local e de sessão para lembrar o tema escolhido e
-                    exibir o estado da sessão administrativa.
+                    exibir o estado da sessão administrativa. A opção de fechar o aviso de cookies também fica salva no
+                    armazenamento local deste navegador.
                 </p>
                 <p>
                     No código do portal não há ferramentas de analytics nem pixels de publicidade. Se forem adicionadas

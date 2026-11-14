@@ -1,0 +1,108 @@
+.cookie-banner {
+    position: fixed;
+    z-index: 1001;
+    right: 20px;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    max-width: 960px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    border: 1px solid var(--theme-border, var(--border-default));
+    border-radius: 14px;
+    background: var(--theme-surface, var(--surface-page));
+    box-shadow: 0 8px 32px rgb(0 0 0 / 20%);
+    color: var(--theme-text, var(--brand-charcoal));
+}
+
+.cookie-banner__copy {
+    min-width: 0;
+}
+
+.cookie-banner__copy h2 {
+    margin-bottom: 6px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.cookie-banner__copy p {
+    color: var(--theme-text-secondary, var(--text-secondary));
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.cookie-banner__actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 16px;
+}
+
+.cookie-banner__actions a {
+    color: var(--brand-orange-dark);
+    font-size: 13px;
+    font-weight: 600;
+    text-underline-offset: 3px;
+}
+
+.cookie-banner__actions button {
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--brand-green-dark);
+    border-radius: 8px;
+    background: var(--brand-green-dark);
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.cookie-banner__actions button:hover {
+    border-color: var(--brand-green-hover);
+    background: var(--brand-green-hover);
+}
+
+.cookie-banner__actions :focus-visible {
+    outline: 3px solid var(--brand-orange);
+    outline-offset: 3px;
+}
+
+@media (max-width: 680px) {
+    .cookie-banner {
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+        padding: 18px;
+    }
+
+    .cookie-banner__copy h2 {
+        font-size: 15px;
+    }
+
+    .cookie-banner__copy p {
+        font-size: 12px;
+    }
+
+    .cookie-banner__actions {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 360px) {
+    .cookie-banner__actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+        gap: 10px;
+    }
+
+    .cookie-banner__actions a {
+        text-align: center;
+    }
+}

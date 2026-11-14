@@ -145,6 +145,10 @@ const AdminArea = ({ activeSection = 'dashboard' }: { activeSection?: AdminSecti
     const [eventActionRequest, setEventActionRequest] = useState<{
         eventId: string
         action: 'edit' | 'delete'
+    } | {
+        eventIds: string[]
+        label: string
+        action: 'filter'
     } | null>(null)
 
     const selectSection = (section: AdminSection) => {
@@ -163,6 +167,12 @@ const AdminArea = ({ activeSection = 'dashboard' }: { activeSection?: AdminSecti
 
     const handleDashboardEventAction = (eventId: string, action: 'edit' | 'delete') => {
         setEventActionRequest({ eventId, action })
+        setCreateEventRequest(null)
+        navigate(getAdminHref('eventos'))
+    }
+
+    const handleDashboardEventFilter = (eventIds: string[], label: string) => {
+        setEventActionRequest({ eventIds, label, action: 'filter' })
         setCreateEventRequest(null)
         navigate(getAdminHref('eventos'))
     }
@@ -225,6 +235,7 @@ const AdminArea = ({ activeSection = 'dashboard' }: { activeSection?: AdminSecti
                                 onSelectSection={selectSection}
                                 onCreateEventAtDate={createEventAtDate}
                                 onEditEvent={eventId => handleDashboardEventAction(eventId, 'edit')}
+                                onFilterEvents={handleDashboardEventFilter}
                                 onDeleteEvent={eventId => handleDashboardEventAction(eventId, 'delete')}
                             />
                         ) : activeSection === 'eventos' ? (

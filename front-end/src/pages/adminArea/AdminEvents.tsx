@@ -48,6 +48,10 @@ const emptyForm: EventFormValues = {
     bannerImage: null,
 }
 
+type InitialEventAction =
+    | { eventId: string; action: 'edit' | 'delete' }
+    | { eventIds: string[]; label: string; action: 'filter' }
+
 function getDateKey(value: string | Date): string {
     if (value instanceof Date) {
         const year = value.getFullYear()
@@ -90,7 +94,7 @@ const AdminEvents = ({
 }: {
     initialEventDate?: string | null
     openCreateOnMount?: boolean
-    initialEventAction?: { eventId: string; action: 'edit' | 'delete' } | null
+    initialEventAction?: InitialEventAction | null
 }) => {
     const [events, setEvents] = useState<AdminEvent[]>([])
     const [visibleEventCount, setVisibleEventCount] = useState(EVENTS_PAGE_SIZE)
@@ -105,6 +109,7 @@ const AdminEvents = ({
     const [timeFromFilter, setTimeFromFilter] = useState('')
     const [timeToFilter, setTimeToFilter] = useState('')
     const [administratorFilter, setAdministratorFilter] = useState('')
+    const [issueFilter, setIssueFilter] = useState<{ eventIds: string[]; label: string } | null>(null)
     const [newEventDate, setNewEventDate] = useState(initialEventDate ?? '')
     const [editingEvent, setEditingEvent] = useState<AdminEvent | null>(null)
     const [eventPendingDeletion, setEventPendingDeletion] = useState<AdminEvent | null>(null)
@@ -129,9 +134,18 @@ const AdminEvents = ({
                 setEvents(loadedEvents)
 
                 if (!initialEventAction) return
-                const requestKey = `${initialEventAction.action}:${initialEventAction.eventId}`
+                const requestKey = initialEventAction.action === 'filter'
+                    ? `filter:${initialEventAction.eventIds.join(',')}`
+                    : `${initialEventAction.action}:${initialEventAction.eventId}`
                 if (handledInitialAction.current === requestKey) return
                 handledInitialAction.current = requestKey
+
+                if (initialEventAction.action === 'filter') {
+                    setIssueFilter({ eventIds: initialEventAction.eventIds, label: initialEventAction.label })
+                    setVisibleEventCount(EVENTS_PAGE_SIZE)
+                    setActionMessage(null)
+                    return
+                }
 
                 const requestedEvent = loadedEvents.find(event => event.id === initialEventAction.eventId)
                 if (!requestedEvent) {
@@ -192,7 +206,8 @@ const AdminEvents = ({
                 const matchesAdministrator = !administratorFilter || event.administratorId === (
                     administratorFilter === 'mine' ? currentAdminId : administratorFilter
                 )
-                return matchesSearch && matchesYear && matchesMonth && matchesStatus && matchesWeekday && matchesTime && matchesAdministrator
+                const matchesIssue = !issueFilter || issueFilter.eventIds.includes(event.id)
+                return matchesSearch && matchesYear && matchesMonth && matchesStatus && matchesWeekday && matchesTime && matchesAdministrator && matchesIssue
             })
             .sort((first, second) => {
                 const firstDate = `${getDateKey(first.date)}T${first.startAt.slice(0, 5)}`
@@ -204,11 +219,11 @@ const AdminEvents = ({
                     ? firstDate.localeCompare(secondDate)
                     : secondDate.localeCompare(firstDate)
             })
-    }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter, monthFilter, administratorFilter, currentAdminId])
+    }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter, monthFilter, administratorFilter, currentAdminId, issueFilter])
 
     const visibleEvents = filteredEvents.slice(0, visibleEventCount)
     const hasMoreEvents = visibleEvents.length < filteredEvents.length
-    const activeFilterCount = [statusFilter, yearFilter, monthFilter, weekdayFilter, timeFromFilter, timeToFilter, administratorFilter].filter(Boolean).length
+    const activeFilterCount = [statusFilter, yearFilter, monthFilter, weekdayFilter, timeFromFilter, timeToFilter, administratorFilter, issueFilter].filter(Boolean).length
 
     const clearFilters = () => {
         setVisibleEventCount(EVENTS_PAGE_SIZE)
@@ -219,6 +234,7 @@ const AdminEvents = ({
         setTimeFromFilter('')
         setTimeToFilter('')
         setAdministratorFilter('')
+        setIssueFilter(null)
     }
 
     const closeForm = () => {
@@ -435,6 +451,12 @@ const AdminEvents = ({
 
                 {actionMessage && <p className="admin-events-alert is-success" role="status">{actionMessage}</p>}
                 {loadError && <p className="admin-events-alert is-error" role="alert">{loadError}</p>}
+                {issueFilter && (
+                    <p className="admin-events-issue-filter" role="status">
+                        Exibindo os eventos com pendência: <strong>{issueFilter.label}</strong>.
+                        <button type="button" onClick={() => setIssueFilter(null)}>Limpar filtro</button>
+                    </p>
+                )}
 
                 <section className="admin-events-agenda admin-events-all-list" aria-labelledby="admin-events-agenda-title">
                     <h2 id="admin-events-agenda-title">
