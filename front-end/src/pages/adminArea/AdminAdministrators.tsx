@@ -85,6 +85,10 @@ const AdminAdministrators = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
+    const statusRequestInFlight = useRef(false)
+    const [pendingDeletion, setPendingDeletion] = useState<AdminRecord | null>(null)
+    const [deletionError, setDeletionError] = useState<string | null>(null)
+    const deletionDialogRef = useRef<HTMLDialogElement>(null)
     const [editingAdminId, setEditingAdminId] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
@@ -97,11 +101,17 @@ const AdminAdministrators = () => {
             if (profile?.role !== 'SUPER_ADMIN' || !profile.active) {
                 setForm(emptyForm)
                 setEditingAdminId(null)
+                setPendingDeletion(null)
             }
         }
         window.addEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
         return () => window.removeEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
     }, [])
+
+    useEffect(() => {
+        const dialog = deletionDialogRef.current
+        if (pendingDeletion && dialog && !dialog.open) dialog.showModal()
+    }, [pendingDeletion])
 
     const loadAdmins = async () => {
         try {
@@ -218,8 +228,14 @@ const AdminAdministrators = () => {
         }
     }
 
-    const handleToggleStatus = async (admin: AdminRecord) => {
-        if (!canManageAdmins || updatingStatus) return
+    const cancelDeletion = () => {
+        if (statusRequestInFlight.current) return
+        deletionDialogRef.current?.close()
+        setPendingDeletion(null)
+    }
+
+    const handleToggleStatus = async (admin: AdminRecord, confirmed = false) => {
+        if (!canManageAdmins || updatingStatus || statusRequestInFlight.current) return
         const currentUserId = getAdminId()
         if (admin.id === currentUserId) {
             setError('Você não pode desativar o seu próprio acesso administrativo.')
@@ -229,9 +245,16 @@ const AdminAdministrators = () => {
             setError('Uma conta anonimizada não pode ser recuperada.')
             return
         }
+        if (admin.active && !confirmed) {
+            setDeletionError(null)
+            setPendingDeletion(admin)
+            return
+        }
 
         try {
+            statusRequestInFlight.current = true
             setUpdatingStatus(admin.id)
+            setDeletionError(null)
             setError(null)
             setSuccess(null)
             if (admin.active) await updateAdmin(admin.id, { active: false })
@@ -240,10 +263,14 @@ const AdminAdministrators = () => {
                 ? { ...item, active: !admin.active, mustResetPassword: admin.active ? item.mustResetPassword : true } : item))
             setSuccess(admin.active ? 'Administrador desativado com sucesso.'
                 : 'Conta reativada. O administrador deve usar “Esqueci minha senha” e criar uma nova senha para acessar.')
+            setPendingDeletion(null)
             await loadAdmins()
         } catch (toggleError) {
-            setError(getUserFacingError(toggleError, 'Não foi possível atualizar o status do administrador.'))
+            const message = getUserFacingError(toggleError, 'Não foi possível atualizar o status do administrador.')
+            if (admin.active) setDeletionError(message)
+            else setError(message)
         } finally {
+            statusRequestInFlight.current = false
             setUpdatingStatus(null)
         }
     }
@@ -500,6 +527,35 @@ const AdminAdministrators = () => {
                     </aside>}
                 </div>
             </div>
+            {pendingDeletion && canManageAdmins && <dialog
+                ref={deletionDialogRef}
+                className="admin-event-modal admin-event-delete-dialog admin-managers-confirmation"
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="admin-manager-delete-title"
+                aria-describedby="admin-manager-delete-description"
+                aria-busy={updatingStatus !== null}
+                onCancel={event => {
+                    event.preventDefault()
+                    cancelDeletion()
+                }}
+            >
+                <span className="admin-event-delete-icon" aria-hidden="true"><Icon name="trash" /></span>
+                <h2 id="admin-manager-delete-title">Excluir acesso do administrador?</h2>
+                <p id="admin-manager-delete-description">
+                    <strong>{pendingDeletion.name}</strong> perderá o acesso ao painel. Os dados e o histórico serão preservados.
+                </p>
+                {deletionError && <p className="admin-events-alert is-error" role="alert">{deletionError}</p>}
+                <footer className="admin-event-delete-actions">
+                    <button type="button" className="admin-event-button is-secondary" autoFocus
+                        disabled={updatingStatus !== null} onClick={cancelDeletion}>Cancelar</button>
+                    <button type="button" className="admin-event-button is-danger"
+                        disabled={updatingStatus !== null}
+                        onClick={() => void handleToggleStatus(pendingDeletion, true)}>
+                        {updatingStatus ? 'Excluindo...' : 'Confirmar exclusão'}
+                    </button>
+                </footer>
+            </dialog>}
         </section>
     )
 }
