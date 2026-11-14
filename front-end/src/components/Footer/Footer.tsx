@@ -24,6 +24,17 @@ function SocialIcon({ name }: { name: 'whatsapp' | 'instagram' | 'email' }) {
     return <Icon name={name} />
 }
 
+function ContactButton({ name, label, href }: { name: 'whatsapp' | 'instagram' | 'email'; label: string; href: string | null }) {
+    const content = <SocialIcon name={name} />
+    const className = `site-footer-contact-button is-${name}`
+    return href ? (
+        <a className={className} href={href} aria-label={label} title={label}
+            target={name === 'email' ? undefined : '_blank'} rel={name === 'email' ? undefined : 'noopener noreferrer'}>
+            {content}
+        </a>
+    ) : <button className={className} type="button" disabled aria-label={label} title={`${label}: contato não cadastrado`}>{content}</button>
+}
+
 const Footer = () => {
     const [businessInfo, setBusinessInfo] = useState<BusinessInfo | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -61,39 +72,28 @@ const Footer = () => {
                         Fortalecendo o agricultor familiar de Tabuleiro do Norte - CE e levando
                         sustentabilidade para as mesas cearenses.
                     </p>
-                    <nav className="site-footer-socials" aria-label="Redes sociais e contato">
-                        {whatsappUrl && (
-                            <a href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="WhatsApp">
-                                <SocialIcon name="whatsapp" />
-                            </a>
-                        )}
-                        {instagramAccount && (
-                            <a href={getInstagramUrl(instagramAccount)} target="_blank" rel="noreferrer" aria-label="Instagram">
-                                <SocialIcon name="instagram" />
-                            </a>
-                        )}
-                        {businessEmail && (
-                            <a href={`mailto:${businessEmail}`} aria-label="E-mail">
-                                <SocialIcon name="email" />
-                            </a>
-                        )}
-                    </nav>
-                    {error && <p className="site-footer-error" role="alert">Erro ao carregar contatos: {error}</p>}
                 </div>
 
-                <nav className="site-footer-links" aria-label="Links do rodapé">
-                    <div>
-                        <h2>Menu Rápido</h2>
-                        <a href="/sobre">Sobre Nós</a>
-                        <a href="/produtores">Nossos Agricultores</a>
-                        <a href="/calendario">Calendário de Eventos</a>
-                    </div>
-                    <div>
-                        <h2>Serviços &amp; Links</h2>
-                        <a href="/calculadora">Calculadora de Preço</a>
-                        <span>Documentação</span>
-                    </div>
-                </nav>
+                <div className="site-footer-navigation">
+                    <nav className="site-footer-links" aria-label="Links do rodapé">
+                        <div>
+                            <h2>Menu Rápido</h2>
+                            <a href="/sobre">Sobre Nós</a>
+                            <a href="/produtores">Nossos Agricultores</a>
+                            <a href="/calendario">Calendário de Eventos</a>
+                            <a href="/calculadora">Calculadora de Preço</a>
+                        </div>
+                    </nav>
+                    <section className="site-footer-contact" aria-labelledby="footer-social-title">
+                        <h2 id="footer-social-title">Redes Sociais</h2>
+                        <nav className="site-footer-socials" aria-label="Canais de contato">
+                            <ContactButton name="whatsapp" label="WhatsApp" href={whatsappUrl} />
+                            <ContactButton name="instagram" label="Instagram" href={instagramAccount ? getInstagramUrl(instagramAccount) : null} />
+                            <ContactButton name="email" label="E-mail" href={businessEmail ? `mailto:${businessEmail}` : null} />
+                        </nav>
+                        {error && <p className="site-footer-error" role="status">Contatos indisponíveis no momento.</p>}
+                    </section>
+                </div>
             </div>
 
             <div className="site-footer-bottom">

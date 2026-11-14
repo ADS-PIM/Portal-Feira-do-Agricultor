@@ -1,6 +1,9 @@
 .site-footer {
+    --footer-social-green: #39cf71;
+    --footer-social-pink: #ff5479;
+    --footer-social-orange: #ffad42;
     box-sizing: border-box;
-    padding: 48px 5.6% 28px;
+    padding: 40px 5.6% 24px;
     background: #181818;
     color: #c5c8bf;
     font-family: var(--font-family-base);
@@ -13,10 +16,11 @@
 }
 
 .site-footer-main {
-    display: flex;
-    justify-content: space-between;
-    gap: 64px;
-    padding-bottom: 36px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(160px, auto);
+    align-items: start;
+    gap: clamp(32px, 5vw, 96px);
+    padding-bottom: 28px;
 }
 
 .site-footer-brand {
@@ -43,37 +47,57 @@
 
 .site-footer-socials {
     display: flex;
+    align-items: center;
     gap: 12px;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
-.site-footer-socials a {
-    display: grid;
-    width: 34px;
-    height: 34px;
-    place-items: center;
-    border: 1px solid #55594f;
+.site-footer-contact-button {
+    --contact-accent: var(--footer-social-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--contact-accent) 60%, transparent);
     border-radius: 50%;
-    color: #c5c8bf;
-    transition: color 150ms ease, border-color 150ms ease;
+    background: color-mix(in srgb, var(--contact-accent) 22%, #181818);
+    color: color-mix(in srgb, var(--contact-accent) 85%, #fff);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
 }
 
-.site-footer-socials a:hover {
-    border-color: var(--brand-pink);
-    color: var(--brand-pink);
+.site-footer-contact-button.is-instagram {
+    --contact-accent: var(--footer-social-pink);
+}
+
+.site-footer-contact-button.is-email {
+    --contact-accent: var(--footer-social-orange);
+}
+
+.site-footer-contact-button:hover:not(:disabled) {
+    background: var(--contact-accent);
+    color: #181818;
+    border-color: var(--contact-accent);
+    transform: translateY(-2px);
+}
+
+.site-footer-contact-button:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
 }
 
 .site-footer-socials svg {
-    width: 17px;
-    height: 17px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.7;
-}
-
-.site-footer-socials a[aria-label="WhatsApp"] svg {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    color: inherit;
     fill: currentColor;
     stroke: none;
 }
@@ -90,6 +114,21 @@
     font-size: 13px;
 }
 
+.site-footer-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    max-width: 100%;
+    text-align: left;
+    margin-top: 14px;
+}
+
+.site-footer-navigation {
+    min-width: 0;
+    max-width: 220px;
+}
+
 .site-footer-links {
     display: flex;
     gap: 64px;
@@ -100,14 +139,16 @@
     min-width: 136px;
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 8px;
 }
 
-.site-footer-links h2 {
-    margin-bottom: 1px;
+.site-footer-links h2,
+.site-footer-contact h2 {
+    margin: 0;
     color: #fff;
     font-size: 13px;
     font-weight: 700;
+    line-height: 20px;
 }
 
 .site-footer-links a,
@@ -123,6 +164,10 @@
     text-decoration: none;
 }
 
+.site-footer-links a {
+    line-height: 18px;
+}
+
 .site-footer-links a:hover,
 .site-footer-bottom a:hover {
     color: #fff;
@@ -134,7 +179,7 @@
     display: flex;
     justify-content: space-between;
     gap: 24px;
-    padding-top: 36px;
+    padding-top: 24px;
     border-top: 1px solid #45493f;
 }
 
@@ -149,9 +194,13 @@
     }
 
     .site-footer-main {
-        flex-direction: column;
+        grid-template-columns: minmax(0, 1fr);
         gap: 24px;
         padding-bottom: 24px;
+    }
+
+    .site-footer-brand {
+        grid-column: 1 / -1;
     }
 
     .site-footer-brand-heading {
@@ -165,21 +214,12 @@
 
     .site-footer-socials {
         gap: 10px;
-        margin-top: 14px;
-    }
-
-    .site-footer-socials:empty {
-        display: none;
-    }
-
-    .site-footer-socials svg {
-        width: 15px;
-        height: 15px;
+        margin-top: 12px;
     }
 
     .site-footer-links {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: flex;
+        min-width: 0;
         gap: 20px;
     }
 
@@ -189,8 +229,10 @@
         overflow-wrap: anywhere;
     }
 
-    .site-footer-links h2 {
+    .site-footer-links h2,
+    .site-footer-contact h2 {
         font-size: 12px;
+        line-height: 18px;
     }
 
     .site-footer-links a,
