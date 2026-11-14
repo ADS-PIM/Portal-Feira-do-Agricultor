@@ -343,7 +343,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 14px;
 }
 
 .admin-managers-action-button {
@@ -382,7 +382,6 @@
     --action-background: var(--theme-danger-surface, #fff0f0);
     --action-border: var(--theme-danger-border, #e9aaaa);
     --action-color: var(--theme-danger-text, #b42318);
-    min-width: 80px;
 }
 
 .admin-managers-action-button.is-edit {
@@ -395,6 +394,7 @@
     --action-background: var(--theme-success-surface, #edf7ee);
     --action-border: var(--theme-success-border, #a9caae);
     --action-color: var(--theme-success-text, #236634);
+    min-width: 80px;
 }
 
 .admin-managers-action-button:disabled {
@@ -616,7 +616,6 @@
     }
 
     .admin-managers-action-button.is-toggle {
-        margin-right: auto;
         padding: 0 12px;
     }
 }

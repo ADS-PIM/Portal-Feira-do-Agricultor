@@ -327,16 +327,6 @@ const AdminAdministrators = () => {
                                             {canManageAdmins && <div className="admin-managers-actions" role="cell">
                                                 <button
                                                     type="button"
-                                                    className={`admin-managers-action-button is-toggle${!admin.active ? ' is-reactivate' : ''}`}
-                                                    disabled={Boolean(admin.anonymizedAt) || admin.id === getAdminId() || updatingStatus !== null}
-                                                    onClick={() => handleToggleStatus(admin)}
-                                                    aria-label={`${admin.active ? 'Desativar' : 'Reativar'} ${admin.name}`}
-                                                    title={admin.anonymizedAt ? 'Conta anonimizada: recuperação indisponível.' : admin.id === getAdminId() ? 'Você não pode desativar o seu próprio acesso administrativo.' : admin.active ? 'Desativar' : 'Reativar e exigir nova senha'}
-                                                >
-                                                    {admin.active ? 'Desativar' : 'Reativar'}
-                                                </button>
-                                                <button
-                                                    type="button"
                                                     className="admin-managers-action-button is-edit"
                                                     disabled={Boolean(admin.anonymizedAt) || (admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId())}
                                                     onClick={() => {
@@ -368,6 +358,16 @@ const AdminAdministrators = () => {
                                                     title={admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId() ? 'Cada Super Admin gerencia a própria conta' : 'Editar'}
                                                 >
                                                     <EditIcon />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`admin-managers-action-button is-toggle ${admin.active ? 'is-delete' : 'is-reactivate'}`}
+                                                    disabled={Boolean(admin.anonymizedAt) || admin.id === getAdminId() || updatingStatus !== null}
+                                                    onClick={() => handleToggleStatus(admin)}
+                                                    aria-label={`${admin.active ? 'Excluir' : 'Reativar'} ${admin.name}`}
+                                                    title={admin.anonymizedAt ? 'Conta anonimizada: recuperação indisponível.' : admin.id === getAdminId() ? 'Você não pode excluir a própria conta.' : admin.active ? 'Excluir administrador' : 'Reativar e exigir nova senha'}
+                                                >
+                                                    {admin.active ? <Icon name="trash" /> : 'Reativar'}
                                                 </button>
                                             </div>}
                                         </div>
