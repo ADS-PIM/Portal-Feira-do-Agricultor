@@ -227,6 +227,8 @@
 .markup-bar > span + span { border-left: 2px solid var(--theme-border, #fff); }
 .markup-breakdown .materials { background: #7f9787; }
 .markup-breakdown .labor { background: #a7bda9; }
+:root[data-theme="dark"] .markup-breakdown .materials { background: #527b63; }
+:root[data-theme="dark"] .markup-breakdown .labor { background: #74927d; }
 .markup-breakdown .fixed { background: #ffaf48; }
 .markup-breakdown .variable { background: #ff794c; }
 .markup-breakdown .profit { background: #10923d; }

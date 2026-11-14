@@ -233,7 +233,8 @@
 .dashboard-status-dot { width: 7px; height: 7px; border-radius: 50%; }
 .dashboard-status-panel .is-pending { background: #3d915b; }
 .dashboard-status-panel .is-happening { background: #4e83b9; }
-.dashboard-status-panel .is-concluded { background: #a0afa3; }
+.dashboard-status-panel .is-concluded { background: #a7bda9; }
+:root[data-theme="dark"] .dashboard-status-panel .is-concluded { background: #74927d; }
 .dashboard-status-panel .is-rescheduled { background: #dca34b; }
 .dashboard-status-panel .is-canceled { background: #c97b68; }
 
