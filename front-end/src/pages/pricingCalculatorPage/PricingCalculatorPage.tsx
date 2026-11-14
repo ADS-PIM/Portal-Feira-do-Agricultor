@@ -387,7 +387,6 @@ export default function PricingCalculatorPage() {
 
             <section className="markup-guide" aria-labelledby="markup-guide-title">
               <h2 id="markup-guide-title"><Icon name="information" /> Como chegamos a esse preço</h2>
-              <p className="markup-formula">Preço = [(material + horas × valor da hora) × 100] ÷ [100 − ((despesas fixas mensais ÷ faturamento mensal × 100) + variáveis % + lucro %)]</p>
               <div className="markup-guide-steps">
                 <div>
                   <h3>Custo direto por unidade</h3>
@@ -408,6 +407,7 @@ export default function PricingCalculatorPage() {
                   <p className="markup-hint">{result ? `Divisor de ${formatPercentage(100 - result.totalPercentage)}%: a parcela que cobre o custo direto.` : 'A parcela restante do preço cobre o custo direto.'}</p>
                 </div>
               </div>
+              <p className="markup-formula">Preço = [(material + horas × valor da hora) × 100] ÷ [100 − ((despesas fixas mensais ÷ faturamento mensal × 100) + variáveis % + lucro %)]</p>
             </section>
             <p className="markup-disclaimer">Simulação ilustrativa por unidade. Ajuste os valores à realidade do seu negócio.</p>
           </div>
