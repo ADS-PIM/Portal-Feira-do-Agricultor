@@ -7,6 +7,7 @@ import { getUserFacingError } from '../../services/errors'
 import { getEventImageProps } from '../../services/eventImageUrl'
 import { getAdjacentEvents } from './eventNavigation'
 import { getCoordinates, getDirectionsUrl } from '../../utils/eventLocation'
+import '../../components/Calendar/CalendarStatus.css'
 import './EventPage.css'
 
 const LocationMap = lazy(() => import('../../components/Location/LocationMap'))
@@ -263,7 +264,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                 <article className="event-page-details-card">
                                     <div className="event-page-title-row">
                                         <h1>{event.title}</h1>
-                                        <span className={`event-page-status is-${event.state.toLowerCase()}`}>
+                                        <span className={`event-page-status calendar-status--${event.state}`}>
                                             {EVENT_STATE_LABELS[event.state]}
                                         </span>
                                     </div>
