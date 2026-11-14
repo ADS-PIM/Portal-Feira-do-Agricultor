@@ -188,6 +188,11 @@
     stroke-width: 2.5;
 }
 
+.event-agenda-detail span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 .event-agenda-calendar-button {
     display: flex;
     align-items: center;
@@ -244,9 +249,6 @@
         gap: 28px;
     }
 
-    .event-agenda-list {
-        max-height: none;
-    }
 }
 
 @media (max-width: 560px) {
