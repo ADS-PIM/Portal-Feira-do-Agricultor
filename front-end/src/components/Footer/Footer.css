@@ -112,7 +112,8 @@
 
 .site-footer-links a,
 .site-footer-links span,
-.site-footer-bottom {
+.site-footer-bottom,
+.site-footer-bottom a {
     color: #c5c8bf;
     font-size: 12px;
 }
