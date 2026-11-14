@@ -103,7 +103,7 @@
 .admin-managers-main-content.is-read-only .admin-managers-table-head,
 .admin-managers-main-content.is-read-only .admin-managers-table-row {
     min-width: 0;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr) 110px 80px;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr) 110px 120px;
 }
 
 .admin-managers-list-panel {
@@ -201,7 +201,7 @@
 .admin-managers-table-row {
     display: grid;
     min-width: 680px;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr) 100px 80px 172px;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr) 100px 120px 132px;
     align-items: center;
     gap: 10px;
     width: 100%;
@@ -332,11 +332,27 @@
 }
 
 .admin-managers-password-pending {
-    display: block;
-    margin-top: 4px;
-    color: var(--text-muted);
-    font-size: 11px;
+    display: inline-flex;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    padding: 3px 8px;
+    border: 1px solid var(--theme-warning-border, #f1d39a);
+    border-radius: 999px;
+    background: var(--theme-warning-surface, #fff5df);
+    color: var(--theme-warning-text, #875412);
+    font-size: 10px;
+    font-weight: 600;
     line-height: 1.4;
+    white-space: nowrap;
+}
+
+.admin-managers-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
 }
 
 .admin-managers-actions {

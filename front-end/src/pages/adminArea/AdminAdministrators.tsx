@@ -348,7 +348,10 @@ const AdminAdministrators = () => {
                                                 <span className={`admin-managers-status-badge ${admin.active ? 'is-active' : 'is-inactive'}`}>
                                                     {admin.active ? 'Ativo' : 'Inativo'}
                                                 </span>
-                                                {Boolean(admin.active && admin.mustResetPassword) && <small className="admin-managers-password-pending">Nova senha pendente</small>}
+                                                {Boolean(admin.active && admin.mustResetPassword) && <small
+                                                    className="admin-managers-password-pending"
+                                                    title="O administrador precisa redefinir a senha para acessar o painel."
+                                                >Senha pendente</small>}
                                             </span>
 
                                             {canManageAdmins && <div className="admin-managers-actions" role="cell">
