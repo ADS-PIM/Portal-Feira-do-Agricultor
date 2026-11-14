@@ -118,8 +118,7 @@ export class AdminController {
             }
             const adminId = payload.adminId;
 
-            // Account deletion also removes stored refresh tokens. A verified JWT can still
-            // identify that loss of access, but can never recreate a revoked session.
+            // A verified JWT identifies a disabled account without recreating its session.
             const findAvailableAdmin = async () => {
                 const admin = await this.adminService.searchById(adminId);
                 if (!admin) {
@@ -236,29 +235,9 @@ export class AdminController {
         }
     }
 
-    public async delete(req: AuthRequest, res: Response) {
-        try {
-            const actorId = req.admin?.adminId;
-            if (!actorId) return res.status(401).json({ error: 'Authentication is required' });
-            const targetAdminId = req.params.id;
-            if (typeof targetAdminId !== 'string') {
-                return res.status(400).json({ error: 'Invalid admin id' });
-            }
-            if (req.admin?.role !== AdminRole.SUPER_ADMIN) {
-                return res.status(403).json({ code: 'ADMIN_DELETE_FORBIDDEN', error: 'Only SUPER_ADMIN can delete administrator accounts' });
-            }
-            await this.adminService.delete(targetAdminId, actorId, req.body?.password);
-            if (targetAdminId === actorId) {
-                res.clearCookie('refreshToken', { ...refreshCookieOptions, maxAge: undefined });
-            }
-            return res.status(200).json({ message: 'Admin deleted successfully' });
-        } catch (error: any) {
-            if (error instanceof AdminActionError) {
-                return res.status(error.status).json({ error: error.message, code: error.code });
-            }
-            console.error('Error deleting admin:', error);
-            return res.status(500).json({ error: error.message || 'Error deleting admin' });
-        }
+    public async delete(_req: AuthRequest, res: Response) {
+        res.setHeader('Allow', 'GET, PATCH');
+        return res.status(405).json({ code: 'ADMIN_DELETION_DISABLED', error: 'Deactivate administrator accounts instead of deleting them' });
     }
 
     public async searchByEmail(email: string) {

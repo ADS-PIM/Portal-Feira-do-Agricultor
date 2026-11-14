@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
-import { createPortal } from 'react-dom'
 import Icon from '../../components/Icon'
-import { createAdmin, deleteAdmin, getAdmins, updateAdmin, type AdminRecord } from '../../services/adminService'
+import { createAdmin, getAdmins, updateAdmin, type AdminRecord } from '../../services/adminService'
 import { AUTH_STATE_CHANGE_EVENT, getAdminId, getAdminProfile } from '../../services/authToken'
 import { getUserFacingError } from '../../services/errors'
 import './AdminAdministrators.css'
@@ -68,15 +67,12 @@ function EditIcon() {
     return <Icon name="edit" />
 }
 
-function DeleteIcon() {
-    return <Icon name="trash" />
-}
-
 const AdminAdministrators = () => {
     const [currentProfile, setCurrentProfile] = useState(getAdminProfile)
     const canManageAdmins = currentProfile?.role === 'SUPER_ADMIN' && Boolean(currentProfile.active)
 
     const [admins, setAdmins] = useState<AdminRecord[]>([])
+    const [showInactive, setShowInactive] = useState(false)
     const [form, setForm] = useState<AdminFormState>(emptyForm)
     const [emailError, setEmailError] = useState<string | null>(null)
     const [confirmationTouched, setConfirmationTouched] = useState(false)
@@ -88,13 +84,10 @@ const AdminAdministrators = () => {
         : null
     const [isLoading, setIsLoading] = useState(true)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
     const [editingAdminId, setEditingAdminId] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
-    const [adminPendingDeletion, setAdminPendingDeletion] = useState<AdminRecord | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
-    const [deleteError, setDeleteError] = useState<string | null>(null)
-    const deleteDialogRef = useRef<HTMLElement>(null)
     const formPanelRef = useRef<HTMLElement>(null)
 
     useEffect(() => {
@@ -104,22 +97,11 @@ const AdminAdministrators = () => {
             if (profile?.role !== 'SUPER_ADMIN' || !profile.active) {
                 setForm(emptyForm)
                 setEditingAdminId(null)
-                setAdminPendingDeletion(null)
-                setDeleteError(null)
             }
         }
         window.addEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
         return () => window.removeEventListener(AUTH_STATE_CHANGE_EVENT, syncProfile)
     }, [])
-
-    useEffect(() => {
-        if (!adminPendingDeletion) return
-        const previousFocus = document.activeElement
-        deleteDialogRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
-        return () => {
-            if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus()
-        }
-    }, [adminPendingDeletion])
 
     const loadAdmins = async () => {
         try {
@@ -154,6 +136,8 @@ const AdminAdministrators = () => {
     }, [])
 
     const activeAdmins = admins.filter(admin => admin.active).length
+    const inactiveAdmins = admins.length - activeAdmins
+    const visibleAdmins = admins.filter(admin => Boolean(admin.active) !== showInactive)
     const latestAdmin = [...admins].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())[0]
 
     const resetPasswordFeedback = () => {
@@ -235,65 +219,25 @@ const AdminAdministrators = () => {
     }
 
     const handleToggleStatus = async (admin: AdminRecord) => {
-        if (!canManageAdmins) return
+        if (!canManageAdmins || updatingStatus) return
         const currentUserId = getAdminId()
         if (admin.id === currentUserId) {
             setError('Você não pode desativar o seu próprio acesso administrativo.')
             return
         }
-        if (admin.role === 'SUPER_ADMIN' && admin.active) {
-            setError('Você pode reativar outro Super Admin, mas não pode desativá-lo.')
-            return
-        }
 
         try {
+            setUpdatingStatus(admin.id)
             setError(null)
             setSuccess(null)
             await updateAdmin(admin.id, { active: !admin.active })
-            setSuccess(admin.active ? 'Administrador desativado com sucesso.' : 'Administrador ativado com sucesso.')
+            setAdmins(current => current.map(item => item.id === admin.id ? { ...item, active: !admin.active } : item))
+            setSuccess(admin.active ? 'Administrador desativado com sucesso.' : 'Administrador reativado com sucesso.')
             await loadAdmins()
         } catch (toggleError) {
             setError(getUserFacingError(toggleError, 'Não foi possível atualizar o status do administrador.'))
-        }
-    }
-
-    const handleDelete = (admin: AdminRecord) => {
-        if (!canManageAdmins) return
-        if (admin.role === 'SUPER_ADMIN') {
-            setError('Cada Super Admin deve excluir a própria conta em Minha conta.')
-            return
-        }
-        if (admin.active) {
-            setError('Desative o administrador antes de excluir a conta.')
-            return
-        }
-        const currentUserId = getAdminId()
-        if (admin.id === currentUserId) {
-            setError('Para excluir sua própria conta, acesse Minha conta.')
-            return
-        }
-
-        setDeleteError(null)
-        setAdminPendingDeletion(admin)
-    }
-
-    const confirmDelete = async () => {
-        if (!adminPendingDeletion || adminPendingDeletion.role === 'SUPER_ADMIN' || adminPendingDeletion.active || isDeleting || !canManageAdmins) return
-        if (adminPendingDeletion.id === getAdminId()) return
-
-        try {
-            setIsDeleting(true)
-            setDeleteError(null)
-            setError(null)
-            setSuccess(null)
-            await deleteAdmin(adminPendingDeletion.id)
-            setAdminPendingDeletion(null)
-            setSuccess('Administrador removido com sucesso.')
-            await loadAdmins()
-        } catch (deleteError) {
-            setDeleteError(getUserFacingError(deleteError, 'Não foi possível remover o administrador.'))
         } finally {
-            setIsDeleting(false)
+            setUpdatingStatus(null)
         }
     }
 
@@ -322,101 +266,107 @@ const AdminAdministrators = () => {
 
                 <div className={`admin-managers-main-content${canManageAdmins ? '' : ' is-read-only'}`}>
                     <div className="admin-managers-list-panel">
-                        <h2>Admins com Acesso ao Sistema</h2>
+                        <div className="admin-managers-list-heading">
+                            <h2>{showInactive ? 'Admins desativados' : 'Admins com Acesso ao Sistema'}</h2>
+                            <button
+                                type="button"
+                                className="admin-managers-status-filter"
+                                aria-pressed={showInactive}
+                                aria-controls="admin-managers-list"
+                                disabled={isLoading || updatingStatus !== null}
+                                onClick={() => setShowInactive(current => !current)}
+                            >
+                                {showInactive ? `Ver admins ativos (${activeAdmins})` : `Ver admins desativados (${inactiveAdmins})`}
+                            </button>
+                        </div>
 
                         {error && <p className="admin-managers-alert is-error" role="alert">{error}</p>}
                         {success && <p className="admin-managers-alert is-success" role="status">{success}</p>}
 
-                        {isLoading ? (
-                            <p className="admin-managers-empty">Carregando administradores...</p>
-                        ) : admins.length === 0 ? (
-                            <p className="admin-managers-empty">Nenhum administrador cadastrado.</p>
-                        ) : (
-                            <div className="admin-managers-table" role="table" aria-label="Lista de administradores">
-                                <div className="admin-managers-table-head" role="row">
-                                    <span className="admin-managers-column-name" role="columnheader">Nome</span>
-                                    <span role="columnheader">E-mail</span>
-                                    <span role="columnheader">Cargo</span>
-                                    <span className="admin-managers-column-status" role="columnheader">Status</span>
-                                    {canManageAdmins && <span className="admin-managers-column-actions" role="columnheader">Ações</span>}
-                                </div>
-
-                                {admins.map(admin => (
-                                    <div className="admin-managers-table-row" key={admin.id} role="row">
-                                        <div className="admin-managers-person" role="cell">
-                                            <AdminAvatar key={admin.profile_picture} admin={admin} />
-                                            <span className="admin-managers-name">{admin.name}</span>
-                                        </div>
-
-                                        <span className="admin-managers-email" role="cell">{admin.email}</span>
-                                        <span className="admin-managers-role" role="cell"><span className={`admin-managers-role-label${admin.role === 'SUPER_ADMIN' ? ' is-super' : ''}`}>{admin.role === 'SUPER_ADMIN' && <Icon name="shieldCheck" />}{getRoleLabel(admin.role)}</span></span>
-
-                                        <span className="admin-managers-status" role="cell">
-                                            <span className={`admin-managers-status-badge ${admin.active ? 'is-active' : 'is-inactive'}`}>
-                                                {admin.active ? 'Ativo' : 'Inativo'}
-                                            </span>
-                                        </span>
-
-                                        {canManageAdmins && <div className="admin-managers-actions" role="cell">
-                                            <button
-                                                type="button"
-                                                className={`admin-managers-action-button is-toggle${!admin.active ? ' is-reactivate' : ''}`}
-                                                disabled={admin.role === 'SUPER_ADMIN' && Boolean(admin.active)}
-                                                onClick={() => handleToggleStatus(admin)}
-                                                aria-label={admin.active ? 'Desativar administrador' : 'Ativar administrador'}
-                                                title={admin.id === getAdminId() ? 'Você não pode desativar o seu próprio acesso administrativo.' : admin.role === 'SUPER_ADMIN' ? admin.active ? 'Você não pode desativar outro Super Admin' : 'Reativar Super Admin' : admin.active ? 'Desativar' : 'Ativar'}
-                                            >
-                                                {admin.active ? 'Desativar' : admin.role === 'SUPER_ADMIN' ? 'Reativar' : 'Ativar'}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="admin-managers-action-button is-edit"
-                                                disabled={admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId()}
-                                                onClick={() => {
-                                                    setEditingAdminId(admin.id)
-                                                    setEmailError(null)
-                                                    resetPasswordFeedback()
-                                                    setForm({
-                                                        name: admin.name,
-                                                        email: admin.email,
-                                                        password: '',
-                                                        confirmPassword: '',
-                                                        role: admin.role,
-                                                    })
-                                                    setError(null)
-                                                    setSuccess(null)
-                                                    requestAnimationFrame(() => {
-                                                        const panel = formPanelRef.current
-                                                        const list = panel?.previousElementSibling
-                                                        if (!panel || !list || panel.getBoundingClientRect().top < list.getBoundingClientRect().bottom) return
-
-                                                        panel.querySelector('h2')?.focus({ preventScroll: true })
-                                                        panel.scrollIntoView({
-                                                            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
-                                                            block: 'start',
-                                                        })
-                                                    })
-                                                }}
-                                                aria-label={`Editar ${admin.name}`}
-                                                title={admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId() ? 'Cada Super Admin gerencia a própria conta' : 'Editar'}
-                                            >
-                                                <EditIcon />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="admin-managers-action-button is-delete"
-                                                disabled={admin.role === 'SUPER_ADMIN' || Boolean(admin.active)}
-                                                onClick={() => handleDelete(admin)}
-                                                aria-label={`Excluir ${admin.name}`}
-                                                title={admin.role === 'SUPER_ADMIN' ? 'Autoexclusão disponível em Minha conta' : admin.active ? 'Desative o administrador antes de excluir' : 'Excluir'}
-                                            >
-                                                <DeleteIcon />
-                                            </button>
-                                        </div>}
+                        <div id="admin-managers-list" aria-busy={isLoading}>
+                            {isLoading ? (
+                                <p className="admin-managers-empty">Carregando administradores...</p>
+                            ) : visibleAdmins.length === 0 ? (
+                                <p className="admin-managers-empty" role="status">
+                                    {showInactive ? 'Nenhum administrador desativado.' : 'Nenhum administrador ativo.'}
+                                </p>
+                            ) : (
+                                <div className="admin-managers-table" role="table" aria-label={showInactive ? 'Lista de administradores desativados' : 'Lista de administradores ativos'}>
+                                    <div className="admin-managers-table-head" role="row">
+                                        <span className="admin-managers-column-name" role="columnheader">Nome</span>
+                                        <span role="columnheader">E-mail</span>
+                                        <span role="columnheader">Cargo</span>
+                                        <span className="admin-managers-column-status" role="columnheader">Status</span>
+                                        {canManageAdmins && <span className="admin-managers-column-actions" role="columnheader">Ações</span>}
                                     </div>
-                                ))}
-                            </div>
-                        )}
+
+                                    {visibleAdmins.map(admin => (
+                                        <div className="admin-managers-table-row" key={admin.id} role="row">
+                                            <div className="admin-managers-person" role="cell">
+                                                <AdminAvatar key={admin.profile_picture} admin={admin} />
+                                                <span className="admin-managers-name">{admin.name}</span>
+                                            </div>
+
+                                            <span className="admin-managers-email" role="cell">{admin.email}</span>
+                                            <span className="admin-managers-role" role="cell"><span className={`admin-managers-role-label${admin.role === 'SUPER_ADMIN' ? ' is-super' : ''}`}>{admin.role === 'SUPER_ADMIN' && <Icon name="shieldCheck" />}{getRoleLabel(admin.role)}</span></span>
+
+                                            <span className="admin-managers-status" role="cell">
+                                                <span className={`admin-managers-status-badge ${admin.active ? 'is-active' : 'is-inactive'}`}>
+                                                    {admin.active ? 'Ativo' : 'Inativo'}
+                                                </span>
+                                            </span>
+
+                                            {canManageAdmins && <div className="admin-managers-actions" role="cell">
+                                                <button
+                                                    type="button"
+                                                    className={`admin-managers-action-button is-toggle${!admin.active ? ' is-reactivate' : ''}`}
+                                                    disabled={admin.id === getAdminId() || updatingStatus !== null}
+                                                    onClick={() => handleToggleStatus(admin)}
+                                                    aria-label={`${admin.active ? 'Desativar' : 'Reativar'} ${admin.name}`}
+                                                    title={admin.id === getAdminId() ? 'Você não pode desativar o seu próprio acesso administrativo.' : admin.active ? 'Desativar' : 'Reativar'}
+                                                >
+                                                    {admin.active ? 'Desativar' : 'Reativar'}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="admin-managers-action-button is-edit"
+                                                    disabled={admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId()}
+                                                    onClick={() => {
+                                                        setEditingAdminId(admin.id)
+                                                        setEmailError(null)
+                                                        resetPasswordFeedback()
+                                                        setForm({
+                                                            name: admin.name,
+                                                            email: admin.email,
+                                                            password: '',
+                                                            confirmPassword: '',
+                                                            role: admin.role,
+                                                        })
+                                                        setError(null)
+                                                        setSuccess(null)
+                                                        requestAnimationFrame(() => {
+                                                            const panel = formPanelRef.current
+                                                            const list = panel?.previousElementSibling
+                                                            if (!panel || !list || panel.getBoundingClientRect().top < list.getBoundingClientRect().bottom) return
+
+                                                            panel.querySelector('h2')?.focus({ preventScroll: true })
+                                                            panel.scrollIntoView({
+                                                                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+                                                                block: 'start',
+                                                            })
+                                                        })
+                                                    }}
+                                                    aria-label={`Editar ${admin.name}`}
+                                                    title={admin.role === 'SUPER_ADMIN' && admin.id !== getAdminId() ? 'Cada Super Admin gerencia a própria conta' : 'Editar'}
+                                                >
+                                                    <EditIcon />
+                                                </button>
+                                            </div>}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {canManageAdmins && <aside ref={formPanelRef} className="admin-managers-form-panel">
@@ -542,68 +492,6 @@ const AdminAdministrators = () => {
                     </aside>}
                 </div>
             </div>
-            {canManageAdmins && adminPendingDeletion && createPortal(
-                <div
-                    className="admin-event-modal-backdrop"
-                    role="presentation"
-                    onMouseDown={event => {
-                        if (event.target === event.currentTarget && !isDeleting) setAdminPendingDeletion(null)
-                    }}
-                >
-                    <section
-                        ref={deleteDialogRef}
-                        className="admin-event-modal admin-event-delete-dialog"
-                        role="alertdialog"
-                        aria-modal="true"
-                        aria-labelledby="admin-manager-delete-title"
-                        aria-describedby="admin-manager-delete-description"
-                        aria-busy={isDeleting}
-                        onKeyDown={event => {
-                            if (event.key === 'Escape' && !isDeleting) setAdminPendingDeletion(null)
-                            if (event.key !== 'Tab') return
-                            const buttons = event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')
-                            const first = buttons[0]
-                            const last = buttons[buttons.length - 1]
-                            if (!first || (event.shiftKey && document.activeElement === first)) {
-                                event.preventDefault()
-                                last?.focus()
-                            } else if (!event.shiftKey && document.activeElement === last) {
-                                event.preventDefault()
-                                first.focus()
-                            }
-                        }}
-                    >
-                        <span className="admin-event-delete-icon" aria-hidden="true">
-                            <Icon name="error" />
-                        </span>
-                        <h2 id="admin-manager-delete-title">Excluir administrador?</h2>
-                        <p id="admin-manager-delete-description">
-                            Tem certeza de que deseja excluir <strong>{adminPendingDeletion.name}</strong>? Esta ação não pode ser desfeita.
-                            {' '}Se houver eventos vinculados, eles serão preservados e ficarão sob sua responsabilidade.
-                        </p>
-                        {deleteError && <p className="admin-events-alert is-error" role="alert">{deleteError}</p>}
-                        <footer className="admin-event-delete-actions">
-                            <button
-                                type="button"
-                                className="admin-event-button is-secondary"
-                                onClick={() => setAdminPendingDeletion(null)}
-                                disabled={isDeleting}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="button"
-                                className="admin-event-button is-danger"
-                                onClick={() => void confirmDelete()}
-                                disabled={isDeleting || !canManageAdmins}
-                            >
-                                {isDeleting ? 'Excluindo...' : 'Excluir administrador'}
-                            </button>
-                        </footer>
-                    </section>
-                </div>,
-                document.body,
-            )}
         </section>
     )
 }

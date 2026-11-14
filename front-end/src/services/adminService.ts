@@ -70,18 +70,3 @@ export async function updateAdmin(id: string, payload: Partial<AdminRecord>): Pr
     }
     return result
 }
-
-export async function deleteAdmin(id: string): Promise<{ message: string }> {
-    return apiFetch<{ message: string }>(`admin/${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-    })
-}
-
-export async function deleteOwnAdmin(id: string, password: string): Promise<void> {
-    await apiFetch(`admin/${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-    })
-    clearAccessToken()
-}

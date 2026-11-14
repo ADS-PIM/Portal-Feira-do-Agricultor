@@ -34,10 +34,6 @@
 .account-button.is-secondary:hover:not(:disabled) { background: var(--theme-surface-muted, #f3f8f0); }
 .account-button.is-danger { background: var(--theme-danger-button, #a04432); border-color: var(--theme-danger-button, #a04432); }
 .account-button.is-danger:hover:not(:disabled) { background: var(--theme-danger-button-hover, #803327); }
-.account-deletion { margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--theme-danger-border, #efcec4); }
-.account-deletion h3 { margin: 0 0 10px; color: var(--theme-danger-text, #9b4532); font-size: 15px; }
-.account-deletion > p, .account-deletion form > p { font-size: 12px; line-height: 1.7; color: var(--text-muted); }
-.account-deletion > h3 + p { margin: 0 0 20px; }
 .account-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin: 0; padding-top: 22px; border-top: 1px solid var(--theme-border, #edf0e9); }
 .account-info dt { margin-bottom: 9px; color: var(--text-muted); font-size: 11px; }
 .account-info dd { margin: 0; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }

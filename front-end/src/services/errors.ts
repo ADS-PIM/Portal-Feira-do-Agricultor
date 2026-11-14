@@ -56,14 +56,10 @@ function getApiErrorMessage(status: number, endpoint: string, code?: string): st
     }
     if (/^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)) {
         if (status === 404 && code === 'ADMIN_NOT_FOUND') return 'Administrador não encontrado. Atualize a lista e tente novamente.'
-        if (status === 403 && code === 'ADMIN_DELETE_FORBIDDEN') return 'Apenas um Super Admin pode excluir contas de administradores.'
-        if (status === 403 && code === 'SUPER_ADMIN_DELETE_FORBIDDEN') return 'Você não pode excluir outro Super Admin. Cada Super Admin deve excluir a própria conta.'
-        if (status === 403 && code === 'SUPER_ADMIN_UPDATE_FORBIDDEN') return 'Você só pode reativar outro Super Admin. As demais alterações devem ser feitas pelo próprio usuário.'
-        if (status === 409 && code === 'LAST_SUPER_ADMIN') return 'Você é o único Super Admin ativo. Promova um administrador ativo ou reative outro Super Admin antes de excluir, desativar ou rebaixar sua conta.'
-        if (status === 400 && code === 'CURRENT_PASSWORD_REQUIRED') return 'Informe sua senha atual para excluir a conta.'
-        if (status === 403 && code === 'INVALID_CURRENT_PASSWORD') return 'Senha atual incorreta. Confira sua senha e tente novamente.'
-        if (status === 409 && code === 'ADMIN_ACTIVE') return 'Desative o administrador antes de excluir a conta.'
-        if (status === 409 && code === 'ADMIN_HAS_EVENTS') return 'Não é possível excluir esta conta sem um Super Admin ativo para assumir os eventos vinculados.'
+        if (status === 405 && code === 'ADMIN_DELETION_DISABLED') return 'Contas administrativas podem ser desativadas, mas não excluídas.'
+        if (status === 403 && code === 'ADMIN_SELF_DEACTIVATION_FORBIDDEN') return 'Você não pode desativar sua própria conta.'
+        if (status === 403 && code === 'SUPER_ADMIN_UPDATE_FORBIDDEN') return 'Você pode ativar ou desativar outro Super Admin. As demais alterações devem ser feitas pelo próprio usuário.'
+        if (status === 409 && code === 'LAST_SUPER_ADMIN') return 'Mantenha pelo menos um Super Admin ativo. Promova um administrador ativo ou reative outro Super Admin antes de continuar.'
     }
     if (status === 400 && /^admin\/(?:forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)) {
         if (code === 'INVALID_EMAIL') return 'Informe um e-mail válido.'
