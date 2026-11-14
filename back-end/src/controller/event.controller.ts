@@ -5,6 +5,7 @@ import { EventCreateDTO, EventUpdateDTO } from '../dto/event.dto';
 import { EventService } from '../service/event.service';
 import { AuthRequest } from '../../authMiddleware'
 import { validCoordinatePair } from '../util/eventCoordinates';
+import { setPrivateReadCache } from '../util/cacheHeaders';
 import { ActionError } from '../model/actionError';
 
 export class EventController {
@@ -70,6 +71,7 @@ export class EventController {
     public async searchAll(_req: Request, res: Response) {
         try {
             const events = await this.eventService.searchAll();
+            setPrivateReadCache(res);
             return res.status(200).json(events);
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
@@ -99,6 +101,7 @@ export class EventController {
 
         try {
             const event = await this.eventService.searchNearest(date);
+            setPrivateReadCache(res);
             return res.status(200).json(event);
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
@@ -122,6 +125,7 @@ export class EventController {
 
         try {
             const events = await this.eventService.searchAgenda(date, scope);
+            setPrivateReadCache(res);
             return res.status(200).json(events);
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
@@ -135,6 +139,7 @@ export class EventController {
             if (!event) {
                 return res.status(404).json({ code: 'EVENT_NOT_FOUND', error: 'Event not found' })
             }
+            setPrivateReadCache(res);
             return res.status(200).json(event);
         } catch (error: any) {
             return res.status(500).json({ error: error.message });

@@ -9,6 +9,7 @@ import { EventImageCreateDTO, EventImageUpdateDTO } from '../dto/eventImage.dto'
 import { ImageStorageService, ImageUploadError } from '../service/imageStorage.service';
 import { LegacyBlobStorageService, isEventImagePathname } from '../service/legacyBlobStorage.service';
 import { DirectImageUploadService } from '../service/directImageUpload.service';
+import { setPrivateReadCache } from '../util/cacheHeaders';
 
 export class EventImageController {
     public constructor(
@@ -88,9 +89,11 @@ export class EventImageController {
     }
 
     public async searchByEventId(req: AuthRequest, res: Response) {
+        res.setHeader('Cache-Control', 'no-store');
         try {
             const eventId = Array.isArray(req.params.eventId) ? req.params.eventId[0] : req.params.eventId;
             const images = await this.eventImageService.searchByEventId(eventId);
+            setPrivateReadCache(res);
             return res.status(200).json(images);
         } catch (error: any) {
             if (error.message === 'Event not found') {
