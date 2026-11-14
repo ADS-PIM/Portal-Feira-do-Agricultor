@@ -619,6 +619,36 @@
     color: var(--theme-accent, #286e30);
 }
 
+.admin-events-issue-filter {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--theme-border, #dce5d8);
+    border-radius: 11px;
+    background: var(--theme-surface-muted, #fafcf8);
+    color: var(--theme-text-secondary, #50634b);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.admin-events-issue-filter button {
+    padding: 2px 0;
+    border: 0;
+    background: transparent;
+    color: var(--theme-accent, var(--brand-green-dark));
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.admin-events-issue-filter button:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
 .admin-event-modal-backdrop {
     position: fixed;
     z-index: 1100;
