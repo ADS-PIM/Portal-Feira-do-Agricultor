@@ -368,7 +368,7 @@ export default function AdvancedPricingCalculator() {
             <h2 id="advanced-result-title">Preço de venda por unidade</h2>
             <div className="markup-price-area" role="status" aria-live="polite" aria-atomic="true">
               <strong className="markup-price">{result ? money(result.price) : 'R$ —'}</strong>
-              <p>{result ? `${result.productName} · ${numeric(result.producedQuantity)} ${result.producedQuantity === 1 ? 'unidade produzida' : 'unidades produzidas'} por lote.`
+              <p>{result ? 'Preço atualizado com os custos e percentuais informados.'
                 : 'Preencha ou corrija os campos necessários para ver o preço sugerido.'}</p>
             </div>
             <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${numeric(result.multiplier)}×` : '—'}</strong></div>
