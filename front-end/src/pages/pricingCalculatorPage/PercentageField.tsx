@@ -20,7 +20,7 @@ export default function PercentageField({ id, name, label, value, onChange, onBl
   const number = parsePricingNumber(value) ?? 0
   const sliderValue = Math.max(0, Math.min(100, number))
   const hasError = Boolean(error) || invalid
-  const description = [hint && `${id}-hint`, error && `${id}-error`, describedBy].filter(Boolean).join(' ') || undefined
+  const description = [hint && !hasError && `${id}-hint`, error && `${id}-error`, describedBy].filter(Boolean).join(' ') || undefined
 
   return (
     <div className="markup-field markup-percentage-field">
@@ -57,7 +57,7 @@ export default function PercentageField({ id, name, label, value, onChange, onBl
             onChange(String(Number(Math.max(0, Math.min(100, sliderValue + direction * 0.1)).toFixed(10))))
           }
         }} onBlur={onBlur} />
-      {hint && <p id={`${id}-hint`} className="markup-hint">{hint}</p>}
+      {hint && !hasError && <p id={`${id}-hint`} className="markup-hint">{hint}</p>}
       {error && <p id={`${id}-error`} className="markup-error">{error}</p>}
     </div>
   )

@@ -328,9 +328,9 @@
 }
 
 .admin-managers-action-button.is-toggle {
-    --action-background: var(--theme-warning-surface, #fff4dc);
-    --action-border: var(--theme-warning-border, #d9a441);
-    --action-color: var(--theme-warning-text, #855000);
+    --action-background: var(--theme-danger-surface, #fff0f0);
+    --action-border: var(--theme-danger-border, #e9aaaa);
+    --action-color: var(--theme-danger-text, #b42318);
     min-width: 80px;
 }
 

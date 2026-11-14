@@ -4,6 +4,7 @@ import Footer from '../../components/Footer/Footer'
 import Icon, { type IconName } from '../../components/Icon'
 import { calculateMarkup, parsePricingNumber, parseProductionHours, type MarkupInput, type ProductionTimeUnit } from '../../utils/pricingCalculator'
 import AdvancedPricingCalculator from './AdvancedPricingCalculator'
+import PricingBreakEven from './PricingBreakEven'
 import PercentageField from './PercentageField'
 import CalculatorFieldHelp from './CalculatorFieldHelp'
 import { CalculatorSteps, CalculatorStepActions } from './CalculatorSteps'
@@ -41,21 +42,21 @@ function formatPercentage(value: number) {
 const fieldGroups: { title: string; icon: IconName; fields: FieldDefinition[] }[] = [
   {
     title: 'Produção de uma unidade', icon: 'box', fields: [
-      { name: 'materialCost', label: 'Custo de material por unidade', unit: 'R$', placeholder: 'Ex.: 30,00', hint: 'Somente materiais e embalagem. A mão de obra é calculada separadamente.' },
-      { name: 'productionHours', label: 'Tempo de produção da unidade', unit: 'horas', placeholder: 'Ex.: 2', hint: 'Tempo gasto para produzir uma unidade.' },
-      { name: 'hourlyRate', label: 'Valor da hora', unit: 'R$', placeholder: 'Ex.: 20,00', hint: 'Quanto vale uma hora do seu trabalho.' },
+      { name: 'materialCost', label: 'Custo de material por unidade', unit: 'R$', placeholder: 'Ex.: 30,00', hint: 'Inclua materiais e embalagem, sem mão de obra.' },
+      { name: 'productionHours', label: 'Tempo de produção da unidade', unit: 'horas', placeholder: 'Ex.: 2', hint: '' },
+      { name: 'hourlyRate', label: 'Valor da hora', unit: 'R$', placeholder: 'Ex.: 20,00', hint: 'Pagamento pelo seu trabalho, separado do lucro.' },
     ],
   },
   {
     title: 'Seu negócio por mês', icon: 'store', fields: [
-      { name: 'monthlyFixedExpenses', label: 'Despesas fixas mensais', unit: 'R$', placeholder: 'Ex.: 1.000,00', hint: 'Ex.: aluguel, internet e contas fixas.' },
-      { name: 'monthlyRevenue', label: 'Faturamento médio mensal', unit: 'R$', placeholder: 'Ex.: 10.000,00', hint: 'Média de vendas. Deve ser maior que zero.' },
+      { name: 'monthlyFixedExpenses', label: 'Despesas fixas mensais', unit: 'R$', placeholder: 'Ex.: 1.000,00', hint: 'Inclua aluguel, internet e outras contas do negócio.' },
+      { name: 'monthlyRevenue', label: 'Faturamento médio mensal', unit: 'R$', placeholder: 'Ex.: 10.000,00', hint: 'Vendas do mês, antes de pagar as contas.' },
     ],
   },
   {
     title: 'Despesas e lucro sobre a venda', icon: 'percent', fields: [
-      { name: 'variableExpenses', label: 'Despesas variáveis', unit: '%', placeholder: 'Ex.: 5', hint: 'Ex.: taxas de venda e comissões.' },
-      { name: 'profit', label: 'Lucro desejado', unit: '%', placeholder: 'Ex.: 30', hint: 'Parcela do preço que será seu lucro.' },
+      { name: 'variableExpenses', label: 'Despesas variáveis', unit: '%', placeholder: 'Ex.: 5', hint: 'Some as taxas e comissões sobre a venda.' },
+      { name: 'profit', label: 'Lucro desejado', unit: '%', placeholder: 'Ex.: 30', hint: 'Parte da venda que sobra após todos os custos.' },
     ],
   },
 ]
@@ -267,7 +268,7 @@ export default function PricingCalculatorPage() {
                   <button className="markup-example" type="button" onClick={useExample}>Usar exemplo</button>
                 </div>
 
-                <p className="markup-help-intro">Preencha um tópico por vez e use Voltar e Próximo para revisar. Toque na interrogação (?) para entender cada campo e ver um exemplo.</p>
+                <p className="markup-help-intro">Preencha por etapas. Toque em ? para ver explicações e exemplos.</p>
                 <form ref={formRef} className="markup-form" onSubmit={handleSubmit} autoComplete="off" noValidate>
                   <CalculatorSteps steps={steps} current={step} incompleteSteps={incompleteSteps} onSelect={goToStep} label="Etapas da calculadora simples" />
                   {fieldGroups.map((group, index) => (
@@ -300,7 +301,7 @@ export default function PricingCalculatorPage() {
                                 placeholder={name === 'productionHours' && values.timeUnit === 'minute' ? 'Ex.: 30' : placeholder}
                                 required
                                 aria-invalid={Boolean(error) || hasTotalError}
-                                aria-describedby={`markup-${name}-unit markup-${name}-hint${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
+                                aria-describedby={`markup-${name}-unit${hint && !error && !hasTotalError ? ` markup-${name}-hint` : ''}${error ? ` markup-${name}-error` : ''}${hasTotalError ? ' markup-total-error' : ''}`}
                                 onChange={(event) => {
                                   updateValue(name, event.currentTarget.value)
                                 }}
@@ -308,7 +309,7 @@ export default function PricingCalculatorPage() {
                               />
                               {unit !== 'R$' && <span id={`markup-${name}-unit`}>{name === 'productionHours' && values.timeUnit === 'minute' ? 'minutos' : unit}</span>}
                             </div>
-                            <p id={`markup-${name}-hint`} className="markup-hint">{name === 'productionHours' ? `Tempo gasto para produzir uma unidade, em ${values.timeUnit === 'minute' ? 'minutos' : 'horas'}.` : hint}</p>
+                            {hint && !error && !hasTotalError && <p id={`markup-${name}-hint`} className="markup-hint">{hint}</p>}
                             {error && <p id={`markup-${name}-error`} className="markup-error">{error}</p>}
                           </div>
                         )
@@ -326,7 +327,7 @@ export default function PricingCalculatorPage() {
                             <span>Despesas fixas ÷ faturamento × 100</span>
                             <strong>{fixedPercentage !== null ? `${formatPercentage(fixedPercentage)}%` : '—'}</strong>
                           </div>
-                          {monthlyFixedExpenses === 0 && <p id="markup-revenue-effect" className="markup-hint">Sem despesas fixas mensais, mudar o faturamento não altera o preço sugerido.</p>}
+                          {monthlyFixedExpenses === 0 && <p id="markup-revenue-effect" className="markup-hint">Sem despesas fixas, o faturamento não altera o preço.</p>}
                         </>
                       )}
                     </fieldset>
@@ -341,7 +342,7 @@ export default function PricingCalculatorPage() {
                     </div>
                     {invalidTotal ? (
                       <p id="markup-total-error" className="markup-error" role="alert">{calculatorErrors.totalPercentage}</p>
-                    ) : <p className="markup-hint">A soma deve ficar abaixo de 100% para calcular o preço.</p>}
+                    ) : <p className="markup-hint">A soma deve ficar abaixo de 100%.</p>}
                     {calculationError && <p className="markup-error" role="alert">{calculationError}</p>}
                   </div>
                   <CalculatorStepActions current={step} count={steps.length} onBack={() => goToStep(step - 1)} onClear={clearFields} />
@@ -359,9 +360,9 @@ export default function PricingCalculatorPage() {
                     <strong className="markup-price">{result ? currency.format(result.price) : 'R$ —'}</strong>
                     <p>{result ? 'Preço atualizado com os custos e percentuais informados.' : invalidTotal
                       ? 'Ajuste os percentuais para ver o preço.' : 'Preencha ou corrija os campos necessários para ver seu preço.'}</p>
-                    <p>O resultado é atualizado automaticamente conforme você preenche os campos.</p>
                   </div>
                   <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${decimal.format(result.multiplier)}×` : '—'}</strong></div>
+                  <PricingBreakEven result={result} titleId="markup-break-even-title" />
                 </div>
 
                 <section className="markup-breakdown" aria-labelledby="markup-breakdown-title">
@@ -381,7 +382,6 @@ export default function PricingCalculatorPage() {
                     </>
                   ) : <p className="markup-empty">Preencha os dados para ver os materiais, a mão de obra, as despesas e o lucro de cada unidade.</p>}
                 </section>
-                <p className="markup-local-note"><Icon name="shieldCheck" /><span>Seus valores ajudam a planejar uma venda que remunera seu trabalho e mantém o negócio saudável.</span></p>
               </aside>
             </div>
 

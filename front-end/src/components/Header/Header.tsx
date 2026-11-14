@@ -18,6 +18,7 @@ import {
 
 const navigationLinks = [
     { href: '/', label: 'Início' },
+    { href: '/sobre', label: 'Sobre nós' },
     { href: '/calendario', label: 'Calendário' },
     { href: '/produtores', label: 'Produtores' },
     { href: '/contato', label: 'Fale Conosco' },

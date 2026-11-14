@@ -148,25 +148,10 @@
     flex: 0 0 auto;
     padding: 6px 10px;
     border-radius: 999px;
-    background: var(--theme-surface-muted, #edf5e9);
-    color: var(--theme-accent, #28733b);
+    background: var(--calendar-status-soft);
+    color: var(--calendar-status-text);
     font-size: 12px;
     font-weight: 700;
-}
-
-.event-page-status.is-canceled {
-    background: var(--theme-danger-surface, #fff0eb);
-    color: var(--theme-danger-text, #a4472f);
-}
-
-.event-page-status.is-concluded {
-    background: var(--theme-surface-muted, #f0f0ed);
-    color: var(--theme-text-secondary, #666a61);
-}
-
-.event-page-status.is-rescheduled {
-    background: var(--theme-warning-surface, #fff5e7);
-    color: var(--brand-orange);
 }
 
 .event-page-meta {
@@ -464,7 +449,7 @@
     gap: 18px;
     padding: 72px 24px 24px;
     overflow-y: auto;
-    background: rgba(18, 21, 18, 0.82);
+    background: rgb(0 0 0 / 82%);
     backdrop-filter: blur(4px);
 }
 

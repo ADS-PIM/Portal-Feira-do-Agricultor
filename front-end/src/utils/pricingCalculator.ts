@@ -62,6 +62,16 @@ export function calculateMarkup(input: MarkupInput) {
     return null
   }
 
+  // Price minus materials, per-unit labor and sales fees. Fixed costs are
+  // covered by this margin, so subtracting them here would count them twice.
+  // The equivalent sum below avoids cancellation when the margin is zero.
+  const contributionMarginPercentage = fixedPercentage + profit
+  const contributionMarginRatio = contributionMarginPercentage / 100
+  const contributionMarginPerUnit = price * contributionMarginRatio
+  const monthlyContributionMargin = monthlyRevenue * contributionMarginRatio
+  const breakEvenRevenue = monthlyFixedExpenses === 0 ? 0 : monthlyFixedExpenses / contributionMarginRatio
+  const breakEvenQuantity = monthlyFixedExpenses === 0 ? 0 : monthlyFixedExpenses / contributionMarginPerUnit
+
   // Keep full precision until display; each percentage is a share of the sale price.
   return {
     ...input,
@@ -74,5 +84,12 @@ export function calculateMarkup(input: MarkupInput) {
     fixedExpensesAmount,
     variableExpensesAmount,
     profitAmount,
+    contributionMarginPerUnit,
+    contributionMarginPercentage,
+    monthlyContributionMargin,
+    breakEvenRevenue: Number.isFinite(breakEvenRevenue) && breakEvenRevenue >= 0 ? breakEvenRevenue : null,
+    breakEvenQuantity: Number.isFinite(breakEvenQuantity) && breakEvenQuantity >= 0 ? breakEvenQuantity : null,
   }
 }
+
+export type MarkupResult = NonNullable<ReturnType<typeof calculateMarkup>>

@@ -27,7 +27,7 @@
 .location-error { margin: 0; padding: 10px; border-radius: 8px; background: var(--theme-danger-surface, #fff2ee); color: var(--theme-danger-text, #9f2d24); font-size: 13px; }
 .event-location-dialog { box-sizing: border-box; width: min(900px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); margin: auto; padding: 0; border: 0; border-radius: 14px; color: var(--theme-accent, #273423); background: var(--theme-surface, white); box-shadow: 0 20px 70px #0004; }
 .event-location-dialog[open] { display: flex; flex-direction: column; }
-.event-location-dialog::backdrop { background: rgb(20 29 23 / 60%); }
+.event-location-dialog::backdrop { background: rgb(0 0 0 / 60%); }
 .event-location-dialog-header, .event-location-dialog-footer { display: flex; align-items: center; justify-content: space-between; flex: 0 0 auto; gap: 12px; padding: 16px 20px; }
 .event-location-dialog-header { border-bottom: 1px solid var(--theme-border, #e5e9e3); }
 .event-location-dialog-header h2 { margin: 0; font-size: 20px; }
