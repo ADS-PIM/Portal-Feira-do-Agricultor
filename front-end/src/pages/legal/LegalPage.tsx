@@ -47,15 +47,15 @@ function LegalPage({ document }: { document: LegalDocument }) {
     return (
         <>
             <Header />
-            <main className="legal-page">
+            <main className="legal-page" aria-labelledby="legal-page-title">
                 <div className="legal-page-container">
                     <button className="legal-page-back" type="button" onClick={() => goBack()}>
                         <Icon name="arrowLeft" /> {returnLabel}
                     </button>
                     <header className="legal-page-header">
                         <p className="legal-page-eyebrow">BROTANDO FEIRAS</p>
-                        <h1>{title}</h1>
-                        <p>Última atualização: 14 de novembro de 2026</p>
+                        <h1 id="legal-page-title">{title}</h1>
+                        <p>Última atualização: <time dateTime="2026-11-14">14 de novembro de 2026</time></p>
                     </header>
 
                     <div className="legal-page-layout">
