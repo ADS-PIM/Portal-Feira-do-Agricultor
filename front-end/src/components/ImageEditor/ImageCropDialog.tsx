@@ -19,6 +19,7 @@ export default function ImageCropDialog({ source, variant, initialAdjustment, ma
     const [error, setError] = useState('')
     const [exporting, setExporting] = useState(false)
     const popup = useRef<HTMLDialogElement>(null)
+    const stage = useRef<HTMLDivElement>(null)
     const active = useRef(false)
     const applying = useRef(false)
     const drag = useRef<{ id: number; x: number; y: number; adjustment: ImageAdjustment } | null>(null)
@@ -59,6 +60,31 @@ export default function ImageCropDialog({ source, variant, initialAdjustment, ma
         }
     }, [source])
 
+    useEffect(() => {
+        const preview = stage.current
+        if (!preview || !loaded || exporting) return
+        let wheelDelta = 0
+        const zoomImage = (event: WheelEvent) => {
+            if (event.ctrlKey || applying.current || drag.current || event.deltaY === 0) return
+            event.preventDefault()
+            const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16
+                : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? preview.clientHeight : 1
+            const delta = Math.max(-100, Math.min(100, event.deltaY * unit))
+            if (Math.sign(delta) !== Math.sign(wheelDelta)) wheelDelta = 0
+            wheelDelta += delta
+            const steps = Math.trunc(wheelDelta / 100)
+            if (!steps) return
+            wheelDelta -= steps * 100
+            setAdjustment(current => ({
+                ...current,
+                zoom: Math.max(1, Math.min(3, (Math.round(current.zoom * 20) - steps) / 20)),
+            }))
+        }
+        // A non-passive listener keeps the dialog still while zooming the image.
+        preview.addEventListener('wheel', zoomImage, { passive: false })
+        return () => preview.removeEventListener('wheel', zoomImage)
+    }, [loaded, exporting])
+
     const width = loaded?.image.naturalWidth ?? 1
     const height = loaded?.image.naturalHeight ?? 1
     const crop = getImageCrop(width, height, adjustment)
@@ -97,11 +123,11 @@ export default function ImageCropDialog({ source, variant, initialAdjustment, ma
         aria-busy={exporting} onCancel={event => { event.preventDefault(); if (!applying.current) onCancel() }}
         onKeyDown={event => event.stopPropagation()}>
         <header className="image-crop-header">
-            <div><h2 id={titleId}>{title}</h2><p id={hintId}>Arraste a imagem ou use os controles para ajustar o enquadramento.</p></div>
+            <div><h2 id={titleId}>{title}</h2><p id={hintId}>Arraste a imagem, use a roda do mouse para dar zoom ou ajuste pelos controles.</p></div>
             <button type="button" className="image-crop-close" aria-label="Fechar ajuste de imagem" disabled={exporting} onClick={onCancel}>×</button>
         </header>
         <div className="image-crop-body">
-            <div className="image-crop-stage">
+            <div ref={stage} className="image-crop-stage">
                 {!loaded && !error && <p role="status">Carregando imagem...</p>}
                 {loaded && <div className={`image-crop-viewport${variant === 'profile' ? ' is-circle' : ''}`}
                     style={{ aspectRatio: aspect, width: `min(100%, ${Math.min(340, 280 * aspect)}px, calc(var(--image-crop-height) * ${aspect}))` }}
