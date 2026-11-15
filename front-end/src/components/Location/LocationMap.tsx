@@ -1,10 +1,18 @@
-import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore } from 'react'
 import L from 'leaflet'
 import type { Coordinates } from '../../utils/eventLocation'
 import 'leaflet/dist/leaflet.css'
 import './LocationMap.css'
 
 const defaultCenter: L.LatLngTuple = [-5.24, -38.13] // Tabuleiro do Norte, CE
+
+const touchQuery = '(pointer: coarse)'
+const isTouchDevice = () => window.matchMedia(touchQuery).matches
+const subscribeToTouchDevice = (onChange: () => void) => {
+    const query = window.matchMedia(touchQuery)
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+}
 
 const pin = L.divIcon({
     className: 'location-map-pin',
@@ -19,10 +27,15 @@ export default function LocationMap({ coordinates, onSelect, label, editable = f
     label: string
     editable?: boolean
 }) {
+    const wrapper = useRef<HTMLDivElement>(null)
     const container = useRef<HTMLDivElement>(null)
     const map = useRef<L.Map | null>(null)
     const marker = useRef<L.Marker | null>(null)
     const [tileError, setTileError] = useState(false)
+    const [interactionActive, setInteractionActive] = useState(false)
+    const touchDevice = useSyncExternalStore(subscribeToTouchDevice, isTouchDevice, () => false)
+    const requiresActivation = touchDevice && !editable
+    const interactionLocked = requiresActivation && !interactionActive
     const selectPoint = useEffectEvent((point: L.LatLng) => {
         const wrapped = point.wrap()
         onSelect?.({ latitude: Number(Math.max(-90, Math.min(90, wrapped.lat)).toFixed(6)), longitude: Number(wrapped.lng.toFixed(6)) })
@@ -60,6 +73,32 @@ export default function LocationMap({ coordinates, onSelect, label, editable = f
         }
     }, [editable])
 
+    useEffect(() => {
+        const instance = map.current
+        if (!instance) return
+        const handlers = [instance.dragging, instance.touchZoom, instance.doubleClickZoom,
+            instance.scrollWheelZoom, instance.boxZoom, instance.keyboard]
+        handlers.forEach(handler => interactionLocked ? handler.disable() : handler.enable())
+    }, [interactionLocked, editable])
+
+    useEffect(() => {
+        if (!requiresActivation || !interactionActive) return
+        const handleOutsidePointer = (event: PointerEvent) => {
+            if (event.target instanceof Node && !wrapper.current?.contains(event.target)) {
+                setInteractionActive(false)
+            }
+        }
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setInteractionActive(false)
+        }
+        document.addEventListener('pointerdown', handleOutsidePointer, true)
+        document.addEventListener('keydown', handleEscape)
+        return () => {
+            document.removeEventListener('pointerdown', handleOutsidePointer, true)
+            document.removeEventListener('keydown', handleEscape)
+        }
+    }, [requiresActivation, interactionActive])
+
     const latitude = coordinates?.latitude, longitude = coordinates?.longitude
     useEffect(() => {
         const instance = map.current
@@ -78,8 +117,14 @@ export default function LocationMap({ coordinates, onSelect, label, editable = f
         instance.setView([latitude, longitude], Math.max(instance.getZoom(), 15), { animate: false })
     }, [latitude, longitude, editable])
 
-    return <div className="location-map-wrapper">
-        <div ref={container} className="location-map" role="region" aria-label={label} />
+    return <div ref={wrapper} className="location-map-wrapper">
+        <div ref={container} className={`location-map${interactionLocked ? ' is-locked' : ''}`} role="region" aria-label={label} inert={interactionLocked} />
+        {interactionLocked && <button type="button" className="location-map-activate" onClick={() => setInteractionActive(true)}>
+            <span>Toque para interagir com o mapa</span>
+        </button>}
+        {requiresActivation && interactionActive && <button type="button" className="location-map-lock" onClick={() => setInteractionActive(false)}>
+            Bloquear mapa
+        </button>}
         {tileError && <p className="location-map-error" role="status">Não foi possível carregar o mapa. Verifique sua conexão. As coordenadas do local foram mantidas.</p>}
     </div>
 }
