@@ -26,7 +26,7 @@ type BusinessInfoFormValues = {
     description: string
 }
 
-type BusinessInfoSnapshot = Omit<BusinessInfo, 'id'>
+type BusinessInfoSnapshot = Omit<BusinessInfo, 'id' | 'updatedAt'> & { updatedAt: string | null }
 
 const emptyValues: BusinessInfoFormValues = {
     instagramAccount: '',
@@ -43,14 +43,15 @@ const toValues = (businessInfo: BusinessInfoSnapshot | null): BusinessInfoFormVa
 })
 
 function formatLastUpdated(value: string | null | undefined): string {
-    if (!value) return 'Ainda não foi salvo'
+    if (!value) return 'Data de atualização indisponível'
 
     const parsed = new Date(value)
     if (Number.isNaN(parsed.getTime())) {
-        return 'Ainda não foi salvo'
+        return 'Data de atualização indisponível'
     }
 
     return new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
         day: '2-digit',
         month: 'short',
         year: 'numeric',
@@ -237,7 +238,8 @@ const AdminBusinessInfo = () => {
             await upsertBusinessInfo(payload, hasBusinessInfo)
             // The singleton exists once the write succeeds, even if the following read fails.
             setHasBusinessInfo(true)
-            const savedInfo: BusinessInfoSnapshot = { ...payload, updatedAt: new Date().toISOString() }
+            // Wait for the persisted server timestamp rather than using the device clock.
+            const savedInfo: BusinessInfoSnapshot = { ...payload, updatedAt: null }
             setBusinessInfo(savedInfo)
             setValues(toValues(savedInfo))
             setTouchedContacts({})
@@ -474,7 +476,7 @@ const AdminBusinessInfo = () => {
 
                             <div className="admin-business-info-actions">
                                 <span className="admin-business-info-updateStamp">
-                                    <Icon name="clock" /> Última atualização: {formatLastUpdated(businessInfo?.updatedAt ?? null)}
+                                    <Icon name="clock" /> Última atualização: {businessInfo ? formatLastUpdated(businessInfo.updatedAt) : 'Ainda não foi salvo'}
                                 </span>
                                 <div className="admin-business-info-buttons">
                                     <button type="button" className="admin-business-info-button is-secondary" onClick={handleReset}>

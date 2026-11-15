@@ -26,7 +26,7 @@
 .event-agenda-header h2 {
     margin: 0;
     color: var(--theme-accent, var(--brand-green-dark));
-    font-size: clamp(30px, 3vw, 40px);
+    font-size: clamp(2.1rem, 3vw, 3.1rem);
     font-weight: 700;
     line-height: 1.2;
 }

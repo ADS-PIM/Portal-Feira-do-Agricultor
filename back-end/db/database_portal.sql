@@ -47,7 +47,7 @@ create table `businessInfo` (
     `businessEmail` varchar(320) default null,
     `businessHours` varchar(255) not null,
     `description` varchar(2000) default null, 
-    `updatedAt` date not null,
+    `updatedAt` datetime(3) not null,
     primary key (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
 

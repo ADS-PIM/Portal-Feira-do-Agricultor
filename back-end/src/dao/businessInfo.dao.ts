@@ -1,6 +1,10 @@
 import { connection } from '../util/connection';
 import { BusinessInfo } from '../model/businessInfo';
 
+// Store and read this audit timestamp in UTC, independently of the server/driver timezone.
+const timestampForStorage = (date: Date) => date.toISOString().slice(0, 23).replace('T', ' ');
+const businessInfoColumns = "id, instagramAccount, whatsappNumber, businessEmail, businessHours, description, DATE_FORMAT(updatedAt, '%Y-%m-%dT%H:%i:%s.%fZ') AS updatedAt";
+
 export type BusinessInfoUpdateData = {
     instagramAccount?: string | null;
     whatsappNumber?: string | null;
@@ -19,7 +23,7 @@ export class BusinessInfoDAO {
                 businessInfo.businessEmail,
                 businessInfo.businessHours,
                 businessInfo.description,
-                businessInfo.updatedAt
+                timestampForStorage(businessInfo.updatedAt)
             ]);
         } catch (error: any) {
             throw new Error('Error registering business info: ' + error.message)
@@ -28,11 +32,11 @@ export class BusinessInfoDAO {
 
     public async searchById(id: string): Promise<BusinessInfo | null> {
         try {
-            const [rows]: any = await connection.query('SELECT * FROM businessInfo where id = ?', [id])
+            const [rows]: any = await connection.query(`SELECT ${businessInfoColumns} FROM businessInfo where id = ?`, [id])
             if (!rows || rows.length === 0) {
                 return null;
             }
-            return BusinessInfo.reconstruct(rows[0]);
+            return BusinessInfo.reconstruct({ ...rows[0], updatedAt: new Date(rows[0].updatedAt) });
         } catch (error: any) {
             throw new Error('Error searching business info by id: ' + error.message)
         }
@@ -41,14 +45,14 @@ export class BusinessInfoDAO {
     public async searchFirst(): Promise<BusinessInfo | null> {
         try {
             const [businessInfo]: any = await connection.query(
-                'SELECT id, instagramAccount, whatsappNumber, businessEmail, businessHours, description, updatedAt FROM businessInfo LIMIT 1'
+                `SELECT ${businessInfoColumns} FROM businessInfo LIMIT 1`
             );
             
             if (!businessInfo || businessInfo.length === 0) {
                 return null;
             }
 
-            return businessInfo[0];
+            return { ...businessInfo[0], updatedAt: new Date(businessInfo[0].updatedAt) };
         } catch (error: any) {
             throw new Error('Error searching business info: ' + error.message);
         }
@@ -84,7 +88,7 @@ export class BusinessInfoDAO {
         }
 
         fields.push('updatedAt = ?');
-        values.push(new Date());
+        values.push(timestampForStorage(new Date()));
 
         try {
             await connection.query(`UPDATE businessInfo  SET ${fields.join(', ')} WHERE id = ?`,[...values, id]);
