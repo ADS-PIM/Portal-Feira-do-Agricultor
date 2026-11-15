@@ -2,6 +2,8 @@
     --footer-social-green: #39cf71;
     --footer-social-pink: #ff5479;
     --footer-social-orange: #ffad42;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     box-sizing: border-box;
     padding: 32px 5.6% 20px;
     background: #181818;
@@ -55,17 +57,23 @@
 
 .site-footer-contact-button {
     --contact-accent: var(--footer-social-green);
+    --contact-border: #39cf7199;
+    --contact-background: #1f402c;
+    --contact-text: #57d686;
+    -webkit-appearance: none;
+    appearance: none;
     display: flex;
     align-items: center;
     justify-content: center;
     min-width: 0;
     width: 44px;
     height: 44px;
+    flex: 0 0 44px;
     padding: 0;
-    border: 1px solid color-mix(in srgb, var(--contact-accent) 60%, transparent);
+    border: 1px solid var(--contact-border);
     border-radius: 50%;
-    background: color-mix(in srgb, var(--contact-accent) 22%, #181818);
-    color: color-mix(in srgb, var(--contact-accent) 85%, #fff);
+    background: var(--contact-background);
+    color: var(--contact-text);
     font: inherit;
     font-size: 12px;
     font-weight: 600;
@@ -76,10 +84,16 @@
 
 .site-footer-contact-button.is-instagram {
     --contact-accent: var(--footer-social-pink);
+    --contact-border: #ff547999;
+    --contact-background: #4b2535;
+    --contact-text: #ff6e8d;
 }
 
 .site-footer-contact-button.is-email {
     --contact-accent: var(--footer-social-orange);
+    --contact-border: #ffad4299;
+    --contact-background: #4b3921;
+    --contact-text: #ffb95e;
 }
 
 .site-footer-contact-button:hover:not(:disabled) {

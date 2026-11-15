@@ -1,5 +1,19 @@
 # React + TypeScript + Vite
 
+## Compatibilidade do rodapé
+
+Os testes locais de compatibilidade usam Playwright com o build de produção e verificam Chromium,
+Firefox e WebKit em larguras de 320, 390, 760, 768 e 1440 pixels, nos temas
+claro e escuro. Confere dimensões dos botões, transbordamento, links legais
+e erros de JavaScript. As fontes de teste ficam apenas no ambiente local, conforme
+o `.gitignore` do projeto. Esses testes não substituem a conferência em aparelhos
+Android e iOS reais. Ao alterar o rodapé, repita essa matriz antes de publicar.
+
+Se os navegadores mostrarem links diferentes, compare primeiro o endereço
+completo e recarregue a página: diferenças no conteúdo também podem indicar
+versões publicadas distintas ou uma aba antiga. O layout atual usa “Menu Rápido”
+e “Redes Sociais”; “Serviços & Links” pertence a uma versão anterior.
+
 ## Navegação
 
 Os links internos usam caminhos sem `#`: `/`, `/sobre`, `/contato`, `/calendario`,
