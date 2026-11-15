@@ -1,5 +1,5 @@
 import './App.css'
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useLayoutEffect, useState, useSyncExternalStore } from 'react'
 import MainPage from './pages/mainPage/MainPage'
 import AboutPage from './pages/aboutPage/AboutPage'
 import PortalTeamPage from './pages/aboutPage/PortalTeamPage'
@@ -18,7 +18,7 @@ import { getAccountReturnTarget, type AccountReturnTarget } from './services/pro
 import { AUTH_STATE_CHANGE_EVENT, dismissAdminAccessIssue, getAdminAccessIssue } from './services/authToken'
 import AdminDisabledPage from './pages/loginPage/AdminDisabledPage'
 import { useAdminSessionMonitor } from './hooks/useAdminSessionMonitor'
-import { getCurrentPath, installNavigation, navigate, subscribeNavigation } from './services/navigation'
+import { getCurrentPath, getNavigationScrollPosition, installNavigation, navigate, subscribeNavigation } from './services/navigation'
 import LegalPage from './pages/legal/LegalPage'
 import CookieBanner from './components/CookieBanner/CookieBanner'
 
@@ -103,8 +103,9 @@ function App() {
     return () => { unsubscribe(); uninstall() }
   }, [])
 
-  useEffect(() => {
-    window.scrollTo(0, 0)
+  useLayoutEffect(() => {
+    const { x, y } = getNavigationScrollPosition()
+    window.scrollTo({ left: x, top: y, behavior: 'instant' })
   }, [path])
 
   useEffect(() => {

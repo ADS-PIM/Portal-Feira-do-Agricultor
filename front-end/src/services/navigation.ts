@@ -1,5 +1,43 @@
 const NAVIGATION_EVENT = 'portal:navigation'
 
+type NavigationEntry = {
+    index: number
+    href: string
+    previousIndex?: number
+    previousHref?: string
+    scroll: { x: number; y: number }
+}
+
+let activeEntry: NavigationEntry | undefined
+
+function getNavigationEntry(): NavigationEntry | undefined {
+    return window.history.state?.portalNavigation
+}
+
+function saveNavigationEntry(entry: NavigationEntry): void {
+    window.history.replaceState({ ...window.history.state, portalNavigation: entry }, '')
+    activeEntry = entry
+}
+
+export function getNavigationScrollPosition(): { x: number; y: number } {
+    return getNavigationEntry()?.scroll ?? { x: 0, y: 0 }
+}
+
+export function getNavigationReturnPath(): string {
+    const entry = getNavigationEntry()
+    return entry?.previousIndex !== undefined ? entry.previousHref ?? '/' : '/'
+}
+
+export function goBack(fallback = '/'): void {
+    const entry = getNavigationEntry()
+    if (entry?.previousIndex !== undefined) {
+        saveNavigationEntry({ ...entry, scroll: { x: window.scrollX, y: window.scrollY } })
+        window.history.go(entry.previousIndex - entry.index)
+    } else {
+        navigate(fallback)
+    }
+}
+
 // Keep previously shared links usable while generating only paths without hashes.
 export function normalizePortalPath(value: string): string {
     const path = value.replace(/^#/, '')
@@ -30,17 +68,43 @@ export function navigate(path: string, { replace = false }: { replace?: boolean 
     const destination = normalizePortalPath(path)
     if (!destination.startsWith('/') || destination.startsWith('//') || destination.includes('\\')) return
     if (replace || `${window.location.pathname}${window.location.search}${window.location.hash}` !== destination) {
-        window.history[replace ? 'replaceState' : 'pushState'](null, '', destination)
+        const current = getNavigationEntry()
+        if (current) saveNavigationEntry({ ...current, scroll: { x: window.scrollX, y: window.scrollY } })
+        const entry: NavigationEntry = {
+            index: (current?.index ?? 0) + (replace ? 0 : 1),
+            href: destination,
+            previousIndex: replace ? current?.previousIndex : current?.index,
+            previousHref: replace ? current?.previousHref : current?.href,
+            scroll: { x: 0, y: 0 },
+        }
+        window.history[replace ? 'replaceState' : 'pushState']({ ...window.history.state, portalNavigation: entry }, '', destination)
+        activeEntry = entry
     }
     window.dispatchEvent(new Event(NAVIGATION_EVENT))
 }
 
 export function installNavigation(): () => void {
+    const previousScrollRestoration = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
     const sync = () => {
         const path = getCurrentPath()
-        if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== path) {
-            window.history.replaceState(null, '', path)
+        const legacyHash = /^#\/(?!\/)|^#(?:inicio|sobre|contato|calculadora)$/.test(window.location.hash)
+        const href = `${path}${legacyHash ? '' : window.location.hash}`
+        if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== href) {
+            window.history.replaceState(window.history.state, '', href)
         }
+        const storedEntry = getNavigationEntry()
+        // Browsers may create fragment entries without copying history.state.
+        const entry = storedEntry ?? (activeEntry?.href.split('#')[0] === path ? activeEntry : undefined)
+        // Section links add browser entries too; keep the page's original return target.
+        if (!storedEntry || entry?.href !== href) saveNavigationEntry({
+            index: entry ? entry.index + 1 : 0,
+            href,
+            previousIndex: entry?.previousIndex,
+            previousHref: entry?.previousHref,
+            scroll: { x: window.scrollX, y: window.scrollY },
+        })
+        else activeEntry = storedEntry
         window.dispatchEvent(new Event(NAVIGATION_EVENT))
     }
     const handleClick = (event: MouseEvent) => {
@@ -57,6 +121,7 @@ export function installNavigation(): () => void {
     window.addEventListener('popstate', sync)
     window.addEventListener('hashchange', sync)
     return () => {
+        window.history.scrollRestoration = previousScrollRestoration
         document.removeEventListener('click', handleClick)
         window.removeEventListener('popstate', sync)
         window.removeEventListener('hashchange', sync)

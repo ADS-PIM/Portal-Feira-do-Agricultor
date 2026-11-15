@@ -14,17 +14,26 @@
     display: inline-flex;
     min-height: 42px;
     align-items: center;
+    gap: 7px;
     margin-bottom: 28px;
-    color: var(--text-secondary);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--theme-accent, var(--brand-green-dark));
+    font-family: inherit;
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
+    cursor: pointer;
 }
 
-.legal-page-back::before {
-    content: '←';
-    margin-right: 9px;
-    font-size: 18px;
+.legal-page-back svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
 }
 
 .legal-page-header {
@@ -104,8 +113,12 @@ body:has(.site-header.is-hidden) .legal-page-toc {
     text-decoration: none;
 }
 
-.legal-page-toc a:hover,
 .legal-page-back:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.legal-page-toc a:hover {
     color: var(--brand-green-dark);
     text-decoration: underline;
     text-underline-offset: 3px;

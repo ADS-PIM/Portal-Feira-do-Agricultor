@@ -1,8 +1,20 @@
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
+import Icon from '../../components/Icon'
+import { getNavigationReturnPath, goBack } from '../../services/navigation'
+import { getAccountReturnTarget } from '../../services/profileNavigation'
 import './LegalPage.css'
 
 type LegalDocument = 'terms' | 'privacy'
+
+const returnLabels: Record<string, string> = {
+    '/sobre': 'Voltar para Sobre nós',
+    '/sobre/equipe': 'Voltar para Quem fez o portal',
+    '/minha-conta': 'Voltar à minha conta',
+    '/termos-de-uso': 'Voltar aos Termos de Uso',
+    '/politica-de-privacidade': 'Voltar à Política de Privacidade',
+    '/admin/redefinir-senha': 'Voltar à redefinição de senha',
+}
 
 const documentSections: Record<LegalDocument, { id: string; label: string }[]> = {
     terms: [
@@ -29,13 +41,17 @@ const documentSections: Record<LegalDocument, { id: string; label: string }[]> =
 function LegalPage({ document }: { document: LegalDocument }) {
     const isPrivacy = document === 'privacy'
     const title = isPrivacy ? 'Política de Privacidade' : 'Termos de Uso'
+    const returnPath = getNavigationReturnPath().split(/[?#]/)[0]
+    const returnLabel = returnLabels[returnPath] ?? getAccountReturnTarget(returnPath).label
 
     return (
         <>
             <Header />
             <main className="legal-page">
                 <div className="legal-page-container">
-                    <a className="legal-page-back" href="/">Voltar ao início</a>
+                    <button className="legal-page-back" type="button" onClick={() => goBack()}>
+                        <Icon name="arrowLeft" /> {returnLabel}
+                    </button>
                     <header className="legal-page-header">
                         <p className="legal-page-eyebrow">BROTANDO FEIRAS</p>
                         <h1>{title}</h1>
