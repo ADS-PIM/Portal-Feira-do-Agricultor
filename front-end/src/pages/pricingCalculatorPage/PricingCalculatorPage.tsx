@@ -23,7 +23,7 @@ const calculatorMethods = [
 type CalculatorMethod = typeof calculatorMethods[number]['id']
 
 const initialValues: FormValues = {
-  materialCost: '', productionHours: '', hourlyRate: '', monthlyFixedExpenses: '0',
+  materialCost: '', productionHours: '', hourlyRate: '', monthlyFixedExpenses: '',
   monthlyRevenue: '', variableExpenses: '0', profit: '0', timeUnit: 'hour',
 }
 const exampleValues: FormValues = {
@@ -211,10 +211,7 @@ export default function PricingCalculatorPage() {
   }
 
   function clearFields() {
-    setValues({
-      materialCost: '', productionHours: '', hourlyRate: '', monthlyFixedExpenses: '',
-      monthlyRevenue: '', variableExpenses: '0', profit: '0', timeUnit: 'hour',
-    })
+    setValues(initialValues)
     setTouched({})
     showStep(0, 'materialCost')
   }
