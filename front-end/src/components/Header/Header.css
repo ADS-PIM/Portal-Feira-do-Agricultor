@@ -27,6 +27,51 @@
     display: none;
 }
 
+.site-header-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.site-header-zoom-controls {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 4px;
+}
+
+.site-header-zoom-controls button {
+    box-sizing: border-box;
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--theme-border, #dcebdd);
+    border-radius: 10px;
+    background: var(--theme-surface, #fff);
+    color: var(--theme-accent, var(--brand-green-dark));
+    font: inherit;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease, opacity 150ms ease;
+}
+
+.site-header-zoom-controls button:hover:not(:disabled),
+.site-header-zoom-controls button:focus-visible {
+    background: var(--brand-green-dark);
+    color: #fff;
+}
+
+.site-header-zoom-controls button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
 .site-header-menu-icon {
     position: relative;
     width: 24px;
@@ -252,14 +297,14 @@
     }
 }
 
-@media (min-width: 1201px) {
+@media (min-width: 1281px) {
     .site-header.is-guest {
         grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     }
 }
 
 /* Keep this breakpoint in sync with the menu listener in Header.tsx. */
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
     .site-header {
         grid-template-columns: minmax(0, 1fr) auto auto;
         min-height: 68px;
@@ -270,6 +315,10 @@
     .site-header-brand {
         width: 128px;
         height: 48px;
+    }
+
+    .site-header-brand-group {
+        gap: 8px;
     }
 
     .site-header-brand img {
@@ -370,5 +419,50 @@
         width: 36px;
         height: 36px;
         flex-basis: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .site-header-brand-group {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 4px;
+    }
+
+    .site-header-menu-toggle {
+        grid-column: 3;
+        grid-row: 1;
+        align-self: start;
+    }
+
+    .site-header-account {
+        align-self: start;
+    }
+}
+
+@media (max-width: 360px) {
+    .site-header-brand-group {
+        gap: 6px;
+    }
+
+    .site-header-brand {
+        width: 96px;
+    }
+
+    .site-header-zoom-controls {
+        gap: 2px;
+    }
+
+    .site-header-zoom-controls button {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+@media (max-width: 320px) {
+    .site-header-zoom-controls button {
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
     }
 }

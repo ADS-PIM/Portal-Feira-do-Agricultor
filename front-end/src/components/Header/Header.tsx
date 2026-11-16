@@ -26,6 +26,10 @@ const navigationLinks = [
     { href: '/admin', label: 'Área administrativa' },
 ]
 
+const MIN_PAGE_ZOOM = 80
+const MAX_PAGE_ZOOM = 150
+const PAGE_ZOOM_STEP = 10
+
 type HeaderProps = {
     // Permite que uma página específica (como a de login) force qual link
     // começa demarcado, em vez de sempre abrir em '/'.
@@ -59,6 +63,10 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
     const navigationId = useId()
     const theme = useSyncExternalStore(subscribeTheme, getTheme)
     const themeButtonLabel = theme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'
+    const [pageZoom, setPageZoom] = useState(() => {
+        const currentZoom = Number.parseFloat(document.body.style.zoom)
+        return Number.isFinite(currentZoom) && currentZoom > 0 ? currentZoom : 100
+    })
     const [authenticated, setAuthenticated] = useState(isAuthenticated)
     const [adminProfile, setAdminProfile] = useState<HeaderProfile | null>(() => getAdminProfile() ?? getCachedHeaderProfile())
     const [hasCheckedSession, setHasCheckedSession] = useState(() => hasCheckedHeaderSession || Boolean(getAdminProfile()) || (!isAuthenticated() && getAuthDisplayState() === 'guest'))
@@ -67,6 +75,17 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
     const hasInitializedScrollPosition = useRef(false)
     const hasAccountDisplay = authenticated || Boolean(adminProfile)
     const visibleNavigationLinks = navigationLinks.filter(({ href }) => href !== '/admin' || hasAccountDisplay)
+    const changePageZoom = (step: number) => {
+        const nextZoom = Math.min(MAX_PAGE_ZOOM, Math.max(MIN_PAGE_ZOOM, pageZoom + step))
+        document.body.style.zoom = `${nextZoom}%`
+        setPageZoom(nextZoom)
+    }
+
+    useLayoutEffect(() => {
+        const header = headerRef.current
+        // Keep the sticky header usable while the rest of the page is zoomed.
+        if (header) header.style.zoom = `${10000 / pageZoom}%`
+    }, [pageZoom])
 
     useLayoutEffect(() => {
         const header = headerRef.current
@@ -104,7 +123,7 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
             }
         }
         // Keep this breakpoint in sync with the compact layout in Header.css.
-        const compactViewport = window.matchMedia('(max-width: 1200px)')
+        const compactViewport = window.matchMedia('(max-width: 1280px)')
         const handleViewportChange = (event: MediaQueryListEvent) => {
             if (!event.matches) closeMenu()
         }
@@ -177,9 +196,31 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
 
     return (
         <header ref={headerRef} className={`site-header${hasAccountDisplay ? '' : ' is-guest'}${isVisible || isMenuOpen ? '' : ' is-hidden'}${isMenuOpen ? ' is-menu-open' : ''}`}>
-            <a className="site-header-brand" href="/" aria-label="Brotando Feiras - início" onClick={() => setIsMenuOpen(false)}>
-                <img src={logo} alt="Brotando Feiras" />
-            </a>
+            <div className="site-header-brand-group">
+                <a className="site-header-brand" href="/" aria-label="Brotando Feiras - início" onClick={() => setIsMenuOpen(false)}>
+                    <img src={logo} alt="Brotando Feiras" />
+                </a>
+                <div className="site-header-zoom-controls" role="group" aria-label="Controles de tamanho da página">
+                    <button
+                        type="button"
+                        aria-label="Aumentar tamanho da página"
+                        title="Aumentar tamanho da página"
+                        disabled={pageZoom >= MAX_PAGE_ZOOM}
+                        onClick={() => changePageZoom(PAGE_ZOOM_STEP)}
+                    >
+                        +
+                    </button>
+                    <button
+                        type="button"
+                        aria-label="Diminuir tamanho da página"
+                        title="Diminuir tamanho da página"
+                        disabled={pageZoom <= MIN_PAGE_ZOOM}
+                        onClick={() => changePageZoom(-PAGE_ZOOM_STEP)}
+                    >
+                        −
+                    </button>
+                </div>
+            </div>
 
             <button
                 ref={menuButtonRef}
