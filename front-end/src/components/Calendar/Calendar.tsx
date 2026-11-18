@@ -8,6 +8,7 @@ import './Calendar.css'
 import './CalendarStatus.css'
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+const CALENDAR_MONTH_STORAGE_KEY = 'brotando-feiras-calendar-month'
 const WEEKDAY_OPTIONS = [
     { value: '', label: 'Todos os dias' },
     { value: '0', label: 'Domingo' },
@@ -53,6 +54,14 @@ function matchesFilters(
 
 function Calendar() {
     const [visibleMonth, setVisibleMonth] = useState(() => {
+        try {
+            const savedMonth = window.sessionStorage.getItem(CALENDAR_MONTH_STORAGE_KEY)
+            if (savedMonth && /^\d{4}-(0[1-9]|1[0-2])$/.test(savedMonth)) {
+                return new Date(`${savedMonth}-01T12:00:00`)
+            }
+        } catch {
+            // Browsing remains available when session storage is blocked.
+        }
         const today = new Date()
         return new Date(today.getFullYear(), today.getMonth(), 1)
     })
@@ -72,6 +81,11 @@ function Calendar() {
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`
 
     useEffect(() => {
+        try {
+            window.sessionStorage.setItem(CALENDAR_MONTH_STORAGE_KEY, monthKey)
+        } catch {
+            // Storage restrictions must not prevent loading the calendar.
+        }
         const controller = new AbortController()
         const firstDayOfMonth = `${monthKey}-01`
 

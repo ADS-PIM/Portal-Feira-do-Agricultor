@@ -26,9 +26,10 @@ const navigationLinks = [
     { href: '/admin', label: 'Área administrativa' },
 ]
 
-const MIN_PAGE_ZOOM = 80
+const MIN_PAGE_ZOOM = 50
 const MAX_PAGE_ZOOM = 150
 const PAGE_ZOOM_STEP = 10
+const PAGE_ZOOM_NOTICE_DURATION = 2500
 
 type HeaderProps = {
     // Permite que uma página específica (como a de login) force qual link
@@ -67,6 +68,8 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
         const currentZoom = Number.parseFloat(document.body.style.zoom)
         return Number.isFinite(currentZoom) && currentZoom > 0 ? currentZoom : 100
     })
+    const [showZoomValue, setShowZoomValue] = useState(false)
+    const zoomNoticeTimeout = useRef<number | null>(null)
     const [authenticated, setAuthenticated] = useState(isAuthenticated)
     const [adminProfile, setAdminProfile] = useState<HeaderProfile | null>(() => getAdminProfile() ?? getCachedHeaderProfile())
     const [hasCheckedSession, setHasCheckedSession] = useState(() => hasCheckedHeaderSession || Boolean(getAdminProfile()) || (!isAuthenticated() && getAuthDisplayState() === 'guest'))
@@ -76,12 +79,22 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
     const hasAccountDisplay = authenticated || Boolean(adminProfile)
     const visibleNavigationLinks = navigationLinks.filter(({ href }) => href !== '/admin' || hasAccountDisplay)
     const changePageZoom = (step: number) => {
-        const nextZoom = Math.min(MAX_PAGE_ZOOM, Math.max(MIN_PAGE_ZOOM, pageZoom + step))
-        document.body.style.zoom = `${nextZoom}%`
-        setPageZoom(nextZoom)
+        setPageZoom(current => Math.min(MAX_PAGE_ZOOM, Math.max(MIN_PAGE_ZOOM, current + step)))
+        setShowZoomValue(true)
+        if (zoomNoticeTimeout.current !== null) window.clearTimeout(zoomNoticeTimeout.current)
+        zoomNoticeTimeout.current = window.setTimeout(() => {
+            setShowZoomValue(false)
+            zoomNoticeTimeout.current = null
+        }, PAGE_ZOOM_NOTICE_DURATION)
     }
 
+    useEffect(() => () => {
+        if (zoomNoticeTimeout.current !== null) window.clearTimeout(zoomNoticeTimeout.current)
+    }, [])
+
     useLayoutEffect(() => {
+        document.body.style.zoom = `${pageZoom}%`
+        document.body.style.setProperty('--page-zoom', String(pageZoom / 100))
         const header = headerRef.current
         // Keep the sticky header usable while the rest of the page is zoomed.
         if (header) header.style.zoom = `${10000 / pageZoom}%`
@@ -219,6 +232,9 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
                     >
                         −
                     </button>
+                    <output className="site-header-zoom-value" aria-label="Tamanho da página" aria-live="polite" aria-atomic="true">
+                        {showZoomValue ? `${pageZoom}%` : ''}
+                    </output>
                 </div>
             </div>
 
