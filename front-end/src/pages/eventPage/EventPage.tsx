@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Icon from '../../components/Icon'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
@@ -64,15 +64,32 @@ function EventPhoto({ image }: { image: EventImage }) {
 function EventPage({ eventId }: { eventId: string }) {
     const [event, setEvent] = useState<EventDetails | null>(null)
     const [images, setImages] = useState<EventImage[]>([])
+    const galleryRef = useRef<HTMLDivElement>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [eventError, setEventError] = useState<string | null>(null)
     const [imagesError, setImagesError] = useState<string | null>(null)
-    const [showAllPhotos, setShowAllPhotos] = useState(false)
     const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null)
     const [reloadKey, setReloadKey] = useState(0)
     const [navigation, setNavigation] = useState<{
         events: AdminEvent[]; loading: boolean; error: boolean
     }>({ events: [], loading: true, error: false })
+
+    useLayoutEffect(() => {
+        const gallery = galleryRef.current
+        if (!gallery) return
+        const firstPhotos = Array.from(gallery.children).slice(0, 3) as HTMLElement[]
+        const updateGalleryHeight = () => {
+            const gap = Number.parseFloat(getComputedStyle(gallery).rowGap) || 0
+            const height = firstPhotos.reduce((total, photo) => total + photo.offsetHeight, 0)
+                + gap * Math.max(0, firstPhotos.length - 1)
+            gallery.style.setProperty('--gallery-visible-height', `${height}px`)
+        }
+        updateGalleryHeight()
+        const observer = new ResizeObserver(updateGalleryHeight)
+        observer.observe(gallery)
+        firstPhotos.forEach(photo => observer.observe(photo))
+        return () => observer.disconnect()
+    }, [images])
 
     useEffect(() => {
         const controller = new AbortController()
@@ -133,7 +150,6 @@ function EventPage({ eventId }: { eventId: string }) {
     const photos = event?.bannerImage?.trim()
         ? [{ id: 'event-banner', imageURL: event.bannerImage, description: 'Banner do evento' }, ...galleryImages]
         : galleryImages
-    const visiblePhotos = showAllPhotos ? galleryImages : galleryImages.slice(0, 5)
     const selectedPhoto = selectedPhotoIndex !== null ? photos[selectedPhotoIndex] ?? null : null
     const mapCoordinates = event ? getCoordinates(event.localLatitude, event.localLongitude) : null
     const hasAddress = Boolean(event?.localAddress?.trim())
@@ -247,7 +263,6 @@ function EventPage({ eventId }: { eventId: string }) {
                                         setEventError(null)
                                         setImagesError(null)
                                         setIsLoading(true)
-                                        setShowAllPhotos(false)
                                         setReloadKey(key => key + 1)
                                     }}
                                 >
@@ -352,37 +367,26 @@ function EventPage({ eventId }: { eventId: string }) {
                                 ) : galleryImages.length === 0 ? (
                                     <p className="event-page-gallery-message">Esse evento não possui fotos.</p>
                                 ) : (
-                                    <>
-                                        <div className="event-page-photos">
-                                            {visiblePhotos.map((image, index) => (
-                                                <div
-                                                    key={image.id}
-                                                    className="event-page-photo-button"
-                                                    role="button"
-                                                    tabIndex={0}
-                                                    onClick={() => openPhoto(photos.findIndex(photo => photo.id === image.id))}
-                                                    onKeyDown={(event) => {
-                                                        if (event.key === 'Enter' || event.key === ' ') {
-                                                            event.preventDefault()
-                                                            openPhoto(photos.findIndex(photo => photo.id === image.id))
-                                                        }
-                                                    }}
-                                                    aria-label={`Ampliar foto ${index + 1} de ${visiblePhotos.length}`}
-                                                >
-                                                    <EventPhoto image={image} />
-                                                </div>
-                                            ))}
-                                        </div>
-                                        {galleryImages.length > 5 && (
-                                            <button
-                                                className="event-page-gallery-more"
-                                                type="button"
-                                                onClick={() => setShowAllPhotos(current => !current)}
+                                    <div ref={galleryRef} className="event-page-photos" role="region" aria-label="Fotos do evento" tabIndex={0}>
+                                        {galleryImages.map((image, index) => (
+                                            <div
+                                                key={image.id}
+                                                className="event-page-photo-button"
+                                                role="button"
+                                                tabIndex={0}
+                                                onClick={() => openPhoto(photos.findIndex(photo => photo.id === image.id))}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === 'Enter' || event.key === ' ') {
+                                                        event.preventDefault()
+                                                        openPhoto(photos.findIndex(photo => photo.id === image.id))
+                                                    }
+                                                }}
+                                                aria-label={`Ampliar foto ${index + 1} de ${galleryImages.length}`}
                                             >
-                                                {showAllPhotos ? 'Ver menos' : 'Ver mais'}
-                                            </button>
-                                        )}
-                                    </>
+                                                <EventPhoto image={image} />
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
                             </aside>
                         </div>

@@ -86,7 +86,7 @@
 .event-page-location-caption a:focus-visible,
 .event-page-feedback-actions a:focus-visible,
 .event-page-feedback-actions button:focus-visible,
-.event-page-gallery-more:focus-visible,
+.event-page-photos:focus-visible,
 .event-page-cover-button:focus-visible,
 .event-page-photo-button:focus-visible,
 .event-page-lightbox-close:focus-visible,
@@ -279,7 +279,15 @@
 
 .event-page-photos {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: max-content;
+    align-content: start;
     gap: 12px;
+    max-height: var(--gallery-visible-height, 640px);
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-default) transparent;
 }
 
 .event-page-photo {
@@ -340,24 +348,6 @@
 .event-page-gallery-message.is-error {
     background: var(--theme-danger-surface, #fff4ef);
     color: var(--theme-danger-text, #9a4936);
-}
-
-.event-page-gallery-more {
-    min-height: 38px;
-    margin-top: 14px;
-    padding: 0 16px;
-    border: 0;
-    border-radius: 999px;
-    background: var(--brand-green-dark);
-    color: #fff;
-    font: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.event-page-gallery-more:hover {
-    background: var(--brand-green-hover);
 }
 
 .event-page-location {
@@ -686,10 +676,6 @@
         padding: 22px;
     }
 
-    .event-page-photos {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .event-page-photo img,
     .event-page-photo-unavailable {
         aspect-ratio: 1.2;
@@ -704,10 +690,6 @@
 @media (max-width: 420px) {
     .event-page-details-card {
         padding: 18px;
-    }
-
-    .event-page-photos {
-        grid-template-columns: minmax(0, 1fr);
     }
 
     .event-page-photo img,
