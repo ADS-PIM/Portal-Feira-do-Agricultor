@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import instituteLogo from '../../assets/instituto_brotar_logo_footer.svg'
 import Icon from '../Icon'
-import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoService'
+import { getBusinessInfo, subscribeBusinessInfoChanges, type BusinessInfo } from '../../services/businessInfoService'
 import { getUserFacingError } from '../../services/errors'
 import './Footer.css'
 
@@ -36,7 +36,7 @@ function ContactButton({ name, label, href }: { name: 'whatsapp' | 'instagram' |
 }
 
 const Footer = () => {
-    const [businessInfo, setBusinessInfo] = useState<BusinessInfo | null>(null)
+    const [businessInfo, setBusinessInfo] = useState<Pick<BusinessInfo, 'whatsappNumber' | 'instagramAccount' | 'businessEmail'> | null>(null)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
@@ -44,7 +44,8 @@ const Footer = () => {
 
         const loadBusinessInfo = async () => {
             try {
-                setBusinessInfo(await getBusinessInfo(controller.signal))
+                const info = await getBusinessInfo(controller.signal)
+                if (!controller.signal.aborted) setBusinessInfo(info)
             } catch (requestError) {
                 if (!controller.signal.aborted) {
                     setError(getUserFacingError(requestError, 'Não foi possível carregar os contatos. Tente novamente mais tarde.'))
@@ -52,8 +53,14 @@ const Footer = () => {
             }
         }
 
+        const unsubscribe = subscribeBusinessInfoChanges(payload => {
+            // A late initial read must not restore contacts removed by a successful save.
+            controller.abort()
+            setBusinessInfo(payload)
+            setError(null)
+        })
         void loadBusinessInfo()
-        return () => controller.abort()
+        return () => { controller.abort(); unsubscribe() }
     }, [])
 
     const whatsappNumber = businessInfo?.whatsappNumber?.trim()

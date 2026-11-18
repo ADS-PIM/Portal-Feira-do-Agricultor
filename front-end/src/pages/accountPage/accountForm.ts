@@ -1,5 +1,6 @@
 import type { AdminProfile } from '../../services/authToken'
 import type { AdminRecord, AdminRole } from '../../services/adminService'
+import { getPasswordError } from '../../utils/passwordPolicy'
 
 export type AccountFormValues = {
     name: string; email: string; profile_picture: string
@@ -16,6 +17,10 @@ export function accountFormValues(profile: AdminProfile): AccountFormValues {
 export function buildAccountUpdate(profile: AdminProfile, values: AccountFormValues): Partial<AdminRecord> {
     const name = values.name.trim()
     if (!name) throw new Error('Informe seu nome.')
+    if (values.password) {
+        const passwordError = getPasswordError(values.password)
+        if (passwordError) throw new Error(passwordError)
+    }
     if (values.password !== values.confirmPassword) throw new Error('A confirmação da senha não confere.')
     const update: Partial<AdminRecord> = {}
     if (name !== profile.name) update.name = name

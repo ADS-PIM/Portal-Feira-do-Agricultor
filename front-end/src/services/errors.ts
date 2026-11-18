@@ -1,4 +1,6 @@
 import { businessDescriptionTooLong } from '../utils/businessDescription'
+import { PASSWORD_REQUIREMENTS_MESSAGE } from '../utils/passwordPolicy'
+import { FULL_NAME_MESSAGE } from '../utils/fullName'
 import { BUSINESS_EMAIL_ERROR, BUSINESS_WHATSAPP_ERROR } from '../utils/businessContacts'
 import { INSTAGRAM_ERROR_MESSAGES } from '../utils/instagramAccount'
 import { CONTACT_VALIDATION_MESSAGES } from '../utils/contactValidation'
@@ -18,6 +20,8 @@ export class ApiRequestError extends Error {
 }
 
 function getApiErrorMessage(status: number, endpoint: string, code?: string): string {
+    if (status === 400 && code === 'ADMIN_FULL_NAME_INVALID' && /^admin\//.test(endpoint)) return FULL_NAME_MESSAGE
+    if (status === 400 && code === 'INVALID_PASSWORD' && /^admin\//.test(endpoint)) return PASSWORD_REQUIREMENTS_MESSAGE + ' Se a senha estiver muito longa, reduza a quantidade de caracteres ou símbolos.'
     const adminAccountEndpoint = /^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)
         && !/^admin\/(?:login|refresh|logout|forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)
     if (adminAccountEndpoint) {
@@ -66,7 +70,6 @@ function getApiErrorMessage(status: number, endpoint: string, code?: string): st
     }
     if (status === 400 && /^admin\/(?:forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)) {
         if (code === 'INVALID_EMAIL') return 'Informe um e-mail válido.'
-        if (code === 'INVALID_PASSWORD') return 'Use pelo menos 8 caracteres. Se a senha for muito longa, reduza a quantidade de caracteres ou símbolos.'
         if (code === 'PASSWORD_REUSE_FORBIDDEN') return 'Escolha uma senha diferente da anterior.'
         if (code === 'INVALID_RESET_TOKEN') return 'Este link é inválido ou expirou. Solicite um novo link para redefinir sua senha.'
     }

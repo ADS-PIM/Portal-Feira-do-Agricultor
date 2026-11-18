@@ -7,7 +7,6 @@ import { BusinessInfoService } from '../service/businessInfo.service';
 import { AuthRequest } from '../../authMiddleware';
 import { getInstagramAccountError } from '../util/instagramAccount';
 import { getContactEmailValidation, getContactPhoneValidation } from '../util/contactValidation';
-import { setPrivateReadCache } from '../util/cacheHeaders';
 import { ActionError } from '../model/actionError';
 
 function businessInfoValidationResponse(errors: ValidationError[]) {
@@ -56,11 +55,9 @@ export class BusinessInfoController {
         try {
             const businessInfo = await this.businessInfoService.getInfo();
             if (!businessInfo) {
-                setPrivateReadCache(res);
                 return res.status(200).json({ businessInfo: null });
             }
 
-            setPrivateReadCache(res);
             return res.status(200).json({
                 businessInfo: {
                     id: businessInfo.id,

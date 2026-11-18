@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import Header from '../../components/Header/Header'
 import Icon from '../../components/Icon'
+import { getPasswordError } from '../../utils/passwordPolicy'
 import logo from '../../assets/instituto_brotar_logo_transparente.svg'
 import { apiFetch } from '../../services/api'
 import { clearAccessToken } from '../../services/authToken'
@@ -28,12 +29,9 @@ export default function PasswordRecoveryPage({ mode, token }: Props) {
         if (loading) return
         setError(null)
         if (isReset) {
-            if (password.length < 8 || !password.trim()) {
-                setError('A nova senha deve ter pelo menos 8 caracteres.')
-                return
-            }
-            if (new TextEncoder().encode(password).length > 72) {
-                setError('A senha está muito longa. Reduza a quantidade de caracteres ou símbolos.')
+            const passwordError = getPasswordError(password)
+            if (passwordError) {
+                setError(passwordError)
                 return
             }
             if (password !== confirmation) {
@@ -99,19 +97,18 @@ export default function PasswordRecoveryPage({ mode, token }: Props) {
                                     <label htmlFor="recovery-password">Nova senha</label>
                                     <div className="login-painel-password-wrapper">
                                         <input id="recovery-password" type={visible ? 'text' : 'password'} autoComplete="new-password"
-                                            value={password} onChange={event => setPassword(event.target.value)} required minLength={8} maxLength={72}
-                                            aria-describedby="recovery-password-hint" disabled={loading} />
+                                            value={password} onChange={event => { setPassword(event.target.value); setError(null) }} required minLength={6} maxLength={72}
+                                            disabled={loading} />
                                         <button type="button" className="login-painel-toggle-visibility" onClick={() => setVisible(value => !value)}
                                             aria-label={visible ? 'Ocultar senhas' : 'Mostrar senhas'} title={visible ? 'Ocultar senhas' : 'Mostrar senhas'}>
                                             <Icon name={visible ? 'eye' : 'eyeSlash'} />
                                         </button>
                                     </div>
-                                    <p id="recovery-password-hint" className="password-recovery-hint">Use pelo menos 8 caracteres.</p>
                                 </div>
                                 <div className="login-painel-field">
                                     <label htmlFor="recovery-confirmation">Confirmar nova senha</label>
                                     <input id="recovery-confirmation" type={visible ? 'text' : 'password'} autoComplete="new-password"
-                                        value={confirmation} onChange={event => setConfirmation(event.target.value)} required minLength={8} maxLength={72} disabled={loading} />
+                                        value={confirmation} onChange={event => { setConfirmation(event.target.value); setError(null) }} required minLength={6} maxLength={72} disabled={loading} aria-invalid={Boolean(confirmation) && confirmation !== password} />
                                 </div>
                             </> : (
                                 <div className="login-painel-field">

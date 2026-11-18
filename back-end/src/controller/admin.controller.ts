@@ -12,8 +12,11 @@ import { AuthRequest } from '../../authMiddleware';
 import { refreshCookieOptions } from '../util/adminSessionCookie';
 
 function adminValidationResponse(errors: ValidationError[]) {
+    if (errors.some(error => error.property === 'name' && error.constraints?.fullName)) {
+        return { code: 'ADMIN_FULL_NAME_INVALID' };
+    }
     const fields: Record<string, string> = {
-        name: 'ADMIN_NAME_INVALID', email: 'ADMIN_EMAIL_INVALID', role: 'ADMIN_ROLE_INVALID',
+        name: 'ADMIN_NAME_INVALID', email: 'ADMIN_EMAIL_INVALID', role: 'ADMIN_ROLE_INVALID', password: 'INVALID_PASSWORD',
     };
     const field = errors.find(error => fields[error.property]);
     return { code: field ? fields[field.property] : 'ADMIN_INVALID_DATA' };
