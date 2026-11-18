@@ -133,11 +133,29 @@ function EventPage({ eventId }: { eventId: string }) {
     const photos = event?.bannerImage?.trim()
         ? [{ id: 'event-banner', imageURL: event.bannerImage, description: 'Banner do evento' }, ...galleryImages]
         : galleryImages
-    const visiblePhotos = showAllPhotos ? galleryImages : galleryImages.slice(0, 5)
+    const visiblePhotos = showAllPhotos ? galleryImages : galleryImages.slice(0, 3)
     const selectedPhoto = selectedPhotoIndex !== null ? photos[selectedPhotoIndex] ?? null : null
     const mapCoordinates = event ? getCoordinates(event.localLatitude, event.localLongitude) : null
     const hasAddress = Boolean(event?.localAddress?.trim())
     const mapUrl = getDirectionsUrl(mapCoordinates, event?.localAddress ?? null)
+    const renderGalleryPhoto = (image: typeof galleryImages[number], index: number) => (
+        <div
+            key={image.id}
+            className="event-page-photo-button"
+            role="button"
+            tabIndex={0}
+            onClick={() => openPhoto(photos.findIndex(photo => photo.id === image.id))}
+            onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    openPhoto(photos.findIndex(photo => photo.id === image.id))
+                }
+            }}
+            aria-label={`Ampliar foto ${index + 1} de ${galleryImages.length}`}
+        >
+            <EventPhoto image={image} />
+        </div>
+    )
 
     const openPhoto = (index: number) => {
         if (photos.length === 0) return
@@ -353,27 +371,10 @@ function EventPage({ eventId }: { eventId: string }) {
                                     <p className="event-page-gallery-message">Esse evento não possui fotos.</p>
                                 ) : (
                                     <>
-                                        <div className="event-page-photos">
-                                            {visiblePhotos.map((image, index) => (
-                                                <div
-                                                    key={image.id}
-                                                    className="event-page-photo-button"
-                                                    role="button"
-                                                    tabIndex={0}
-                                                    onClick={() => openPhoto(photos.findIndex(photo => photo.id === image.id))}
-                                                    onKeyDown={(event) => {
-                                                        if (event.key === 'Enter' || event.key === ' ') {
-                                                            event.preventDefault()
-                                                            openPhoto(photos.findIndex(photo => photo.id === image.id))
-                                                        }
-                                                    }}
-                                                    aria-label={`Ampliar foto ${index + 1} de ${visiblePhotos.length}`}
-                                                >
-                                                    <EventPhoto image={image} />
-                                                </div>
-                                            ))}
+                                        <div className="event-page-photos is-sidebar">
+                                            {visiblePhotos.slice(0, 3).map(renderGalleryPhoto)}
                                         </div>
-                                        {galleryImages.length > 5 && (
+                                        {galleryImages.length > 3 && (
                                             <button
                                                 className="event-page-gallery-more"
                                                 type="button"
@@ -385,6 +386,14 @@ function EventPage({ eventId }: { eventId: string }) {
                                     </>
                                 )}
                             </aside>
+
+                            {!imagesError && showAllPhotos && galleryImages.length > 3 && (
+                                <section className="event-page-gallery-continuation" aria-label="Mais fotos do evento">
+                                    <div className="event-page-photos">
+                                        {visiblePhotos.slice(3).map((image, index) => renderGalleryPhoto(image, index + 3))}
+                                    </div>
+                                </section>
+                            )}
                         </div>
                     )}
                 </div>
