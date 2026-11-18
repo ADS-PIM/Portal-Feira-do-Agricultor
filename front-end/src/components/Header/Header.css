@@ -72,6 +72,16 @@
     cursor: not-allowed;
 }
 
+.site-header-zoom-value {
+    min-width: 5ch;
+    color: var(--brand-charcoal);
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    white-space: nowrap;
+}
+
 .site-header-menu-icon {
     position: relative;
     width: 24px;
