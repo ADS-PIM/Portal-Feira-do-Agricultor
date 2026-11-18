@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { isEmail } from 'class-validator';
 import { PasswordResetService } from '../service/passwordReset.service';
 import { AdminActionError } from '../model/adminActionError';
+import { isValidPassword, PASSWORD_REQUIREMENTS_MESSAGE } from '../util/passwordPolicy';
 
 export const recoveryMessage = 'Se este e-mail estiver associado a uma conta ativa, você receberá um link para redefinir sua senha. Confira também a pasta de spam.';
 
@@ -30,8 +31,8 @@ export class PasswordResetController {
             return this.invalidLink(res);
         }
         // bcrypt accepts at most 72 bytes; reject truncation, including multi-byte passwords.
-        if (typeof password !== 'string' || password.length < 8 || !password.trim() || Buffer.byteLength(password, 'utf8') > 72) {
-            return res.status(400).json({ code: 'INVALID_PASSWORD', error: 'Use pelo menos 8 caracteres e no máximo 72 bytes na senha.' });
+        if (!isValidPassword(password)) {
+            return res.status(400).json({ code: 'INVALID_PASSWORD', error: PASSWORD_REQUIREMENTS_MESSAGE });
         }
         try {
             if (!await this.service.reset(token, password)) return this.invalidLink(res);

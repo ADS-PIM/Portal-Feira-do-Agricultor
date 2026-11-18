@@ -3,6 +3,7 @@ import { Admin } from '../model/admin';
 import { AdminSearchByIdDTO, AdminSearchDTO } from '../dto/admin.dto';
 import type { Pool, RowDataPacket } from 'mysql2/promise';
 import { AdminActionError } from '../model/adminActionError';
+import { adminRegistrationDate } from '../util/adminRegistrationDate';
 
 // Serialize role and status changes so concurrent requests cannot remove every active super admin.
 const lockAdministrators = 'SELECT id, role, active, mustResetPassword, anonymizedAt FROM administrators ORDER BY id FOR UPDATE';
@@ -49,7 +50,7 @@ export class AdminDAO {
         try {
             const [result]: any = await this.pool.query(
                 'INSERT INTO administrators (id, name, email, hashPassword, role, active, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [admin.id, admin.name, admin.email, admin.password, admin.role, admin.active, admin.createdAt]
+                [admin.id, admin.name, admin.email, admin.password, admin.role, admin.active, adminRegistrationDate(admin.createdAt)]
             );
         } catch (error) {
             throw adminWriteError(error);
@@ -98,7 +99,7 @@ export class AdminDAO {
     async searchAll(): Promise<AdminSearchDTO[] | null> {
         try {
             const [admins]: any = await this.pool.query(
-                'SELECT id, name, email, role, active, mustResetPassword, anonymizedAt, profile_picture, createdAt FROM administrators ORDER BY createdAt DESC'
+                "SELECT id, name, email, role, active, mustResetPassword, anonymizedAt, profile_picture, DATE_FORMAT(createdAt, '%Y-%m-%d') AS createdAt FROM administrators ORDER BY createdAt DESC"
             );
             return admins.length === 0 ? [] : admins;
         } catch (error: any) {

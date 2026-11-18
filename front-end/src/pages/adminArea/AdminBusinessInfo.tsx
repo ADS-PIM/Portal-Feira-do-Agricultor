@@ -103,7 +103,7 @@ const AdminBusinessInfo = () => {
         const loadBusinessInfo = async () => {
             try {
                 setIsLoading(true)
-                const info = await getBusinessInfo(controller.signal)
+                const info = await getBusinessInfo(controller.signal, true)
                 setBusinessInfo(info)
                 setHasBusinessInfo(Boolean(info))
                 setValues(toValues(info))
@@ -196,6 +196,7 @@ const AdminBusinessInfo = () => {
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
+        if (isSaving) return
 
         if (descriptionExceedsLimit) {
             setError(businessDescriptionTooLong)
@@ -245,10 +246,23 @@ const AdminBusinessInfo = () => {
             setTouchedContacts({})
             setStatusMessage('Informações salvas com sucesso.')
             try {
-                const refreshed = await getBusinessInfo()
+                const refreshed = await getBusinessInfo(undefined, true)
+                // Never overwrite the submitted form with a stale read after a successful write.
+                const confirmed = refreshed && Object.entries(payload).every(([key, value]) =>
+                    refreshed[key as keyof typeof payload] === value)
+                if (!confirmed) {
+                    setStatusMessage(null)
+                    setError('O servidor retornou dados diferentes dos enviados. Suas alterações foram mantidas no formulário. Tente salvar novamente.')
+                    return
+                }
                 setBusinessInfo(refreshed)
                 setHasBusinessInfo(Boolean(refreshed))
                 setValues(toValues(refreshed))
+                setFieldToggles({
+                    whatsapp: Boolean(refreshed.whatsappNumber?.trim()),
+                    instagram: Boolean(refreshed.instagramAccount?.trim()),
+                    email: Boolean(refreshed.businessEmail?.trim()),
+                })
                 const parsedHours = parseWeeklyBusinessHours(refreshed?.businessHours)
                 setWeeklyHours(parsedHours ?? createEmptyWeeklyBusinessHours())
                 setLegacyHours(refreshed?.businessHours?.trim() && !parsedHours ? refreshed.businessHours : null)

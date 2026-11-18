@@ -22,8 +22,15 @@ export type BusinessInfoPayload = {
     description?: string | null
 }
 
-export async function getBusinessInfo(signal?: AbortSignal): Promise<BusinessInfo | null> {
-    const response = await apiFetch<BusinessInfoResponse>('business-info', { signal })
+const changeListeners = new Set<(payload: BusinessInfoPayload) => void>()
+
+export function subscribeBusinessInfoChanges(listener: (payload: BusinessInfoPayload) => void): () => void {
+    changeListeners.add(listener)
+    return () => { changeListeners.delete(listener) }
+}
+
+export async function getBusinessInfo(signal?: AbortSignal, fresh = false): Promise<BusinessInfo | null> {
+    const response = await apiFetch<BusinessInfoResponse>('business-info', { signal, ...(fresh ? { cache: 'no-store' as const } : {}) })
     return response.businessInfo
 }
 
@@ -38,4 +45,5 @@ export async function upsertBusinessInfo(payload: BusinessInfoPayload, existing?
         },
         body: JSON.stringify(payload),
     })
+    changeListeners.forEach(listener => listener(payload))
 }

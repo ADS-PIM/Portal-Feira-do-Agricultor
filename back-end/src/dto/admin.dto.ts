@@ -1,11 +1,14 @@
-import { IsNotEmpty, IsString, IsEmail, IsEnum, IsOptional, IsBoolean, Matches, MaxLength, ValidateIf } from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, IsEnum, IsOptional, IsBoolean, Matches, MaxLength, ValidateIf, ValidateBy } from 'class-validator';
+import { isValidPassword, PASSWORD_REQUIREMENTS_MESSAGE } from '../util/passwordPolicy';
 import { AdminRole } from '../model/admin';
+import { isFullName, FULL_NAME_MESSAGE } from '../util/fullName';
 
 export class AdminCreateDTO {
     @IsNotEmpty()
     @IsString()
     @Matches(/\S/)
     @MaxLength(255)
+    @ValidateBy({ name: 'fullName', validator: { validate: isFullName, defaultMessage: () => FULL_NAME_MESSAGE } })
     name: string;
 
     @IsNotEmpty()
@@ -14,6 +17,7 @@ export class AdminCreateDTO {
 
     @IsNotEmpty()
     @IsString()
+    @ValidateBy({ name: 'passwordPolicy', validator: { validate: isValidPassword, defaultMessage: () => PASSWORD_REQUIREMENTS_MESSAGE } })
     password: string;
 
     @IsNotEmpty()
@@ -46,6 +50,7 @@ export class AdminUpdateDTO {
     @ValidateIf((_object, value) => value !== undefined)
     @IsNotEmpty()
     @IsString()
+    @ValidateBy({ name: 'passwordPolicy', validator: { validate: isValidPassword, defaultMessage: () => PASSWORD_REQUIREMENTS_MESSAGE } })
     password?: string;
 
     @ValidateIf((_object, value) => value !== undefined)
@@ -69,7 +74,7 @@ export class AdminSearchDTO {//Não tem necessidade de validação pq vai ser us
     active: boolean;
     mustResetPassword: boolean;
     anonymizedAt: Date | null;
-    createdAt: Date;
+    createdAt: string;
     profile_picture: string | null;
 }
 

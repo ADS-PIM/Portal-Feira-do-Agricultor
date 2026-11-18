@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import Icon from '../../components/Icon'
+import PasswordRequirements from '../../components/PasswordRequirements/PasswordRequirements'
+import { getPasswordError } from '../../utils/passwordPolicy'
+import { isFullName, FULL_NAME_MESSAGE } from '../../utils/fullName'
+import { formatRegistrationDate, registrationTime } from '../../utils/adminRegistrationDate'
 import { createAdmin, getAdmins, reactivateAdmin, updateAdmin, type AdminRecord } from '../../services/adminService'
 import { AUTH_STATE_CHANGE_EVENT, getAdminId, getAdminProfile } from '../../services/authToken'
 import { getUserFacingError } from '../../services/errors'
@@ -26,19 +30,6 @@ const getEmailError = (input: HTMLInputElement) => {
     if (input.validity.valueMissing) return 'Informe o e-mail do administrador.'
     if (!input.validity.valid) return 'Informe um e-mail válido, como nome@exemplo.com.'
     return null
-}
-
-const formatDate = (value?: string | null) => {
-    if (!value) return 'Ainda não foi salvo'
-
-    const parsed = new Date(value)
-    if (Number.isNaN(parsed.getTime())) return 'Ainda não foi salvo'
-
-    return new Intl.DateTimeFormat('pt-BR', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    }).format(parsed).replace('.', '')
 }
 
 const getInitials = (name: string) => {
@@ -75,6 +66,7 @@ const AdminAdministrators = () => {
     const [showInactive, setShowInactive] = useState(false)
     const [form, setForm] = useState<AdminFormState>(emptyForm)
     const [emailError, setEmailError] = useState<string | null>(null)
+    const [nameTouched, setNameTouched] = useState(false)
     const [confirmationTouched, setConfirmationTouched] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmation, setShowConfirmation] = useState(false)
@@ -90,6 +82,9 @@ const AdminAdministrators = () => {
     const [deletionError, setDeletionError] = useState<string | null>(null)
     const deletionDialogRef = useRef<HTMLDialogElement>(null)
     const [editingAdminId, setEditingAdminId] = useState<string | null>(null)
+    const nameError = !editingAdminId && nameTouched && !isFullName(form.name) ? FULL_NAME_MESSAGE : null
+    const showPasswordRequirements = !editingAdminId && form.password.length > 0
+    const showConfirmationRequirements = !editingAdminId && form.confirmPassword.length > 0
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
     const formPanelRef = useRef<HTMLElement>(null)
@@ -148,9 +143,10 @@ const AdminAdministrators = () => {
     const activeAdmins = admins.filter(admin => admin.active).length
     const inactiveAdmins = admins.length - activeAdmins
     const visibleAdmins = admins.filter(admin => Boolean(admin.active) !== showInactive)
-    const latestAdmin = [...admins].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())[0]
+    const latestAdmin = [...admins].sort((a, b) => registrationTime(b.createdAt) - registrationTime(a.createdAt))[0]
 
     const resetPasswordFeedback = () => {
+        setNameTouched(false)
         setConfirmationTouched(false)
         setShowPassword(false)
         setShowConfirmation(false)
@@ -171,6 +167,13 @@ const AdminAdministrators = () => {
         event.preventDefault()
         if (!canManageAdmins) return
 
+        if (!editingAdminId && !isFullName(form.name)) {
+            setNameTouched(true)
+            setSuccess(null)
+            event.currentTarget.querySelector<HTMLInputElement>('[name="name"]')?.focus()
+            return
+        }
+
         if (!form.name.trim() || !form.email.trim()) {
             setError('Preencha nome e e-mail para continuar.')
             return
@@ -181,6 +184,14 @@ const AdminAdministrators = () => {
             setSuccess(null)
             confirmationRef.current?.focus()
             return
+        }
+
+        if (form.password || !editingAdminId) {
+            const passwordError = getPasswordError(form.password)
+            if (passwordError) {
+                setError(passwordError)
+                return
+            }
         }
 
         try {
@@ -293,7 +304,7 @@ const AdminAdministrators = () => {
                         <span className="admin-managers-stat-label">Último cadastro administrativo</span>
                         <strong title={latestAdmin?.name}>{latestAdmin ? latestAdmin.name : 'Nenhum registro'}</strong>
                         <small>
-                            {latestAdmin ? `Registrado em ${formatDate(latestAdmin.createdAt ?? null)}` : 'Ainda não há registros'}
+                            {latestAdmin ? `Registrado em ${formatRegistrationDate(latestAdmin.createdAt)}` : 'Ainda não há registros'}
                         </small>
                     </div>
                 </div>
@@ -416,10 +427,24 @@ const AdminAdministrators = () => {
                                 <input
                                     type="text"
                                     name="name"
+                                    required
+                                    autoComplete="name"
+                                    maxLength={255}
                                     value={form.name}
                                     onChange={handleFieldChange}
+                                    onBlur={() => setNameTouched(true)}
+                                    onInvalid={event => {
+                                        if (!editingAdminId) {
+                                            event.preventDefault()
+                                            setNameTouched(true)
+                                            event.currentTarget.focus()
+                                        }
+                                    }}
+                                    aria-invalid={Boolean(nameError)}
+                                    aria-describedby={nameError ? 'admin-manager-name-error' : undefined}
                                     placeholder="Nome do Administrador"
                                 />
+                                {nameError && <small id="admin-manager-name-error" className="admin-managers-field-error" role="alert">{nameError}</small>}
                             </label>
 
                             <label>
@@ -460,6 +485,7 @@ const AdminAdministrators = () => {
                                         name="password"
                                         autoComplete="new-password"
                                         required={!editingAdminId}
+                                        aria-describedby={showPasswordRequirements ? 'admin-manager-password-hint' : undefined}
                                         value={form.password}
                                         onChange={handleFieldChange}
                                         placeholder="Digite uma senha"
@@ -475,6 +501,7 @@ const AdminAdministrators = () => {
                                         <Icon name={showPassword ? 'eye' : 'eyeSlash'} />
                                     </button>
                                 </div>
+                                {showPasswordRequirements && <PasswordRequirements id="admin-manager-password-hint" password={form.password} />}
                             </div>
 
                             <div className="admin-managers-form-field">
@@ -489,7 +516,10 @@ const AdminAdministrators = () => {
                                         value={form.confirmPassword}
                                         onChange={handleFieldChange}
                                         aria-invalid={Boolean(confirmationError)}
-                                        aria-describedby={confirmationError ? 'admin-manager-confirm-password-error' : undefined}
+                                        aria-describedby={[
+                                            showConfirmationRequirements && 'admin-manager-confirmation-hint',
+                                            confirmationError && 'admin-manager-confirm-password-error',
+                                        ].filter(Boolean).join(' ') || undefined}
                                         placeholder="Repita a senha"
                                     />
                                     <button
@@ -504,6 +534,7 @@ const AdminAdministrators = () => {
                                     </button>
                                 </div>
                                 {confirmationError && <small id="admin-manager-confirm-password-error" className="admin-managers-field-error" role="alert">{confirmationError}</small>}
+                                {showConfirmationRequirements && <PasswordRequirements id="admin-manager-confirmation-hint" password={form.confirmPassword} confirmationFor={form.password} />}
                             </div>
 
                             <button type="submit" className="admin-managers-submit-button" disabled={isSubmitting}>
