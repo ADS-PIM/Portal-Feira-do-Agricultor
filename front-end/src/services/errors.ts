@@ -21,7 +21,7 @@ export class ApiRequestError extends Error {
 
 function getApiErrorMessage(status: number, endpoint: string, code?: string): string {
     if (status === 400 && code === 'ADMIN_FULL_NAME_INVALID' && /^admin\//.test(endpoint)) return FULL_NAME_MESSAGE
-    if (status === 400 && code === 'INVALID_PASSWORD' && /^admin\//.test(endpoint)) return PASSWORD_REQUIREMENTS_MESSAGE + ' Se a senha estiver muito longa, reduza a quantidade de caracteres ou símbolos.'
+    if (status === 400 && code === 'INVALID_PASSWORD' && /^admin\//.test(endpoint)) return PASSWORD_REQUIREMENTS_MESSAGE
     const adminAccountEndpoint = /^admin\/[^/?]+\/?(?:\?|$)/.test(endpoint)
         && !/^admin\/(?:login|refresh|logout|forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)
     if (adminAccountEndpoint) {

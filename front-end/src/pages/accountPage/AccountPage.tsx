@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import Icon from '../../components/Icon'
+import PasswordRequirements from '../../components/PasswordRequirements/PasswordRequirements'
 import { restoreAdminProfile } from '../../services/api'
 import { logoutAdmin, updateAdmin } from '../../services/adminService'
 import { setAdminProfile, type AdminProfile } from '../../services/authToken'
@@ -110,8 +111,14 @@ function AccountDetails({ initialProfile }: { initialProfile: AdminProfile }) {
                         }} />
                         {isSuper && <><label>Perfil de acesso<select value={values.role} onChange={e => change('role', e.target.value as AccountFormValues['role'])}><option value="SUPER_ADMIN">Administrador principal</option><option value="ADMIN">Administrador</option></select></label>{values.role !== profile.role && <p className="account-access-note account-full-width">Ao mudar para administrador, sua sessão será encerrada e as permissões de administrador principal serão removidas.</p>}</>}
                         <div className="account-password-heading account-full-width"><h3>Alterar senha</h3><p>Deixe os campos vazios para manter sua senha atual.</p></div>
-                        <label>Nova senha<input type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={values.password} onChange={e => change('password', e.target.value)} /></label>
-                        <label>Confirmar nova senha<input type={showPassword ? 'text' : 'password'} autoComplete="new-password" required={Boolean(values.password)} value={values.confirmPassword} aria-invalid={Boolean(values.confirmPassword) && values.confirmPassword !== values.password} onChange={e => change('confirmPassword', e.target.value)} /></label>
+                        <div>
+                            <label>Nova senha<input type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={values.password} aria-describedby={values.password ? 'account-password-hint' : undefined} onChange={e => change('password', e.target.value)} /></label>
+                            {values.password && <PasswordRequirements id="account-password-hint" password={values.password} />}
+                        </div>
+                        <div>
+                            <label>Confirmar nova senha<input type={showPassword ? 'text' : 'password'} autoComplete="new-password" required={Boolean(values.password)} value={values.confirmPassword} aria-describedby={values.confirmPassword ? 'account-confirmation-hint' : undefined} aria-invalid={Boolean(values.confirmPassword) && values.confirmPassword !== values.password} onChange={e => change('confirmPassword', e.target.value)} /></label>
+                            {values.confirmPassword && <PasswordRequirements id="account-confirmation-hint" password={values.confirmPassword} confirmationFor={values.password} />}
+                        </div>
                         <button className="account-password-toggle account-full-width" type="button" aria-pressed={showPassword} onClick={() => setShowPassword(current => !current)}><Icon name={showPassword ? 'eye' : 'eyeSlash'} />{showPassword ? 'Ocultar senhas' : 'Mostrar senhas'}</button>
                     </fieldset>
                     <div className="account-form-actions"><button type="button" className="account-button is-secondary" disabled={busy} onClick={() => { setValues(accountFormValues(profile)); setEditing(false); setShowPassword(false); setError(null); setSuccess(null) }}>Cancelar</button><button type="submit" className="account-button" disabled={busy}>{saving ? 'Salvando...' : 'Salvar alterações'}</button></div>

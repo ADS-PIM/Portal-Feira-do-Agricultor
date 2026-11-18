@@ -1,4 +1,4 @@
-export const PASSWORD_REQUIREMENTS_MESSAGE = 'Use no mínimo 6 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.';
+export const PASSWORD_REQUIREMENTS_MESSAGE = 'Siga os requisitos de senha.';
 
 export function isValidPassword(value: unknown): boolean {
     return typeof value === 'string' && Array.from(value).length >= 6
