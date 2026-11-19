@@ -264,15 +264,16 @@
 .markup-step-status strong { color: var(--theme-accent, var(--calculator-green)); }
 .markup-step-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0; list-style: none; }
 .markup-page .markup-step-button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 56px; padding: 10px; border: 1px solid var(--calculator-border); border-radius: 10px; background: var(--theme-surface, #fff); color: var(--calculator-muted); text-align: left; font-size: 12px; line-height: 1.4; }
-.markup-step-button > span { display: grid; flex: 0 0 25px; place-items: center; width: 25px; height: 25px; padding-top: 2px; border-radius: 50%; background: var(--calculator-soft); color: var(--theme-accent, var(--calculator-green)); text-align: center; line-height: 1; }
+.markup-step-number { display: grid; flex: 0 0 25px; place-items: center; width: 25px; height: 25px; padding-top: 2px; border-radius: 50%; background: var(--calculator-soft); color: var(--theme-accent, var(--calculator-green)); text-align: center; line-height: 1; }
+.markup-step-label { min-width: 0; overflow-wrap: anywhere; }
 .markup-step-button:hover { background: var(--calculator-soft); }
 .markup-step-button[aria-current="step"] { border-color: var(--calculator-green); background: var(--calculator-soft); color: var(--theme-accent, var(--calculator-green)); }
-.markup-step-button[aria-current="step"] > span { background: var(--calculator-green); color: #fff; }
+.markup-step-button[aria-current="step"] .markup-step-number { background: var(--calculator-green); color: #fff; }
 .markup-page .markup-step-button.is-incomplete { border-color: var(--theme-danger-border, #c4695c); background: var(--theme-danger-surface, #fff0ed); color: var(--theme-danger-text, #a73324); }
 .markup-page .markup-step-button.is-incomplete:hover { background: var(--theme-danger-surface, #ffe2dc); }
-.markup-step-button.is-incomplete > span { background: var(--theme-danger-surface, #f9d3cb); color: var(--theme-danger-text, #a73324); }
+.markup-step-button.is-incomplete .markup-step-number { background: var(--theme-danger-surface, #f9d3cb); color: var(--theme-danger-text, #a73324); }
 .markup-page .markup-step-button.is-incomplete[aria-current="step"] { border-color: #a73324; box-shadow: inset 0 0 0 1px #a73324; }
-.markup-step-button.is-incomplete[aria-current="step"] > span { background: #a73324; color: #fff; }
+.markup-step-button.is-incomplete[aria-current="step"] .markup-step-number { background: #a73324; color: #fff; }
 .markup-step-warning { margin-top: 10px; color: var(--theme-danger-text, #a73324); font-size: 13px; line-height: 1.5; }
 .markup-field-group legend[tabindex="-1"] { scroll-margin-top: 120px; }
 .markup-field-group legend[tabindex="-1"]:focus-visible { outline: 2px solid var(--calculator-green); outline-offset: 4px; border-radius: 4px; }
@@ -303,7 +304,7 @@
 }
 
 @media (max-width: 480px) {
-    .markup-step-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .markup-step-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); }
     .markup-step-navigation { flex-wrap: wrap; }
     .markup-step-navigation .markup-submit { min-width: 150px; }
     .markup-form-actions { grid-template-columns: minmax(0, 1fr); }

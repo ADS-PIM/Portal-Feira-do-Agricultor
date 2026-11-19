@@ -19,7 +19,8 @@ export function CalculatorSteps({ steps, current, incompleteSteps, onSelect, lab
               setVisitedSteps(previous => previous.includes(index) ? previous : [...previous, index])
               onSelect(index)
             }}>
-            <span aria-hidden="true">{index + 1}</span>{label}
+            <span className="markup-step-number" aria-hidden="true">{index + 1}</span>
+            <span className="markup-step-label">{label}</span>
           </button>
         </li>)}
       </ol>

@@ -42,6 +42,11 @@ let hasCheckedHeaderSession = false
 let headerSessionInFlight: Promise<AdminProfile | null> | null = null
 
 const restoreHeaderSession = (): Promise<AdminProfile | null> => {
+    const profile = getAdminProfile()
+    if (profile) return Promise.resolve(profile)
+    // Public pages must not probe administrative endpoints for visitors.
+    // This display hint only allows restoration; protected pages still validate access.
+    if (!isAuthenticated() && getAuthDisplayState() !== 'authenticated') return Promise.resolve(null)
     if (hasCheckedHeaderSession && !isAuthenticated()) return Promise.resolve(null)
     if (!headerSessionInFlight) {
         headerSessionInFlight = restoreAdminProfile()
@@ -72,7 +77,7 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
     const zoomNoticeTimeout = useRef<number | null>(null)
     const [authenticated, setAuthenticated] = useState(isAuthenticated)
     const [adminProfile, setAdminProfile] = useState<HeaderProfile | null>(() => getAdminProfile() ?? getCachedHeaderProfile())
-    const [hasCheckedSession, setHasCheckedSession] = useState(() => hasCheckedHeaderSession || Boolean(getAdminProfile()) || (!isAuthenticated() && getAuthDisplayState() === 'guest'))
+    const [hasCheckedSession, setHasCheckedSession] = useState(() => hasCheckedHeaderSession || Boolean(getAdminProfile()) || (!isAuthenticated() && getAuthDisplayState() !== 'authenticated'))
     const currentPath = useSyncExternalStore(subscribeNavigation, getCurrentPath)
     const lastVisibilityChangeY = useRef(0);
     const hasInitializedScrollPosition = useRef(false)
