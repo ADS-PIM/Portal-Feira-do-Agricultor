@@ -1,11 +1,17 @@
 import Icon from '../../components/Icon'
 import './CreateEventButton.css'
 
-export default function CreateEventButton({ onClick }: { onClick: () => void }) {
+type CreateEventButtonProps = {
+    onClick: () => void
+    label?: string
+    className?: string
+}
+
+export default function CreateEventButton({ onClick, label = 'Novo evento', className = '' }: CreateEventButtonProps) {
     return (
-        <button type="button" className="admin-create-event" onClick={onClick} aria-label="Novo evento" title="Novo evento">
+        <button type="button" className={`admin-create-event ${className}`.trim()} onClick={onClick} aria-label={label} title={label}>
             <Icon name="plus" />
-            <span className="admin-create-event-label">Novo evento</span>
+            <span className="admin-create-event-label">{label}</span>
         </button>
     )
 }

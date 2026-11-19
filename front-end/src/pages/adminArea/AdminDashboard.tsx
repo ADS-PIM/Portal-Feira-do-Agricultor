@@ -6,7 +6,7 @@ import { getUserMessages, type UserMessage } from '../../services/messageService
 import { getCalendarYears, MIN_FILTER_YEAR } from '../../utils/calendarYears'
 import './AdminEvents.css'
 import './AdminDashboard.css'
-import './CreateEventButton.css'
+import CreateEventButton from './CreateEventButton'
 import Icon from '../../components/Icon'
 import AdminDashboardOverview, { type DashboardFailures } from './AdminDashboardOverview'
 import { CALENDAR_EVENT_STATES, compareCalendarEvents, getCalendarStatusLabel } from '../../components/Calendar/calendarEvents'
@@ -259,14 +259,11 @@ const AdminDashboard = ({
                                 {selectedCalendarDate ? formatEventDate(selectedCalendarDate) : 'Agenda do Mês'}
                             </h2>
                             {selectedCalendarDate && (
-                                <button
-                                    type="button"
-                                    className="admin-create-event admin-dashboard-create-event-button"
+                                <CreateEventButton
+                                    className="admin-dashboard-create-event-button"
+                                    label="Criar evento nesta data"
                                     onClick={() => onCreateEventAtDate(selectedCalendarDate)}
-                                >
-                                    <Icon name="plus" />
-                                    Criar evento nesta data
-                                </button>
+                                />
                             )}
                         </header>
                         {isLoading ? (
