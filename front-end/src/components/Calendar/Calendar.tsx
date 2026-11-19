@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getEventAgenda, type AgendaEvent } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
+import { getCalendarYears, MIN_FILTER_YEAR } from '../../utils/calendarYears'
 import Icon from '../Icon'
 import CalendarEventsPanel from './CalendarEventsPanel'
 import { CALENDAR_EVENT_STATES, compareCalendarEvents, getCalendarStatusLabel } from './calendarEvents'
@@ -57,6 +58,7 @@ function Calendar() {
         try {
             const savedMonth = window.sessionStorage.getItem(CALENDAR_MONTH_STORAGE_KEY)
             if (savedMonth && /^\d{4}-(0[1-9]|1[0-2])$/.test(savedMonth)) {
+                if (Number(savedMonth.slice(0, 4)) < MIN_FILTER_YEAR) return new Date(MIN_FILTER_YEAR, 0, 1)
                 return new Date(`${savedMonth}-01T12:00:00`)
             }
         } catch {
@@ -158,7 +160,7 @@ function Calendar() {
         .format(visibleMonth)
         .replace(/^./, character => character.toLocaleUpperCase('pt-BR'))
     const monthLabel = `${monthName} ${year}`
-    const availableYears = Array.from({ length: 101 }, (_, index) => year - 50 + index)
+    const availableYears = getCalendarYears(year)
     const selectedEvents = selectedDate
         ? eventsByDate.get(selectedDate) ?? []
         : []
@@ -207,6 +209,7 @@ function Calendar() {
                         <button
                             type="button"
                             onClick={() => navigateMonth(-1)}
+                            disabled={year === MIN_FILTER_YEAR && month === 0}
                             aria-label="Mês anterior"
                         >
                             <Icon name="chevronLeft" />

@@ -3,6 +3,7 @@ import type { AdminSection } from '../../components/AdminSideNav/AdminSideNav'
 import { getAdmins, type AdminRecord } from '../../services/adminService'
 import { getAdminEvents, type AdminEvent } from '../../services/eventService'
 import { getUserMessages, type UserMessage } from '../../services/messageService'
+import { getCalendarYears, MIN_FILTER_YEAR } from '../../utils/calendarYears'
 import './AdminEvents.css'
 import './AdminDashboard.css'
 import './CreateEventButton.css'
@@ -139,7 +140,7 @@ const AdminDashboard = ({
         .format(visibleMonth)
         .replace(/^./, character => character.toLocaleUpperCase('pt-BR'))
     const monthLabel = `${monthName} ${visibleMonth.getFullYear()}`
-    const availableYears = Array.from({ length: 101 }, (_, index) => visibleMonth.getFullYear() - 50 + index)
+    const availableYears = getCalendarYears(visibleMonth.getFullYear())
 
     const shiftMonth = (offset: number) => {
         setVisibleMonth(current => new Date(current.getFullYear(), current.getMonth() + offset, 1))
@@ -192,7 +193,12 @@ const AdminDashboard = ({
                                 </span>
                             </h2>
                             <div className="admin-events-month-navigation">
-                                <button type="button" onClick={() => shiftMonth(-1)} aria-label="Mês anterior">
+                                <button
+                                    type="button"
+                                    onClick={() => shiftMonth(-1)}
+                                    disabled={visibleMonth.getFullYear() === MIN_FILTER_YEAR && visibleMonth.getMonth() === 0}
+                                    aria-label="Mês anterior"
+                                >
                                     <Icon name="chevronLeft" />
                                 </button>
                                 <button type="button" onClick={() => shiftMonth(1)} aria-label="Próximo mês">

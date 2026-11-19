@@ -18,6 +18,7 @@ import '../../components/Calendar/CalendarStatus.css'
 import AdminEventForm, { type EventFormValues, type EventSaveSession } from './AdminEventForm'
 import { STATE_LABELS } from './eventFormLabels'
 import { getCoordinates } from '../../utils/eventLocation'
+import { MIN_FILTER_YEAR } from '../../utils/calendarYears'
 
 const EVENTS_PAGE_SIZE = 12
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
@@ -174,11 +175,14 @@ const AdminEvents = ({
         return () => controller.abort()
     }, [loadEvents, initialEventAction])
 
-    const availableYears = useMemo(
-        () => [...new Set(events.map(event => getDateKey(event.date).slice(0, 4)))]
-            .sort((first, second) => second.localeCompare(first)),
-        [events],
-    )
+    const availableYears = useMemo(() => {
+        const years = new Set([MIN_FILTER_YEAR])
+        for (const event of events) {
+            const year = Number(getDateKey(event.date).slice(0, 4))
+            if (year >= MIN_FILTER_YEAR) years.add(year)
+        }
+        return [...years].sort((first, second) => second - first)
+    }, [events])
 
     const availableAdministrators = useMemo(() => {
         const authors = new Map<string, { id: string; name: string; active: boolean }>()
