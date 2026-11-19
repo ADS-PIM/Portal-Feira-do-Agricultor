@@ -182,8 +182,8 @@ const AdminEvents = ({
 
     const availableAdministrators = useMemo(() => {
         const authors = new Map<string, { id: string; name: string; active: boolean }>()
-        events.forEach(event => authors.set(event.administratorId, {
-            id: event.administratorId,
+        events.forEach(event => authors.set(event.administratorId ?? 'system', {
+            id: event.administratorId ?? 'system',
             name: event.administratorName,
             active: event.administratorActive,
         }))
@@ -203,7 +203,7 @@ const AdminEvents = ({
                 const eventWeekday = new Date(`${getDateKey(event.date)}T12:00:00`).getDay().toString()
                 const matchesWeekday = !weekdayFilter || eventWeekday === weekdayFilter
                 const matchesTime = matchesEventTimeRange(event, timeFromFilter, timeToFilter)
-                const matchesAdministrator = !administratorFilter || event.administratorId === (
+                const matchesAdministrator = !administratorFilter || (event.administratorId ?? 'system') === (
                     administratorFilter === 'mine' ? currentAdminId : administratorFilter
                 )
                 const matchesIssue = !issueFilter || issueFilter.eventIds.includes(event.id)
@@ -278,7 +278,7 @@ const AdminEvents = ({
                 localLongitude: eventInput.longitude,
                 id: session.eventId,
                 createdAt: editingEvent?.createdAt ?? new Date().toISOString(),
-                administratorId: editingEvent?.administratorId ?? currentAdmin!.id,
+                administratorId: editingEvent ? editingEvent.administratorId : currentAdmin!.id,
                 administratorName: editingEvent?.administratorName ?? currentAdmin!.name,
                 administratorActive: editingEvent?.administratorActive ?? Boolean(currentAdmin!.active),
             }
@@ -438,7 +438,7 @@ const AdminEvents = ({
                                 <option value="mine">Meus eventos</option>
                                 {availableAdministrators.map(admin => (
                                     <option key={admin.id} value={admin.id}>
-                                        {admin.name}{admin.active ? '' : ' (desativado)'}
+                                        {admin.name}{admin.id !== 'system' && !admin.active ? ' (desativado)' : ''}
                                     </option>
                                 ))}
                             </select>

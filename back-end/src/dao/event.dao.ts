@@ -5,6 +5,7 @@ import { rememberEventLocation } from './eventLocation.dao'
 import { Event, EventState } from '../model/event'
 import { AdminEventSearchDTO, EventAgendaSearchDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
 import { eventLocalTimestamp } from '../util/eventTime'
+import { ensureMonthlyFairs } from './monthlyFair.dao'
 
 async function synchronizeEventStates(db: Pick<PoolConnection, 'query'>, now: Date, eventId?: string): Promise<number> {
     const timestamp = eventLocalTimestamp(now)
@@ -40,10 +41,18 @@ export type EventUpdateData = {
 }
 
 export class EventDAO {
+    private scheduledMonth = ''
     constructor(private pool: Pool = connection, private now: () => Date = () => new Date()) {}
 
     public async synchronizeStates(): Promise<number> {
-        return synchronizeEventStates(this.pool, this.now())
+        const now = this.now()
+        const today = eventLocalTimestamp(now).slice(0, 10)
+        const month = today.slice(0, 7)
+        if (this.scheduledMonth !== month) {
+            await ensureMonthlyFairs(this.pool, today)
+            this.scheduledMonth = month
+        }
+        return synchronizeEventStates(this.pool, now)
     }
 
     public async create(event: Event): Promise <void> {
@@ -109,9 +118,9 @@ export class EventDAO {
         const [events]: any = await this.pool.query(`
             SELECT e.id, e.title, e.date, e.description, e.startAt, e.endAt, e.localAddress,
                 e.localLatitude, e.localLongitude, e.state, e.bannerImage, DATE_FORMAT(e.createdAt, '%Y-%m-%d %H:%i:%s.%f') AS createdAt,
-                e.administratorId, a.name AS administratorName, a.active AS administratorActive
+                e.administratorId, COALESCE(a.name, 'Sistema') AS administratorName, a.active AS administratorActive
             FROM events e
-            INNER JOIN administrators a ON a.id = e.administratorId
+            LEFT JOIN administrators a ON a.id = e.administratorId
             ORDER BY e.createdAt DESC, e.id DESC
         `);
         return events.map((event: AdminEventSearchDTO) => ({

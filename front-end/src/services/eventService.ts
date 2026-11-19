@@ -33,7 +33,7 @@ export interface AdminEvent extends AgendaEvent {
 }
 
 export interface AdminEventWithAuthor extends AdminEvent {
-    administratorId: string
+    administratorId: string | null
     administratorName: string
     administratorActive: boolean
 }

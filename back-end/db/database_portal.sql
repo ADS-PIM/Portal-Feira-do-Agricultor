@@ -24,11 +24,15 @@ create table `events` (
     `state` enum('PENDING', 'CANCELED', 'CONCLUDED', 'RESCHEDULED', 'HAPPENING') not null,
     `bannerImage` varchar(2048) default null,
     `createdAt` datetime(6) not null default current_timestamp(6),
-    `administratorId` char(36) not null,
+    `administratorId` char(36) default null,
     primary key (`id`),
     key `events_administrators_FK` (`administratorId`),
     constraint `events_administrators_FK` foreign key (`administratorId`) references `administrators` (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
+
+create table `monthly_fair_dates` (
+    `scheduledDate` date not null primary key
+)engine = InnoDB;
 
 create table `images` (
     `id` char(36) not null,

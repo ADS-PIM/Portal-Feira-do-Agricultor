@@ -122,7 +122,7 @@ export class EventSearchDTO {
 }
 
 export class AdminEventSearchDTO extends EventSearchDTO {
-    administratorId: string;
+    administratorId: string | null;
     administratorName: string;
     administratorActive: boolean;
 }
@@ -161,6 +161,6 @@ export class EventSearchByIdDTO {
     state: EventState;
     bannerImage: string | null;
     createdAt: Date;
-    administratorId: string;
+    administratorId: string | null;
     eventImages: EventImageSearchByEventId[] | null;
 }
