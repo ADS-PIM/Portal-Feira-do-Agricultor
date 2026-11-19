@@ -8,39 +8,34 @@ import './EventLocationPicker.css'
 const LocationMap = lazy(() => import('./LocationMap'))
 type LocationValue = { address: string; latitude: number | null; longitude: number | null }
 
-function LocationResults({ mode, onSelect }: { mode: 'search' | 'history'; onSelect: (location: EventLocation) => void }) {
-    const [query, setQuery] = useState('')
+function LocationResults({ mode, initialQuery, onSelect }: { mode: 'search' | 'history'; initialQuery: string; onSelect: (location: EventLocation) => void }) {
+    const [query, setQuery] = useState(initialQuery)
+    const [request, setRequest] = useState<{ query: string } | null>(() =>
+        mode === 'history' || initialQuery.length >= 3 ? { query: initialQuery } : null)
     const [results, setResults] = useState<EventLocation[] | null>(null)
-    const [loading, setLoading] = useState(mode === 'history')
+    const [loading, setLoading] = useState(Boolean(request))
     const [error, setError] = useState('')
-    const request = useRef<AbortController | null>(null)
 
     useEffect(() => {
-        if (mode === 'history') {
-            const controller = new AbortController()
-            request.current = controller
-            void getLocationHistory('', controller.signal).then(items => {
-                if (!controller.signal.aborted) setResults(items)
-            }).catch(() => {
-                if (!controller.signal.aborted) setError('Não foi possível carregar o histórico. Tente novamente.')
-            }).finally(() => { if (!controller.signal.aborted) setLoading(false) })
-        }
-        return () => request.current?.abort()
-    }, [mode])
+        if (!request) return
+        const controller = new AbortController()
+        const load = mode === 'history' ? getLocationHistory : searchLocations
+        void load(request.query, controller.signal).then(items => {
+            if (!controller.signal.aborted) setResults(items)
+        }).catch(failure => {
+            if (controller.signal.aborted) return
+            const fallback = mode === 'history' ? 'Não foi possível carregar o histórico. Tente novamente.'
+                : 'A pesquisa está indisponível. Selecione no mapa ou tente novamente.'
+            setError(getUserFacingError(failure, fallback))
+        }).finally(() => { if (!controller.signal.aborted) setLoading(false) })
+        return () => controller.abort()
+    }, [mode, request])
 
-    const search = async () => {
+    const search = () => {
         if (loading) return
         if (mode === 'search' && query.trim().length < 3) { setError('Digite pelo menos 3 caracteres para pesquisar.'); return }
-        request.current?.abort()
-        const controller = new AbortController()
-        request.current = controller
         setLoading(true); setError(''); setResults(null)
-        try {
-            const items = await (mode === 'history' ? getLocationHistory(query.trim(), controller.signal) : searchLocations(query.trim(), controller.signal))
-            if (!controller.signal.aborted) setResults(items)
-        } catch (failure) {
-            if (!controller.signal.aborted) setError(getUserFacingError(failure, 'A pesquisa está indisponível. Selecione no mapa ou tente novamente.'))
-        } finally { if (!controller.signal.aborted) setLoading(false) }
+        setRequest({ query: query.trim() })
     }
 
     return <div className="event-location-results-panel">
@@ -48,7 +43,7 @@ function LocationResults({ mode, onSelect }: { mode: 'search' | 'history'; onSel
         <div className="event-location-search-row">
             <input id="event-location-search" value={query} maxLength={200}
                 placeholder={mode === 'history' ? 'Nome ou endereço já utilizado' : 'Ex.: Praça da Matriz, cidade e estado'}
-                onChange={event => { request.current?.abort(); setLoading(false); setResults(null); setError(''); setQuery(event.target.value) }}
+                onChange={event => { setRequest(null); setLoading(false); setResults(null); setError(''); setQuery(event.target.value) }}
                 onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); void search() } }} />
             <button type="button" className="location-button" disabled={loading} onClick={() => void search()}><Icon name="magnifyingGlass" />Buscar</button>
         </div>
@@ -94,7 +89,8 @@ function LocationDialog({ value, onClose, onConfirm }: { value: LocationValue; o
                 <button type="button" className="location-button" aria-pressed={mode === 'search'} onClick={() => setMode('search')}><Icon name="magnifyingGlass" />Pesquisar local</button>
                 <button type="button" className="location-button" aria-pressed={mode === 'history'} onClick={() => setMode('history')}><Icon name="clock" />Histórico</button>
             </div>
-            <LocationResults key={mode} mode={mode} onSelect={location => { setPoint(location); setAddress(location.address); setError('') }} />
+            <LocationResults key={mode} mode={mode} initialQuery={mode === 'search' ? value.address.trim().slice(0, 200).trimEnd() : ''}
+                onSelect={location => { setPoint(location); setAddress(location.address); setError('') }} />
             <p className="location-help" id="event-location-map-help">Use a roda do mouse para aproximar ou afastar o mapa. Clique no mapa ou arraste o marcador para ajustar o ponto. Pelo teclado, use as setas para mover o mapa e Enter para marcar o centro.</p>
             <Suspense fallback={<div className="location-map-loading" role="status">Carregando mapa...</div>}>
                 <LocationMap coordinates={point} editable label="Selecionar local do evento no mapa" onSelect={coordinates => { setPoint(coordinates); setError('') }} />
