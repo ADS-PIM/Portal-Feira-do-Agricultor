@@ -1,3 +1,4 @@
+:root:not([data-theme="dark"]) .account-page { background: var(--surface-page); }
 .account-page { min-height: 65vh; padding: 32px 5.6% 64px; background: var(--surface-admin); color: var(--brand-charcoal); font-family: var(--font-family-base); }
 .account-page *, .account-page *::before, .account-page *::after { box-sizing: border-box; }
 .account-container { max-width: 1120px; margin: 0 auto; }

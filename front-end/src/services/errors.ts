@@ -26,9 +26,12 @@ function getApiErrorMessage(status: number, endpoint: string, code?: string): st
         && !/^admin\/(?:login|refresh|logout|forgot-password|reset-password)(?:\/|$|\?)/.test(endpoint)
     if (adminAccountEndpoint) {
         if (status === 409 && code === 'ADMIN_EMAIL_IN_USE') return 'Este e-mail já está cadastrado em outra conta.'
+        if (status === 503 && code === 'ADMIN_EMAIL_DNS_UNAVAILABLE') return 'Não foi possível verificar o domínio do e-mail agora. Tente novamente em instantes.'
         if (status === 400) {
             if (code === 'ADMIN_NAME_INVALID') return 'Informe um nome válido com até 255 caracteres.'
             if (code === 'ADMIN_EMAIL_INVALID') return 'Informe um e-mail válido.'
+            if (code === 'ADMIN_EMAIL_DISPOSABLE') return 'Use um e-mail permanente para cadastrar o administrador.'
+            if (code === 'ADMIN_EMAIL_DOMAIN_INVALID') return 'O domínio deste e-mail não está configurado para receber mensagens. Confira o endereço informado.'
             if (code === 'ADMIN_ROLE_INVALID') return 'Selecione um perfil de acesso válido.'
             if (code === 'ADMIN_INVALID_DATA') return 'Revise os dados do administrador e tente novamente.'
         }

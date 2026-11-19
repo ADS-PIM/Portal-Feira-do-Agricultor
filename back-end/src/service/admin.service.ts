@@ -4,6 +4,7 @@ import { Admin } from "../model/admin";
 import { PasswordCrypto } from './passwordCrypto';
 import { AdminUpdateData } from '../dao/admin.dao';
 import { AdminActionError } from '../model/adminActionError';
+import { validateRegistrationEmailDomain } from './registrationEmail';
 
 export class AdminService {
     public constructor(private adminDAO: AdminDAO) {}
@@ -17,6 +18,7 @@ export class AdminService {
             throw new AdminActionError(409, 'ADMIN_EMAIL_IN_USE', 'Email already registered');
         }
 
+        await validateRegistrationEmailDomain(adminCreateDTO.email);
         const password = await PasswordCrypto.hashPassword(adminCreateDTO.password);
         const admin = Admin.construct({ ...adminCreateDTO, password });
 
