@@ -6,6 +6,5 @@
 .markup-break-even dt { flex: 1 1 150px; line-height: 1.5; }
 .markup-break-even dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
 .markup-break-even-values dd { font-size: 19px; }
-.markup-break-even-help { margin-top: 16px; }
-.markup-break-even-help summary { width: fit-content; max-width: 100%; cursor: pointer; font-size: 12px; line-height: 1.7; text-decoration: underline; text-underline-offset: 3px; }
-.markup-break-even-help summary:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 2px; }
+.markup-break-even-explanation { display: grid; gap: 14px; }
+.markup-break-even-explanation p { color: var(--calculator-muted); font-size: 14px; line-height: 1.7; }

@@ -4,9 +4,10 @@ import Footer from '../../components/Footer/Footer'
 import Icon, { type IconName } from '../../components/Icon'
 import { calculateMarkup, parsePricingNumber, parseProductionHours, type MarkupInput, type ProductionTimeUnit } from '../../utils/pricingCalculator'
 import AdvancedPricingCalculator from './AdvancedPricingCalculator'
-import PricingBreakEven from './PricingBreakEven'
+import PricingBreakEven, { BreakEvenExplanation } from './PricingBreakEven'
+import { CalculatorDetails, ProductionSummary } from './CalculatorDetails'
 import PercentageField from './PercentageField'
-import CalculatorFieldHelp from './CalculatorFieldHelp'
+import CalculatorFieldHelp, { type CalculatorHelp } from './CalculatorFieldHelp'
 import { CalculatorSteps, CalculatorStepActions } from './CalculatorSteps'
 import ProductionTimeUnitField from './ProductionTimeUnitField'
 import { calculatorErrors, getCalculatorNumberError } from './calculatorValidation'
@@ -63,41 +64,48 @@ const fieldGroups: { title: string; icon: IconName; fields: FieldDefinition[] }[
 const fields = fieldGroups.flatMap((group) => group.fields)
 const percentageFields: Field[] = ['monthlyFixedExpenses', 'monthlyRevenue', 'variableExpenses', 'profit']
 
-const fieldHelp: Record<Field, { explanation: string; example: string; effect: string }> = {
+const fieldHelp: Record<Field, CalculatorHelp> = {
   materialCost: {
-    explanation: 'Some o que você gasta com materiais, componentes e embalagem para produzir uma unidade do produto. Não inclua seu tempo de trabalho aqui.',
-    example: 'Se os materiais de um produto custam R$ 4 e a embalagem custa R$ 1, preencha R$ 5.',
-    effect: 'Quanto maior esse gasto, maior precisa ser o preço de venda para pagar os materiais e ainda cobrir as despesas e o lucro.',
+    lead: 'Some os materiais e a embalagem de uma unidade.',
+    explanation: 'Se comprou material para vários produtos, conte apenas a parte usada em um deles.',
+    example: 'Para fazer um pote de geleia, você usa R$ 4 em ingredientes e R$ 1 em embalagem. Preencha R$ 5.',
+    effect: 'Esses R$ 5 entram no custo de cada pote. O tempo de preparo entra no campo de trabalho.',
   },
   productionHours: {
-    explanation: 'Informe o tempo de trabalho necessário para fazer uma unidade e escolha horas ou minutos. Se você faz vários produtos juntos, divida o tempo total pela quantidade produzida.',
-    example: 'Se você leva 2 horas para produzir 10 unidades, cada unidade usa 0,2 hora ou 12 minutos. Meia hora pode ser informada como 0,5 hora ou 30 minutos.',
-    effect: 'Os minutos são divididos por 60 antes de multiplicar pelo valor da sua hora. Com a hora a R$ 20, uma unidade que leva 30 minutos tem R$ 10 de mão de obra.',
+    lead: 'Conte o tempo de uma unidade.',
+    explanation: 'Se faz várias de uma vez, divida o tempo de trabalho pela quantidade que ficou pronta para vender.',
+    example: 'Você faz 10 potes em 2 horas. Divida 120 minutos por 10 e preencha 12. Na medida, escolha Minutos.',
+    effect: 'Se sua hora vale R$ 20, os 12 minutos de preparo acrescentam R$ 4 ao custo de cada pote.',
   },
   hourlyRate: {
-    explanation: 'Informe o valor de uma hora do seu trabalho. Seu trabalho também tem um custo, mesmo quando é você quem produz.',
-    example: 'Se sua hora vale R$ 20 e uma unidade leva meia hora para ficar pronta, o custo do trabalho dessa unidade é R$ 10.',
-    effect: 'Quanto maior o valor da hora, maior o preço calculado. Esse pagamento pelo trabalho é separado do lucro do negócio.',
+    lead: 'Informe o valor de uma hora do seu trabalho.',
+    explanation: 'Para estimar esse valor, divida quanto quer receber no mês pelas horas que dedica à produção nesse período.',
+    example: 'Se quer receber R$ 1.600 por 80 horas de produção no mês, preencha R$ 20.',
+    effect: 'A R$ 20 por hora, meia hora de preparo custa R$ 10. Assim, o preço já inclui seu trabalho antes de calcular o lucro.',
   },
   monthlyFixedExpenses: {
-    explanation: 'Some as contas do negócio que você paga por mês, mesmo quando vende pouco, como aluguel e internet. Se uma conta também é da sua casa, inclua só a parte usada no negócio. Não repita os materiais nem o trabalho já informados.',
-    example: 'Com R$ 1.000 de contas e R$ 10.000 de vendas no mês, a calculadora reserva 10% do preço de cada venda para essas contas.',
-    effect: 'Mantendo as vendas mensais iguais, contas maiores aumentam a parte reservada para despesas e o preço calculado. Se não tiver essas despesas, informe 0.',
+    lead: 'Some as contas mensais do negócio.',
+    explanation: 'Inclua gastos como aluguel e internet. Se divide uma conta com sua casa, conte apenas a parte do negócio. Se não houver gastos fixos, informe 0.',
+    example: 'Você paga R$ 450 de aluguel pelo espaço de produção e usa R$ 50 de internet no negócio. Preencha R$ 500.',
+    effect: 'Se as vendas somam R$ 5.000 por mês, essas contas consomem 10% do faturamento. A calculadora reserva R$ 1 de cada R$ 10 vendidos para pagá-las.',
   },
   monthlyRevenue: {
-    explanation: 'Informe quanto seu negócio costuma receber com todas as vendas em um mês, antes de pagar qualquer conta. Esse é o faturamento, não o dinheiro que sobra.',
-    example: 'Se você vende 100 produtos por R$ 10 cada durante o mês, seu faturamento é R$ 1.000, mesmo que parte desse dinheiro vá para as contas.',
-    effect: 'Esse valor ajuda a dividir as contas fixas entre as vendas. Com as mesmas contas, um faturamento maior reduz a parte reservada por venda e pode diminuir o preço calculado. Use uma média realista e maior que zero.',
+    lead: 'Use a média das vendas antes de descontar as despesas.',
+    explanation: 'Some as vendas de todos os produtos em alguns meses e divida pelo número de meses. O campo precisa de um valor maior que zero.',
+    example: 'Se vendeu R$ 4.000 em um mês e R$ 6.000 no seguinte, preencha R$ 5.000.',
+    effect: 'A média serve para repartir as contas fixas entre as vendas. Estimar vendas acima do habitual pode deixar pouco dinheiro no preço para pagar essas contas.',
   },
   variableExpenses: {
-    explanation: 'Informe a porcentagem da venda que vai para taxas ou comissões. Some as porcentagens que se aplicam à venda. Não inclua custos que você já colocou nos outros campos.',
-    example: 'Se a taxa da maquininha é 3% e a comissão é 2%, preencha 5. Em uma venda de R$ 20, esses 5% representam R$ 1.',
-    effect: 'Quanto maiores as taxas, maior precisa ser o preço para cobri-las. Se não pagar taxas nem comissões, informe 0.',
+    lead: 'Some as taxas que incidem sobre a mesma venda.',
+    explanation: 'Use os percentuais cobrados pela maquininha, por comissão ou por outra taxa de venda. Se não paga essas taxas, informe 0.',
+    example: 'Uma venda tem 3% de taxa da maquininha e 2% de comissão. Preencha 5.',
+    effect: 'A cada R$ 20 vendidos, R$ 1 vai para essas taxas. A calculadora inclui essa parcela no preço sugerido.',
   },
   profit: {
-    explanation: 'Escolha a porcentagem do preço de venda que você quer que sobre para o negócio depois de pagar os materiais, o trabalho e as despesas.',
-    example: 'Com lucro de 20%, em uma venda de R$ 10 a calculadora reserva R$ 2 como lucro. Não é apenas somar 20% ao custo.',
-    effect: 'Quanto maior o lucro desejado, maior o preço calculado. A soma do lucro com as porcentagens das despesas fixas e variáveis precisa ficar abaixo de 100%.',
+    lead: 'Escolha quanto do preço final deve ficar como lucro.',
+    explanation: 'Essa é a parte que sobra depois de cobrir materiais, trabalho e despesas.',
+    example: 'Se quer guardar R$ 2 de lucro a cada R$ 10 vendidos, preencha 20%.',
+    effect: 'Um percentual maior aumenta o preço sugerido. Despesas fixas, taxas e lucro devem somar menos de 100% para que sobre uma parte da venda para materiais e trabalho.',
   },
 }
 
@@ -265,7 +273,9 @@ export default function PricingCalculatorPage() {
                   <button className="markup-example" type="button" onClick={useExample}>Usar exemplo</button>
                 </div>
 
-                <p className="markup-help-intro">Preencha por etapas. Toque em ? para ver explicações e exemplos.</p>
+                <p className="markup-help-intro">
+                  Preencha por etapas. <strong>Toque em ? para ver explicações e exemplos.</strong>
+                </p>
                 <form ref={formRef} className="markup-form" onSubmit={handleSubmit} autoComplete="off" noValidate>
                   <CalculatorSteps steps={steps} current={step} incompleteSteps={incompleteSteps} onSelect={goToStep} label="Etapas da calculadora simples" />
                   {fieldGroups.map((group, index) => (
@@ -346,6 +356,40 @@ export default function PricingCalculatorPage() {
                 </form>
               </section>
 
+              <div className="markup-details-stack">
+                <ProductionSummary rows={[
+                  ['Material por unidade', result ? currency.format(result.materialCost) : 'R$ —'],
+                  ['Tempo de trabalho por unidade', result ? `${decimal.format(result.productionHours)} h` : '—'],
+                  ['Valor da sua hora', result ? currency.format(result.hourlyRate) : 'R$ —'],
+                  ['Mão de obra por unidade', result ? currency.format(result.laborCost) : 'R$ —'],
+                  ['Custo-base por unidade', result ? currency.format(result.directCost) : 'R$ —'],
+                ]} />
+                <CalculatorDetails title="Como chegamos a esse preço">
+                  <div className="markup-guide-steps">
+                    <div>
+                      <h3>Custo direto por unidade</h3>
+                      <p>{result ? `${currency.format(result.materialCost)} + (${decimal.format(result.productionHours)} h × ${currency.format(result.hourlyRate)})` : 'Material + (horas × valor da hora)'}</p>
+                      <strong>{result ? currency.format(result.directCost) : 'R$ —'}</strong>
+                      <p className="markup-hint">Material + mão de obra, sem duplicar custos.</p>
+                    </div>
+                    <div>
+                      <h3>Percentuais sobre a venda</h3>
+                      <p>{result ? `${formatPercentage(result.fixedPercentage)}% fixas + ${formatPercentage(result.variableExpenses)}% variáveis + ${formatPercentage(result.profit)}% lucro` : 'Fixas % + variáveis % + lucro %'}</p>
+                      <strong>{result ? `${formatPercentage(result.totalPercentage)}%` : '—'}</strong>
+                      <p className="markup-hint">{result ? `Fixas = ${currency.format(result.monthlyFixedExpenses)} ÷ ${currency.format(result.monthlyRevenue)} × 100.` : 'Fixas = despesas fixas mensais ÷ faturamento mensal × 100.'}</p>
+                    </div>
+                    <div>
+                      <h3>Preço de venda por unidade</h3>
+                      <p>{result ? `(${currency.format(result.directCost)} × 100) ÷ (100 − ${formatPercentage(result.totalPercentage)})` : '(Custo direto × 100) ÷ (100 − percentuais)'}</p>
+                      <strong>{result ? currency.format(result.price) : 'R$ —'}</strong>
+                      <p className="markup-hint">{result ? `Divisor de ${formatPercentage(100 - result.totalPercentage)}%: a parcela que cobre o custo direto.` : 'A parcela restante do preço cobre o custo direto.'}</p>
+                    </div>
+                  </div>
+                  <p className="markup-formula">Preço = [(material + horas × valor da hora) × 100] ÷ [100 − ((despesas fixas mensais ÷ faturamento mensal × 100) + variáveis % + lucro %)]</p>
+                </CalculatorDetails>
+                <BreakEvenExplanation result={result} />
+              </div>
+
               <aside className="markup-result-panel" aria-labelledby="markup-result-title">
                 <div className="markup-result-card">
                   <div className="markup-result-heading">
@@ -381,31 +425,6 @@ export default function PricingCalculatorPage() {
                 </section>
               </aside>
             </div>
-
-            <section className="markup-guide" aria-labelledby="markup-guide-title">
-              <h2 id="markup-guide-title"><Icon name="information" /> Como chegamos a esse preço</h2>
-              <div className="markup-guide-steps">
-                <div>
-                  <h3>Custo direto por unidade</h3>
-                  <p>{result ? `${currency.format(result.materialCost)} + (${decimal.format(result.productionHours)} h × ${currency.format(result.hourlyRate)})` : 'Material + (horas × valor da hora)'}</p>
-                  <strong>{result ? currency.format(result.directCost) : 'R$ —'}</strong>
-                  <p className="markup-hint">Material + mão de obra, sem duplicar custos.</p>
-                </div>
-                <div>
-                  <h3>Percentuais sobre a venda</h3>
-                  <p>{result ? `${formatPercentage(result.fixedPercentage)}% fixas + ${formatPercentage(result.variableExpenses)}% variáveis + ${formatPercentage(result.profit)}% lucro` : 'Fixas % + variáveis % + lucro %'}</p>
-                  <strong>{result ? `${formatPercentage(result.totalPercentage)}%` : '—'}</strong>
-                  <p className="markup-hint">{result ? `Fixas = ${currency.format(result.monthlyFixedExpenses)} ÷ ${currency.format(result.monthlyRevenue)} × 100.` : 'Fixas = despesas fixas mensais ÷ faturamento mensal × 100.'}</p>
-                </div>
-                <div>
-                  <h3>Preço de venda por unidade</h3>
-                  <p>{result ? `(${currency.format(result.directCost)} × 100) ÷ (100 − ${formatPercentage(result.totalPercentage)})` : '(Custo direto × 100) ÷ (100 − percentuais)'}</p>
-                  <strong>{result ? currency.format(result.price) : 'R$ —'}</strong>
-                  <p className="markup-hint">{result ? `Divisor de ${formatPercentage(100 - result.totalPercentage)}%: a parcela que cobre o custo direto.` : 'A parcela restante do preço cobre o custo direto.'}</p>
-                </div>
-              </div>
-              <p className="markup-formula">Preço = [(material + horas × valor da hora) × 100] ÷ [100 − ((despesas fixas mensais ÷ faturamento mensal × 100) + variáveis % + lucro %)]</p>
-            </section>
             <p className="markup-disclaimer">Simulação ilustrativa por unidade. Ajuste os valores à realidade do seu negócio.</p>
           </div>
 

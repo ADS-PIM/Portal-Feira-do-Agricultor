@@ -41,9 +41,8 @@
 .advanced-calculator .markup-fixed-percentage strong { flex-shrink: 1; overflow-wrap: anywhere; }
 .advanced-batch-price { margin-top: 16px; }
 .advanced-batch-price strong { font-size: 16px; }
-.advanced-summary dt { line-height: 1.5; }
 .advanced-example-note { margin: 14px 7px; }
-.advanced-formula-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 30px; margin: 22px 0 0; padding-left: 22px; }
+.advanced-formula-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 30px; margin: 0; padding-left: 22px; }
 .advanced-formula-steps li { padding-left: 4px; color: var(--theme-accent, var(--calculator-green)); font-size: 13px; }
 .advanced-formula-steps strong { display: block; margin-bottom: 4px; }
 .advanced-formula-steps span { display: block; color: var(--calculator-muted); line-height: 1.7; }

@@ -1,7 +1,7 @@
 import { useId, useRef } from 'react'
 import { faQuestion } from '@fortawesome/free-solid-svg-icons'
 
-export type CalculatorHelp = { explanation: string; example: string; effect: string }
+export type CalculatorHelp = { lead: string; explanation: string; example: string; effect: string }
 
 const paths = [faQuestion.icon[4]].flat()
 const scale = 12 / faQuestion.icon[1]
@@ -34,10 +34,10 @@ export default function CalculatorFieldHelp({ label, help }: { label: string; he
         <h2 id={`${id}-title`}>{label}</h2>
         <button type="button" className="markup-help-close" aria-label="Fechar explicação" onClick={() => dialogRef.current?.close()}>×</button>
       </div>
-      <p id={`${id}-description`}>{help.explanation}</p>
-      <h3>Por exemplo</h3>
+      <p id={`${id}-description`}><strong>{help.lead}</strong> {help.explanation}</p>
+      <h3>Exemplo prático</h3>
       <p>{help.example}</p>
-      <h3>Como muda o preço?</h3>
+      <h3>Como entra no cálculo?</h3>
       <p>{help.effect}</p>
       <button type="button" className="markup-example markup-help-understood" onClick={() => dialogRef.current?.close()}>Entendi</button>
     </dialog>

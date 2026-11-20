@@ -11,7 +11,8 @@ import CalculatorFieldHelp from './CalculatorFieldHelp'
 import { getAdvancedFieldHelp } from './advancedFieldHelp'
 import ProductionTimeUnitField from './ProductionTimeUnitField'
 import { calculatorErrors } from './calculatorValidation'
-import PricingBreakEven from './PricingBreakEven'
+import PricingBreakEven, { BreakEvenExplanation } from './PricingBreakEven'
+import { CalculatorDetails, ProductionSummary } from './CalculatorDetails'
 
 const steps = ['Produto', 'Insumos', 'Trabalho', 'Gastos fixos', 'Equipamentos', 'Taxas e lucro'] as const
 function stepForField(name: string) {
@@ -192,7 +193,9 @@ export default function AdvancedPricingCalculator() {
             <h2 id="advanced-form-title">Vamos detalhar seus custos?</h2>
             <button className="markup-example" type="button" onClick={useExample}>Usar exemplo</button>
           </div>
-          <p className="markup-help-intro">Preencha por etapas. Toque em ? para ver explicações e exemplos.</p>
+          <p className="markup-help-intro">
+            Preencha por etapas. <strong>Toque em ? para ver explicações e exemplos.</strong>
+          </p>
           <form ref={formRef} className="markup-form" onSubmit={handleSubmit} onChangeCapture={touchField} onBlurCapture={touchField} noValidate autoComplete="off">
             <CalculatorSteps steps={steps} current={step} incompleteSteps={incompleteSteps} onSelect={goToStep} />
             <fieldset className="markup-field-group" data-step="0" hidden={step !== 0}>
@@ -276,7 +279,7 @@ export default function AdvancedPricingCalculator() {
             <fieldset className="markup-field-group" data-step="2" hidden={step !== 2}>
               <legend tabIndex={-1}><Icon name="clock" /> 3. Valor do seu trabalho</legend>
               <div className="advanced-field-grid advanced-work-fields">
-                {baseField('monthlyPay', 'Quanto quer receber por mês pelo trabalho?', { unit: 'R$', placeholder: 'Ex.: 1.600,00', hint: 'Pagamento pelo seu trabalho, separado do lucro.' })}
+                {baseField('monthlyPay', 'Defina seu salario mensal', { unit: 'R$', placeholder: 'Ex.: 1.600,00', hint: 'Pagamento pelo seu trabalho, separado do lucro.' })}
                 {baseField('hoursPerDay', 'Horas produtivas por dia', { unit: 'h', placeholder: 'Ex.: 8', hint: 'Desconte pausas e tarefas fora da produção.' })}
                 {baseField('daysPerMonth', 'Dias trabalhados no mês', { unit: 'dias', placeholder: 'Ex.: 20' })}
               </div>
@@ -362,6 +365,40 @@ export default function AdvancedPricingCalculator() {
           </form>
         </section>
 
+        <div className="markup-details-stack">
+          <ProductionSummary rows={[
+            ['Custo dos insumos do lote', result ? money(result.recipeCost) : 'R$ —'],
+            ['Material por unidade', result ? money(result.materialCost) : 'R$ —'],
+            ['Horas produtivas no mês', result ? `${numeric(result.monthlyProductiveHours)} h` : '—'],
+            ['Valor da sua hora', result ? money(result.hourlyRate) : 'R$ —'],
+            ['Tempo de trabalho por unidade', result ? `${numeric(result.timePerUnit)} h` : '—'],
+            ['Mão de obra por unidade', result ? money(result.laborCost) : 'R$ —'],
+            ['Depreciação por mês', result ? money(result.monthlyDepreciation) : 'R$ —'],
+            ['Gastos fixos com depreciação', result ? money(result.monthlyFixedExpenses) : 'R$ —'],
+            ['Percentual de gastos fixos', result ? `${numeric(result.fixedPercentage)}%` : '—'],
+            ['Custo-base por unidade', result ? money(result.directCost) : 'R$ —'],
+          ]} />
+          <CalculatorDetails title="Como chegamos a esse preço">
+            <ol className="advanced-formula-steps">
+              <li><strong>Rendimento do insumo</strong><span>Quantidade comprada ÷ quantidade usada, após converter as medidas.</span></li>
+              <li><strong>Custo do insumo no lote</strong><span>Valor total pago ÷ rendimento.</span></li>
+              <li><strong>Custo total do lote</strong><span>Soma dos custos de todos os insumos e embalagens.</span></li>
+              <li><strong>Material por unidade</strong><span>Custo total do lote ÷ quantidade produzida.</span></li>
+              <li><strong>Horas produtivas mensais</strong><span>Horas produtivas por dia × dias trabalhados.</span></li>
+              <li><strong>Valor da hora trabalhada</strong><span>Remuneração mensal ÷ horas produtivas mensais.</span></li>
+              <li><strong>Tempo por unidade</strong><span>Tempo de trabalho no lote, em horas, ÷ quantidade produzida.</span></li>
+              <li><strong>Mão de obra por unidade</strong><span>Valor da hora × tempo por unidade.</span></li>
+              <li><strong>Gastos fixos mensais</strong><span>Soma das contas fixas + depreciação. Cada depreciação = valor atual ÷ meses restantes de uso.</span></li>
+              <li><strong>Percentual de gastos fixos</strong><span>Gastos fixos mensais ÷ faturamento médio mensal × 100.</span></li>
+              <li><strong>Custo-base por unidade</strong><span>Material por unidade + mão de obra por unidade.</span></li>
+              <li><strong>Markup</strong><span>100 ÷ [100 − (gastos fixos % + despesas variáveis % + lucro %)].</span></li>
+              <li><strong>Preço de venda sugerido</strong><span>Custo-base por unidade × markup.</span></li>
+            </ol>
+            <p className="markup-formula">Preço por unidade = (material por unidade + mão de obra por unidade) × 100 ÷ [100 − (gastos fixos % + despesas variáveis % + lucro %)]</p>
+          </CalculatorDetails>
+          <BreakEvenExplanation result={result} fixedExpensesLabel="Gastos fixos por mês, com depreciação" />
+        </div>
+
         <aside className="markup-result-panel" aria-labelledby="advanced-result-title">
           <div className="markup-result-card">
             <div className="markup-result-heading"><span className="markup-step">SEU RESULTADO</span>{isExample && <span className="markup-example-badge">Exemplo preenchido</span>}</div>
@@ -373,7 +410,7 @@ export default function AdvancedPricingCalculator() {
             </div>
             <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${numeric(result.multiplier)}×` : '—'}</strong></div>
             <div className="markup-multiplier advanced-batch-price"><span>Venda de todo o lote</span><strong>{result ? money(result.batchPrice) : 'R$ —'}</strong></div>
-            <PricingBreakEven result={result} titleId="advanced-break-even-title" fixedExpensesLabel="Gastos fixos por mês, com depreciação" />
+            <PricingBreakEven result={result} titleId="advanced-break-even-title" />
           </div>
           <section className="markup-breakdown" aria-labelledby="advanced-breakdown-title">
             <h3 id="advanced-breakdown-title">Para onde vai cada parte do preço?</h3>
@@ -384,45 +421,8 @@ export default function AdvancedPricingCalculator() {
               <div className="markup-breakdown-total"><span>Preço por unidade</span><strong>{money(result.price)}</strong></div>
             </> : <p className="markup-empty">O resultado separa materiais, trabalho, despesas e lucro.</p>}
           </section>
-          <section className="markup-breakdown" aria-labelledby="advanced-summary-title">
-            <h3 id="advanced-summary-title">Resumo da produção</h3>
-            <dl className="advanced-summary">
-              {[
-                ['Custo dos insumos do lote', result ? money(result.recipeCost) : 'R$ —'],
-                ['Material por unidade', result ? money(result.materialCost) : 'R$ —'],
-                ['Horas produtivas no mês', result ? `${numeric(result.monthlyProductiveHours)} h` : '—'],
-                ['Valor da sua hora', result ? money(result.hourlyRate) : 'R$ —'],
-                ['Tempo de trabalho por unidade', result ? `${numeric(result.timePerUnit)} h` : '—'],
-                ['Mão de obra por unidade', result ? money(result.laborCost) : 'R$ —'],
-                ['Depreciação por mês', result ? money(result.monthlyDepreciation) : 'R$ —'],
-                ['Gastos fixos com depreciação', result ? money(result.monthlyFixedExpenses) : 'R$ —'],
-                ['Percentual de gastos fixos', result ? `${numeric(result.fixedPercentage)}%` : '—'],
-                ['Custo-base por unidade', result ? money(result.directCost) : 'R$ —'],
-              ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
-            </dl>
-          </section>
         </aside>
       </div>
-
-      <section className="markup-guide" aria-labelledby="advanced-guide-title">
-        <h2 id="advanced-guide-title"><Icon name="information" /> Como chegamos a esse preço</h2>
-        <ol className="advanced-formula-steps">
-          <li><strong>Rendimento do insumo</strong><span>Quantidade comprada ÷ quantidade usada, após converter as medidas.</span></li>
-          <li><strong>Custo do insumo no lote</strong><span>Valor total pago ÷ rendimento.</span></li>
-          <li><strong>Custo total do lote</strong><span>Soma dos custos de todos os insumos e embalagens.</span></li>
-          <li><strong>Material por unidade</strong><span>Custo total do lote ÷ quantidade produzida.</span></li>
-          <li><strong>Horas produtivas mensais</strong><span>Horas produtivas por dia × dias trabalhados.</span></li>
-          <li><strong>Valor da hora trabalhada</strong><span>Remuneração mensal ÷ horas produtivas mensais.</span></li>
-          <li><strong>Tempo por unidade</strong><span>Tempo de trabalho no lote, em horas, ÷ quantidade produzida.</span></li>
-          <li><strong>Mão de obra por unidade</strong><span>Valor da hora × tempo por unidade.</span></li>
-          <li><strong>Gastos fixos mensais</strong><span>Soma das contas fixas + depreciação. Cada depreciação = valor atual ÷ meses restantes de uso.</span></li>
-          <li><strong>Percentual de gastos fixos</strong><span>Gastos fixos mensais ÷ faturamento médio mensal × 100.</span></li>
-          <li><strong>Custo-base por unidade</strong><span>Material por unidade + mão de obra por unidade.</span></li>
-          <li><strong>Markup</strong><span>100 ÷ [100 − (gastos fixos % + despesas variáveis % + lucro %)].</span></li>
-          <li><strong>Preço de venda sugerido</strong><span>Custo-base por unidade × markup.</span></li>
-        </ol>
-        <p className="markup-formula">Preço por unidade = (material por unidade + mão de obra por unidade) × 100 ÷ [100 − (gastos fixos % + despesas variáveis % + lucro %)]</p>
-      </section>
       <p className="markup-disclaimer">Simulação por unidade. Os cálculos mantêm a precisão até a exibição dos valores; ajuste custos, rendimentos e percentuais à realidade do seu negócio.</p>
     </div>
   )

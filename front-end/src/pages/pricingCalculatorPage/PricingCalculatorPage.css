@@ -19,8 +19,13 @@
 .markup-heading h1 { color: var(--theme-accent, var(--calculator-green)); font-size: clamp(26px, 3.1vw, 36px); font-weight: 700; line-height: 1.2; letter-spacing: -0.035em; }
 .markup-heading p { margin-top: 7px; color: var(--calculator-muted); font-size: 17px; }
 .markup-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: start; gap: 26px; }
+@media (width > 850px) {
+    .markup-layout { grid-template-rows: auto 1fr; }
+    .markup-result-panel { grid-column: 2; grid-row: 1 / span 2; }
+}
 
 .markup-form-panel,
+.markup-details,
 .markup-breakdown { border: 1px solid var(--calculator-border); border-radius: 18px; background: var(--theme-surface, #fff); }
 .markup-form-panel { min-width: 0; padding: 30px; }
 .markup-panel-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
@@ -55,10 +60,19 @@
 .markup-percentage-field .markup-field-label > label { min-width: 0; }
 .markup-field label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 700; }
 .markup-help-intro { margin: -4px 0 22px; color: var(--calculator-muted); font-size: 14px; line-height: 1.6; }
+.markup-help-intro strong { color: var(--theme-accent, var(--calculator-green)); font-weight: 700; }
 .markup-field-heading { display: block; margin-bottom: 7px; text-wrap: balance; }
 .markup-field-heading label { margin-bottom: 0; }
 .markup-field-heading > label { display: inline; }
 .markup-field-heading > .markup-help-button { margin-left: 4px; vertical-align: middle; }
+.markup-field:has(> .markup-unit-select, > .markup-input-wrap > input[name="producedQuantity"]) > .markup-field-heading {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+.markup-field:has(> .markup-unit-select, > .markup-input-wrap > input[name="producedQuantity"]) > .markup-field-heading > label {
+    text-align: right;
+}
 .markup-page .markup-field select { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid var(--calculator-border); border-radius: 9px; background: var(--surface-input); color: var(--calculator-text); font: inherit; font-size: 16px; }
 .markup-page .markup-field .markup-unit-select { width: auto; max-width: 100%; }
 .markup-page .markup-field select:focus { outline: none; border-color: var(--calculator-green); box-shadow: 0 0 0 3px rgb(7 131 46 / 13%); }
@@ -171,6 +185,7 @@
 .markup-range[aria-invalid="true"] { --range-color: var(--theme-danger-text, #a73324); }
 .markup-page .markup-help-button { display: inline-flex; flex: 0 0 36px; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--theme-accent, var(--calculator-green)); font-size: 14px; }
 .markup-help-button .markup-help-icon { display: block; flex: none; width: 22px; height: 22px; }
+:root[data-theme="dark"] .markup-help-button { color: var(--theme-success-text); }
 .markup-help-button:hover { background: var(--calculator-soft); }
 .markup-help-dialog { position: fixed; inset: 0; width: min(520px, calc(100% - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 26px; overflow-y: auto; border: 1px solid var(--calculator-border); border-radius: 18px; background: var(--theme-surface, #fff); color: var(--calculator-text); box-shadow: 0 16px 60px #0003; }
 .markup-help-dialog::backdrop { background: rgb(0 0 0 / 48%); }
@@ -216,6 +231,9 @@
 .markup-price-area { margin: 9px 0 21px; }
 .markup-price { display: block; font-size: clamp(34px, 4.2vw, 56px); font-weight: 700; line-height: 1.2; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .markup-price-area p { margin-top: 13px; color: #d2ecd8; font-size: 12px; line-height: 1.7; }
+:root[data-theme="dark"] .markup-result-card :is(.markup-step, .markup-example-badge, .markup-price-area p, .markup-break-even p) {
+    color: var(--text-secondary);
+}
 .markup-multiplier { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / 25%); font-size: 13px; }
 .markup-multiplier strong { font-size: 19px; overflow-wrap: anywhere; }
 
@@ -246,11 +264,23 @@
 .markup-empty { margin-top: 16px; font-size: 14px; line-height: 1.7; }
 .markup-breakdown .markup-empty { color: var(--calculator-muted); }
 
-.markup-guide { margin-top: 30px; padding: 27px; border-radius: 18px; background: var(--calculator-soft); }
-.markup-guide h2 { display: flex; align-items: center; gap: 12px; color: var(--theme-accent, var(--calculator-green)); font-size: 18px; line-height: 1.4; }
-.markup-guide h2 svg { flex-shrink: 0; font-size: 19px; }
+.markup-details-stack { display: grid; min-width: 0; gap: 12px; }
+.markup-details { --details-inset: clamp(18px, 2.5vw, 30px); --details-radius: 18px; min-width: 0; }
+.markup-details, .markup-details > summary { border-radius: var(--details-radius); }
+.markup-details > summary { padding: 16px var(--details-inset); cursor: pointer; list-style: none; }
+.markup-details > summary::-webkit-details-marker { display: none; }
+.markup-details > summary:hover { background: var(--calculator-soft); }
+.markup-details > summary:focus-visible { outline: 2px solid var(--theme-accent, var(--calculator-green)); outline-offset: 2px; }
+.markup-details > summary h2 { display: flex; align-items: center; gap: 10px; color: var(--theme-accent, var(--calculator-green)); font-size: 18px; line-height: 1.4; }
+.markup-details > summary svg { flex: none; font-size: 14px; }
+.markup-details[open] > summary svg { transform: rotate(180deg); }
+.markup-details-body { margin-inline: var(--details-inset); padding: 18px 0 22px; border-top: 1px solid var(--calculator-border); }
+.markup-detail-values { display: grid; gap: 12px; margin: 0; font-size: 14px; }
+.markup-detail-values > div { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; }
+.markup-detail-values dt { flex: 1 1 150px; }
+.markup-detail-values dd { max-width: 100%; margin: 0 0 0 auto; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .markup-formula { margin-top: 19px; font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
-.markup-guide-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 25px; margin-top: 18px; }
+.markup-guide-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 20px; }
 .markup-guide-steps h3 { color: var(--theme-accent, var(--calculator-green)); font-size: 12px; line-height: 1.5; }
 .markup-guide-steps p { margin-top: 4px; font-size: 13px; overflow-wrap: anywhere; }
 .markup-guide-steps strong { display: block; margin-top: 3px; color: var(--theme-accent, var(--calculator-green)); font-size: 21px; overflow-wrap: anywhere; }
@@ -320,7 +350,7 @@
     .markup-advanced-placeholder { min-height: 0; padding: 36px 20px; border-radius: 15px; }
     .markup-advanced-placeholder p { font-size: 14px; }
     .markup-page .markup-advanced-back { width: 100%; padding-inline: 12px; font-size: 14px; }
-    .markup-form-panel, .markup-result-card, .markup-breakdown, .markup-guide { padding: 22px 18px; border-radius: 15px; }
+    .markup-form-panel, .markup-result-card, .markup-breakdown { padding: 22px 18px; border-radius: 15px; }
     .markup-panel-heading h2 { font-size: 22px; }
     .markup-example { padding-inline: 11px; }
     .markup-field-group legend { gap: 8px; font-size: 14px; }
@@ -329,6 +359,6 @@
     .markup-breakdown h3 { font-size: 19px; }
     .markup-breakdown dl > div { gap: 9px; font-size: 13px; }
     .markup-breakdown dt { gap: 8px; }
-    .markup-guide { margin-top: 24px; }
-    .markup-guide h2 { gap: 9px; font-size: 16px; }
+    .markup-details { --details-radius: 15px; }
+    .markup-details > summary h2 { font-size: 16px; }
 }

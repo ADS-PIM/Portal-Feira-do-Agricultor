@@ -3,9 +3,10 @@ import CalculatorFieldHelp from './CalculatorFieldHelp'
 
 const label = 'Medida do tempo de produção'
 const help = {
-  explanation: 'Escolha se o tempo de produção foi informado em horas ou minutos. A calculadora converte os minutos para horas antes de calcular a mão de obra.',
-  example: '2 horas e 120 minutos representam o mesmo tempo. Para informar uma hora e meia, use 1,5 hora ou 90 minutos.',
-  effect: 'A medida determina a duração usada no cálculo. Ao trocar horas por minutos, ajuste também o número para representar o mesmo tempo.',
+  lead: 'Escolha a medida que combina com o tempo digitado.',
+  explanation: 'Para registrar uma hora e meia, use 90 com Minutos ou 1,5 com Horas.',
+  example: 'Se você digitou 30 para indicar meia hora de trabalho, escolha Minutos. Com Horas, a calculadora entenderia 30 horas de trabalho.',
+  effect: 'Se sua hora vale R$ 20, meia hora de trabalho custa R$ 10. Ao trocar a medida, ajuste também o número para manter o mesmo tempo.',
 }
 
 export default function ProductionTimeUnitField({ id, value, onChange }: {

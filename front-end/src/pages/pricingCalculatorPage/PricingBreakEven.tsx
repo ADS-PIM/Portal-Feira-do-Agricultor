@@ -1,4 +1,5 @@
 import type { MarkupResult } from '../../utils/pricingCalculator'
+import { CalculatorDetails } from './CalculatorDetails'
 import './PricingBreakEven.css'
 
 const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -13,10 +14,9 @@ const numeric = (value: number) => {
 type Props = {
   result: MarkupResult | null
   titleId: string
-  fixedExpensesLabel?: string
 }
 
-export default function PricingBreakEven({ result, titleId, fixedExpensesLabel = 'Gastos fixos por mês' }: Props) {
+export default function PricingBreakEven({ result, titleId }: Props) {
   const minimumQuantity = result?.breakEvenQuantity != null ? Math.ceil(result.breakEvenQuantity) : null
 
   return (
@@ -31,10 +31,19 @@ export default function PricingBreakEven({ result, titleId, fixedExpensesLabel =
       {result && result.monthlyFixedExpenses === 0 && <p>Sem gastos fixos cadastrados, o mínimo para cobri-los é zero.</p>}
       {result && (result.breakEvenRevenue === null || result.breakEvenQuantity === null)
         && <p>Não foi possível calcular o ponto de equilíbrio com estes valores. Revise os custos e a margem de contribuição.</p>}
-      <details className="markup-break-even-help">
-        <summary>Como é calculado?</summary>
+    </section>
+  )
+}
+
+export function BreakEvenExplanation({ result, fixedExpensesLabel = 'Gastos fixos por mês' }: {
+  result: MarkupResult | null
+  fixedExpensesLabel?: string
+}) {
+  return (
+    <CalculatorDetails title="Explicação do ponto de equilíbrio">
+      <div className="markup-break-even-explanation">
         <p>A margem de contribuição é o preço de venda menos materiais, mão de obra por unidade e taxas de venda. Ela cobre os gastos fixos e, depois, gera lucro.</p>
-        <dl>
+        <dl className="markup-detail-values">
           <div><dt>{fixedExpensesLabel}</dt><dd>{result ? currency.format(result.monthlyFixedExpenses) : 'R$ —'}</dd></div>
           <div><dt>Margem de contribuição por unidade</dt><dd>{result ? `${currency.format(result.contributionMarginPerUnit)} (${numeric(result.contributionMarginPercentage)}%)` : 'R$ —'}</dd></div>
           <div><dt>Margem de contribuição mensal estimada</dt><dd>{result ? currency.format(result.monthlyContributionMargin) : 'R$ —'}</dd></div>
@@ -42,7 +51,7 @@ export default function PricingBreakEven({ result, titleId, fixedExpensesLabel =
         <p>PE em valor = (gastos fixos ÷ margem de contribuição mensal) × faturamento mensal.</p>
         <p>PE em quantidade = gastos fixos mensais ÷ margem de contribuição por unidade.</p>
         <p>A margem mensal considera o faturamento informado e a proporção de custos deste produto. A mão de obra acompanha a quantidade produzida, como no cálculo do preço.</p>
-      </details>
-    </section>
+      </div>
+    </CalculatorDetails>
   )
 }
