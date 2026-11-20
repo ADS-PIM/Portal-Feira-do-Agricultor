@@ -12,7 +12,7 @@ Android e iOS reais. Ao alterar o rodapé, repita essa matriz antes de publicar.
 Se os navegadores mostrarem links diferentes, compare primeiro o endereço
 completo e recarregue a página: diferenças no conteúdo também podem indicar
 versões publicadas distintas ou uma aba antiga. O layout atual usa “Menu Rápido”
-e “Redes Sociais”; “Serviços & Links” pertence a uma versão anterior.
+e “Contato”; “Serviços & Links” pertence a uma versão anterior.
 
 ## Navegação
 

@@ -92,7 +92,7 @@ const Footer = () => {
                         </div>
                     </nav>
                     <section className="site-footer-contact" aria-labelledby="footer-social-title">
-                        <h2 id="footer-social-title">Redes Sociais</h2>
+                        <h2 id="footer-social-title">Contato</h2>
                         <nav className="site-footer-socials" aria-label="Canais de contato">
                             <ContactButton name="whatsapp" label="WhatsApp" href={whatsappUrl} />
                             <ContactButton name="instagram" label="Instagram" href={instagramAccount ? getInstagramUrl(instagramAccount) : null} />
