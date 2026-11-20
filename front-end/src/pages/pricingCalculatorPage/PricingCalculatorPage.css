@@ -271,7 +271,7 @@
 .markup-details > summary::-webkit-details-marker { display: none; }
 .markup-details > summary:hover { background: var(--calculator-soft); }
 .markup-details > summary:focus-visible { outline: 2px solid var(--theme-accent, var(--calculator-green)); outline-offset: 2px; }
-.markup-details > summary h2 { display: flex; align-items: center; gap: 10px; color: var(--theme-accent, var(--calculator-green)); font-size: 18px; line-height: 1.4; }
+.markup-details > summary h2 { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--theme-accent, var(--calculator-green)); font-size: 18px; line-height: 1.4; }
 .markup-details > summary svg { flex: none; font-size: 14px; }
 .markup-details[open] > summary svg { transform: rotate(180deg); }
 .markup-details-body { margin-inline: var(--details-inset); padding: 18px 0 22px; border-top: 1px solid var(--calculator-border); }

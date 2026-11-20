@@ -365,6 +365,30 @@ export default function AdvancedPricingCalculator() {
           </form>
         </section>
 
+        <aside className="markup-result-panel" aria-labelledby="advanced-result-title">
+          <div className="markup-result-card">
+            <div className="markup-result-heading"><span className="markup-step">SEU RESULTADO</span>{isExample && <span className="markup-example-badge">Exemplo preenchido</span>}</div>
+            <h2 id="advanced-result-title">Preço de venda por unidade</h2>
+            <div className="markup-price-area" role="status" aria-live="polite" aria-atomic="true">
+              <strong className="markup-price">{result ? money(result.price) : 'R$ —'}</strong>
+              <p>{result ? 'Preço atualizado com os custos e percentuais informados.'
+                : 'Preencha ou corrija os campos necessários para ver o preço sugerido.'}</p>
+            </div>
+            <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${numeric(result.multiplier)}×` : '—'}</strong></div>
+            <div className="markup-multiplier advanced-batch-price"><span>Venda de todo o lote</span><strong>{result ? money(result.batchPrice) : 'R$ —'}</strong></div>
+            <PricingBreakEven result={result} titleId="advanced-break-even-title" />
+          </div>
+          <section className="markup-breakdown" aria-labelledby="advanced-breakdown-title">
+            <h3 id="advanced-breakdown-title">Para onde vai cada parte do preço?</h3>
+            <p className="markup-hint">Distribuição do valor de uma unidade vendida.</p>
+            {result ? <>
+              <div className="markup-bar" aria-hidden="true">{breakdown.map(item => <span key={item.className} className={item.className} style={{ width: `${item.amount / result.price * 100}%` }} />)}</div>
+              <dl>{breakdown.map(item => <div key={item.className}><dt><span className={`markup-dot ${item.className}`} />{item.label}</dt><dd>{money(item.amount)}</dd></div>)}</dl>
+              <div className="markup-breakdown-total"><span>Preço por unidade</span><strong>{money(result.price)}</strong></div>
+            </> : <p className="markup-empty">O resultado separa materiais, trabalho, despesas e lucro.</p>}
+          </section>
+        </aside>
+
         <div className="markup-details-stack">
           <ProductionSummary rows={[
             ['Custo dos insumos do lote', result ? money(result.recipeCost) : 'R$ —'],
@@ -398,30 +422,6 @@ export default function AdvancedPricingCalculator() {
           </CalculatorDetails>
           <BreakEvenExplanation result={result} fixedExpensesLabel="Gastos fixos por mês, com depreciação" />
         </div>
-
-        <aside className="markup-result-panel" aria-labelledby="advanced-result-title">
-          <div className="markup-result-card">
-            <div className="markup-result-heading"><span className="markup-step">SEU RESULTADO</span>{isExample && <span className="markup-example-badge">Exemplo preenchido</span>}</div>
-            <h2 id="advanced-result-title">Preço de venda por unidade</h2>
-            <div className="markup-price-area" role="status" aria-live="polite" aria-atomic="true">
-              <strong className="markup-price">{result ? money(result.price) : 'R$ —'}</strong>
-              <p>{result ? 'Preço atualizado com os custos e percentuais informados.'
-                : 'Preencha ou corrija os campos necessários para ver o preço sugerido.'}</p>
-            </div>
-            <div className="markup-multiplier"><span>Multiplicador markup</span><strong>{result ? `${numeric(result.multiplier)}×` : '—'}</strong></div>
-            <div className="markup-multiplier advanced-batch-price"><span>Venda de todo o lote</span><strong>{result ? money(result.batchPrice) : 'R$ —'}</strong></div>
-            <PricingBreakEven result={result} titleId="advanced-break-even-title" />
-          </div>
-          <section className="markup-breakdown" aria-labelledby="advanced-breakdown-title">
-            <h3 id="advanced-breakdown-title">Para onde vai cada parte do preço?</h3>
-            <p className="markup-hint">Distribuição do valor de uma unidade vendida.</p>
-            {result ? <>
-              <div className="markup-bar" aria-hidden="true">{breakdown.map(item => <span key={item.className} className={item.className} style={{ width: `${item.amount / result.price * 100}%` }} />)}</div>
-              <dl>{breakdown.map(item => <div key={item.className}><dt><span className={`markup-dot ${item.className}`} />{item.label}</dt><dd>{money(item.amount)}</dd></div>)}</dl>
-              <div className="markup-breakdown-total"><span>Preço por unidade</span><strong>{money(result.price)}</strong></div>
-            </> : <p className="markup-empty">O resultado separa materiais, trabalho, despesas e lucro.</p>}
-          </section>
-        </aside>
       </div>
       <p className="markup-disclaimer">Simulação por unidade. Os cálculos mantêm a precisão até a exibição dos valores; ajuste custos, rendimentos e percentuais à realidade do seu negócio.</p>
     </div>

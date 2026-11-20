@@ -356,40 +356,6 @@ export default function PricingCalculatorPage() {
                 </form>
               </section>
 
-              <div className="markup-details-stack">
-                <ProductionSummary rows={[
-                  ['Material por unidade', result ? currency.format(result.materialCost) : 'R$ —'],
-                  ['Tempo de trabalho por unidade', result ? `${decimal.format(result.productionHours)} h` : '—'],
-                  ['Valor da sua hora', result ? currency.format(result.hourlyRate) : 'R$ —'],
-                  ['Mão de obra por unidade', result ? currency.format(result.laborCost) : 'R$ —'],
-                  ['Custo-base por unidade', result ? currency.format(result.directCost) : 'R$ —'],
-                ]} />
-                <CalculatorDetails title="Como chegamos a esse preço">
-                  <div className="markup-guide-steps">
-                    <div>
-                      <h3>Custo direto por unidade</h3>
-                      <p>{result ? `${currency.format(result.materialCost)} + (${decimal.format(result.productionHours)} h × ${currency.format(result.hourlyRate)})` : 'Material + (horas × valor da hora)'}</p>
-                      <strong>{result ? currency.format(result.directCost) : 'R$ —'}</strong>
-                      <p className="markup-hint">Material + mão de obra, sem duplicar custos.</p>
-                    </div>
-                    <div>
-                      <h3>Percentuais sobre a venda</h3>
-                      <p>{result ? `${formatPercentage(result.fixedPercentage)}% fixas + ${formatPercentage(result.variableExpenses)}% variáveis + ${formatPercentage(result.profit)}% lucro` : 'Fixas % + variáveis % + lucro %'}</p>
-                      <strong>{result ? `${formatPercentage(result.totalPercentage)}%` : '—'}</strong>
-                      <p className="markup-hint">{result ? `Fixas = ${currency.format(result.monthlyFixedExpenses)} ÷ ${currency.format(result.monthlyRevenue)} × 100.` : 'Fixas = despesas fixas mensais ÷ faturamento mensal × 100.'}</p>
-                    </div>
-                    <div>
-                      <h3>Preço de venda por unidade</h3>
-                      <p>{result ? `(${currency.format(result.directCost)} × 100) ÷ (100 − ${formatPercentage(result.totalPercentage)})` : '(Custo direto × 100) ÷ (100 − percentuais)'}</p>
-                      <strong>{result ? currency.format(result.price) : 'R$ —'}</strong>
-                      <p className="markup-hint">{result ? `Divisor de ${formatPercentage(100 - result.totalPercentage)}%: a parcela que cobre o custo direto.` : 'A parcela restante do preço cobre o custo direto.'}</p>
-                    </div>
-                  </div>
-                  <p className="markup-formula">Preço = [(material + horas × valor da hora) × 100] ÷ [100 − ((despesas fixas mensais ÷ faturamento mensal × 100) + variáveis % + lucro %)]</p>
-                </CalculatorDetails>
-                <BreakEvenExplanation result={result} />
-              </div>
-
               <aside className="markup-result-panel" aria-labelledby="markup-result-title">
                 <div className="markup-result-card">
                   <div className="markup-result-heading">
@@ -424,6 +390,40 @@ export default function PricingCalculatorPage() {
                   ) : <p className="markup-empty">Preencha os dados para ver os materiais, a mão de obra, as despesas e o lucro de cada unidade.</p>}
                 </section>
               </aside>
+
+              <div className="markup-details-stack">
+                <ProductionSummary rows={[
+                  ['Material por unidade', result ? currency.format(result.materialCost) : 'R$ —'],
+                  ['Tempo de trabalho por unidade', result ? `${decimal.format(result.productionHours)} h` : '—'],
+                  ['Valor da sua hora', result ? currency.format(result.hourlyRate) : 'R$ —'],
+                  ['Mão de obra por unidade', result ? currency.format(result.laborCost) : 'R$ —'],
+                  ['Custo-base por unidade', result ? currency.format(result.directCost) : 'R$ —'],
+                ]} />
+                <CalculatorDetails title="Como chegamos a esse preço">
+                  <div className="markup-guide-steps">
+                    <div>
+                      <h3>Custo direto por unidade</h3>
+                      <p>{result ? `${currency.format(result.materialCost)} + (${decimal.format(result.productionHours)} h × ${currency.format(result.hourlyRate)})` : 'Material + (horas × valor da hora)'}</p>
+                      <strong>{result ? currency.format(result.directCost) : 'R$ —'}</strong>
+                      <p className="markup-hint">Material + mão de obra, sem duplicar custos.</p>
+                    </div>
+                    <div>
+                      <h3>Percentuais sobre a venda</h3>
+                      <p>{result ? `${formatPercentage(result.fixedPercentage)}% fixas + ${formatPercentage(result.variableExpenses)}% variáveis + ${formatPercentage(result.profit)}% lucro` : 'Fixas % + variáveis % + lucro %'}</p>
+                      <strong>{result ? `${formatPercentage(result.totalPercentage)}%` : '—'}</strong>
+                      <p className="markup-hint">{result ? `Fixas = ${currency.format(result.monthlyFixedExpenses)} ÷ ${currency.format(result.monthlyRevenue)} × 100.` : 'Fixas = despesas fixas mensais ÷ faturamento mensal × 100.'}</p>
+                    </div>
+                    <div>
+                      <h3>Preço de venda por unidade</h3>
+                      <p>{result ? `(${currency.format(result.directCost)} × 100) ÷ (100 − ${formatPercentage(result.totalPercentage)})` : '(Custo direto × 100) ÷ (100 − percentuais)'}</p>
+                      <strong>{result ? currency.format(result.price) : 'R$ —'}</strong>
+                      <p className="markup-hint">{result ? `Divisor de ${formatPercentage(100 - result.totalPercentage)}%: a parcela que cobre o custo direto.` : 'A parcela restante do preço cobre o custo direto.'}</p>
+                    </div>
+                  </div>
+                  <p className="markup-formula">Preço = [(material + horas × valor da hora) × 100] ÷ [100 − ((despesas fixas mensais ÷ faturamento mensal × 100) + variáveis % + lucro %)]</p>
+                </CalculatorDetails>
+                <BreakEvenExplanation result={result} />
+              </div>
             </div>
             <p className="markup-disclaimer">Simulação ilustrativa por unidade. Ajuste os valores à realidade do seu negócio.</p>
           </div>
