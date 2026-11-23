@@ -266,15 +266,19 @@
 
 .markup-details-stack { display: grid; min-width: 0; gap: 12px; }
 .markup-details { --details-inset: clamp(18px, 2.5vw, 30px); --details-radius: 18px; min-width: 0; }
-.markup-details, .markup-details > summary { border-radius: var(--details-radius); }
-.markup-details > summary { padding: 16px var(--details-inset); cursor: pointer; list-style: none; }
-.markup-details > summary::-webkit-details-marker { display: none; }
-.markup-details > summary:hover { background: var(--calculator-soft); }
-.markup-details > summary:focus-visible { outline: 2px solid var(--theme-accent, var(--calculator-green)); outline-offset: 2px; }
-.markup-details > summary h2 { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--theme-accent, var(--calculator-green)); font-size: 18px; line-height: 1.4; }
-.markup-details > summary svg { flex: none; font-size: 14px; }
-.markup-details[open] > summary svg { transform: rotate(180deg); }
+.markup-details, .markup-details-toggle { border-radius: var(--details-radius); }
+.markup-details-toggle { display: block; width: 100%; padding: 16px var(--details-inset); border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.markup-details-toggle:hover { background: var(--calculator-soft); }
+.markup-details-toggle:focus-visible { outline: 2px solid var(--theme-accent, var(--calculator-green)); outline-offset: 2px; }
+.markup-details-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--theme-accent, var(--calculator-green)); font: inherit; font-size: 18px; line-height: 1.4; }
+.markup-details-title svg { flex: none; font-size: 14px; transition: transform 180ms ease; }
+.markup-details.is-open .markup-details-title svg { transform: rotate(180deg); }
+.markup-details-panel { height: 0; overflow: hidden; transition: height 420ms cubic-bezier(0.4, 0, 0.2, 1); }
 .markup-details-body { margin-inline: var(--details-inset); padding: 18px 0 22px; border-top: 1px solid var(--calculator-border); }
+@media (prefers-reduced-motion: reduce) {
+    .markup-details-panel { transition-duration: 160ms; }
+    .markup-details-title svg { transition: none; }
+}
 .markup-detail-values { display: grid; gap: 12px; margin: 0; font-size: 14px; }
 .markup-detail-values > div { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; }
 .markup-detail-values dt { flex: 1 1 150px; }

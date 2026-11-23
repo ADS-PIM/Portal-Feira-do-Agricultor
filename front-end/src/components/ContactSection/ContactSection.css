@@ -58,6 +58,7 @@
     min-height: 228px;
     flex-direction: column;
     align-items: center;
+    background: var(--theme-feature-surface, var(--brand-green-dark));
     padding: 30px 20px;
     border: 1px solid var(--theme-border, #e1e3db);
     border-radius: 24px;
@@ -87,13 +88,14 @@
 
 .contact-card h3 {
     margin: 0 0 4px;
-    color: var(--theme-accent, var(--brand-green-dark));
+    color: #fff;
     font-size: 19px;
     font-weight: 700;
 }
 
 .contact-card p {
     margin: 0;
+    color: rgb(255 255 255 / 88%);
     overflow-wrap: anywhere;
     font-size: 15px;
     line-height: 1.5;
@@ -108,18 +110,39 @@
 }
 
 .contact-card a {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 21px;
+    padding: 0 27px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--brand-orange);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.contact-card a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
+}
+
+.contact-card a:active {
+    transform: translateY(0);
 }
 
 .contact-card a:focus-visible {
-    border-radius: 2px;
-    outline: 2px solid var(--brand-orange);
+    border-radius: 999px;
+    outline: 2px solid #fff;
     outline-offset: 3px;
 }
 
 .contact-card-unavailable {
-    color: var(--text-muted);
+    color: rgb(255 255 255 / 88%);
     font-weight: 500;
 }
 
@@ -237,7 +260,7 @@
         min-height: 0;
         padding: 14px;
         border-radius: 14px;
-        background: var(--theme-surface, #fff);
+        background: var(--theme-feature-surface, var(--brand-green-dark));
         text-align: left;
     }
 
@@ -285,17 +308,17 @@
         justify-self: start;
         min-height: 40px;
         margin-top: 4px;
-        padding: 7px 12px;
-        border: 1px solid var(--theme-border, #dce8d5);
-        border-radius: 9px;
-        background: var(--theme-surface-muted, #f3f8ef);
-        color: var(--theme-accent, var(--brand-green-dark));
+        padding: 7px 14px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--brand-orange);
+        color: #fff;
         font-size: 12px;
         text-decoration: none;
     }
 
     .contact-card a:hover {
-        background: var(--theme-success-surface, #e7f2df);
+        transform: translateY(-1px);
     }
 
     .contact-section-hours {

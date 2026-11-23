@@ -49,10 +49,10 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-    border: 1px solid var(--theme-border, #dcebdd);
+    border: 1px solid var(--brand-green-dark);
     border-radius: 10px;
-    background: var(--theme-surface, #fff);
-    color: var(--theme-accent, var(--brand-green-dark));
+    background: var(--brand-green-dark);
+    color: #fff;
     font: inherit;
     font-size: 22px;
     font-weight: 700;
@@ -63,7 +63,8 @@
 
 .site-header-zoom-controls button:hover:not(:disabled),
 .site-header-zoom-controls button:focus-visible {
-    background: var(--brand-green-dark);
+    border-color: var(--brand-green-hover);
+    background: var(--brand-green-hover);
     color: #fff;
 }
 

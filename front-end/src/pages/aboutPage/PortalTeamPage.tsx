@@ -10,7 +10,6 @@ const PortalTeamPage = () => (
             <div className="about-shell">
                 <a href="/sobre" className="about-text-link"><Icon name="arrowLeft" /> Voltar para Sobre nós</a>
                 <header className="about-team-intro">
-                    <p className="about-eyebrow">POR TRÁS DO PORTAL</p>
                     <h1 id="portal-team-title">Quem fez o portal</h1>
                     <p>A feira tem muitas histórias. A criação deste portal também.</p>
                 </header>

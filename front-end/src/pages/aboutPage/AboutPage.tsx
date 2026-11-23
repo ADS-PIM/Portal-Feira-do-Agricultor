@@ -16,7 +16,6 @@ const AboutPage = () => (
 
             <section className="about-intro about-shell" aria-labelledby="about-intro-title">
                 <div className="about-intro-copy">
-                    <p className="about-eyebrow">BROTANDO FEIRAS</p>
                     <h2 id="about-intro-title">Do campo à praça, a gente cresce junto.</h2>
                     <p>Somos famílias agricultoras, artesãs e artesãos de Tabuleiro do Norte. Com o apoio do Instituto Brotar, a feira aproxima quem produz de quem compra e valoriza o trabalho da nossa terra.</p>
                     <p className="about-location"><Icon name="location" /> Tabuleiro do Norte, Ceará</p>
@@ -26,7 +25,6 @@ const AboutPage = () => (
 
             <section id="nossa-caminhada" className="about-section about-history about-shell" aria-labelledby="about-history-title">
                 <header className="about-section-heading">
-                    <p className="about-eyebrow">NOSSAS RAÍZES</p>
                     <h2 id="about-history-title">Nossa caminhada</h2>
                 </header>
                 <div className="about-section-grid">
@@ -45,7 +43,6 @@ const AboutPage = () => (
             <section className="about-values-band" aria-labelledby="about-values-title">
                 <div className="about-shell">
                     <header className="about-section-heading">
-                        <p className="about-eyebrow">O QUE NOS MOVE</p>
                         <h2 id="about-values-title">A gente cultiva mais do que alimentos.</h2>
                     </header>
                     <div className="about-values">
@@ -61,7 +58,6 @@ const AboutPage = () => (
 
             <section className="about-section about-women about-shell" aria-labelledby="about-women-title">
                 <header className="about-section-heading">
-                    <p className="about-eyebrow">QUEM FAZ ACONTECER</p>
                     <h2 id="about-women-title">O trabalho das mulheres faz a feira florescer.</h2>
                 </header>
                 <div className="about-section-grid">
@@ -76,7 +72,6 @@ const AboutPage = () => (
 
             <section className="about-visit about-shell" aria-labelledby="about-visit-title">
                 <div>
-                    <p className="about-eyebrow">A GENTE SE ENCONTRA NA FEIRA</p>
                     <h2 id="about-visit-title">Venha conhecer de perto.</h2>
                     <p>Confira as próximas datas e venha conversar com quem produz.</p>
                 </div>
@@ -85,7 +80,6 @@ const AboutPage = () => (
 
             <section className="about-portal about-shell" aria-labelledby="about-portal-title">
                 <div>
-                    <p className="about-eyebrow">POR TRÁS DO PORTAL</p>
                     <h2 id="about-portal-title">Essa história também chegou às portas do IFCE</h2>
                     <p>Conheça a equipe e a caminhada de criação deste portal.</p>
                 </div>

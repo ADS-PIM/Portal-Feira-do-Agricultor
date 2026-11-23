@@ -83,17 +83,22 @@
     gap: 6px;
     width: fit-content;
     max-width: 100%;
-    padding: 0;
+    padding: 8px 12px;
     border: 0;
-    border-radius: 2px;
-    background: transparent;
-    color: var(--theme-accent, var(--brand-green-dark));
+    border-radius: 8px;
+    background: var(--brand-green-dark);
+    color: #fff;
     font: inherit;
     font-size: 0.85rem;
-    font-weight: 400;
-    line-height: 1.7;
+    font-weight: 600;
+    line-height: 1.5;
     text-decoration: none;
     cursor: pointer;
+    transition: background-color 150ms ease;
+}
+
+.producer-card-products-toggle:hover {
+    background: var(--brand-green-hover);
 }
 
 .producer-card-products-toggle:focus-visible {
