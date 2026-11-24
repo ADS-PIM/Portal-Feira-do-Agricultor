@@ -62,6 +62,14 @@ export class EventService {
         return this.eventDAO.searchForAdmin();
     }
 
+    public async searchMissingMonthlyFairDates(): Promise<string[]> {
+        return this.eventDAO.searchMissingMonthlyFairDates();
+    }
+
+    public async recreateMonthlyFair(date: string): Promise<boolean> {
+        return this.eventDAO.recreateMonthlyFair(date);
+    }
+
     public async searchNearest(date: string): Promise<EventNearestSearchDTO | null> {
         return this.eventDAO.searchNearest(date);
     }

@@ -619,6 +619,32 @@
     color: var(--theme-accent, #286e30);
 }
 
+.admin-events-missing-fairs {
+    border-inline-start: 4px solid var(--brand-orange);
+}
+
+.admin-events-missing-fairs h2 {
+    margin: 0 0 10px;
+    color: var(--text-secondary);
+    font-size: 15px;
+}
+
+.admin-events-missing-fairs ul {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-events-missing-fairs li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+}
+
 .admin-events-issue-filter {
     display: flex;
     align-items: center;

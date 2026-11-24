@@ -38,6 +38,11 @@ export interface AdminEventWithAuthor extends AdminEvent {
     administratorActive: boolean
 }
 
+export interface AdminEventSchedule {
+    events: AdminEventWithAuthor[]
+    missingFairDates: string[]
+}
+
 export interface EventDetails extends Omit<AdminEvent, 'createdAt' | 'localAddress'> {
     localAddress: string | null
     localLatitude: number | string | null
@@ -108,6 +113,14 @@ export function getEvents(signal?: AbortSignal): Promise<AdminEvent[] | null> {
 
 export function getAdminEvents(signal?: AbortSignal): Promise<AdminEventWithAuthor[]> {
     return apiFetch<AdminEventWithAuthor[]>('event/admin', { signal })
+}
+
+export function getAdminEventSchedule(signal?: AbortSignal) {
+    return apiFetch<AdminEventSchedule>('event/admin?includeMissingMonthlyFairs=true', { signal })
+}
+
+export function recreateMonthlyFair(date: string) {
+    return apiFetch<{ created: boolean }>(`event/admin/monthly-fairs/${encodeURIComponent(date)}`, { method: 'POST' })
 }
 
 export function createAdminEvent(event: AdminEventInput): Promise<{ id: string; message: string }> {

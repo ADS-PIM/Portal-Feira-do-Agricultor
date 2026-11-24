@@ -5,7 +5,8 @@ import { rememberEventLocation } from './eventLocation.dao'
 import { Event, EventState } from '../model/event'
 import { AdminEventSearchDTO, EventAgendaSearchDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
 import { eventLocalTimestamp } from '../util/eventTime'
-import { ensureMonthlyFairs } from './monthlyFair.dao'
+import { ensureMonthlyFairs, fillMonthlyFair, lockMonthlyFairDate, missingMonthlyFairDates, monthlyFairDates, suppressDeletedMonthlyFair } from './monthlyFair.dao'
+import { ActionError } from '../model/actionError'
 
 async function synchronizeEventStates(db: Pick<PoolConnection, 'query'>, now: Date, eventId?: string): Promise<number> {
     const timestamp = eventLocalTimestamp(now)
@@ -41,24 +42,30 @@ export type EventUpdateData = {
 }
 
 export class EventDAO {
-    private scheduledMonth = ''
     constructor(private pool: Pool = connection, private now: () => Date = () => new Date()) {}
 
     public async synchronizeStates(): Promise<number> {
         const now = this.now()
-        const today = eventLocalTimestamp(now).slice(0, 10)
-        const month = today.slice(0, 7)
-        if (this.scheduledMonth !== month) {
-            await ensureMonthlyFairs(this.pool, today)
-            this.scheduledMonth = month
-        }
+        await ensureMonthlyFairs(this.pool, eventLocalTimestamp(now).slice(0, 10))
         return synchronizeEventStates(this.pool, now)
+    }
+
+    public async searchMissingMonthlyFairDates(): Promise<string[]> {
+        return missingMonthlyFairDates(this.pool, eventLocalTimestamp(this.now()).slice(0, 10))
+    }
+
+    public async recreateMonthlyFair(date: string): Promise<boolean> {
+        if (!monthlyFairDates(eventLocalTimestamp(this.now()).slice(0, 10)).includes(date)) {
+            throw new ActionError(400, 'INVALID_MONTHLY_FAIR_DATE', 'A data deve ser um dos seis próximos primeiros sábados.')
+        }
+        return fillMonthlyFair(this.pool, date, true)
     }
 
     public async create(event: Event): Promise <void> {
         const dbConnection = await this.pool.getConnection()
         try {
             await dbConnection.beginTransaction()
+            await lockMonthlyFairDate(dbConnection, event.date)
             await dbConnection.query('INSERT INTO events (id, title, date, description, startAt, endAt, localAddress, localLatitude, localLongitude, state, bannerImage, createdAt, administratorId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(6), ?) ', [
                 event.id,
                 event.title,
@@ -216,6 +223,10 @@ export class EventDAO {
         const dbConnection = await this.pool.getConnection()
         try {
             await dbConnection.beginTransaction()
+            if (data.date !== undefined) {
+                await dbConnection.query('SELECT id FROM events WHERE id = ? FOR UPDATE', [id])
+                await lockMonthlyFairDate(dbConnection, data.date)
+            }
             if (fields.length > 0) {
                 await dbConnection.query(`UPDATE events SET ${fields.join(', ')} WHERE id = ?`, [...values, id])
             }
@@ -261,6 +272,7 @@ export class EventDAO {
         const dbConnection = await this.pool.getConnection()
         try {
             await dbConnection.beginTransaction()
+            await suppressDeletedMonthlyFair(dbConnection, id)
             await dbConnection.query('DELETE FROM images WHERE eventId = ?', [id])
             await dbConnection.query('DELETE FROM events WHERE id = ?', [id])
             await dbConnection.commit()

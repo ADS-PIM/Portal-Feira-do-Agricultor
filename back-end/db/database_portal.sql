@@ -26,12 +26,14 @@ create table `events` (
     `createdAt` datetime(6) not null default current_timestamp(6),
     `administratorId` char(36) default null,
     primary key (`id`),
+    key `events_date_idx` (`date`),
     key `events_administrators_FK` (`administratorId`),
     constraint `events_administrators_FK` foreign key (`administratorId`) references `administrators` (`id`)
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
 
 create table `monthly_fair_dates` (
-    `scheduledDate` date not null primary key
+    `scheduledDate` date not null primary key,
+    `manuallyDeleted` boolean not null default false
 )engine = InnoDB;
 
 create table `images` (

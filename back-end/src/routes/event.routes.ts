@@ -39,6 +39,10 @@ eventRoutes
     .get(authToken, authenticatedRateLimit, async (req, res) => eventController.searchForAdmin(req, res));
 
 eventRoutes
+    .route('/admin/monthly-fairs/:date')
+    .post(authToken, authenticatedRateLimit, async (req, res) => eventController.recreateMonthlyFair(req, res));
+
+eventRoutes
     .route('/:id')
     .get(publicReadRateLimit, async (req, res) => eventController.searchById(req, res))
     .patch(authToken, authenticatedRateLimit, async (req, res) => eventController.update(req, res))

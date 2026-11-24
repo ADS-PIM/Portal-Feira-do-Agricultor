@@ -55,6 +55,7 @@ export function getPublicDataInvalidationScope(endpoint: string, method: string)
     const { pathname } = splitEndpoint(endpoint)
     if (pathname === 'business-info') return 'business-info'
     if (pathname === 'event/create' || /^event\/[^/]+$/.test(pathname)) return 'events'
+    if (/^event\/admin\/monthly-fairs\/[^/]+$/.test(pathname)) return 'events'
     if (pathname === 'event/image/create' || /^event\/image\/[^/]+$/.test(pathname)) return 'events'
     return null
 }
@@ -230,8 +231,7 @@ export async function getOrLoadPublicData<T>(
     let pending = pendingReads.get(key)?.promise as Promise<T> | undefined
     if (!pending) {
         const generation = scopeGeneration[scope]
-        let request: Promise<T>
-        request = loader().then(value => {
+        const request: Promise<T> = loader().then(value => {
             storeCachedValue(key, scope, value, generation)
             return value
         }).finally(() => {

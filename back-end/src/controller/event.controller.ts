@@ -78,13 +78,31 @@ export class EventController {
         }
     }
 
-    public async searchForAdmin(_req: AuthRequest, res: Response) {
+    public async searchForAdmin(req: AuthRequest, res: Response) {
         try {
             const events = await this.eventService.searchForAdmin();
+            if (req.query.includeMissingMonthlyFairs === 'true') {
+                const missingFairDates = await this.eventService.searchMissingMonthlyFairDates();
+                return res.status(200).json({ events, missingFairDates });
+            }
             return res.status(200).json(events);
         } catch (error: any) {
             console.error('Error listing administrative events:', error);
             return res.status(500).json({ error: 'Error listing administrative events' });
+        }
+    }
+
+    public async recreateMonthlyFair(req: AuthRequest, res: Response) {
+        try {
+            const date = Array.isArray(req.params.date) ? req.params.date[0] : req.params.date;
+            const created = await this.eventService.recreateMonthlyFair(date);
+            return res.status(created ? 201 : 200).json({ created });
+        } catch (error) {
+            if (error instanceof ActionError) {
+                return res.status(error.status).json({ code: error.code, error: error.message });
+            }
+            console.error('Error recreating monthly fair:', error);
+            return res.status(500).json({ error: 'Error recreating monthly fair' });
         }
     }
 

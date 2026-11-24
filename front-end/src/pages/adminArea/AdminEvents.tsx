@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Icon from '../../components/Icon'
 import {
     createAdminEvent,
     deleteAdminEvent,
-    getAdminEvents,
+    getAdminEventSchedule,
+    recreateMonthlyFair,
     uploadEventBanner,
     updateAdminEvent,
     type AdminEventWithAuthor as AdminEvent,
     type AdminEventInput,
+    type AdminEventSchedule,
 } from '../../services/eventService'
 import { getAdminProfile } from '../../services/authToken'
 import { getUserFacingError } from '../../services/errors'
@@ -97,7 +99,8 @@ const AdminEvents = ({
     openCreateOnMount?: boolean
     initialEventAction?: InitialEventAction | null
 }) => {
-    const [events, setEvents] = useState<AdminEvent[]>([])
+    const [{ events, missingFairDates }, setSchedule] = useState<AdminEventSchedule>({ events: [], missingFairDates: [] })
+    const [recreatingDate, setRecreatingDate] = useState<string | null>(null)
     const [visibleEventCount, setVisibleEventCount] = useState(EVENTS_PAGE_SIZE)
     const [isLoading, setIsLoading] = useState(true)
     const [loadError, setLoadError] = useState<string | null>(null)
@@ -123,16 +126,12 @@ const AdminEvents = ({
     const currentAdmin = getAdminProfile()
     const currentAdminId = currentAdmin?.id
 
-    const loadEvents = useCallback((signal?: AbortSignal) => getAdminEvents(signal), [])
-
     useEffect(() => {
         const controller = new AbortController()
-        void loadEvents(controller.signal)
-            .then(result => {
+        void getAdminEventSchedule(controller.signal)
+            .then(schedule => {
                 if (controller.signal.aborted) return
-
-                const loadedEvents = result ?? []
-                setEvents(loadedEvents)
+                setSchedule(schedule)
 
                 if (!initialEventAction) return
                 const requestKey = initialEventAction.action === 'filter'
@@ -148,7 +147,7 @@ const AdminEvents = ({
                     return
                 }
 
-                const requestedEvent = loadedEvents.find(event => event.id === initialEventAction.eventId)
+                const requestedEvent = schedule.events.find(event => event.id === initialEventAction.eventId)
                 if (!requestedEvent) {
                     setLoadError('O evento selecionado não foi encontrado na agenda.')
                     return
@@ -173,7 +172,7 @@ const AdminEvents = ({
                 if (!controller.signal.aborted) setIsLoading(false)
             })
         return () => controller.abort()
-    }, [loadEvents, initialEventAction])
+    }, [initialEventAction])
 
     const availableYears = useMemo(() => {
         const years = new Set([MIN_FILTER_YEAR])
@@ -249,6 +248,18 @@ const AdminEvents = ({
         setFormError(null)
     }
 
+    const refreshSchedule = async () => {
+        setIsLoading(true)
+        setLoadError(null)
+        try {
+            setSchedule(await getAdminEventSchedule())
+        } catch (error) {
+            setLoadError(getUserFacingError(error, 'Não foi possível atualizar a agenda. Atualize a página para conferir.'))
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
     const saveEvent = async (values: EventFormValues, bannerFile: File | null, session: EventSaveSession, saveGallery: (id: string) => Promise<void>) => {
         if (isSaving) return
         if (values.startAt >= values.endAt) {
@@ -286,24 +297,19 @@ const AdminEvents = ({
                 administratorName: editingEvent?.administratorName ?? currentAdmin!.name,
                 administratorActive: editingEvent?.administratorActive ?? Boolean(currentAdmin!.active),
             }
-            setEvents(current => current.some(event => event.id === savedEvent.id)
-                ? current.map(event => event.id === savedEvent.id ? savedEvent : event)
-                : [...current, savedEvent])
+            setSchedule(current => ({
+                ...current,
+                missingFairDates: current.missingFairDates.filter(date => date !== savedEvent.date),
+                events: current.events.some(event => event.id === savedEvent.id)
+                    ? current.events.map(event => event.id === savedEvent.id ? savedEvent : event)
+                    : [...current.events, savedEvent],
+            }))
             await saveGallery(session.eventId)
             setActionMessage(editingEvent ? 'Evento atualizado com sucesso.' : 'Evento criado com sucesso.')
             setIsCreating(false)
             setNewEventDate('')
             setEditingEvent(null)
-            setIsLoading(true)
-            setLoadError(null)
-            try {
-                const result = await loadEvents()
-                setEvents(result ?? [])
-            } catch (error) {
-                setLoadError(`O evento foi salvo, mas não foi possível atualizar a lista. ${getUserFacingError(error, 'Atualize a página para conferir.')}`)
-            } finally {
-                setIsLoading(false)
-            }
+            await refreshSchedule()
         } catch (error) {
             setFormError(eventSaved
                 ? `O evento foi salvo, mas algumas fotos ainda estão pendentes. ${getUserFacingError(error, 'Não foi possível enviar todas as fotos.')} Clique em salvar novamente para retomar o envio.`
@@ -319,13 +325,33 @@ const AdminEvents = ({
         setIsDeleting(true)
         try {
             await deleteAdminEvent(eventPendingDeletion.id)
-            setEvents(current => current.filter(item => item.id !== eventPendingDeletion.id))
+            setSchedule(current => ({ ...current, events: current.events.filter(item => item.id !== eventPendingDeletion.id) }))
             setEventPendingDeletion(null)
             setActionMessage('Evento excluído com sucesso.')
+            await refreshSchedule()
         } catch (error) {
             setLoadError(getUserFacingError(error, 'Não foi possível excluir o evento.'))
         } finally {
             setIsDeleting(false)
+        }
+    }
+
+    const recreateFair = async (date: string) => {
+        if (recreatingDate) return
+        setRecreatingDate(date)
+        setActionMessage(null)
+        setLoadError(null)
+        try {
+            const { created } = await recreateMonthlyFair(date)
+            setActionMessage(created
+                ? `Feira recriada para ${formatDate(date)}.`
+                : `Já existe um evento em ${formatDate(date)}.`)
+            setSchedule(current => ({ ...current, missingFairDates: current.missingFairDates.filter(item => item !== date) }))
+            await refreshSchedule()
+        } catch (error) {
+            setLoadError(getUserFacingError(error, 'Não foi possível recriar a feira.'))
+        } finally {
+            setRecreatingDate(null)
         }
     }
 
@@ -455,6 +481,23 @@ const AdminEvents = ({
 
                 {actionMessage && <p className="admin-events-alert is-success" role="status">{actionMessage}</p>}
                 {loadError && <p className="admin-events-alert is-error" role="alert">{loadError}</p>}
+                {missingFairDates.length > 0 && (
+                    <section className="admin-events-alert admin-events-missing-fairs" aria-labelledby="missing-fairs-title">
+                        <h2 id="missing-fairs-title">Primeiros sábados sem evento</h2>
+                        <ul>
+                            {missingFairDates.map(date => (
+                                <li key={date}>
+                                    <time dateTime={date}>{formatDate(date)}</time>
+                                    <button type="button" className="admin-event-button is-secondary"
+                                        aria-label={`Recriar evento para ${formatDate(date)}`}
+                                        disabled={recreatingDate !== null} onClick={() => void recreateFair(date)}>
+                                        {recreatingDate === date ? 'Recriando…' : 'Recriar evento'}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
                 {issueFilter && (
                     <p className="admin-events-issue-filter" role="status">
                         Exibindo os eventos com pendência: <strong>{issueFilter.label}</strong>.
