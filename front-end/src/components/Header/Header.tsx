@@ -5,6 +5,7 @@ import logo from '../../assets/brotando-feiras-alinhada-direita-tons.png'
 import Icon from '../Icon'
 import { restoreAdminProfile } from '../../services/api'
 import { getProfileHref } from '../../services/profileNavigation'
+import { logoutAdmin } from '../../services/adminService'
 import { getTheme, subscribeTheme, toggleTheme } from '../../services/theme'
 import {
     AUTH_STATE_CHANGE_EVENT,
@@ -64,7 +65,11 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
     const [activeLink, setActiveLink] = useState(initialActiveLink);
     const [isVisible, setIsVisible] = useState(true);
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+    const [isLoggingOut, setIsLoggingOut] = useState(false)
+    const [logoutError, setLogoutError] = useState(false)
     const headerRef = useRef<HTMLElement>(null)
+    const profileMenuRef = useRef<HTMLDivElement>(null)
     const menuButtonRef = useRef<HTMLButtonElement>(null)
     const navigationId = useId()
     const theme = useSyncExternalStore(subscribeTheme, getTheme)
@@ -91,6 +96,21 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
             setShowZoomValue(false)
             zoomNoticeTimeout.current = null
         }, PAGE_ZOOM_NOTICE_DURATION)
+    }
+
+    const handleLogout = async () => {
+        if (isLoggingOut) return
+        setIsLoggingOut(true)
+        setLogoutError(false)
+        try {
+            await logoutAdmin()
+            setIsProfileMenuOpen(false)
+            navigate('/admin/login')
+        } catch {
+            setLogoutError(true)
+        } finally {
+            setIsLoggingOut(false)
+        }
     }
 
     useEffect(() => () => {
@@ -157,6 +177,25 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
             compactViewport.removeEventListener('change', handleViewportChange)
         }
     }, [isMenuOpen])
+
+    useEffect(() => {
+        if (!isProfileMenuOpen) return
+
+        const closeOnPointerDown = (event: PointerEvent) => {
+            if (event.target instanceof Node && !profileMenuRef.current?.contains(event.target)) {
+                setIsProfileMenuOpen(false)
+            }
+        }
+        const closeOnEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setIsProfileMenuOpen(false)
+        }
+        document.addEventListener('pointerdown', closeOnPointerDown)
+        document.addEventListener('keydown', closeOnEscape)
+        return () => {
+            document.removeEventListener('pointerdown', closeOnPointerDown)
+            document.removeEventListener('keydown', closeOnEscape)
+        }
+    }, [isProfileMenuOpen])
 
     useEffect(() => {
         const syncAuthState = () => {
@@ -287,34 +326,57 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
                     <Icon name={theme === 'light' ? 'moon' : 'sun'} />
                 </button>
                 {adminProfile ? (
-                    <a className="site-header-profile" href={getProfileHref(currentPath)} aria-label="Visualizar minha conta" aria-current={initialActiveLink === '/minha-conta' ? 'page' : undefined} onClick={() => setIsMenuOpen(false)}>
-                        <div className="site-header-profile-info">
-                            <span className="site-header-profile-name">{adminProfile.name}</span>
-                            <span className="site-header-profile-role">
-                                {adminProfile.role === 'SUPER_ADMIN' ? 'Administrador principal' : 'Administrador'}
+                    <div className="site-header-profile-menu" ref={profileMenuRef}>
+                        <button
+                            className="site-header-profile"
+                            type="button"
+                            aria-label={`Menu do perfil de ${adminProfile.name}`}
+                            aria-haspopup="true"
+                            aria-expanded={isProfileMenuOpen}
+                            onClick={() => {
+                                setIsProfileMenuOpen(open => !open)
+                                setLogoutError(false)
+                            }}
+                        >
+                            <span className="site-header-profile-info">
+                                <span className="site-header-profile-name">{adminProfile.name}</span>
+                                <span className="site-header-profile-role">
+                                    {adminProfile.role === 'SUPER_ADMIN' ? 'Administrador principal' : 'Administrador'}
+                                </span>
                             </span>
-                        </div>
-                        <div className="site-header-profile-picture">
-                            {adminProfile.profile_picture?.trim() ? (
-                                <img
-                                    key={adminProfile.profile_picture}
-                                    src={adminProfile.profile_picture.trim()}
-                                    alt={`Foto de perfil de ${adminProfile.name}`}
-                                    onError={(event) => {
-                                        event.currentTarget.hidden = true
-                                        const fallbackIcon = event.currentTarget.parentElement?.querySelector('svg')
-                                        if (fallbackIcon) fallbackIcon.style.display = 'block'
-                                    }}
+                            <span className="site-header-profile-picture">
+                                {adminProfile.profile_picture?.trim() ? (
+                                    <img
+                                        key={adminProfile.profile_picture}
+                                        src={adminProfile.profile_picture.trim()}
+                                        alt=""
+                                        onError={(event) => {
+                                            event.currentTarget.hidden = true
+                                            const fallbackIcon = event.currentTarget.parentElement?.querySelector('svg')
+                                            if (fallbackIcon) fallbackIcon.style.display = 'block'
+                                        }}
+                                    />
+                                ) : null}
+                                <Icon
+                                    name="user"
+                                    style={{ display: adminProfile.profile_picture?.trim() ? 'none' : 'block' }}
                                 />
-                            ) : null}
-                            <Icon
-                                name="user"
-                                style={{ display: adminProfile.profile_picture?.trim() ? 'none' : 'block' }}
-                            />
-                        </div>
-                    </a>
+                            </span>
+                        </button>
+                        {isProfileMenuOpen && (
+                            <div className="site-header-profile-dropdown" role="group" aria-label="Opções do perfil">
+                                <a href={getProfileHref(currentPath)} onClick={() => setIsProfileMenuOpen(false)}>
+                                    Acessar perfil
+                                </a>
+                                <button type="button" disabled={isLoggingOut} onClick={() => void handleLogout()}>
+                                    {isLoggingOut ? 'Saindo...' : 'Sair da conta'}
+                                </button>
+                                {logoutError && <p role="alert">Não foi possível sair. Tente novamente.</p>}
+                            </div>
+                        )}
+                    </div>
                 ) : hasCheckedSession ? (
-                    <button className="home-page-action-button" type="button" onClick={() => { setIsMenuOpen(false); navigate('/admin/login') }}>
+                    <button type="button" onClick={() => { setIsMenuOpen(false); navigate('/admin/login') }}>
                         Entrar
                     </button>
                 ) : (

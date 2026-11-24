@@ -6,7 +6,8 @@ export type AccountReturnTarget = { href: string; label: string }
 const fallback: AccountReturnTarget = { href: '/admin', label: 'Voltar ao painel' }
 const returnLabels: Record<string, string> = {
     '/': 'Voltar ao início',
-    '/sobre': 'Voltar ao início',
+    '/sobre': 'Voltar a Sobre nós',
+    '/sobre/equipe': 'Voltar à equipe',
     '/calendario': 'Voltar ao calendário',
     '/produtores': 'Voltar aos produtores',
     '/contato': 'Voltar ao contato',

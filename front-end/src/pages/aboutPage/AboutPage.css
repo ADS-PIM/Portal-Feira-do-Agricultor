@@ -131,6 +131,20 @@
 .about-button svg, .about-text-link svg, .about-portal-link svg { width: 16px; height: 16px; flex-shrink: 0; }
 .about-page .about-text-link:focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 4px; }
 
+.about-page :is(.about-button, .about-calendar-button, .about-portal-link) {
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.about-page :is(.about-button, .about-calendar-button, .about-portal-link):is(:hover, :focus-visible) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
+}
+
+.about-page :is(.about-button, .about-calendar-button, .about-portal-link):active {
+    transform: translateY(0);
+}
+
+
 .about-portal { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding-block: 40px 48px; }
 .about-portal h2 { margin-bottom: 10px; font-size: 23px; line-height: 1.35; }
 .about-portal p:not(.about-eyebrow) { font-size: 15px; }
