@@ -71,7 +71,7 @@
     font-weight: 700;
     text-align: center;
     text-decoration: none;
-    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
 .MainBanner-buttons a:first-child {
@@ -81,12 +81,17 @@
 }
 
 .MainBanner-buttons a:first-child:hover {
-    border-color: var(--brand-green-hover);
-    background: var(--brand-green-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
 }
 
 .MainBanner-buttons a:last-child:hover {
-    background: var(--brand-green-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 18%);
+}
+
+.MainBanner-buttons a:active {
+    transform: translateY(0);
 }
 
 .MainBanner-buttons a:focus-visible {
@@ -127,5 +132,16 @@
         width: 100%;
         min-height: 48px;
         padding: 12px 20px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .MainBanner-buttons a {
+        transition: none;
+    }
+
+    .MainBanner-buttons a:hover {
+        transform: none;
+        box-shadow: none;
     }
 }

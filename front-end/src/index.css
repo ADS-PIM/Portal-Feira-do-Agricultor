@@ -116,6 +116,7 @@ textarea {
     --text-muted: #60645c;
     --text-placeholder: #747b71;
     --border-default: #dce6dd;
+    --theme-border-strong: #b8c9bb;
     --surface-page: #fffdf8;
     --surface-admin: #f4f8f4;
     --surface-input: #f8faf7;
@@ -153,6 +154,7 @@ textarea {
     --theme-surface: var(--brand-white);
     --theme-surface-muted: #25272c;
     --theme-border: var(--border-default);
+    --theme-border-strong: #50565e;
     --theme-sidebar: #17181c;
     --theme-feature-surface: #282b32;
     --theme-on-orange: #271909;
@@ -282,4 +284,17 @@ textarea {
 ):is(:hover, :focus-visible):not(:disabled) {
     border-color: var(--brand-green-hover);
     background: var(--brand-green-hover);
+}
+
+#root .home-page-action-button {
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+#root .home-page-action-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
+}
+
+#root .home-page-action-button:active:not(:disabled) {
+    transform: translateY(0);
 }

@@ -9,8 +9,8 @@ const MainBanner = () => {
             <h1>Direto do campo para a sua mesa</h1>
             <p>{defaultBusinessDescription}</p>
             <div className="MainBanner-buttons">
-                <a href="/calendario">Ver Eventos</a>
-                <a href="/produtores">Conhecer produtores</a>
+                <a className="home-page-action-button" href="/calendario">Ver Eventos</a>
+                <a className="home-page-action-button" href="/produtores">Conhecer produtores</a>
             </div>
         </div>
     )

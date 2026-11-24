@@ -156,7 +156,7 @@ const EventPainel = () => {
                                 {visibleEvents.map(event => <AgendaEventCard key={event.id} event={event} />)}
                             </div>
                         )}
-                        <a className="event-agenda-calendar-button" href="/calendario">
+                        <a className="event-agenda-calendar-button home-page-action-button" href="/calendario">
                             Ver Calendário Completo
                         </a>
                     </div>

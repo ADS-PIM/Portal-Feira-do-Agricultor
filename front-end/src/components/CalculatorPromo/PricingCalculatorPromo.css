@@ -272,4 +272,9 @@
     .pricing-calculator-button {
         transition: none;
     }
+
+    .pricing-calculator-button:hover {
+        transform: none;
+        box-shadow: none;
+    }
 }

@@ -96,7 +96,7 @@
     align-items: center;
     gap: 18px;
     padding: 20px;
-    border: 1px solid var(--theme-border, #e2eee4);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 21px;
     background: var(--theme-surface-muted, #fdfcf9);
     color: inherit;
@@ -202,10 +202,10 @@
     min-height: 46px;
     margin: 22px auto 0;
     padding: 10px 26px;
-    border: 1.5px solid var(--brand-green);
+    border: 1.5px solid var(--brand-green-dark);
     border-radius: 999px;
-    background: var(--theme-surface, #fff);
-    color: var(--theme-accent, var(--brand-green-dark));
+    background: var(--brand-green-dark);
+    color: #fff;
     font: inherit;
     font-size: 14px;
     font-weight: 700;
@@ -213,13 +213,16 @@
     text-align: center;
     text-decoration: none;
     cursor: pointer;
-    transition: background-color 300ms ease-in-out, border-color 300ms ease-in-out, color 300ms ease-in-out;
+    transition: box-shadow 160ms ease, transform 160ms ease;
 }
 
-.event-agenda-calendar-button:hover,
-.event-agenda-calendar-button:focus-visible {
-    background: var(--brand-green-dark);
-    color: #fff;
+.event-agenda-calendar-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
+}
+
+.event-agenda-calendar-button:active {
+    transform: translateY(0);
 }
 
 .event-agenda-calendar-button:focus-visible {
@@ -227,11 +230,22 @@
     outline-offset: 3px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .event-agenda-calendar-button {
+        transition: none;
+    }
+
+    .event-agenda-calendar-button:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
 .event-agenda-message {
     max-width: 720px;
     margin: 0 auto;
     padding: 30px 24px;
-    border: 1px solid var(--theme-border, #e2eee4);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 18px;
     background: var(--theme-surface-muted, #fdfcf9);
     text-align: center;

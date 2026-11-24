@@ -12,7 +12,7 @@ const PricingCalculatorPromo = () => {
                         Calcule o preço justo do seu produto considerando materiais, despesas de produção e horas
                         trabalhadas. Uma ferramenta simples para decisões mais seguras e sustentáveis.
                     </p>
-                    <button className="pricing-calculator-button" type="button" onClick={() => { navigate('/calculadora') }}>
+                    <button className="pricing-calculator-button home-page-action-button" type="button" onClick={() => { navigate('/calculadora') }}>
                         Acessar Calculadora
                         <Icon name="arrowRight" />
                     </button>

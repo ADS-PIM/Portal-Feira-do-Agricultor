@@ -3,6 +3,19 @@
     flex-direction: column;
 }
 
+.main-page-sections .home-page-action-button {
+    transition: background-color 150ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.main-page-sections .home-page-action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
+}
+
+.main-page-sections .home-page-action-button:active {
+    transform: translateY(0);
+}
+
 .home-producers-section {
     box-sizing: border-box;
     width: min(100% - 32px, 1280px);

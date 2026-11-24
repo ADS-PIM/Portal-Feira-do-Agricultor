@@ -314,7 +314,7 @@ const Header = ({ initialActiveLink = '/' }: HeaderProps) => {
                         </div>
                     </a>
                 ) : hasCheckedSession ? (
-                    <button type="button" onClick={() => { setIsMenuOpen(false); navigate('/admin/login') }}>
+                    <button className="home-page-action-button" type="button" onClick={() => { setIsMenuOpen(false); navigate('/admin/login') }}>
                         Entrar
                     </button>
                 ) : (

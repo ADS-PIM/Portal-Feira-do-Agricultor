@@ -79,7 +79,7 @@
     font-weight: 600;
     line-height: 1.4;
     text-decoration: none;
-    transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+    transition: background-color 150ms ease, border-color 150ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
 .site-footer-contact-button.is-instagram {
@@ -97,10 +97,20 @@
 }
 
 .site-footer-contact-button:hover:not(:disabled) {
-    background: var(--contact-accent);
     color: #181818;
-    border-color: var(--contact-accent);
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(0 0 0 / 28%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-footer-contact-button {
+        transition: none;
+    }
+
+    .site-footer-contact-button:hover:not(:disabled) {
+        transform: none;
+        box-shadow: none;
+    }
 }
 
 .site-footer-contact-button:disabled {

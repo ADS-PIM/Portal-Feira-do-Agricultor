@@ -236,6 +236,30 @@
     color: #fff;
 }
 
+.site-header-account button:not(.site-header-theme-toggle) {
+    transition: background-color 150ms ease, color 150ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.site-header-account button:not(.site-header-theme-toggle):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
+}
+
+.site-header-account button:not(.site-header-theme-toggle):active {
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-header-account button:not(.site-header-theme-toggle) {
+        transition: none;
+    }
+
+    .site-header-account button:not(.site-header-theme-toggle):hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
 .site-header-profile {
     text-decoration: none;
     border-radius: 8px;

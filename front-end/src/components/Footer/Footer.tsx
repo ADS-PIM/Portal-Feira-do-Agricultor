@@ -26,7 +26,7 @@ function SocialIcon({ name }: { name: 'whatsapp' | 'instagram' | 'email' }) {
 
 function ContactButton({ name, label, href }: { name: 'whatsapp' | 'instagram' | 'email'; label: string; href: string | null }) {
     const content = <SocialIcon name={name} />
-    const className = `site-footer-contact-button is-${name}`
+    const className = `site-footer-contact-button home-page-action-button is-${name}`
     return href ? (
         <a className={className} href={href} aria-label={label} title={label}
             target={name === 'email' ? undefined : '_blank'} rel={name === 'email' ? undefined : 'noopener noreferrer'}>

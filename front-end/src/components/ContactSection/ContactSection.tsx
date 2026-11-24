@@ -51,7 +51,7 @@ function ContactCard({
             <h3>{title}</h3>
             {availableValue && <p>{availableValue}</p>}
             {availableValue && href ? (
-                <a href={href} target="_blank" rel="noreferrer">
+                <a className="home-page-action-button" href={href} target="_blank" rel="noreferrer">
                     {action}
                 </a>
             ) : (
@@ -136,7 +136,7 @@ const ContactSection = () => {
                 )}
             </section>
             <div className="contact-section-action">
-                <button type="button" onClick={() => { navigate('/contato') }}>
+                <button className="home-page-action-button" type="button" onClick={() => { navigate('/contato') }}>
                     Enviar mensagem
                     <Icon name="arrowRight" />
                 </button>

@@ -50,7 +50,7 @@ const NearestEventPainel = ({ event }: NearestEventPainelProps) => {
                         <dd>{formatTime(event.startAt)} às {formatTime(event.endAt)}</dd>
                     </div>
                 </dl>
-                <a className="featured-event-details-link" href={`/evento/${encodeURIComponent(event.id)}`}>
+                <a className="featured-event-details-link home-page-action-button" href={`/evento/${encodeURIComponent(event.id)}`}>
                     Ver detalhes <Icon name="arrowRight" />
                 </a>
             </div>

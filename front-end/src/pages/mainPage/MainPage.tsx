@@ -58,7 +58,7 @@ const MainPage = () => {
                     </div>
 
                     <div className="home-producers-actions">
-                        <a href="/produtores" className="event-agenda-calendar-button home-producers-cta">Conhecer os Produtores</a>
+                        <a href="/produtores" className="event-agenda-calendar-button home-producers-cta home-page-action-button">Conhecer os Produtores</a>
                     </div>
                 </section>
                 <PricingCalculatorPromo />
