@@ -298,3 +298,31 @@ textarea {
 #root .home-page-action-button:active:not(:disabled) {
     transform: translateY(0);
 }
+
+#root :is(
+    .producer-card-products-toggle,
+    .contact-submit-button,
+    .markup-example,
+    .markup-submit
+) {
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+#root :is(
+    .producer-card-products-toggle,
+    .contact-submit-button,
+    .markup-example,
+    .markup-submit
+):hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
+}
+
+#root :is(
+    .producer-card-products-toggle,
+    .contact-submit-button,
+    .markup-example,
+    .markup-submit
+):active:not(:disabled) {
+    transform: translateY(0);
+}

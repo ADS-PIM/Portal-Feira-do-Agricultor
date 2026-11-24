@@ -13,7 +13,7 @@
     min-width: 0;
     margin: 0;
     padding: 32px;
-    border: 1px solid var(--theme-border, #e2eee4);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 24px;
     background: var(--theme-surface, #fff);
     color: var(--brand-charcoal);
@@ -52,7 +52,7 @@
     min-width: calc(5ch + 2rem);
     flex: 0 0 auto;
     padding: 2px 0.75rem 2px 0.4rem;
-    border: 1px solid var(--theme-border, #e2eee4);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 8px;
     background-color: var(--theme-surface-muted, #fdfcf9);
     color: var(--theme-text, #000);
@@ -92,7 +92,7 @@
     height: 42px;
     place-items: center;
     padding: 0;
-    border: 1px solid var(--theme-border, #e2eee4);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 10px;
     background: var(--theme-surface-muted, #fdfcf9);
     color: var(--brand-charcoal);

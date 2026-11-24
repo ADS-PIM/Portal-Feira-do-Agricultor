@@ -18,7 +18,7 @@
     align-items: center;
     gap: 10px;
     padding: 0 13px;
-    border: 1px solid var(--theme-border, #e2e2d9);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 9px;
     background: var(--theme-surface, #fff);
     color: var(--theme-text-muted, #8b9087);
@@ -64,7 +64,7 @@
     justify-content: center;
     gap: 8px;
     padding: 0 13px;
-    border: 1px solid var(--theme-border, #e2e2d9);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 9px;
     background: var(--theme-surface, #fff);
     color: var(--text-muted);
@@ -109,7 +109,7 @@
     gap: 12px;
     margin: -4px 0 22px;
     padding: 14px;
-    border: 1px solid var(--theme-border, #e2e2d9);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 11px;
     background: var(--theme-surface, #fff);
 }
@@ -130,7 +130,7 @@
     min-width: 0;
     min-height: 36px;
     padding: 0 9px;
-    border: 1px solid var(--theme-border, #e2e2d9);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 7px;
     background: var(--theme-surface, #fff);
     color: var(--brand-charcoal);
@@ -198,7 +198,7 @@
 .calendar-event-card {
     min-width: 0;
     padding: 16px 18px;
-    border: 1px solid var(--theme-border, #e2e2d9);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-left: 4px solid var(--calendar-status-color);
     border-radius: 18px;
     background: var(--theme-surface, #fff);
@@ -340,7 +340,7 @@
 .calendar-events-panel-message {
     margin: 0;
     padding: 20px;
-    border: 1px solid var(--theme-border, #e2e2d9);
+    border: 1px solid var(--theme-border-strong, #b8c9bb);
     border-radius: 16px;
     background: var(--theme-surface, #fff);
     color: var(--text-muted);

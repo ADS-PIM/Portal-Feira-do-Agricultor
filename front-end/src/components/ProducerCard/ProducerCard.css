@@ -83,13 +83,13 @@
     gap: 6px;
     width: fit-content;
     max-width: 100%;
-    padding: 8px 12px;
+    padding: 7px 11px;
     border: 0;
-    border-radius: 8px;
+    border-radius: 999px;
     background: var(--brand-green-dark);
     color: #fff;
     font: inherit;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
     line-height: 1.5;
     text-decoration: none;
@@ -98,7 +98,7 @@
 }
 
 .producer-card-products-toggle:hover {
-    background: var(--brand-green-hover);
+    background: var(--brand-green-dark);
 }
 
 .producer-card-products-toggle:focus-visible {

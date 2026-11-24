@@ -416,10 +416,27 @@
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
+    transition: box-shadow 160ms ease, transform 160ms ease;
 }
 
 .event-page-gallery-more:hover {
-    background: var(--brand-green-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(15 35 24 / 24%);
+}
+
+.event-page-gallery-more:active {
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .event-page-gallery-more {
+        transition: none;
+    }
+
+    .event-page-gallery-more:hover {
+        transform: none;
+        box-shadow: none;
+    }
 }
 
 .event-page-location {
