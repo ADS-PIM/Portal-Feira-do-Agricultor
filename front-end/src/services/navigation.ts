@@ -23,9 +23,17 @@ export function getNavigationScrollPosition(): { x: number; y: number } {
     return getNavigationEntry()?.scroll ?? { x: 0, y: 0 }
 }
 
-export function getNavigationReturnPath(): string {
+function getReferrerPath(): string | undefined {
+    if (!document.referrer) return undefined
+    const referrer = new URL(document.referrer)
+    if (referrer.origin !== window.location.origin || referrer.pathname.startsWith('//')) return undefined
+    const href = referrer.pathname + referrer.search
+    return href === getCurrentPath() ? undefined : href
+}
+
+export function getNavigationReturnPath(fallback = '/'): string {
     const entry = getNavigationEntry()
-    return entry?.previousIndex !== undefined ? entry.previousHref ?? '/' : '/'
+    return (entry ? entry.previousHref : getReferrerPath()) ?? fallback
 }
 
 export function goBack(fallback = '/'): void {
@@ -34,7 +42,7 @@ export function goBack(fallback = '/'): void {
         saveNavigationEntry({ ...entry, scroll: { x: window.scrollX, y: window.scrollY } })
         window.history.go(entry.previousIndex - entry.index)
     } else {
-        navigate(fallback)
+        navigate(getNavigationReturnPath(fallback))
     }
 }
 
@@ -64,7 +72,7 @@ export function subscribeNavigation(onChange: () => void): () => void {
     return () => window.removeEventListener(NAVIGATION_EVENT, onChange)
 }
 
-export function navigate(path: string, { replace = false }: { replace?: boolean } = {}): void {
+export function navigate(path: string, { replace = false, preserveReturn = false }: { replace?: boolean; preserveReturn?: boolean } = {}): void {
     const destination = normalizePortalPath(path)
     if (!destination.startsWith('/') || destination.startsWith('//') || destination.includes('\\')) return
     if (replace || `${window.location.pathname}${window.location.search}${window.location.hash}` !== destination) {
@@ -73,8 +81,8 @@ export function navigate(path: string, { replace = false }: { replace?: boolean 
         const entry: NavigationEntry = {
             index: (current?.index ?? 0) + (replace ? 0 : 1),
             href: destination,
-            previousIndex: replace ? current?.previousIndex : current?.index,
-            previousHref: replace ? current?.previousHref : current?.href,
+            previousIndex: replace || preserveReturn ? current?.previousIndex : current?.index,
+            previousHref: replace || preserveReturn ? current?.previousHref : current?.href,
             scroll: { x: 0, y: 0 },
         }
         window.history[replace ? 'replaceState' : 'pushState']({ ...window.history.state, portalNavigation: entry }, '', destination)
@@ -101,7 +109,7 @@ export function installNavigation(): () => void {
             index: entry ? entry.index + 1 : 0,
             href,
             previousIndex: entry?.previousIndex,
-            previousHref: entry?.previousHref,
+            previousHref: entry ? entry.previousHref : getReferrerPath(),
             scroll: { x: window.scrollX, y: window.scrollY },
         })
         else activeEntry = storedEntry
@@ -112,9 +120,15 @@ export function installNavigation(): () => void {
         const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null
         if (!(anchor instanceof HTMLAnchorElement) || anchor.hasAttribute('download') || (anchor.target && anchor.target !== '_self')) return
         const href = anchor.getAttribute('href') || ''
-        if (!href.startsWith('/') || href.startsWith('//') || anchor.origin !== window.location.origin || anchor.hash) return
+        if (!href.startsWith('/') || href.startsWith('//') || anchor.origin !== window.location.origin) return
+        if (anchor.hasAttribute('data-navigation-back')) {
+            event.preventDefault()
+            goBack(href)
+            return
+        }
+        if (anchor.hash) return
         event.preventDefault()
-        navigate(`${anchor.pathname}${anchor.search}`)
+        navigate(`${anchor.pathname}${anchor.search}`, { preserveReturn: anchor.hasAttribute('data-preserve-return') })
     }
     sync()
     document.addEventListener('click', handleClick)

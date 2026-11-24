@@ -5,7 +5,7 @@ import Footer from '../../components/Footer/Footer'
 import { getEvents, getEventDetails, getEventImages, type AdminEvent, type EventDetails, type EventImage } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
 import { getEventImageProps } from '../../services/eventImageUrl'
-import { getAdjacentEvents } from './eventNavigation'
+import { getAdjacentEvents, getEventReturnTarget } from './eventNavigation'
 import { getCoordinates, getDirectionsUrl } from '../../utils/eventLocation'
 import '../../components/Calendar/CalendarStatus.css'
 import './EventPage.css'
@@ -62,6 +62,7 @@ function EventPhoto({ image }: { image: EventImage }) {
 }
 
 function EventPage({ eventId }: { eventId: string }) {
+    const returnTarget = getEventReturnTarget()
     const [event, setEvent] = useState<EventDetails | null>(null)
     const [images, setImages] = useState<EventImage[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -205,9 +206,9 @@ function EventPage({ eventId }: { eventId: string }) {
             <main className="event-page">
                 <div className="event-page-content">
                     <div className="event-page-toolbar">
-                        <a className="event-page-back" href="/calendario">
+                        <a className="event-page-back" href={returnTarget.href} data-navigation-back>
                             <Icon name="arrowLeft" />
-                            Voltar para o Calendário
+                            {returnTarget.label}
                         </a>
                         {!isLoading && !eventError && event && (
                             <nav className="event-page-navigation" aria-label="Navegar entre eventos">
@@ -221,6 +222,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                     return target ? (
                                         <a key={direction} className="event-page-navigation-arrow"
                                             href={`/evento/${encodeURIComponent(target.id)}`}
+                                            data-preserve-return
                                             aria-label={`${label}: ${target.title}`}
                                             title={`${label}: ${target.title} — ${formatDate(target.date)}, ${formatTime(target.startAt)}`}>
                                             <Icon name={icon} />
@@ -271,7 +273,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                 >
                                     Tentar novamente
                                 </button>
-                                <a href="/calendario">Voltar para o Calendário</a>
+                                <a href={returnTarget.href} data-navigation-back>{returnTarget.label}</a>
                             </div>
                         </section>
                     )}
