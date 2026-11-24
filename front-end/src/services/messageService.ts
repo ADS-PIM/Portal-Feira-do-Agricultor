@@ -44,6 +44,10 @@ export function getUserMessages(signal?: AbortSignal): Promise<UserMessage[] | n
   return apiFetch<UserMessage[] | null>('message', { signal })
 }
 
+export function getMessageCounts(signal: AbortSignal) {
+  return apiFetch<{ total: number; unread: number }>('message?view=counts', { signal })
+}
+
 export function markUserMessageAsRead(id: string): Promise<{ message: string }> {
   return apiFetch<{ message: string }>(`message/${encodeURIComponent(id)}/read`, {
     method: 'PATCH',

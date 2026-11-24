@@ -15,17 +15,12 @@ import ProducersPage from './pages/producersPage/ProducersPage'
 import type { AdminSection } from './components/AdminSideNav/AdminSideNav'
 import { getAdminSection } from './services/adminNavigation'
 import { getAccountReturnTarget, type AccountReturnTarget } from './services/profileNavigation'
-import { AUTH_STATE_CHANGE_EVENT, dismissAdminAccessIssue, getAdminAccessIssue } from './services/authToken'
+import { dismissAdminAccessIssue, getAdminAccessIssue, subscribeAuthState } from './services/authToken'
 import AdminDisabledPage from './pages/loginPage/AdminDisabledPage'
 import { useAdminSessionMonitor } from './hooks/useAdminSessionMonitor'
 import { getCurrentPath, getNavigationScrollPosition, installNavigation, navigate, subscribeNavigation } from './services/navigation'
 import LegalPage from './pages/legal/LegalPage'
 import CookieBanner from './components/CookieBanner/CookieBanner'
-
-const subscribeAuthState = (onChange: () => void) => {
-  window.addEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
-  return () => window.removeEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
-}
 
 type AppRoute =
   | { page: 'home' | 'login' | 'contact' | 'calendar' | 'calculator' | 'producers' | 'terms' | 'privacy' | 'about' | 'portal-team' }

@@ -10,6 +10,12 @@ export class EventImageService {
         return this.eventImageDAO.isImageReferenced(url);
     }
 
+    public async searchGalleryPage(eventId: string, offset: number, limit: number) {
+        const page = await this.eventImageDAO.searchGalleryPage(eventId, offset, limit);
+        if (!page) throw new Error('Event not found');
+        return page;
+    }
+
     public async searchByEventId(eventId: string): Promise<EventImageSearchByEventId[] | null> {
         const eventDAO = new EventDAO()
         if (!await eventDAO.searchById(eventId)) {

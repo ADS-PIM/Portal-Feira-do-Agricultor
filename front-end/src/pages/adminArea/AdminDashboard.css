@@ -501,20 +501,6 @@
     color: var(--text-muted);
 }
 
-.admin-dashboard-alert {
-    margin-bottom: 14px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    font-size: 0.92rem;
-    font-weight: 600;
-}
-
-.admin-dashboard-alert.is-error {
-    border: 1px solid rgba(226, 43, 43, 0.15);
-    background: var(--theme-surface-muted, rgba(255, 245, 245, 0.8));
-    color: var(--theme-danger-text, #b42318);
-}
-
 .admin-dashboard-calendar-panel,
 .admin-dashboard-events-panel {
     border: 1px solid var(--border-default);

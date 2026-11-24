@@ -2,10 +2,11 @@ import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import Icon from '../../components/Icon'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
-import { getEvents, getEventDetails, getEventImages, type AdminEvent, type EventDetails, type EventImage } from '../../services/eventService'
+import { getEvents, getEventDetails, type AdminEvent, type EventDetails, type EventImage } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
 import { getEventImageProps } from '../../services/eventImageUrl'
 import { getAdjacentEvents, getEventReturnTarget } from './eventNavigation'
+import { PREVIEW_SIZE, useEventGallery } from './useEventGallery'
 import { getCoordinates, getDirectionsUrl } from '../../utils/eventLocation'
 import '../../components/Calendar/CalendarStatus.css'
 import './EventPage.css'
@@ -43,32 +44,42 @@ function EventPhoto({ image }: { image: EventImage }) {
     const description = image.description.trim()
 
     return (
-        <figure className="event-page-photo">
-            {hasError ? (
-                <div className="event-page-photo-unavailable" role="img" aria-label={description || 'Foto do evento'}>
-                    <span>Esta foto não está disponível.</span>
-                </div>
-            ) : (
-                <img
-                    {...getEventImageProps(image.imageURL, '(max-width: 420px) calc(100vw - 80px), (max-width: 680px) 44vw, 320px', 640)}
-                    alt={description || 'Foto do evento'}
-                    loading="lazy"
-                    onError={() => setHasError(true)}
-                />
-            )}
-            {description && <figcaption>{description}</figcaption>}
-        </figure>
+        <span className="event-page-photo">
+            <span className="event-page-photo-frame">
+                {hasError ? (
+                    <span className="event-page-photo-unavailable" role="img" aria-label={description || 'Foto do evento'}>
+                        Esta foto não está disponível.
+                    </span>
+                ) : (
+                    <img
+                        {...getEventImageProps(image.imageURL, 'auto, (max-width: 850px) 280px, 400px', 640)}
+                        alt={description || 'Foto do evento'}
+                        loading="lazy"
+                        fetchPriority="low"
+                        onError={() => setHasError(true)}
+                    />
+                )}
+            </span>
+            {description && <span className="event-page-photo-caption">{description}</span>}
+        </span>
+    )
+}
+
+function GalleryFeedback({ error, onRetry }: { error?: string; onRetry: () => void }) {
+    return error ? (
+        <div className="event-page-gallery-message is-error" role="alert">
+            {error}
+            <button type="button" className="event-page-gallery-more" onClick={onRetry}>Tentar novamente</button>
+        </div>
+    ) : (
+        <div className="event-page-photo-frame event-page-gallery-message" role="status">Carregando fotos...</div>
     )
 }
 
 function EventPage({ eventId }: { eventId: string }) {
     const returnTarget = getEventReturnTarget()
     const [event, setEvent] = useState<EventDetails | null>(null)
-    const [images, setImages] = useState<EventImage[]>([])
-    const [isLoading, setIsLoading] = useState(true)
     const [eventError, setEventError] = useState<string | null>(null)
-    const [imagesError, setImagesError] = useState<string | null>(null)
-    const [showAllPhotos, setShowAllPhotos] = useState(false)
     const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null)
     const [reloadKey, setReloadKey] = useState(0)
     const [navigation, setNavigation] = useState<{
@@ -76,6 +87,7 @@ function EventPage({ eventId }: { eventId: string }) {
     }>({ events: [], loading: true, error: false })
 
     useEffect(() => {
+        if (!event) return
         const controller = new AbortController()
         void getEvents(controller.signal)
             .then(events => {
@@ -89,81 +101,50 @@ function EventPage({ eventId }: { eventId: string }) {
                 }
             })
         return () => controller.abort()
-    }, [eventId, reloadKey])
+    }, [event])
 
     useEffect(() => {
         const controller = new AbortController()
 
-        const loadEvent = async () => {
-            try {
-                const eventDetails = await getEventDetails(eventId, controller.signal)
-                if (controller.signal.aborted) return
-                setEvent(eventDetails)
-
-                try {
-                    const eventImages = await getEventImages(eventId, controller.signal)
-                    if (!controller.signal.aborted) setImages(eventImages ?? [])
-                } catch (requestError) {
-                    if (!controller.signal.aborted) {
-                        setImagesError(getUserFacingError(
-                            requestError,
-                            'Não foi possível carregar as fotos deste evento. Tente novamente mais tarde.',
-                        ))
-                    }
-                }
-            } catch (requestError) {
+        void getEventDetails(eventId, controller.signal)
+            .then(eventDetails => {
+                if (!controller.signal.aborted) setEvent(eventDetails)
+            })
+            .catch(requestError => {
                 if (!controller.signal.aborted) {
                     setEventError(getUserFacingError(
                         requestError,
                         'Não foi possível carregar os dados do evento. Verifique sua conexão e tente novamente.',
                     ))
                 }
-            } finally {
-                if (!controller.signal.aborted) setIsLoading(false)
-            }
-        }
-
-        void loadEvent()
+            })
         return () => controller.abort()
     }, [eventId, reloadKey])
 
     const adjacentEvents = event ? getAdjacentEvents(navigation.events, event) : { previous: null, next: null }
-    const galleryImages = images.filter(image =>
-        image.imageURL.trim() && image.description.trim().toLocaleLowerCase('pt-BR') !== 'banner do evento',
-    )
-    const photos = event?.bannerImage?.trim()
-        ? [{ id: 'event-banner', imageURL: event.bannerImage, description: 'Banner do evento' }, ...galleryImages]
-        : galleryImages
-    const visiblePhotos = showAllPhotos ? galleryImages : galleryImages.slice(0, 3)
-    const selectedPhoto = selectedPhotoIndex !== null ? photos[selectedPhotoIndex] ?? null : null
+    const isLoading = !event && !eventError
+    const banner = event?.bannerImage?.trim()
+    const bannerCount = banner ? 1 : 0
+    const gallery = useEventGallery(event?.id, (selectedPhotoIndex ?? -1) - bannerCount)
+    const photoCount = gallery.total + bannerCount
+    const selectedPhoto = banner && selectedPhotoIndex === 0
+        ? { imageURL: banner, description: 'Banner do evento' }
+        : gallery.selectedPhoto
     const mapCoordinates = event ? getCoordinates(event.localLatitude, event.localLongitude) : null
     const hasAddress = Boolean(event?.localAddress?.trim())
     const mapUrl = getDirectionsUrl(mapCoordinates, event?.localAddress ?? null)
-    const renderGalleryPhoto = (image: typeof galleryImages[number], index: number) => (
-        <div
+    const renderGalleryPhoto = (image: EventImage, index: number) => (
+        <button
             key={image.id}
             className="event-page-photo-button"
-            role="button"
-            tabIndex={0}
-            onClick={() => openPhoto(photos.findIndex(photo => photo.id === image.id))}
-            onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    openPhoto(photos.findIndex(photo => photo.id === image.id))
-                }
-            }}
-            aria-label={`Ampliar foto ${index + 1} de ${galleryImages.length}`}
+            type="button"
+            onClick={() => setSelectedPhotoIndex(index + bannerCount)}
+            aria-label={`Ampliar foto ${index + 1} de ${gallery.total}`}
         >
             <EventPhoto image={image} />
-        </div>
+        </button>
     )
 
-    const openPhoto = (index: number) => {
-        if (photos.length === 0) return
-        setSelectedPhotoIndex((index + photos.length) % photos.length)
-    }
-
-    const photoCount = photos.length
     const movePhoto = useCallback((direction: -1 | 1) => {
         if (photoCount === 0) return
         setSelectedPhotoIndex((current) => {
@@ -210,7 +191,7 @@ function EventPage({ eventId }: { eventId: string }) {
                             <Icon name="arrowLeft" />
                             {returnTarget.label}
                         </a>
-                        {!isLoading && !eventError && event && (
+                        {!eventError && (
                             <nav className="event-page-navigation" aria-label="Navegar entre eventos">
                                 {(['previous', 'next'] as const).map(direction => {
                                     const target = adjacentEvents[direction]
@@ -237,23 +218,27 @@ function EventPage({ eventId }: { eventId: string }) {
                             </nav>
                         )}
                     </div>
-                    {navigation.error && !isLoading && !eventError && (
+                    {navigation.error && event && (
                         <p className="event-page-navigation-error" role="status">
                             Não foi possível carregar a navegação entre eventos.
                         </p>
                     )}
 
                     {isLoading && (
-                        <section className="event-page-feedback" role="status">
-                            <span className="event-page-feedback-icon" aria-hidden="true">
-                                <Icon name="calendar" />
-                            </span>
-                            <h1>Carregando evento...</h1>
-                            <p>Estamos buscando os detalhes para você.</p>
+                        <section className="event-page-layout event-page-loading" role="status" aria-label="Carregando evento">
+                            <div className="event-page-details-card">
+                                <div className="event-page-title-row"><h1>Carregando evento...</h1></div>
+                                <div className="event-page-loading-meta" aria-hidden="true" />
+                                <div className="event-page-cover-empty" aria-hidden="true" />
+                            </div>
+                            <div className="event-page-gallery" aria-hidden="true">
+                                <h2>Galeria de Fotos</h2>
+                                <div className="event-page-photo-frame" />
+                            </div>
                         </section>
                     )}
 
-                    {!isLoading && eventError && (
+                    {eventError && (
                         <section className="event-page-feedback is-error" role="alert">
                             <span className="event-page-feedback-icon"><Icon name="error" /></span>
                             <h1>Não foi possível carregar este evento</h1>
@@ -262,12 +247,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        setEvent(null)
-                                        setImages([])
                                         setEventError(null)
-                                        setImagesError(null)
-                                        setIsLoading(true)
-                                        setShowAllPhotos(false)
                                         setReloadKey(key => key + 1)
                                     }}
                                 >
@@ -278,7 +258,7 @@ function EventPage({ eventId }: { eventId: string }) {
                         </section>
                     )}
 
-                    {!isLoading && !eventError && event && (
+                    {event && (
                         <div className="event-page-layout">
                             <div className="event-page-main-column">
                                 <article className="event-page-details-card">
@@ -313,14 +293,16 @@ function EventPage({ eventId }: { eventId: string }) {
                                         </div>
                                     </div>
 
-                                    {event.bannerImage?.trim() ? (
+                                    {banner ? (
                                         <button
                                             type="button"
                                             className="event-page-cover-button"
-                                            onClick={() => openPhoto(0)}
+                                            onClick={() => setSelectedPhotoIndex(0)}
                                             aria-label={`Ampliar imagem do evento ${event.title}`}
                                         >
-                                            <img className="event-page-cover" {...getEventImageProps(event.bannerImage, '(max-width: 680px) calc(100vw - 80px), (max-width: 1200px) 60vw, 760px')} alt={event.title} />
+                                            <img className="event-page-cover"
+                                                {...getEventImageProps(banner, '(max-width: 680px) calc(100vw - 80px), (max-width: 850px) calc(52vw - 55px), (max-width: 1440px) calc(57vw - 73px), 750px')}
+                                                width={780} height={400} loading="eager" fetchPriority="high" alt={event.title} />
                                         </button>
                                     ) : (
                                         <div className="event-page-cover-empty" role="status">
@@ -337,7 +319,7 @@ function EventPage({ eventId }: { eventId: string }) {
                                 </article>
 
                                 <section className="event-page-location" aria-labelledby="event-page-location-title">
-                                    <div className="event-page-map">
+                                    <div className={`event-page-map${mapCoordinates ? ' has-coordinates' : ''}`}>
                                         {mapCoordinates ? (
                                             <Suspense fallback={<p role="status">Carregando mapa...</p>}>
                                                 <LocationMap coordinates={mapCoordinates} label={`Mapa de localização de ${event.title}`} />
@@ -367,33 +349,39 @@ function EventPage({ eventId }: { eventId: string }) {
 
                             <aside className="event-page-gallery" aria-labelledby="event-page-gallery-title">
                                 <h2 id="event-page-gallery-title">Galeria de Fotos</h2>
-                                {imagesError ? (
-                                    <p className="event-page-gallery-message is-error" role="alert">{imagesError}</p>
-                                ) : galleryImages.length === 0 ? (
+                                {!gallery.preview || gallery.preview.error ? (
+                                    <GalleryFeedback error={gallery.preview?.error} onRetry={gallery.retryVisible} />
+                                ) : gallery.total === 0 ? (
                                     <p className="event-page-gallery-message">Esse evento não possui fotos.</p>
                                 ) : (
                                     <>
                                         <div className="event-page-photos is-sidebar">
-                                            {visiblePhotos.slice(0, 3).map(renderGalleryPhoto)}
+                                            {gallery.preview.images.map(renderGalleryPhoto)}
                                         </div>
-                                        {galleryImages.length > 3 && (
+                                        {gallery.total > PREVIEW_SIZE && (
                                             <button
                                                 className="event-page-gallery-more"
                                                 type="button"
-                                                onClick={() => setShowAllPhotos(current => !current)}
+                                                aria-expanded={gallery.expanded}
+                                                onClick={gallery.expanded ? gallery.collapse : gallery.showMore}
                                             >
-                                                {showAllPhotos ? 'Ver menos' : 'Ver mais'}
+                                                {gallery.expanded ? 'Ver menos' : 'Ver mais'}
                                             </button>
                                         )}
                                     </>
                                 )}
                             </aside>
 
-                            {!imagesError && showAllPhotos && galleryImages.length > 3 && (
+                            {gallery.expanded && (
                                 <section className="event-page-gallery-continuation" aria-label="Mais fotos do evento">
                                     <div className="event-page-photos">
-                                        {visiblePhotos.slice(3).map((image, index) => renderGalleryPhoto(image, index + 3))}
+                                        {gallery.extraPhotos.map((image, index) => renderGalleryPhoto(image, index + PREVIEW_SIZE))}
                                     </div>
+                                    {!gallery.lastPage || gallery.lastPage.error ? (
+                                        <GalleryFeedback error={gallery.lastPage?.error} onRetry={gallery.retryVisible} />
+                                    ) : gallery.canShowMore && (
+                                        <button className="event-page-gallery-more" type="button" onClick={gallery.showMore}>Ver mais</button>
+                                    )}
                                 </section>
                             )}
                         </div>
@@ -401,22 +389,28 @@ function EventPage({ eventId }: { eventId: string }) {
                 </div>
             </main>
 
-            {selectedPhoto && (
+            {selectedPhotoIndex !== null && (
                 <div className="event-page-lightbox" role="dialog" aria-modal="true" aria-label="Visualização da foto do evento">
                     <button type="button" className="event-page-lightbox-close" onClick={() => setSelectedPhotoIndex(null)} aria-label="Fechar visualização da imagem">
                         <Icon name="close" />
                     </button>
 
-                    <button type="button" className="event-page-lightbox-nav is-prev" onClick={() => movePhoto(-1)} aria-label="Foto anterior">
+                    <button type="button" className="event-page-lightbox-nav is-prev" disabled={photoCount < 2} onClick={() => movePhoto(-1)} aria-label="Foto anterior">
                         <Icon name="arrowLeft" />
                     </button>
 
                     <div className="event-page-lightbox-panel">
-                        <img {...getEventImageProps(selectedPhoto.imageURL, '(max-width: 680px) calc(100vw - 56px), (max-width: 1400px) 90vw, 1200px', 2560)} alt={selectedPhoto.description || 'Foto do evento'} />
-                        {selectedPhoto.description && <p>{selectedPhoto.description}</p>}
+                        {selectedPhoto ? (
+                            <>
+                                <img {...getEventImageProps(selectedPhoto.imageURL, '(max-width: 680px) calc(100vw - 56px), (max-width: 1140px) calc(100vw - 216px), 940px', 1280)} alt={selectedPhoto.description || 'Foto do evento'} />
+                                {selectedPhoto.description && <p>{selectedPhoto.description}</p>}
+                            </>
+                        ) : gallery.selectedMissing ? (
+                            <p role="status">Esta foto não está mais na galeria.</p>
+                        ) : <GalleryFeedback error={gallery.selectedError} onRetry={gallery.retrySelected} />}
                     </div>
 
-                    <button type="button" className="event-page-lightbox-nav is-next" onClick={() => movePhoto(1)} aria-label="Próxima foto">
+                    <button type="button" className="event-page-lightbox-nav is-next" disabled={photoCount < 2} onClick={() => movePhoto(1)} aria-label="Próxima foto">
                         <Icon name="arrowRight" />
                     </button>
                 </div>

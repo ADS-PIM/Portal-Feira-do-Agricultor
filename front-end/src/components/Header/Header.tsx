@@ -1,7 +1,7 @@
 import { getCurrentPath, navigate, subscribeNavigation } from '../../services/navigation'
 import './Header.css'
 import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
-import logo from '../../assets/brotando-feiras-alinhada-direita-tons.png'
+import logo from '../../assets/brotando-feiras-cabecalho.png'
 import Icon from '../Icon'
 import { restoreAdminProfile } from '../../services/api'
 import { getProfileHref } from '../../services/profileNavigation'

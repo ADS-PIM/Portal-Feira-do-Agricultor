@@ -195,7 +195,6 @@ textarea {
 :root[data-theme="dark"] :is(
     .admin-managers-alert.is-error,
     .admin-business-info-alert.is-error,
-    .admin-dashboard-alert.is-error,
     .admin-events-alert.is-error,
     .contact-form-feedback.error,
     .account-feedback.is-error,

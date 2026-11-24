@@ -3,7 +3,7 @@ import { makeApiUrl } from './apiUrl.ts'
 const PRIVATE_BLOB_HOST = /^[a-z0-9-]+\.private\.blob\.vercel-storage\.com$/i
 
 // A small, shared mipmap-style pyramid bounds the number of CDN derivatives.
-const IMAGE_WIDTHS = [160, 320, 640, 1280, 2560] as const
+const IMAGE_WIDTHS = [160, 320, 480, 640, 800, 1280, 1600, 2560] as const
 type ImageWidth = typeof IMAGE_WIDTHS[number]
 
 function cloudinaryImageUrl(value: string, width: ImageWidth): string | null {

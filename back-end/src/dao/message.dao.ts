@@ -24,6 +24,13 @@ export class MessageDAO {
         }
     }
 
+    public async countMessages(): Promise<{ total: number; unread: number }> {
+        const [[counts]] = await connection.query<RowDataPacket[]>(
+            'SELECT COUNT(*) AS total, COUNT(CASE WHEN COALESCE(isRead, 0) = 0 THEN 1 END) AS unread FROM message',
+        );
+        return { total: Number(counts.total), unread: Number(counts.unread) };
+    }
+
     public async search(): Promise<MessageSearchDTO[]> {
         try {
             const [rows] = await connection.query<(RowDataPacket & MessageSearchDTO)[]>(

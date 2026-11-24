@@ -42,15 +42,11 @@ export class EventService {
         await this.eventDAO.delete(id)
     }
 
-    public async searchById(id: string): Promise<EventSearchByIdDTO | null> {
-        const eventImageDAO = new EventImageDAO()
+    public async searchById(id: string, includeImages = true): Promise<EventSearchByIdDTO | null> {
         const event = await this.eventDAO.searchById(id);
-        if (!event) {
-            return null;
+        if (event && includeImages) {
+            event.eventImages = await new EventImageDAO().searchByEventId(id);
         }
-
-        const eventImagesList = await eventImageDAO.searchByEventId(id);
-        event.eventImages = eventImagesList
         return event;
     }
 

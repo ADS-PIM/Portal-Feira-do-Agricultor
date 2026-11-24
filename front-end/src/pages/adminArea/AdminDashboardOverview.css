@@ -98,6 +98,15 @@
     font-variant-numeric: tabular-nums;
 }
 
+.dashboard-metric-retry {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--theme-accent, var(--brand-green-dark));
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .dashboard-metric > p {
     margin: 6px 0 10px;
     color: var(--text-muted);

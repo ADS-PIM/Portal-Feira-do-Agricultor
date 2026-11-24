@@ -10,6 +10,10 @@ export class MessageService {
         await this.messageDAO.create(message);
     }
 
+    public countMessages() {
+        return this.messageDAO.countMessages();
+    }
+
     public async search(): Promise<MessageSearchDTO[] | null> {
         const messages = await this.messageDAO.search();
         return messages.length > 0 ? messages : null;

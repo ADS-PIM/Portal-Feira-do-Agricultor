@@ -96,6 +96,13 @@ export class AdminDAO {
         }
     }
 
+    async countAdministrators(): Promise<{ total: number; active: number }> {
+        const [[counts]] = await this.pool.query<RowDataPacket[]>(
+            'SELECT COUNT(*) AS total, COUNT(CASE WHEN active THEN 1 END) AS active FROM administrators',
+        );
+        return { total: Number(counts.total), active: Number(counts.active) };
+    }
+
     async searchAll(): Promise<AdminSearchDTO[] | null> {
         try {
             const [admins]: any = await this.pool.query(

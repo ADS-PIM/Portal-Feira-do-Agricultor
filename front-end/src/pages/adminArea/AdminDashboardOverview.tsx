@@ -1,21 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Icon, { type IconName } from '../../components/Icon'
 import type { AdminSection } from '../../components/AdminSideNav/AdminSideNav'
-import type { AdminRecord } from '../../services/adminService'
 import type { AdminEvent } from '../../services/eventService'
-import type { UserMessage } from '../../services/messageService'
+import type { DashboardData } from './useDashboardData'
 import { getDashboardMetrics } from './dashboardMetrics'
 import CreateEventButton from './CreateEventButton'
 import './AdminDashboardOverview.css'
 
-export type DashboardFailures = { admins: boolean; events: boolean; messages: boolean }
+type LoadStatus = DashboardData<unknown>['status']
 
-export default function AdminDashboardOverview({ admins, events, messages, isLoading, failures, onSelectSection, onCreateEvent, onEditEvent, onFilterEvents }: {
-    admins: AdminRecord[]
+export default function AdminDashboardOverview({ admins, events, messages, agendaStatus, retryAgenda, onSelectSection, onCreateEvent, onEditEvent, onFilterEvents }: {
+    admins: DashboardData<{ total: number; active: number }>
     events: AdminEvent[]
-    messages: UserMessage[]
-    isLoading: boolean
-    failures: DashboardFailures
+    messages: DashboardData<{ total: number; unread: number }>
+    agendaStatus: LoadStatus
+    retryAgenda: () => void
     onSelectSection: (section: AdminSection) => void
     onCreateEvent: () => void
     onEditEvent: (id: string) => void
@@ -26,31 +25,31 @@ export default function AdminDashboardOverview({ admins, events, messages, isLoa
         const timer = window.setInterval(() => setNow(new Date()), 60_000)
         return () => window.clearInterval(timer)
     }, [])
-    const metrics = getDashboardMetrics(events, now)
-    const unread = messages.filter(message => !message.isRead).length
-    const activeAdmins = admins.filter(admin => admin.active).length
+    const metrics = useMemo(() => getDashboardMetrics(events, now), [events, now])
     const next = metrics.nextEvent
-    const cards: { label: string; value: number; detail: string; icon: IconName; section: AdminSection; action: string; tone: string; failed: boolean }[] = [
-        { label: 'Eventos', value: events.length, detail: 'Total na agenda', icon: 'calendar', section: 'eventos', action: 'Ver eventos', tone: 'green', failed: failures.events },
-        { label: 'Em 30 dias', value: metrics.next30Days, detail: `${metrics.upcomingCount} futuros`, icon: 'clock', section: 'eventos', action: 'Ver agenda', tone: 'orange', failed: failures.events },
-        { label: 'Não lidas', value: unread, detail: `${messages.length} recebidas`, icon: 'message', section: 'mensagens', action: 'Mensagens', tone: 'blue', failed: failures.messages },
-        { label: 'Equipe ativa', value: activeAdmins, detail: `${admins.length} no total`, icon: 'userShield', section: 'administradores', action: 'Ver equipe', tone: 'purple', failed: failures.admins },
+    const cards: { label: string; value?: number; detail: string; icon: IconName; section: AdminSection; action: string; tone: string; status: LoadStatus; retry: () => void }[] = [
+        { label: 'Eventos', value: events.length, detail: 'Total na agenda', icon: 'calendar', section: 'eventos', action: 'Ver eventos', tone: 'green', status: agendaStatus, retry: retryAgenda },
+        { label: 'Em 30 dias', value: metrics.next30Days, detail: `${metrics.upcomingCount} futuros`, icon: 'clock', section: 'eventos', action: 'Ver agenda', tone: 'orange', status: agendaStatus, retry: retryAgenda },
+        { label: 'Não lidas', value: messages.data?.unread, detail: `${messages.data?.total ?? 0} recebidas`, icon: 'message', section: 'mensagens', action: 'Mensagens', tone: 'blue', status: messages.status, retry: messages.retry },
+        { label: 'Equipe ativa', value: admins.data?.active, detail: `${admins.data?.total ?? 0} no total`, icon: 'userShield', section: 'administradores', action: 'Ver equipe', tone: 'purple', status: admins.status, retry: admins.retry },
     ]
-    const eventsUnavailable = isLoading || failures.events
-    const eventFeedback = isLoading ? 'Carregando agenda...' : 'Os dados da agenda estão indisponíveis.'
+    const eventsUnavailable = agendaStatus !== 'ready'
+    const eventFeedback = agendaStatus === 'loading' ? 'Carregando agenda...' : 'Os dados da agenda estão indisponíveis.'
 
     return (
-        <section className="dashboard-overview" aria-label="Visão geral do site" aria-busy={isLoading}>
+        <section className="dashboard-overview" aria-label="Visão geral do site">
             <div className="dashboard-overview-heading">
                 <div><span className="dashboard-eyebrow">VISÃO GERAL</span><h2>Seu portal em números</h2><p>Organize a agenda e acompanhe o que precisa de atenção.</p></div>
                 <CreateEventButton onClick={onCreateEvent} />
             </div>
             <div className="dashboard-metrics">
                 {cards.map(card => (
-                    <article className={`dashboard-metric is-${card.tone}`} key={card.label}>
+                    <article className={`dashboard-metric is-${card.tone}`} key={card.label} aria-busy={card.status === 'loading'}>
                         <div className="dashboard-metric-heading"><h3>{card.label}</h3><span className="dashboard-metric-icon"><Icon name={card.icon} /></span></div>
-                        <strong className="dashboard-metric-value">{isLoading ? '…' : card.failed ? '—' : card.value}</strong>
-                        <p>{isLoading ? 'Carregando...' : card.failed ? 'Indisponível' : card.detail}</p>
+                        <strong className="dashboard-metric-value">{card.status === 'loading' ? '…' : card.status === 'error' ? '—' : card.value}</strong>
+                        <p aria-live="polite">{card.status === 'loading' ? 'Carregando...' : card.status === 'error' ? (
+                            <>Indisponível. <button type="button" className="dashboard-metric-retry" onClick={card.retry}>Tentar novamente</button></>
+                        ) : card.detail}</p>
                         <button type="button" className="dashboard-text-action" onClick={() => onSelectSection(card.section)}>{card.action}<Icon name="arrowRight" /></button>
                     </article>
                 ))}

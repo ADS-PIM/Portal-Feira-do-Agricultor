@@ -156,7 +156,16 @@ export function getEventAgenda(date: string, signal?: AbortSignal, scope: 'upcom
 }
 
 export function getEventDetails(id: string, signal?: AbortSignal): Promise<EventDetails> {
-    return apiFetch<EventDetails>(`event/${encodeURIComponent(id)}`, { signal })
+    return apiFetch<EventDetails>(`event/${encodeURIComponent(id)}?includeImages=false`, { signal })
+}
+
+export interface EventGalleryPage {
+    images: EventImage[]
+    total: number
+}
+
+export function getEventGalleryPage(id: string, offset: number, limit: number, signal?: AbortSignal) {
+    return apiFetch<EventGalleryPage>(`event/image/${encodeURIComponent(id)}?offset=${offset}&limit=${limit}`, { signal })
 }
 
 export function getEventImages(id: string, signal?: AbortSignal): Promise<EventImage[] | null> {

@@ -14,6 +14,10 @@ export async function logoutAdmin(): Promise<void> {
 
 export type AdminRole = 'SUPER_ADMIN' | 'ADMIN'
 
+export function getAdminCounts(signal: AbortSignal) {
+    return apiFetch<{ total: number; active: number }>('admin?view=counts', { signal })
+}
+
 export type AdminRecord = {
     id: string
     name: string

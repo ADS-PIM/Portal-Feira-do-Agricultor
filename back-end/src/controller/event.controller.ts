@@ -153,7 +153,7 @@ export class EventController {
     public async searchById(req: Request, res: Response) {
         try {
             const eventId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-            const event = await this.eventService.searchById(eventId);
+            const event = await this.eventService.searchById(eventId, req.query.includeImages !== 'false');
             if (!event) {
                 return res.status(404).json({ code: 'EVENT_NOT_FOUND', error: 'Event not found' })
             }

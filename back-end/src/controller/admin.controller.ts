@@ -281,6 +281,7 @@ export class AdminController {
 
     public async searchAll(req: AuthRequest, res: Response) {
         try {
+            if (req.query.view === 'counts') return res.json(await this.adminService.countAdministrators());
             const admins = await this.adminService.searchAll()
             return res.status(200).json(admins);
         } catch (error: any) {

@@ -92,7 +92,17 @@ export class EventImageController {
         res.setHeader('Cache-Control', 'no-store');
         try {
             const eventId = Array.isArray(req.params.eventId) ? req.params.eventId[0] : req.params.eventId;
-            const images = await this.eventImageService.searchByEventId(eventId);
+            let images;
+            if (req.query.limit !== undefined || req.query.offset !== undefined) {
+                const { limit, offset = '0' } = req.query;
+                if (typeof limit !== 'string' || !/^\d+$/.test(limit) || Number(limit) < 1 || Number(limit) > 48
+                    || typeof offset !== 'string' || !/^\d+$/.test(offset) || !Number.isSafeInteger(Number(offset))) {
+                    return res.status(400).json({ error: 'Invalid gallery pagination' });
+                }
+                images = await this.eventImageService.searchGalleryPage(eventId, Number(offset), Number(limit));
+            } else {
+                images = await this.eventImageService.searchByEventId(eventId);
+            }
             setPrivateReadCache(res);
             return res.status(200).json(images);
         } catch (error: any) {

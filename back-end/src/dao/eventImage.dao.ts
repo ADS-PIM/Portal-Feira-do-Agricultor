@@ -1,6 +1,7 @@
 import { connection } from '../util/connection'
 import { EventImageSearchByEventId } from '../dto/eventImage.dto'
 import { EventImage } from '../model/eventImage'
+import type { RowDataPacket } from 'mysql2/promise'
 
 export type EventImageUpdateData = {
     imageURL?: string;
@@ -86,5 +87,25 @@ export class EventImageDAO {
         } catch (error: any) {
             throw new Error('Error searching images by event id: ' + error.message);
         }
+    }
+
+    public async searchGalleryPage(eventId: string, offset: number, limit: number) {
+        const galleryFilter = `eventId = ? AND TRIM(imageUrl) <> ''
+            AND LOWER(TRIM(COALESCE(description, ''))) <> 'banner do evento'`;
+        // The outer event row preserves the count even for an empty or out-of-range page.
+        const [rows] = await connection.query<RowDataPacket[]>(`
+            SELECT page.*, (SELECT COUNT(*) FROM images WHERE ${galleryFilter}) AS total
+            FROM events
+            LEFT JOIN (
+                SELECT id, imageUrl AS imageURL, COALESCE(description, '') AS description
+                FROM images WHERE ${galleryFilter} ORDER BY id LIMIT ? OFFSET ?
+            ) AS page ON TRUE
+            WHERE events.id = ? ORDER BY page.id
+        `, [eventId, eventId, limit, offset, eventId]);
+        if (!rows.length) return null;
+        return {
+            total: Number(rows[0].total),
+            images: rows[0].id === null ? [] : rows.map(({ id, imageURL, description }) => ({ id, imageURL, description })),
+        };
     }
 }

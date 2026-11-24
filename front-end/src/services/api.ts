@@ -105,6 +105,8 @@ export async function restoreSession(): Promise<boolean> {
     return Boolean(await getRefreshedAccessToken())
 }
 
+let pendingProfile: { id: string; revision: number; request: Promise<AdminProfile | null> } | null = null
+
 export async function restoreAdminProfile(): Promise<AdminProfile | null> {
     if (!await restoreSession()) return null
 
@@ -114,6 +116,18 @@ export async function restoreAdminProfile(): Promise<AdminProfile | null> {
         return null
     }
 
+    const revision = getSessionRevision()
+    if (pendingProfile?.id === adminId && pendingProfile.revision === revision) return pendingProfile.request
+    const request = loadCurrentAdminProfile(adminId)
+    pendingProfile = { id: adminId, revision, request }
+    try {
+        return await request
+    } finally {
+        if (pendingProfile?.request === request) pendingProfile = null
+    }
+}
+
+async function loadCurrentAdminProfile(adminId: string): Promise<AdminProfile | null> {
     const profile = await apiFetch<AdminProfile>(`admin/${encodeURIComponent(adminId)}`)
     const issue = getAdminAccessIssue()
     if (issue) throw new ApiRequestError(403, `admin/${encodeURIComponent(adminId)}`, issue === 'revoked' ? 'ADMIN_ACCESS_REVOKED' : 'ADMIN_DISABLED')

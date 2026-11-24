@@ -1,18 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { AdminSection } from '../../components/AdminSideNav/AdminSideNav'
-import { getAdmins, type AdminRecord } from '../../services/adminService'
+import { getAdminCounts } from '../../services/adminService'
 import { getAdminEvents, type AdminEvent } from '../../services/eventService'
-import { getUserMessages, type UserMessage } from '../../services/messageService'
+import { getMessageCounts } from '../../services/messageService'
 import { getCalendarYears, MIN_FILTER_YEAR } from '../../utils/calendarYears'
 import './AdminEvents.css'
 import './AdminDashboard.css'
 import CreateEventButton from './CreateEventButton'
 import Icon from '../../components/Icon'
-import AdminDashboardOverview, { type DashboardFailures } from './AdminDashboardOverview'
+import AdminDashboardOverview from './AdminDashboardOverview'
+import { useDashboardData } from './useDashboardData'
 import { CALENDAR_EVENT_STATES, compareCalendarEvents, getCalendarStatusLabel } from '../../components/Calendar/calendarEvents'
 import '../../components/Calendar/CalendarStatus.css'
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+const EMPTY_EVENTS: AdminEvent[] = []
 
 const normalizeDateOnly = (value: string | Date) => {
     if (value instanceof Date) {
@@ -54,54 +56,13 @@ const AdminDashboard = ({
     onFilterEvents: (eventIds: string[], label: string) => void
     onDeleteEvent: (eventId: string) => void
 }) => {
-    const [admins, setAdmins] = useState<AdminRecord[]>([])
-    const [messages, setMessages] = useState<UserMessage[]>([])
-    const [events, setEvents] = useState<AdminEvent[]>([])
+    const admins = useDashboardData(getAdminCounts)
+    const messages = useDashboardData(getMessageCounts)
+    const agenda = useDashboardData(getAdminEvents)
+    const events = agenda.data ?? EMPTY_EVENTS
     const [visibleMonth, setVisibleMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
     const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-
-    const [failures, setFailures] = useState<DashboardFailures>({ admins: false, events: false, messages: false })
     const monthKey = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, '0')}`
-
-    useEffect(() => {
-        let active = true
-
-        const loadDashboard = async () => {
-            try {
-                const [admins, eventList, messages] = await Promise.allSettled([
-                    getAdmins(),
-                    getAdminEvents(),
-                    getUserMessages(),
-                ])
-
-                if (!active) return
-
-                setAdmins(admins.status === 'fulfilled' ? admins.value : [])
-                setMessages(messages.status === 'fulfilled' ? messages.value ?? [] : [])
-                setEvents(eventList.status === 'fulfilled' ? eventList.value ?? [] : [])
-                setFailures({
-                    admins: admins.status === 'rejected',
-                    events: eventList.status === 'rejected',
-                    messages: messages.status === 'rejected',
-                })
-                if ([admins, eventList, messages].some(result => result.status === 'rejected')) {
-                    setError('Alguns dados não puderam ser carregados. Os indicadores afetados estão indisponíveis. Recarregue a página para tentar novamente.')
-                }
-            } catch (dashboardError) {
-                if (!active) return
-                setError(dashboardError instanceof Error ? dashboardError.message : 'Não foi possível carregar o painel geral.')
-            } finally {
-                if (active) setIsLoading(false)
-            }
-        }
-
-        void loadDashboard()
-        return () => {
-            active = false
-        }
-    }, [])
 
     const eventsByDate = useMemo(() => {
         const grouped = new Map<string, AdminEvent[]>()
@@ -156,14 +117,12 @@ const AdminDashboard = ({
 
             <div className="admin-dashboard-workspace">
 
-                {error && <p className="admin-dashboard-alert is-error" role="alert">{error}</p>}
-
                 <AdminDashboardOverview
                     admins={admins}
                     events={events}
                     messages={messages}
-                    isLoading={isLoading}
-                    failures={failures}
+                    agendaStatus={agenda.status}
+                    retryAgenda={agenda.retry}
                     onSelectSection={onSelectSection}
                     onCreateEvent={() => onCreateEventAtDate(null)}
                     onEditEvent={onEditEvent}
@@ -266,9 +225,9 @@ const AdminDashboard = ({
                                 />
                             )}
                         </header>
-                        {isLoading ? (
+                        {agenda.status === 'loading' ? (
                             <p className="admin-events-empty" role="status">Carregando eventos...</p>
-                        ) : failures.events ? (
+                        ) : agenda.status === 'error' ? (
                             <p className="admin-events-empty" role="status">Não foi possível carregar a agenda.</p>
                         ) : agendaEvents.length ? (
                             <ul className="admin-events-list">

@@ -25,6 +25,7 @@ export class MessageController {
 
     public async search(req: AuthRequest, res: Response) {
         try {
+            if (req.query.view === 'counts') return res.json(await this.messageService.countMessages());
             const messages = await this.messageService.search();
             return res.status(200).json(messages);
         } catch (error: any) {

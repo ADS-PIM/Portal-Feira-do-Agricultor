@@ -115,6 +115,18 @@
     min-width: 0;
 }
 
+.event-page-loading {
+    min-height: calc(100vh - 150px);
+}
+
+.event-page-loading-meta {
+    width: min(100%, 440px);
+    height: 84px;
+    margin-bottom: 22px;
+    border-radius: 12px;
+    background: var(--surface-input);
+}
+
 .event-page-details-card,
 .event-page-gallery,
 .event-page-gallery-continuation,
@@ -233,6 +245,7 @@
 }
 
 .event-page-cover {
+    height: auto;
     object-fit: cover;
 }
 
@@ -281,29 +294,6 @@
     padding: 14px;
 }
 
-.event-page-gallery-continuation .event-page-photos {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: center;
-}
-
-.event-page-gallery-continuation .event-page-photo-button {
-    width: fit-content;
-    max-width: 100%;
-}
-
-.event-page-gallery-continuation .event-page-photo {
-    width: fit-content;
-}
-
-.event-page-gallery-continuation .event-page-photo img {
-    width: auto;
-    height: 500px;
-    max-width: 100%;
-    object-fit: contain;
-}
-
 .event-page-gallery h2 {
     margin-bottom: 16px;
     font-size: 19px;
@@ -311,7 +301,7 @@
 
 .event-page-photos {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     align-items: flex-start;
     justify-items: center;
     gap: 8px;
@@ -321,49 +311,43 @@
     grid-template-columns: minmax(0, 1fr);
 }
 
-.event-page-photos.is-sidebar .event-page-photo-button {
-    width: fit-content;
-    max-width: 100%;
-}
-
-.event-page-photos.is-sidebar .event-page-photo {
-    width: fit-content;
-}
-
-.event-page-photos.is-sidebar .event-page-photo img {
-    width: auto;
-    height: 500px;
-    max-width: 100%;
-    object-fit: contain;
-}
-
-.event-page-photo-button {
-    width: 100%;
-    max-width: 280px;
-    min-width: 0;
-    justify-self: center;
-}
-
 .event-page-photo {
-    margin: 0;
+    display: block;
     border-radius: 6px;
 }
 
 .event-page-photo-button {
     display: block;
     width: 100%;
+    min-width: 0;
     padding: 0;
     border: 0;
     background: transparent;
     cursor: pointer;
+    font: inherit;
     text-align: left;
+}
+
+.event-page-photo-frame {
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    width: 100%;
+    height: 500px;
+    place-items: center;
+    border-radius: 6px;
+}
+
+.event-page-loading .event-page-photo-frame {
+    background: var(--surface-input);
 }
 
 .event-page-photo img,
 .event-page-photo-unavailable {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
+    min-height: 0;
+    object-fit: contain;
     border-radius: inherit;
 }
 
@@ -378,7 +362,8 @@
     background: var(--theme-surface-muted, #f5f1e8);
 }
 
-.event-page-photo figcaption {
+.event-page-photo-caption {
+    display: block;
     padding: 7px 9px;
     color: var(--text-muted);
     font-size: 12px;
@@ -459,6 +444,10 @@
     width: 100%;
     height: 320px;
     border: 0;
+}
+
+.event-page-map.has-coordinates {
+    min-height: 320px;
 }
 
 .event-page-map > p {
@@ -711,38 +700,19 @@
         padding: 12px;
     }
 
-    .event-page-gallery-continuation .event-page-photos {
-        display: grid;
+    .event-page-photos {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .event-page-gallery-continuation .event-page-photo-button {
-        width: 100%;
-    }
-
-    .event-page-gallery-continuation .event-page-photo {
-        width: auto;
-    }
-
-    .event-page-gallery-continuation .event-page-photo img {
-        width: 100%;
-        height: auto;
-        object-fit: initial;
-    }
-
-    .event-page-photos.is-sidebar .event-page-photo-button {
-        width: 100%;
+    .event-page-photo-button,
+    .event-page-gallery > .event-page-photo-frame {
         max-width: 280px;
+        margin-inline: auto;
     }
 
-    .event-page-photos.is-sidebar .event-page-photo {
-        width: auto;
-    }
-
-    .event-page-photos.is-sidebar .event-page-photo img {
-        width: 100%;
+    .event-page-photo-frame {
         height: auto;
-        object-fit: initial;
+        aspect-ratio: 3 / 4;
     }
 }
 
@@ -797,6 +767,10 @@
     .event-page-meta {
         display: grid;
         gap: 12px;
+    }
+
+    .event-page-loading-meta {
+        height: 132px;
     }
 
     .event-page-gallery {

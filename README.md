@@ -328,7 +328,7 @@ ficam no Cloudinary. Nenhuma alteração de esquema MySQL é necessária.
 #### Qualidade e versões menores (mipmaps/downsampling)
 
 O original é armazenado intacto, sem uma transformação destrutiva no upload.
-Na exibição, uma pirâmide de larguras **160, 320, 640, 1280 e 2560 px** é
+Na exibição, uma pirâmide de larguras **160, 320, 480, 640, 800, 1280, 1600 e 2560 px** é
 oferecida por `srcset`/`sizes` nas capas, galerias, editor e foto ampliada.
 O navegador escolhe a versão conforme o espaço disponível e a densidade da
 tela. Cada versão deriva diretamente do original, preserva a proporção e usa

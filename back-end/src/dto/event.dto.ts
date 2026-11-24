@@ -162,5 +162,5 @@ export class EventSearchByIdDTO {
     bannerImage: string | null;
     createdAt: Date;
     administratorId: string | null;
-    eventImages: EventImageSearchByEventId[] | null;
+    eventImages?: EventImageSearchByEventId[] | null;
 }

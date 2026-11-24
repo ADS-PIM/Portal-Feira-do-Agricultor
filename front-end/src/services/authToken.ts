@@ -16,6 +16,11 @@ export type AdminAccessIssue = 'disabled' | 'revoked'
 let adminAccessIssue: AdminAccessIssue | null = null
 export const AUTH_STATE_CHANGE_EVENT = 'auth-state-change'
 
+export function subscribeAuthState(onChange: () => void) {
+    window.addEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
+    return () => window.removeEventListener(AUTH_STATE_CHANGE_EVENT, onChange)
+}
+
 const AUTH_DISPLAY_STORAGE_KEY = 'brotando-feiras-auth-display'
 const HEADER_PROFILE_STORAGE_KEY = 'brotando-feiras-header-profile'
 type AuthDisplayState = 'guest' | 'authenticated'

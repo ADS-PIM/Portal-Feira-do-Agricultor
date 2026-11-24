@@ -39,6 +39,10 @@ export class AdminService {
         return this.adminDAO.searchPublicById(id);
     }
 
+    public countAdministrators() {
+        return this.adminDAO.countAdministrators();
+    }
+
     public async searchAll(): Promise<AdminSearchDTO[] | null> {
         const admins = await this.adminDAO.searchAll();
         return admins;
