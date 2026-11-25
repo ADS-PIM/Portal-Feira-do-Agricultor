@@ -1,5 +1,6 @@
 import { navigate } from '../../services/navigation'
 import Icon from '../Icon'
+import { revealOnScroll } from '../../utils/revealOnScroll'
 import './PricingCalculatorPromo.css';
 
 const PricingCalculatorPromo = () => {
@@ -18,9 +19,9 @@ const PricingCalculatorPromo = () => {
                     </button>
                 </div>
 
-                <aside className="pricing-calculator-preview" aria-label="Resumo do cálculo de preço">
+                <aside className="pricing-calculator-preview" aria-label="Resumo do cálculo de preço" data-home-reveal-card>
                     <div className="pricing-calculator-preview-heading">
-                        <span className="pricing-calculator-icon" aria-hidden="true">
+                        <span className="pricing-calculator-icon" aria-hidden="true" ref={revealOnScroll}>
                             <Icon name="calculator" />
                         </span>
                         <div>

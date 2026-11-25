@@ -12,7 +12,7 @@
 .about-page *::after { box-sizing: border-box; }
 
 .about-shell {
-    width: min(100% - 52px, 1200px);
+    width: min(100% - 52px, var(--about-content-width, 1040px));
     margin-inline: auto;
 }
 
@@ -44,7 +44,7 @@
 }
 
 .about-page p { margin: 0; font-size: 16px; line-height: 1.7; }
-.about-page-header { padding-block: 40px 32px; }
+.about-page-header { margin-bottom: 30px; }
 .about-page-header p { max-width: 800px; font-size: 17px; line-height: 1.6; }
 
 .about-page .about-eyebrow {
@@ -60,11 +60,11 @@
 .about-section-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-    gap: 40px;
+    align-items: center;
+    gap: clamp(32px, 5vw, 72px);
 }
 
-.about-intro { padding-block: 0 52px; }
+.about-intro { padding-block: clamp(32px, 5vw, 68px); }
 .about-intro-copy { min-width: 0; }
 .about-intro-copy h2 { max-width: 24ch; margin-bottom: 18px; }
 .about-page .about-location { display: flex; align-items: center; gap: 8px; margin-top: 22px; color: var(--text-muted); font-size: 14px; }
@@ -72,7 +72,7 @@
 
 .about-section { padding-block: 48px 56px; }
 .about-history { border-top: 1px solid var(--border-default); scroll-margin-top: 105px; }
-.about-section-heading { max-width: 820px; margin-bottom: 28px; }
+.about-section-heading { max-width: 44rem; margin: 0 auto 32px; text-align: center; text-wrap: balance; }
 .about-section-grid > * { min-width: 0; }
 
 .about-photo {
@@ -101,16 +101,23 @@
 .about-photo-icon svg { width: 24px; height: 24px; }
 .about-photo figcaption { padding: 12px 8px 5px; color: var(--text-muted); font-size: 13px; line-height: 1.5; }
 
-.about-journey { list-style: none; margin: 0; padding: 0; }
-.about-journey li { display: flex; align-items: flex-start; gap: 16px; padding-block: 22px; border-bottom: 1px solid var(--border-default); }
-.about-journey li:first-child { padding-top: 0; }
-.about-journey li:last-child { padding-bottom: 0; border-bottom: 0; }
+.about-journey {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+    margin: 0 0 32px;
+    padding: 0;
+    list-style: none;
+}
+.about-journey li { padding-top: 16px; border-top: 1px solid var(--border-default); }
+.about-journey .about-step { margin-bottom: 12px; }
+.about-history .about-photo { max-width: 38rem; margin-inline: auto; }
 .about-step { display: grid; width: 36px; height: 36px; flex: 0 0 36px; place-items: center; border-radius: 50%; background: var(--brand-green-light); color: var(--about-accent); font-size: 12px; font-weight: 700; }
 .about-journey p { font-size: 15px; line-height: 1.7; }
 
 .about-values-band { padding-block: 48px 56px; }
 .about-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
-.about-value { display: flex; align-items: flex-start; gap: 16px; padding: 24px; border: 1px solid var(--border-default); border-radius: 18px; background: var(--theme-surface, #fff); }
+.about-value { display: flex; align-items: flex-start; gap: 16px; padding: 18px 0; border-top: 1px solid var(--border-default); }
 .about-value-icon { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border-radius: 12px; background: var(--brand-green-light); color: var(--theme-success-text, var(--brand-green-dark)); }
 .about-value-icon svg { width: 20px; height: 20px; }
 .about-value--orange .about-value-icon { background: color-mix(in srgb, var(--brand-orange) 12%, var(--theme-surface, #fff)); color: var(--brand-orange); }
@@ -119,6 +126,11 @@
 .about-value p { font-size: 15px; line-height: 1.7; }
 
 .about-women-copy > p { margin-bottom: 18px; }
+.about-women-copy h2 { margin-bottom: 20px; text-wrap: balance; }
+@media (min-width: 761px) {
+    .about-women .about-photo { grid-column: 1; grid-row: 1; }
+    .about-women-copy { grid-column: 2; grid-row: 1; }
+}
 .about-text-link { display: inline-flex; align-items: center; gap: 10px; color: var(--about-accent); font-size: 14px; font-weight: 600; line-height: 1.5; text-decoration: none; }
 .about-text-link:hover { text-decoration: underline; text-underline-offset: 4px; }
 
@@ -149,7 +161,7 @@
 .about-portal h2 { margin-bottom: 10px; font-size: 23px; line-height: 1.35; }
 .about-portal p:not(.about-eyebrow) { font-size: 15px; }
 
-.about-team-page { padding-block: 32px 56px; }
+.about-team-page { --about-content-width: 1200px; padding-block: 32px 56px; }
 .about-team-intro { max-width: 780px; margin-block: 36px 28px; }
 .about-team-intro .about-eyebrow { margin-bottom: 12px; }
 .about-team-coming { max-width: 780px; padding: 28px; border: 1px solid var(--border-default); border-radius: 18px; background: var(--theme-surface, #fff); }
@@ -162,22 +174,24 @@
 
 @media (max-width: 760px) {
     .about-shell { width: calc(100% - 36px); }
-    .about-page-header { padding-block: 30px 28px; }
+    .about-page-header { margin-bottom: 24px; }
     .about-page-header p { font-size: 16px; }
     .about-intro, .about-section-grid { grid-template-columns: minmax(0, 1fr); gap: 26px; }
     .about-intro { padding-bottom: 36px; }
     .about-section, .about-values-band { padding-block: 36px 40px; }
     .about-section-heading { margin-bottom: 24px; }
-    .about-history .about-journey { grid-row: 1; }
+    .about-journey { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .about-journey li { display: flex; align-items: flex-start; gap: 16px; }
+    .about-journey .about-step { margin: 0; }
     .about-photo { max-width: 580px; justify-self: start; }
     .about-values { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-    .about-value { padding: 20px; }
+    .about-value { padding: 16px 0 0; }
     .about-visit { padding: 26px 24px; }
     .about-portal { flex-direction: column; align-items: flex-start; gap: 22px; padding-block: 32px 40px; }
 }
 
 @media (max-width: 480px) {
-    .about-value { gap: 12px; padding: 18px; }
+    .about-value { gap: 12px; }
     .about-journey li { gap: 12px; }
     .about-page h3 { font-size: 17px; }
     .about-photo-placeholder { font-size: 12px; }

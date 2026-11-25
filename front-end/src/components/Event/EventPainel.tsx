@@ -6,6 +6,7 @@ import { getEventAgenda, getNearestEvent, type AgendaEvent, type NearestEvent } 
 import { getUserFacingError } from '../../services/errors'
 import { getBusinessInfo } from '../../services/businessInfoService'
 import { defaultUpcomingEventsDescription } from '../../utils/businessDescription'
+import { revealOnScroll } from '../../utils/revealOnScroll'
 import './EventPainel.css'
 
 const VISIBLE_EVENT_COUNT = 6
@@ -33,8 +34,8 @@ const AgendaEventCard = ({ event }: { event: AgendaEvent }) => {
     const { day } = getDateParts(event.date)
 
     return (
-        <a className='event-agenda-card' href={`/evento/${encodeURIComponent(event.id)}`}>
-            <time className='event-agenda-date' dateTime={event.date.slice(0, 10)}>
+        <a className='event-agenda-card' href={`/evento/${encodeURIComponent(event.id)}`} data-home-reveal-card>
+            <time className='event-agenda-date' ref={revealOnScroll} dateTime={event.date.slice(0, 10)}>
                 <strong>{day}</strong>
                 <span>{formatMonth(event.date)}</span>
             </time>

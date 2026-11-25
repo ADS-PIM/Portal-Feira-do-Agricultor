@@ -5,6 +5,7 @@ import PricingCalculatorPromo from '../../components/CalculatorPromo/PricingCalc
 import ContactSection from '../../components/ContactSection/ContactSection';
 import Footer from '../../components/Footer/Footer';
 import { producers } from '../producersPage/producersData';
+import { revealOnScroll } from '../../utils/revealOnScroll';
 import './MainPage.css';
 
 // Choose once per page load, keeping the selection stable during navigation.
@@ -35,8 +36,8 @@ const MainPage = () => {
 
                     <div className="home-producers-grid">
                         {producerHighlights.map((producer) => (
-                            <article key={producer.slug} className="home-producer-card">
-                                <div className="home-producer-visual">
+                            <article key={producer.slug} className="home-producer-card" data-home-reveal-card>
+                                <div className="home-producer-visual" ref={revealOnScroll}>
                                     {producer.image && (
                                         <img
                                             className="home-producer-photo"

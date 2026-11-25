@@ -2,6 +2,7 @@ import './NearestEventPainel.css'
 import Icon from '../Icon'
 import type { NearestEvent } from '../../services/eventService'
 import { getEventImageProps } from '../../services/eventImageUrl'
+import { revealOnScroll } from '../../utils/revealOnScroll'
 
 interface NearestEventPainelProps {
     event: NearestEvent | null
@@ -26,14 +27,14 @@ const NearestEventPainel = ({ event }: NearestEventPainelProps) => {
     )
 
     return (
-        <article className="nearest-event-painel" aria-labelledby="featured-event-title">
+        <article className="nearest-event-painel" aria-labelledby="featured-event-title" data-home-reveal-card>
             <div className={`featured-event-image${event.bannerImage ? '' : ' is-missing'}`}>
                 {event.bannerImage
                     ? <img {...getEventImageProps(event.bannerImage, '(max-width: 560px) 100vw, 240px')} alt={event.title} />
                     : <><Icon name="calendar" /><p>Evento sem banner</p></>}
             </div>
             <div className="featured-event-info">
-                <p className="featured-event-eyebrow">Próximo encontro</p>
+                <p className="featured-event-eyebrow" ref={revealOnScroll}>Próximo encontro</p>
                 <h3 id="featured-event-title">{event.title}</h3>
                 {event.description && <p className="featured-event-description" tabIndex={0}>{event.description}</p>}
                 <dl className="featured-event-details">

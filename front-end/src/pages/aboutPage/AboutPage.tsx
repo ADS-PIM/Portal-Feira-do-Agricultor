@@ -9,35 +9,32 @@ const AboutPage = () => (
     <>
         <Header initialActiveLink="/sobre" />
         <main className="about-page" aria-labelledby="about-page-title">
-            <header className="about-page-header about-shell">
-                <h1 id="about-page-title">Sobre nós</h1>
-                <p>Conheça a história da nossa feira e das pessoas que fazem parte dela.</p>
-            </header>
-
-            <section className="about-intro about-shell" aria-labelledby="about-intro-title">
+            <div className="about-intro about-shell">
                 <div className="about-intro-copy">
+                    <header className="about-page-header">
+                        <h1 id="about-page-title">Sobre nós</h1>
+                        <p>Conheça a história da nossa feira e das pessoas que fazem parte dela.</p>
+                    </header>
                     <h2 id="about-intro-title">Do campo à praça, a gente cresce junto.</h2>
                     <p>Somos famílias agricultoras, artesãs e artesãos de Tabuleiro do Norte. Com o apoio do Instituto Brotar, a feira aproxima quem produz de quem compra e valoriza o trabalho da nossa terra.</p>
                     <p className="about-location"><Icon name="location" /> Tabuleiro do Norte, Ceará</p>
                 </div>
                 <AboutPhotoFrame photo={aboutPhotos.community} caption="Gente, encontros e o que vem da nossa terra." />
-            </section>
+            </div>
 
             <section id="nossa-caminhada" className="about-section about-history about-shell" aria-labelledby="about-history-title">
                 <header className="about-section-heading">
                     <h2 id="about-history-title">Nossa caminhada</h2>
                 </header>
-                <div className="about-section-grid">
-                    <AboutPhotoFrame photo={aboutPhotos.history} caption="Cada encontro faz parte da nossa caminhada." />
-                    <ol className="about-journey">
-                        {aboutJourney.map((step, index) => (
-                            <li key={step.title}>
-                                <span className="about-step" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                                <div><h3>{step.title}</h3><p>{step.text}</p></div>
-                            </li>
-                        ))}
-                    </ol>
-                </div>
+                <ol className="about-journey">
+                    {aboutJourney.map((step, index) => (
+                        <li key={step.title}>
+                            <span className="about-step" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                            <div><h3>{step.title}</h3><p>{step.text}</p></div>
+                        </li>
+                    ))}
+                </ol>
+                <AboutPhotoFrame photo={aboutPhotos.history} caption="Cada encontro faz parte da nossa caminhada." />
             </section>
 
             <section className="about-values-band" aria-labelledby="about-values-title">
@@ -57,11 +54,9 @@ const AboutPage = () => (
             </section>
 
             <section className="about-section about-women about-shell" aria-labelledby="about-women-title">
-                <header className="about-section-heading">
-                    <h2 id="about-women-title">O trabalho das mulheres faz a feira florescer.</h2>
-                </header>
                 <div className="about-section-grid">
                     <div className="about-women-copy">
+                        <h2 id="about-women-title">O trabalho das mulheres faz a feira florescer.</h2>
                         <p>São mãos que plantam, preparam, criam e acolhem. Na feira, as mulheres encontram espaço para vender, trocar experiências e fortalecer sua autonomia.</p>
                         <p>Quando esse trabalho é valorizado, toda a comunidade cresce junto.</p>
                         <a className="about-button event-agenda-calendar-button" href="/produtores">Conheça essas histórias <Icon name="arrowRight" /></a>

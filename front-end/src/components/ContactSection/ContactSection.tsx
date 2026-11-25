@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Icon from '../Icon'
 import { getBusinessInfo, type BusinessInfo } from '../../services/businessInfoService'
 import { getBusinessHoursLines } from '../../utils/businessHours'
+import { revealOnScroll } from '../../utils/revealOnScroll'
 import './ContactSection.css'
 
 const unavailableMessage = 'Não disponível no momento'
@@ -44,8 +45,8 @@ function ContactCard({
     const availableValue = value?.trim()
 
     return (
-        <article className="contact-card">
-            <span className="contact-card-icon" aria-hidden="true">
+        <article className="contact-card" data-home-reveal-card>
+            <span className="contact-card-icon" aria-hidden="true" ref={revealOnScroll}>
                 <ContactIcon type={type} />
             </span>
             <h3>{title}</h3>
