@@ -105,6 +105,7 @@ export class AdminController {
         res.setHeader('Cache-Control', 'no-store');
         try{
             const refreshToken = (req as Request & { cookies?: Record<string, string> }).cookies?.refreshToken;
+            if (!refreshToken && req.query.optional === '1') return res.status(204).end();
             if (!refreshToken) return res.status(401).json({ message: 'Refresh token is missing' });
 
             if (!process.env.JWT_REFRESH_SECRET) {

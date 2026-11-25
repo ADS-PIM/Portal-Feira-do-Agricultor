@@ -43,7 +43,8 @@ async function readErrorCode(response: Response): Promise<string | undefined> {
 
 async function refreshAccessToken(): Promise<string | null> {
     const revision = getSessionRevision()
-    const response = await fetch(makeApiUrl('admin/refresh'), {
+    const endpoint = getAccessToken() ? 'admin/refresh' : 'admin/refresh?optional=1'
+    const response = await fetch(makeApiUrl(endpoint), {
         method: 'POST',
         credentials: 'include',
         cache: 'no-store',
@@ -53,7 +54,7 @@ async function refreshAccessToken(): Promise<string | null> {
     // A login or logout may have completed while this older request was pending.
     if (revision !== getSessionRevision()) return getAccessToken()
     checkAdminAccess(response, 'admin/refresh', code)
-    if (response.status === 401) {
+    if (response.status === 401 || response.status === 204) {
         clearAccessToken()
         return null
     }
