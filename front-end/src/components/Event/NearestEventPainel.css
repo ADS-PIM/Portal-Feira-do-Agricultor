@@ -215,18 +215,30 @@
     }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 980px) {
+    .upcoming-events-feature {
+        container-type: inline-size;
+    }
+
     .nearest-event-painel {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
         gap: 20px;
         padding: 18px;
     }
 
+    .featured-event-image img {
+        object-fit: contain;
+    }
+}
+
+@container (max-width: 34rem) {
+    .nearest-event-painel {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
     .featured-event-image {
-        width: 100%;
-        min-height: 0;
-        height: auto;
-        aspect-ratio: 1;
+        aspect-ratio: 16 / 9;
+        max-height: 13rem;
     }
 
     .featured-event-details-link {

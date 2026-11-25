@@ -202,10 +202,12 @@
     }
 
     .home-producers-grid {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
     }
 
     .home-producer-visual {
-        min-height: 200px;
+        box-sizing: border-box;
+        min-height: 0;
+        aspect-ratio: 4 / 3;
     }
 }

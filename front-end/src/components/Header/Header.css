@@ -263,13 +263,14 @@
 }
 
 .site-header-profile-dropdown {
+    --profile-signout-color: color-mix(in srgb, var(--brand-pink) 50%, var(--brand-charcoal));
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
     z-index: 1100;
     width: min(192px, calc(100vw - 32px));
     padding: 4px 8px;
-    border: 1px solid var(--theme-border-strong, #b8c9bb);
+    border: 1px solid var(--border-default);
     border-radius: 9px;
     background: var(--theme-surface, #fff);
     box-shadow: 0 10px 28px rgb(20 35 24 / 18%);
@@ -294,40 +295,29 @@
     text-align: left;
     text-decoration: none;
     cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
 }
 
-.site-header-profile-dropdown a:hover,
-.site-header-account .site-header-profile-dropdown button:hover:not(:disabled) {
-    background: var(--brand-green-light);
-    color: var(--theme-text, var(--brand-charcoal));
+.site-header-profile-dropdown a:is(:hover, :focus-visible) {
+    background: var(--theme-success-surface, var(--brand-green-light));
+    color: var(--theme-success-text, var(--brand-green-dark));
 }
 
 .site-header-account .site-header-profile-dropdown button {
     min-height: 38px;
     margin-top: 3px;
-    border-top: 1px solid var(--theme-border-strong, #b8c9bb);
-    color: var(--theme-danger-text, #a04432);
+    border-top: 1px solid var(--border-default);
+    color: var(--profile-signout-color);
 }
 
-.site-header-account .site-header-profile-dropdown button:hover:not(:disabled) {
-    background: var(--theme-danger-surface, #fff2ef);
-    color: var(--theme-danger-button, #a04432);
-}
-
-:root[data-theme="dark"] .site-header-profile-dropdown a:hover {
-    background: color-mix(in srgb, var(--theme-success-surface) 35%, var(--theme-surface));
-    color: var(--theme-text);
-}
-
-:root[data-theme="dark"] .site-header-account .site-header-profile-dropdown button:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--theme-danger-surface) 35%, var(--theme-surface));
-    color: color-mix(in srgb, var(--theme-danger-text) 82%, var(--theme-text));
+.site-header-account .site-header-profile-dropdown button:is(:hover, :focus-visible):not(:disabled) {
+    background: color-mix(in srgb, var(--brand-pink) 10%, var(--theme-surface, #fff));
 }
 
 .site-header-profile-dropdown a:focus-visible,
 .site-header-account .site-header-profile-dropdown button:focus-visible {
     border-radius: 6px;
-    outline: 2px solid var(--brand-orange);
+    outline: 2px solid currentColor;
     outline-offset: -2px;
 }
 
@@ -338,7 +328,7 @@
 
 .site-header-profile-dropdown p {
     padding: 8px 12px 4px;
-    color: var(--theme-danger-text, #a04432);
+    color: var(--profile-signout-color);
     font-size: 12px;
 }
 

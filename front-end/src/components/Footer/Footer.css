@@ -97,7 +97,9 @@
 }
 
 .site-footer-contact-button:hover:not(:disabled) {
-    color: #fff;
+    background: var(--contact-accent);
+    border-color: var(--contact-accent);
+    color: #181818;
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgb(0 0 0 / 28%);
 }
