@@ -129,8 +129,8 @@ export class EventController {
     public async searchAgenda(req: Request, res: Response) {
         const date = req.query.date;
         const scope = req.query.scope ?? 'upcoming';
-        if (scope !== 'upcoming' && scope !== 'month') {
-            return res.status(400).json({ error: 'A valid scope (upcoming or month) is required' });
+        if (scope !== 'upcoming' && scope !== 'month' && scope !== 'year') {
+            return res.status(400).json({ error: 'A valid scope (upcoming, month or year) is required' });
         }
         if (
             typeof date !== 'string' ||

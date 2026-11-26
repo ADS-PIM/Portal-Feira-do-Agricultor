@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import type { Pool, PoolConnection, ResultSetHeader } from 'mysql2/promise'
 import { rememberEventLocation } from './eventLocation.dao'
 import { Event, EventState } from '../model/event'
-import { AdminEventSearchDTO, EventAgendaSearchDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
+import { AdminEventSearchDTO, EventAgendaScope, EventAgendaSearchDTO, EventNearestSearchDTO, EventSearchByIdDTO, EventSearchDTO } from '../dto/event.dto'
 import { eventLocalTimestamp } from '../util/eventTime'
 import { ensureMonthlyFairs, fillMonthlyFair, lockMonthlyFairDate, missingMonthlyFairDates, monthlyFairDates, suppressDeletedMonthlyFair } from './monthlyFair.dao'
 import { ActionError } from '../model/actionError'
@@ -153,18 +153,19 @@ export class EventDAO {
         }
     }
 
-    public async searchAgenda(date: string, scope: 'upcoming' | 'month' = 'upcoming'): Promise<EventAgendaSearchDTO[]> {
+    public async searchAgenda(date: string, scope: EventAgendaScope = 'upcoming'): Promise<EventAgendaSearchDTO[]> {
         try {
             await this.synchronizeStates()
-            const monthStart = `${date.slice(0, 7)}-01`;
+            const periodStart = scope === 'year' ? `${date.slice(0, 4)}-01-01` : `${date.slice(0, 7)}-01`;
+            const interval = scope === 'year' ? '1 YEAR' : '1 MONTH';
             const [events]: any = await this.pool.query(
                 `SELECT id, title, DATE_FORMAT(date, '%Y-%m-%d') AS date, startAt, endAt, localAddress, state
                 FROM events
-                WHERE ${scope === 'month'
-                    ? 'date >= ? AND date < DATE_ADD(?, INTERVAL 1 MONTH)'
-                    : 'date >= ? AND state IN (?, ?, ?)'}
+                WHERE ${scope === 'upcoming'
+                    ? 'date >= ? AND state IN (?, ?, ?)'
+                    : `date >= ? AND date < DATE_ADD(?, INTERVAL ${interval})`}
                 ORDER BY date ASC, startAt ASC, id ASC`,
-                scope === 'month' ? [monthStart, monthStart] : [date, EventState.HAPPENING, EventState.PENDING, EventState.RESCHEDULED]
+                scope === 'upcoming' ? [date, EventState.HAPPENING, EventState.PENDING, EventState.RESCHEDULED] : [periodStart, periodStart]
             );
             return events;
         } catch (error: any) {

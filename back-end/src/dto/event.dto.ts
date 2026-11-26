@@ -138,6 +138,8 @@ export class EventNearestSearchDTO {
     bannerImage: string | null;
 }
 
+export type EventAgendaScope = 'upcoming' | 'month' | 'year';
+
 export class EventAgendaSearchDTO {
     id: string;
     title: string;
