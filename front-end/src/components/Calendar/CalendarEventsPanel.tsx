@@ -3,175 +3,89 @@ import Icon from '../Icon'
 import { getCalendarStatusLabel } from './calendarEvents'
 import './CalendarEventsPanel.css'
 
-type CalendarEventsPanelProps = {
-    events: AgendaEvent[]
-    loading: boolean
-    error: string | null
-    monthLabel: string
-    searchTerm: string
-    onSearchTermChange: (value: string) => void
-    isFiltersOpen: boolean
-    onToggleFilters: () => void
-    statusFilter: AgendaEvent['state'] | ''
-    onStatusFilterChange: (value: AgendaEvent['state'] | '') => void
-    weekdayFilter: string
-    onWeekdayFilterChange: (value: string) => void
-    timeFromFilter: string
-    onTimeFromFilterChange: (value: string) => void
-    timeToFilter: string
-    onTimeToFilterChange: (value: string) => void
-    activeFilterCount: number
-    onClearFilters: () => void
-    weekdayOptions: Array<{ value: string; label: string }>
-    statusOptions: Array<{ value: AgendaEvent['state']; label: string }>
-}
+const MONTHS = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+]
+const weekdayFormat = new Intl.DateTimeFormat('pt-BR', { weekday: 'long' })
 
-function formatEventDate(value: string): { day: string; month: string; weekday: string } {
-    const dateKey = value.slice(0, 10)
-    const date = new Date(`${dateKey}T12:00:00`)
-
-    return {
-        day: new Intl.DateTimeFormat('pt-BR', { day: '2-digit' }).format(date),
-        month: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date).replace('.', '').toUpperCase(),
-        weekday: new Intl.DateTimeFormat('pt-BR', { weekday: 'long' }).format(date),
-    }
-}
-
-function formatTime(value: string): string {
-    return value.slice(0, 5)
-}
-
-function CalendarEventCard({ event }: { event: AgendaEvent }) {
-    const { day, month, weekday } = formatEventDate(event.date)
+function CalendarEventRow({ event }: { event: AgendaEvent }) {
+    const date = event.date.slice(0, 10)
+    const weekday = weekdayFormat.format(new Date(`${date}T12:00:00`))
+    const detailsUrl = `/evento/${encodeURIComponent(event.id)}`
 
     return (
-        <li className={`calendar-event-card calendar-status--${event.state}`} key={event.id}>
-            <div className="calendar-event-card-heading">
-                <time className="calendar-event-date" dateTime={event.date.slice(0, 10)}>
-                    <strong>{day}</strong>
-                    <span>{month}</span>
-                </time>
-                <div className="calendar-event-card-content">
-                    <h3>{event.title}</h3>
-                    <span className="calendar-event-status">{getCalendarStatusLabel(event.state)}</span>
-                </div>
-            </div>
-            <div className="calendar-event-footer">
-                <div className="calendar-event-info">
+        <li className={`calendar-event-row calendar-status--${event.state}`}>
+            <time className="calendar-event-date" dateTime={date}>
+                <strong>{date.slice(8, 10)}</strong>
+                <span>{weekday.split('-')[0]}</span>
+            </time>
+            <div className="calendar-event-content">
+                <h3><a href={detailsUrl}>{event.title}</a></h3>
+                <p className="calendar-event-detail">
+                    <Icon name="clock" />
+                    {event.startAt.slice(0, 5)} às {event.endAt.slice(0, 5)}
+                </p>
+                {event.localAddress && (
                     <p className="calendar-event-detail">
-                        <Icon name="clock" />
-                        <span>{weekday}, {formatTime(event.startAt)} às {formatTime(event.endAt)}</span>
-                    </p>
-                    <p className="calendar-event-detail calendar-event-location">
                         <Icon name="location" />
-                        <span>{event.localAddress}</span>
+                        {event.localAddress}
                     </p>
-                </div>
-                <a className="calendar-event-details-button" href={`/evento/${encodeURIComponent(event.id)}`}>
-                    <span>Ver detalhes</span>
-                    <Icon name="arrowRight" />
+                )}
+            </div>
+            <div className="calendar-event-actions">
+                <span className="calendar-event-status">{getCalendarStatusLabel(event.state)}</span>
+                <a className="calendar-event-details" href={detailsUrl} aria-label={`Ver detalhes de ${event.title}`}>
+                    Ver detalhes <Icon name="arrowRight" />
                 </a>
             </div>
         </li>
     )
 }
 
-function CalendarEventsPanel({
-    events,
-    loading,
-    error,
-    monthLabel,
-    searchTerm,
-    onSearchTermChange,
-    isFiltersOpen,
-    onToggleFilters,
-    statusFilter,
-    onStatusFilterChange,
-    weekdayFilter,
-    onWeekdayFilterChange,
-    timeFromFilter,
-    onTimeFromFilterChange,
-    timeToFilter,
-    onTimeToFilterChange,
-    activeFilterCount,
-    onClearFilters,
-    weekdayOptions,
-    statusOptions,
-}: CalendarEventsPanelProps) {
-    const hasActiveSearchOrFilters = Boolean(searchTerm.trim()) || activeFilterCount > 0
+type CalendarEventsPanelProps = {
+    events: AgendaEvent[]
+    loading: boolean
+    error: string | null
+    filtered: boolean
+}
+
+function CalendarEventsPanel({ events, loading, error, filtered }: CalendarEventsPanelProps) {
+    if (loading) return <p className="calendar-message" role="status">Carregando eventos...</p>
+    if (error) return <p className="calendar-message is-error" role="alert">{error}</p>
+    if (events.length === 0) {
+        return (
+            <p className="calendar-message" role="status">
+                {filtered ? 'Nenhum evento corresponde à busca e aos filtros selecionados.' : 'Nenhum evento marcado para este ano.'}
+            </p>
+        )
+    }
+
+    const byMonth = MONTHS.map((): AgendaEvent[] => [])
+    for (const event of events) {
+        byMonth[Number(event.date.slice(5, 7)) - 1].push(event)
+    }
 
     return (
-        <aside className="calendar-events-panel" aria-labelledby="calendar-events-title">
-            <div className="calendar-events-toolbar">
-                <label className="calendar-events-search">
-                    <Icon name="magnifyingGlass" />
-                    <input
-                        type="search"
-                        placeholder="Buscar por título do evento"
-                        value={searchTerm}
-                        onChange={event => onSearchTermChange(event.target.value)}
-                        aria-label="Buscar eventos pelo título"
-                    />
-                </label>
-                <button
-                    className={`calendar-events-filter-button${isFiltersOpen ? ' is-open' : ''}`}
-                    type="button"
-                    aria-expanded={isFiltersOpen}
-                    aria-controls="calendar-events-filters"
-                    onClick={onToggleFilters}
-                >
-                    <Icon name="sliders" />
-                    Filtros
-                    {activeFilterCount > 0 && <span className="calendar-events-filter-count">{activeFilterCount}</span>}
-                </button>
+        <>
+            <p className="calendar-event-count" role="status">
+                {events.length} {events.length === 1 ? 'evento' : 'eventos'} {filtered ? (events.length === 1 ? 'encontrado' : 'encontrados') : 'neste ano'}
+            </p>
+            <div className="calendar-months">
+                {byMonth.map((monthEvents, index) => {
+                    if (monthEvents.length === 0) return null
+                    const month = MONTHS[index]
+                    return (
+                        <section className="calendar-month" key={month} aria-labelledby={`calendar-month-${index}`}>
+                            <h2 id={`calendar-month-${index}`}>{month}</h2>
+                            <ul className="calendar-events-list">
+                                {monthEvents.map(event => <CalendarEventRow key={event.id} event={event} />)}
+                            </ul>
+                        </section>
+                    )
+                })}
             </div>
-            {isFiltersOpen && (
-                <section className="calendar-events-filters" id="calendar-events-filters" aria-label="Filtros de eventos">
-                    <label>
-                        Status
-                        <select value={statusFilter} onChange={event => onStatusFilterChange(event.target.value as AgendaEvent['state'] | '')}>
-                            <option value="">Todos os status</option>
-                            {statusOptions.map(status => <option key={status.value} value={status.value}>{status.label}</option>)}
-                        </select>
-                    </label>
-                    <label>
-                        Dia da semana
-                        <select value={weekdayFilter} onChange={event => onWeekdayFilterChange(event.target.value)}>
-                            {weekdayOptions.map(day => <option key={day.value} value={day.value}>{day.label}</option>)}
-                        </select>
-                    </label>
-                    <label>
-                        Horário a partir de
-                        <input type="time" value={timeFromFilter} onChange={event => onTimeFromFilterChange(event.target.value)} />
-                    </label>
-                    <label>
-                        Horário até
-                        <input type="time" value={timeToFilter} onChange={event => onTimeToFilterChange(event.target.value)} />
-                    </label>
-                    <button className="calendar-events-clear-filters" type="button" onClick={onClearFilters} disabled={activeFilterCount === 0}>
-                        Limpar filtros
-                    </button>
-                </section>
-            )}
-
-            <header className="calendar-events-panel-header">
-                <h2 id="calendar-events-title">{hasActiveSearchOrFilters ? 'Resultados dos eventos' : 'Eventos do mês'}</h2>
-                <p>{monthLabel}</p>
-            </header>
-
-            {loading && <p className="calendar-events-panel-message" role="status">Carregando eventos...</p>}
-            {error && <p className="calendar-events-panel-message is-error" role="alert">Erro ao carregar os eventos: {error}</p>}
-            {!loading && !error && events.length === 0 && (
-                <p className="calendar-events-panel-message">
-                    {hasActiveSearchOrFilters ? 'Nenhum evento corresponde à busca e aos filtros selecionados.' : 'Não há eventos programados para este mês.'}
-                </p>
-            )}
-            {!loading && !error && events.length > 0 && (
-                <ul className="calendar-events-list">
-                    {events.map(event => <CalendarEventCard event={event} key={event.id} />)}
-                </ul>
-            )}
-        </aside>
+        </>
     )
 }
 

@@ -150,7 +150,7 @@ export function getNearestEvent(date: string, signal?: AbortSignal): Promise<Nea
     return apiFetch<NearestEvent | null>(`event/nearest?${query}`, { signal })
 }
 
-export function getEventAgenda(date: string, signal?: AbortSignal, scope: 'upcoming' | 'month' = 'upcoming'): Promise<AgendaEvent[]> {
+export function getEventAgenda(date: string, signal?: AbortSignal, scope: 'upcoming' | 'month' | 'year' = 'upcoming'): Promise<AgendaEvent[]> {
     const query = new URLSearchParams({ date, scope })
     return apiFetch<AgendaEvent[]>(`event/agenda?${query}`, { signal })
 }
