@@ -4,7 +4,7 @@
 }
 
 @media screen and (prefers-reduced-motion: no-preference) {
-    .main-page-sections .home-reveal-pending { opacity: 0.15; }
+    .main-page-sections .home-reveal-pending { opacity: 0; }
 
     .main-page-sections .home-reveal-in {
         animation: home-reveal var(--home-reveal-duration, 620ms) ease-out backwards;

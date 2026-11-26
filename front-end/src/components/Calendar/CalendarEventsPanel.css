@@ -35,7 +35,7 @@
 .calendar-events-list {
     --event-inset: clamp(14px, 3vw, 24px);
     margin: 0;
-    padding: 0 var(--event-inset);
+    padding: 0;
     list-style: none;
 }
 
@@ -44,7 +44,12 @@
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: start;
     gap: 8px 16px;
-    padding: 18px 0;
+    padding: 18px var(--event-inset);
+    box-shadow: inset 4px 0 var(--calendar-status-color);
+}
+
+.calendar-event-row:last-child {
+    border-radius: 0 0 15px 15px;
 }
 
 .calendar-event-row + .calendar-event-row {
@@ -59,8 +64,8 @@
     width: 64px;
     min-height: 64px;
     border-radius: 10px;
-    background: var(--brand-green-light);
-    color: var(--theme-accent, var(--brand-green-dark));
+    background: var(--calendar-status-color);
+    color: var(--calendar-status-on-color);
 }
 
 .calendar-event-date strong {
@@ -160,24 +165,6 @@
 
 :root[data-theme="dark"] .calendar-month {
     border-color: var(--theme-border-strong);
-}
-
-:root[data-theme="dark"] .calendar-events-list {
-    padding-inline: 0;
-}
-
-:root[data-theme="dark"] .calendar-event-row {
-    padding-inline: var(--event-inset);
-    box-shadow: inset 4px 0 var(--calendar-status-color);
-}
-
-:root[data-theme="dark"] .calendar-event-row:last-child {
-    border-radius: 0 0 15px 15px;
-}
-
-:root[data-theme="dark"] .calendar-event-date {
-    background: var(--calendar-status-color);
-    color: var(--calendar-status-on-color);
 }
 
 :root[data-theme="dark"] .calendar-event-detail {
