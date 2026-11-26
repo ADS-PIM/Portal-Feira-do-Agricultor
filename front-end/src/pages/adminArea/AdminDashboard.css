@@ -88,97 +88,48 @@
     flex-basis: 7px;
 }
 
-.admin-dashboard-agenda-list .admin-events-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-height: none;
-    gap: 12px;
-    overflow: visible;
-    padding: 0;
-}
-
 .admin-dashboard-agenda-list {
     container: dashboard-agenda / inline-size;
 }
 
-.admin-dashboard-agenda-list .admin-event-card {
-    container: dashboard-event / inline-size;
-    padding: 16px;
-    border-left: 4px solid var(--calendar-status-color);
-}
-
-.admin-dashboard-event-heading {
+.admin-dashboard-agenda-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
     gap: 8px;
-    min-width: 0;
 }
 
-.admin-dashboard-event-heading .calendar-event-status {
-    flex-shrink: 0;
+.admin-dashboard-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
 }
 
-.admin-dashboard-agenda-list .admin-dashboard-event-heading h3 {
-    margin: 0;
+.admin-dashboard-pagination .admin-event-button {
+    padding-inline: 12px;
 }
 
-.admin-dashboard-agenda-list .admin-event-card h3,
-.admin-dashboard-agenda-list .admin-event-detail > span {
-    min-width: 0;
-    overflow-wrap: anywhere;
+.admin-dashboard-agenda-list > .admin-dashboard-pagination {
+    justify-content: center;
+    margin-top: 16px;
 }
 
-.admin-dashboard-agenda-list .admin-event-card h3,
-.admin-dashboard-agenda-list .admin-event-description,
-.admin-dashboard-agenda-list .admin-event-location > span {
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+.admin-dashboard-agenda-list .admin-events-year {
+    --year-columns: 1;
 }
 
-.admin-dashboard-agenda-list .admin-event-detail:last-of-type {
-    margin-bottom: 12px;
-}
-
-.admin-dashboard-agenda-list .admin-event-actions {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 4px;
-    padding-top: 10px;
-}
-
-.admin-dashboard-agenda-list .admin-event-action {
-    min-width: 0;
-    min-height: 36px;
-    padding: 0;
-}
-
-.admin-dashboard-agenda-list .admin-event-action-label {
-    display: none;
-    white-space: nowrap;
-}
-
-@media (min-width: 761px) {
-    @container dashboard-event (min-width: 340px) {
-        .admin-dashboard-agenda-list .admin-event-action-label {
-            display: inline;
-        }
+@container dashboard-agenda (min-width: 600px) {
+    .admin-dashboard-agenda-list .admin-events-year {
+        --year-columns: 2;
     }
 }
 
-@container dashboard-event (max-width: 340px) {
-    .admin-dashboard-event-heading {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-    }
-}
-
-@container dashboard-agenda (max-width: 479px) {
-    .admin-dashboard-agenda-list .admin-events-list {
-        grid-template-columns: minmax(0, 1fr);
+@container dashboard-agenda (min-width: 920px) {
+    .admin-dashboard-agenda-list .admin-events-year {
+        --year-columns: 3;
     }
 }
 
@@ -186,66 +137,9 @@
     .admin-dashboard-agenda {
         grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
     }
-
-    .admin-dashboard-agenda-list .admin-events-list {
-        max-height: 520px;
-        overflow-y: auto;
-        scrollbar-gutter: stable;
-        padding: 4px;
-    }
 }
 
 @container dashboard (max-width: 479px) {
-    .admin-dashboard-agenda-list .admin-events-list {
-        gap: 10px;
-    }
-
-    .admin-dashboard-agenda-list .admin-event-card {
-        padding: 12px;
-    }
-
-    .admin-dashboard-agenda-list .admin-event-card h3 {
-        display: block;
-        font-size: 15px;
-    }
-
-    .admin-dashboard-agenda-list .admin-event-description {
-        margin: 6px 0 0;
-        font-size: 12px;
-        line-height: 1.4;
-    }
-
-    .admin-dashboard-event-details {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
-        gap: 6px 12px;
-        margin: 10px 0;
-    }
-
-    .admin-dashboard-agenda-list .admin-event-detail {
-        min-width: 0;
-        gap: 6px;
-        margin: 0;
-        font-size: 12px;
-        line-height: 1.4;
-    }
-
-    .admin-dashboard-agenda-list .admin-event-detail:last-of-type {
-        margin-bottom: 0;
-    }
-
-    .admin-dashboard-event-details .admin-event-location {
-        grid-column: 1 / -1;
-    }
-
-    .admin-dashboard-agenda-list .admin-event-actions {
-        gap: 8px;
-        padding-top: 8px;
-    }
-
-    .admin-dashboard-agenda-list .admin-event-action {
-        min-height: 44px;
-    }
 
     .admin-dashboard-agenda .admin-dashboard-period { gap: 8px; }
     .admin-dashboard-agenda .admin-dashboard-period-month { font-size: 16px; }

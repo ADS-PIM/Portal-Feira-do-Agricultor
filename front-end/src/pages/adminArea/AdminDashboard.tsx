@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { AdminSection } from '../../components/AdminSideNav/AdminSideNav'
 import { getAdminCounts } from '../../services/adminService'
-import { getAdminEvents, type AdminEvent } from '../../services/eventService'
+import { getAdminEvents, type AdminEventWithAuthor as AdminEvent } from '../../services/eventService'
 import { getMessageCounts } from '../../services/messageService'
 import { getCalendarYears, MIN_FILTER_YEAR } from '../../utils/calendarYears'
 import './AdminEvents.css'
@@ -9,39 +9,21 @@ import './AdminDashboard.css'
 import CreateEventButton from './CreateEventButton'
 import Icon from '../../components/Icon'
 import AdminDashboardOverview from './AdminDashboardOverview'
+import AdminEventList from './AdminEventList'
+import { formatEventDate, getFairDateTime } from './adminEventAgenda'
 import { useDashboardData } from './useDashboardData'
-import { CALENDAR_EVENT_STATES, compareCalendarEvents, getCalendarStatusLabel } from '../../components/Calendar/calendarEvents'
+import { CALENDAR_EVENT_STATES, getCalendarStatusLabel } from '../../components/Calendar/calendarEvents'
 import '../../components/Calendar/CalendarStatus.css'
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 const EMPTY_EVENTS: AdminEvent[] = []
+const DASHBOARD_PAGE_SIZE = 6
 
-const normalizeDateOnly = (value: string | Date) => {
-    if (value instanceof Date) {
-        const year = value.getFullYear()
-        const month = String(value.getMonth() + 1).padStart(2, '0')
-        const day = String(value.getDate()).padStart(2, '0')
-        return `${year}-${month}-${day}`
-    }
-
-    return String(value).slice(0, 10)
-}
-
-const formatDateKey = (value: string | Date) => {
-    const date = new Date(`${normalizeDateOnly(value)}T12:00:00`)
-    const year = date.getFullYear()
+function calendarDateKey(date: Date) {
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
+    return `${date.getFullYear()}-${month}-${day}`
 }
-
-const formatEventDate = (value: string | Date) =>
-    new Intl.DateTimeFormat('pt-BR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    }).format(new Date(`${normalizeDateOnly(value)}T12:00:00`))
 
 const AdminDashboard = ({
     onSelectSection,
@@ -60,14 +42,17 @@ const AdminDashboard = ({
     const messages = useDashboardData(getMessageCounts)
     const agenda = useDashboardData(getAdminEvents)
     const events = agenda.data ?? EMPTY_EVENTS
-    const [visibleMonth, setVisibleMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+    const [currentMonth] = useState(() => new Date(`${getFairDateTime(new Date()).slice(0, 7)}-01T12:00:00`))
+    const [selectedMonth, setSelectedMonth] = useState<Date | null>(null)
+    const visibleMonth = selectedMonth ?? currentMonth
     const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null)
-    const monthKey = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, '0')}`
+    const [agendaPage, setAgendaPage] = useState(1)
+    const monthFilter = selectedMonth && calendarDateKey(selectedMonth).slice(0, 7)
 
     const eventsByDate = useMemo(() => {
         const grouped = new Map<string, AdminEvent[]>()
         events.forEach(event => {
-            const dateKey = formatDateKey(event.date)
+            const dateKey = event.date.slice(0, 10)
             const dateEvents = grouped.get(dateKey) ?? []
             dateEvents.push(event)
             grouped.set(dateKey, dateEvents)
@@ -84,18 +69,17 @@ const AdminDashboard = ({
             const day = index - firstWeekday + 1
             if (day < 1) return { day: previousMonthDays + day, date: null as string | null, outside: true }
             if (day > daysInMonth) return { day: day - daysInMonth, date: null as string | null, outside: true }
-            return { day, date: formatDateKey(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), day)), outside: false }
+            return { day, date: calendarDateKey(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), day)), outside: false }
         })
     }, [visibleMonth])
 
-    const agendaEvents = useMemo(
-        () => events
-            .filter(event => selectedCalendarDate
-                ? formatDateKey(event.date) === selectedCalendarDate
-                : formatDateKey(event.date).startsWith(monthKey))
-            .sort(compareCalendarEvents),
-        [events, monthKey, selectedCalendarDate],
-    )
+    const agendaEvents = useMemo(() => {
+        if (selectedCalendarDate) return eventsByDate.get(selectedCalendarDate) ?? EMPTY_EVENTS
+        if (monthFilter) return events.filter(event => event.date.startsWith(monthFilter))
+        return events
+    }, [events, eventsByDate, monthFilter, selectedCalendarDate])
+    const pageCount = Math.max(1, Math.ceil(agendaEvents.length / DASHBOARD_PAGE_SIZE))
+    const currentPage = Math.min(agendaPage, pageCount)
 
     const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' })
         .format(visibleMonth)
@@ -103,9 +87,43 @@ const AdminDashboard = ({
     const monthLabel = `${monthName} ${visibleMonth.getFullYear()}`
     const availableYears = getCalendarYears(visibleMonth.getFullYear())
 
-    const shiftMonth = (offset: number) => {
-        setVisibleMonth(current => new Date(current.getFullYear(), current.getMonth() + offset, 1))
+    const selectMonth = (month: Date | null) => {
+        setSelectedMonth(month)
         setSelectedCalendarDate(null)
+        setAgendaPage(1)
+    }
+
+    const shiftMonth = (offset: number) => {
+        selectMonth(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + offset, 1))
+    }
+
+    const renderPagination = (position: 'top' | 'bottom') => {
+        if (agenda.status !== 'ready' || pageCount <= 1) return null
+        return (
+            <nav className="admin-dashboard-pagination" aria-label={position === 'top' ? 'Paginação dos eventos' : 'Paginação dos eventos no fim da lista'}>
+                <button
+                    type="button"
+                    className="admin-event-button is-secondary"
+                    aria-label="Página anterior"
+                    aria-controls="admin-events-list"
+                    disabled={currentPage === 1}
+                    onClick={() => setAgendaPage(currentPage - 1)}
+                >
+                    Anterior
+                </button>
+                <span role={position === 'top' ? 'status' : undefined}>Página {currentPage} de {pageCount}</span>
+                <button
+                    type="button"
+                    className="admin-event-button is-secondary"
+                    aria-label="Próxima página"
+                    aria-controls="admin-events-list"
+                    disabled={currentPage === pageCount}
+                    onClick={() => setAgendaPage(currentPage + 1)}
+                >
+                    Próxima
+                </button>
+            </nav>
+        )
     }
 
     return (
@@ -139,10 +157,7 @@ const AdminDashboard = ({
                                     className="admin-events-calendar-year"
                                     aria-label="Selecionar ano do calendário administrativo"
                                     value={visibleMonth.getFullYear()}
-                                    onChange={event => {
-                                        setVisibleMonth(new Date(Number(event.target.value), visibleMonth.getMonth(), 1))
-                                        setSelectedCalendarDate(null)
-                                    }}
+                                    onChange={event => selectMonth(new Date(Number(event.target.value), visibleMonth.getMonth(), 1))}
                                 >
                                     {availableYears.map(availableYear => (
                                         <option key={availableYear} value={availableYear}>{availableYear}</option>
@@ -187,7 +202,10 @@ const AdminDashboard = ({
                                             aria-pressed={selectedCalendarDate === cell.date}
                                             aria-label={`${cell.day}${hasEvents ? `, ${dateEvents.length} eventos: ${dayStates.map(status => status.label).join(', ')}` : ''}`}
                                             title={hasEvents ? dateEvents.map(event => `${event.title} (${getCalendarStatusLabel(event.state)})`).join(', ') : undefined}
-                                            onClick={() => setSelectedCalendarDate(selectedCalendarDate === cell.date ? null : cell.date)}
+                                            onClick={() => {
+                                                setSelectedCalendarDate(selectedCalendarDate === cell.date ? null : cell.date)
+                                                setAgendaPage(1)
+                                            }}
                                         >
                                             <span>{cell.day}</span>
                                             {hasEvents && (
@@ -212,87 +230,47 @@ const AdminDashboard = ({
                         </ul>
                     </section>
 
-                    <section className="admin-events-agenda admin-dashboard-agenda-list" aria-labelledby="dashboard-agenda-title">
+                    <section className="admin-events-agenda admin-events-all-list admin-dashboard-agenda-list" aria-labelledby="dashboard-agenda-title">
                         <header className="admin-dashboard-agenda-header">
                             <h2 id="dashboard-agenda-title">
-                                {selectedCalendarDate ? formatEventDate(selectedCalendarDate) : 'Agenda do Mês'}
+                                {selectedCalendarDate ? formatEventDate(selectedCalendarDate) : selectedMonth ? 'Agenda do mês' : 'Agenda de eventos'}
                             </h2>
-                            {selectedCalendarDate && (
-                                <CreateEventButton
-                                    className="admin-dashboard-create-event-button"
-                                    label="Criar evento nesta data"
-                                    onClick={() => onCreateEventAtDate(selectedCalendarDate)}
-                                />
+                            {(selectedCalendarDate || selectedMonth) && (
+                                <div className="admin-dashboard-agenda-actions">
+                                    <button type="button" className="admin-event-action is-view" onClick={() => selectMonth(null)}>
+                                        Ver toda a agenda
+                                    </button>
+                                    {selectedCalendarDate && (
+                                        <CreateEventButton
+                                            className="admin-dashboard-create-event-button"
+                                            label="Criar evento nesta data"
+                                            onClick={() => onCreateEventAtDate(selectedCalendarDate)}
+                                        />
+                                    )}
+                                </div>
                             )}
+                            {renderPagination('top')}
                         </header>
                         {agenda.status === 'loading' ? (
                             <p className="admin-events-empty" role="status">Carregando eventos...</p>
                         ) : agenda.status === 'error' ? (
                             <p className="admin-events-empty" role="status">Não foi possível carregar a agenda.</p>
                         ) : agendaEvents.length ? (
-                            <ul className="admin-events-list">
-                                {agendaEvents.map(event => (
-                                    <li className={`admin-event-card calendar-status--${event.state}`} key={event.id}>
-                                        <div className="admin-dashboard-event-heading">
-                                            <h3>{event.title}</h3>
-                                            <span className="calendar-event-status">{getCalendarStatusLabel(event.state)}</span>
-                                        </div>
-                                        {event.description && <p className="admin-event-description">{event.description}</p>}
-                                        <div className="admin-dashboard-event-details">
-                                            <p className="admin-event-detail">
-                                                <Icon name="calendar" />
-                                                <span title={formatEventDate(event.date)}>{normalizeDateOnly(event.date).split('-').reverse().join('/')}</span>
-                                            </p>
-                                            <p className="admin-event-detail">
-                                                <Icon name="clock" />
-                                                <span>{event.startAt.slice(0, 5)} - {event.endAt.slice(0, 5)}</span>
-                                            </p>
-                                            <p className="admin-event-detail admin-event-location">
-                                                <Icon name="location" />
-                                                <span>{event.localAddress}</span>
-                                            </p>
-                                        </div>
-                                        <div className="admin-event-actions">
-                                            <a
-                                                className="admin-event-action is-view"
-                                                href={`/evento/${encodeURIComponent(event.id)}`}
-                                                aria-label={`Ver evento ${event.title}`}
-                                                title="Ver evento"
-                                            >
-                                                <Icon name="eye" />
-                                                <span className="admin-event-action-label">Ver Evento</span>
-                                            </a>
-                                            <button
-                                                type="button"
-                                                className="admin-event-action is-edit"
-                                                aria-label={`Editar ${event.title}`}
-                                                title="Editar evento"
-                                                onClick={() => onEditEvent(event.id)}
-                                            >
-                                                <Icon name="edit" />
-                                                <span className="admin-event-action-label">Editar</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="admin-event-action is-delete"
-                                                aria-label={`Excluir ${event.title}`}
-                                                title="Excluir evento"
-                                                onClick={() => onDeleteEvent(event.id)}
-                                            >
-                                                <Icon name="trash" />
-                                                <span className="admin-event-action-label">Excluir</span>
-                                            </button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
+                            <AdminEventList
+                                events={agendaEvents}
+                                limit={DASHBOARD_PAGE_SIZE}
+                                offset={(currentPage - 1) * DASHBOARD_PAGE_SIZE}
+                                onEdit={event => onEditEvent(event.id)}
+                                onDelete={event => onDeleteEvent(event.id)}
+                            />
                         ) : (
                             <p className="admin-events-empty">
                                 {selectedCalendarDate
                                     ? 'Nenhum evento marcado para este dia.'
-                                    : 'Não há eventos programados para este mês.'}
+                                    : selectedMonth ? 'Não há eventos programados para este mês.' : 'Nenhum evento cadastrado.'}
                             </p>
                         )}
+                        {renderPagination('bottom')}
                     </section>
                 </div>
             </div>

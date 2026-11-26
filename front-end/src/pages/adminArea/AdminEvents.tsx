@@ -14,6 +14,8 @@ import {
 import { getAdminProfile } from '../../services/authToken'
 import { getUserFacingError } from '../../services/errors'
 import { matchesEventTimeRange } from './eventTimeFilter'
+import { EVENTS_PAGE_SIZE, formatEventDate, MONTH_OPTIONS } from './adminEventAgenda'
+import AdminEventList from './AdminEventList'
 import CreateEventButton from './CreateEventButton'
 import './AdminEvents.css'
 import '../../components/Calendar/CalendarStatus.css'
@@ -22,12 +24,7 @@ import { STATE_LABELS } from './eventFormLabels'
 import { getCoordinates } from '../../utils/eventLocation'
 import { MIN_FILTER_YEAR } from '../../utils/calendarYears'
 
-const EVENTS_PAGE_SIZE = 12
 const EVENT_STATES: AdminEvent['state'][] = ['PENDING', 'HAPPENING', 'CONCLUDED', 'CANCELED', 'RESCHEDULED']
-const MONTH_OPTIONS = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-].map((label, index) => ({ value: String(index + 1).padStart(2, '0'), label }))
 const WEEKDAY_OPTIONS = [
     { value: '', label: 'Todos os dias' },
     { value: '0', label: 'Domingo' },
@@ -63,15 +60,6 @@ function getDateKey(value: string | Date): string {
         return `${year}-${month}-${day}`
     }
     return value.slice(0, 10)
-}
-
-function formatDate(value: string): string {
-    return new Intl.DateTimeFormat('pt-BR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    }).format(new Date(`${getDateKey(value)}T12:00:00`))
 }
 
 function toFormValues(event: AdminEvent): EventFormValues {
@@ -195,8 +183,6 @@ const AdminEvents = ({
 
     const filteredEvents = useMemo(() => {
         const query = searchTerm.trim().toLocaleLowerCase('pt-BR')
-        const now = new Date()
-        const currentDateTime = `${getDateKey(now)}T${now.toTimeString().slice(0, 5)}`
         return events
             .filter(event => {
                 const matchesSearch = !query || event.title.toLocaleLowerCase('pt-BR').includes(query)
@@ -212,20 +198,8 @@ const AdminEvents = ({
                 const matchesIssue = !issueFilter || issueFilter.eventIds.includes(event.id)
                 return matchesSearch && matchesYear && matchesMonth && matchesStatus && matchesWeekday && matchesTime && matchesAdministrator && matchesIssue
             })
-            .sort((first, second) => {
-                const firstDate = `${getDateKey(first.date)}T${first.startAt.slice(0, 5)}`
-                const secondDate = `${getDateKey(second.date)}T${second.startAt.slice(0, 5)}`
-                const firstUpcoming = firstDate >= currentDateTime
-                const secondUpcoming = secondDate >= currentDateTime
-                if (firstUpcoming !== secondUpcoming) return firstUpcoming ? -1 : 1
-                return firstUpcoming
-                    ? firstDate.localeCompare(secondDate)
-                    : secondDate.localeCompare(firstDate)
-            })
     }, [events, searchTerm, statusFilter, timeFromFilter, timeToFilter, weekdayFilter, yearFilter, monthFilter, administratorFilter, currentAdminId, issueFilter])
 
-    const visibleEvents = filteredEvents.slice(0, visibleEventCount)
-    const hasMoreEvents = visibleEvents.length < filteredEvents.length
     const activeFilterCount = [statusFilter, yearFilter, monthFilter, weekdayFilter, timeFromFilter, timeToFilter, administratorFilter, issueFilter].filter(Boolean).length
 
     const clearFilters = () => {
@@ -344,8 +318,8 @@ const AdminEvents = ({
         try {
             const { created } = await recreateMonthlyFair(date)
             setActionMessage(created
-                ? `Feira recriada para ${formatDate(date)}.`
-                : `Já existe um evento em ${formatDate(date)}.`)
+                ? `Feira recriada para ${formatEventDate(date)}.`
+                : `Já existe um evento em ${formatEventDate(date)}.`)
             setSchedule(current => ({ ...current, missingFairDates: current.missingFairDates.filter(item => item !== date) }))
             await refreshSchedule()
         } catch (error) {
@@ -487,9 +461,9 @@ const AdminEvents = ({
                         <ul>
                             {missingFairDates.map(date => (
                                 <li key={date}>
-                                    <time dateTime={date}>{formatDate(date)}</time>
+                                    <time dateTime={date}>{formatEventDate(date)}</time>
                                     <button type="button" className="admin-event-button is-secondary"
-                                        aria-label={`Recriar evento para ${formatDate(date)}`}
+                                        aria-label={`Recriar evento para ${formatEventDate(date)}`}
                                         disabled={recreatingDate !== null} onClick={() => void recreateFair(date)}>
                                         {recreatingDate === date ? 'Recriando…' : 'Recriar evento'}
                                     </button>
@@ -517,86 +491,23 @@ const AdminEvents = ({
                     {isLoading ? (
                         <p className="admin-events-empty" role="status">Carregando eventos...</p>
                     ) : filteredEvents.length ? (
-                        <ul className="admin-events-list" id="admin-events-list">
-                            {visibleEvents.map(event => (
-                                <li className="admin-event-card" key={event.id}>
-                                    <div className="admin-event-title-row">
-                                        <h3>{event.title}</h3>
-                                        <span className={`admin-event-status calendar-status--${event.state}`}>{STATE_LABELS[event.state]}</span>
-                                    </div>
-                                    {event.description && <p className="admin-event-description">{event.description}</p>}
-                                    <p className="admin-event-detail">
-                                        <Icon name="calendar" />
-                                        <span>{formatDate(event.date)}</span>
-                                    </p>
-                                    <p className="admin-event-detail">
-                                        <Icon name="clock" />
-                                        <span>{event.startAt.slice(0, 5)} - {event.endAt.slice(0, 5)}</span>
-                                    </p>
-                                    <p className="admin-event-detail">
-                                        <Icon name="location" />
-                                        <span>{event.localAddress}</span>
-                                    </p>
-                                    <p className="admin-event-detail">
-                                        <Icon name="user" />
-                                        <span>Cadastrado por: {event.administratorName}</span>
-                                    </p>
-                                    <div className="admin-event-actions">
-                                        <a
-                                            className="admin-event-action is-view"
-                                            href={`/evento/${encodeURIComponent(event.id)}`}
-                                            aria-label={`Ver evento ${event.title}`}
-                                            title="Ver evento"
-                                        >
-                                            <Icon name="eye" />
-                                            <span className="admin-event-action-label">Ver Evento</span>
-                                        </a>
-                                        <button
-                                            type="button"
-                                            className="admin-event-action is-edit"
-                                            aria-label={`Editar evento ${event.title}`}
-                                            title="Editar evento"
-                                            onClick={() => {
-                                                setActionMessage(null)
-                                                setFormError(null)
-                                                setEditingEvent(event)
-                                            }}
-                                        >
-                                            <Icon name="edit" />
-                                            <span className="admin-event-action-label">Editar</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="admin-event-action is-delete"
-                                            aria-label={`Excluir evento ${event.title}`}
-                                            title="Excluir evento"
-                                            onClick={() => setEventPendingDeletion(event)}
-                                        >
-                                            <Icon name="trash" />
-                                            <span className="admin-event-action-label">Excluir</span>
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                        <AdminEventList
+                            events={filteredEvents}
+                            limit={visibleEventCount}
+                            onShowMore={() => setVisibleEventCount(count => count + EVENTS_PAGE_SIZE)}
+                            onEdit={event => {
+                                setActionMessage(null)
+                                setFormError(null)
+                                setEditingEvent(event)
+                            }}
+                            onDelete={setEventPendingDeletion}
+                        />
                     ) : (
                         <p className="admin-events-empty">
                             {searchTerm.trim() || activeFilterCount > 0
                                 ? 'Nenhum evento corresponde à busca e aos filtros selecionados.'
                                 : 'Nenhum evento cadastrado.'}
                         </p>
-                    )}
-                    {!isLoading && hasMoreEvents && (
-                        <div className="admin-events-pagination">
-                            <button
-                                className="admin-event-button is-secondary"
-                                type="button"
-                                aria-controls="admin-events-list"
-                                onClick={() => setVisibleEventCount(count => count + EVENTS_PAGE_SIZE)}
-                            >
-                                Ver mais
-                            </button>
-                        </div>
                     )}
                 </section>
             </section>
