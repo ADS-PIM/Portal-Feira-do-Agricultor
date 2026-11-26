@@ -12,14 +12,14 @@ export function revealOnScroll(detail: HTMLElement | null) {
         target.classList.remove('home-reveal-pending')
         target = desktop.matches ? card : detail
         const current = new IntersectionObserver(entries => {
-            if (observer !== current || !entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= 0.15)) return
+            if (observer !== current || !entries.some(entry => entry.isIntersecting)) return
             current.disconnect()
             desktop.removeEventListener('change', observe)
             target.classList.remove('home-reveal-pending')
             if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
                 target.classList.add('home-reveal-in')
             }
-        }, { threshold: 0.15, rootMargin: desktop.matches ? '0px 0px -25% 0px' : '0px' })
+        }, { rootMargin: '0px 0px 48px 0px' })
         observer = current
         target.classList.add('home-reveal-pending')
         observer.observe(target)
