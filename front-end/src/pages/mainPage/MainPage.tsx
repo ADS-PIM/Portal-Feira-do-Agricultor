@@ -23,7 +23,7 @@ const MainPage = () => {
         <>
             <Header/>
             <MainBanner/>
-            <main className="main-page-sections">
+            <main className="main-page-sections scroll-reveal-page">
                 <EventPainel />
                 <section className="home-producers-section" aria-labelledby="home-producers-title">
                     <div className="home-producers-header">

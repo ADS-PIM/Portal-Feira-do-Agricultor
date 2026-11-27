@@ -9,9 +9,9 @@ type CreateEventButtonProps = {
 
 export default function CreateEventButton({ onClick, label = 'Novo evento', className = '' }: CreateEventButtonProps) {
     return (
-        <button type="button" className={`admin-create-event ${className}`.trim()} onClick={onClick} aria-label={label} title={label}>
+        <button type="button" className={`admin-primary-action admin-create-event ${className}`.trim()} onClick={onClick} aria-label={label} title={label}>
             <Icon name="plus" />
-            <span className="admin-create-event-label">{label}</span>
+            <span className="admin-primary-action-label">{label}</span>
         </button>
     )
 }

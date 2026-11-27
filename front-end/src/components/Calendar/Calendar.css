@@ -31,8 +31,8 @@
     gap: 6px;
 }
 
-.calendar-year select,
-.calendar-year button {
+.calendar-year-controls > button,
+.calendar-year-controls .calendar-year-trigger {
     min-height: 44px;
     padding: 0 10px;
     border: 1px solid var(--theme-border-strong);
@@ -43,12 +43,12 @@
     cursor: pointer;
 }
 
-.calendar-year select {
-    font-size: clamp(22px, 3vw, 28px);
+.calendar-year-controls .calendar-year-trigger {
+    font-size: clamp(18px, 2vw, 22px);
     font-weight: 700;
 }
 
-.calendar-year button {
+.calendar-year-controls > button {
     display: grid;
     width: 44px;
     place-items: center;
@@ -65,7 +65,6 @@
     cursor: not-allowed;
 }
 
-.calendar-year select:focus-visible,
 .calendar-year button:focus-visible {
     outline: 2px solid var(--brand-orange);
     outline-offset: 2px;

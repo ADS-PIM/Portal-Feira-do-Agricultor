@@ -1,3 +1,5 @@
+import './revealOnScroll.css'
+
 // A callback ref also observes agenda items that arrive after the first render.
 export function revealOnScroll(detail: HTMLElement | null) {
     if (!detail || !('IntersectionObserver' in window)) return

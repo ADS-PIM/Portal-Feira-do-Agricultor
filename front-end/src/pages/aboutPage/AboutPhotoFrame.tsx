@@ -1,12 +1,13 @@
 import Icon from '../../components/Icon'
+import { revealOnScroll } from '../../utils/revealOnScroll'
 import type { AboutPhoto } from './aboutContent'
 
 type Props = { photo: AboutPhoto; caption: string; className?: string }
 
 export default function AboutPhotoFrame({ photo, caption, className = '' }: Props) {
     return (
-        <figure className={`about-photo ${className}${photo.src ? '' : ' is-reserved'}`}>
-            <div className="about-photo-visual">
+        <figure className={`about-photo ${className}${photo.src ? '' : ' is-reserved'}`} data-home-reveal-card>
+            <div className="about-photo-visual" ref={revealOnScroll}>
                 {photo.src ? (
                     <img src={photo.src} alt={photo.alt} style={{ objectPosition: photo.position }} loading="lazy" decoding="async" />
                 ) : (

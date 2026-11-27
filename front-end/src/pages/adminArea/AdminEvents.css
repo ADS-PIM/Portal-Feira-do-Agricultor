@@ -241,24 +241,6 @@
     text-transform: capitalize;
 }
 
-.admin-events-calendar-year {
-    width: calc(5ch + 2.75rem);
-    min-width: calc(5ch + 2.75rem);
-    padding: 2px 1.15rem 2px 0.45rem;
-    border: 1px solid var(--border-default);
-    border-radius: 7px;
-    background: var(--theme-surface, #fff);
-    color: var(--brand-charcoal);
-    font: inherit;
-    font-size: 0.9em;
-    cursor: pointer;
-}
-
-.admin-events-calendar-year:focus-visible {
-    outline: 2px solid var(--brand-orange);
-    outline-offset: 2px;
-}
-
 .admin-events-agenda > h2 {
     margin: 0;
     font-size: 15px;

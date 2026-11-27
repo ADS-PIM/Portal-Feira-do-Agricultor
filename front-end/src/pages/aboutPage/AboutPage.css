@@ -125,6 +125,10 @@
 .about-value h3 { margin-top: 2px; }
 .about-value p { font-size: 15px; line-height: 1.7; }
 
+.about-journey > :nth-child(2),
+.about-values > :nth-child(even) { --home-reveal-order: 1; }
+.about-journey > :nth-child(3) { --home-reveal-order: 2; }
+
 .about-women-copy > p { margin-bottom: 18px; }
 .about-women-copy h2 { margin-bottom: 20px; text-wrap: balance; }
 @media (min-width: 761px) {

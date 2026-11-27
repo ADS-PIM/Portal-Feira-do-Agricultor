@@ -3,7 +3,8 @@ import type { AdminSection } from '../../components/AdminSideNav/AdminSideNav'
 import { getAdminCounts } from '../../services/adminService'
 import { getAdminEvents, type AdminEventWithAuthor as AdminEvent } from '../../services/eventService'
 import { getMessageCounts } from '../../services/messageService'
-import { getCalendarYears, MIN_FILTER_YEAR } from '../../utils/calendarYears'
+import { MIN_FILTER_YEAR } from '../../utils/calendarYears'
+import CalendarYearPicker from '../../components/Calendar/CalendarYearPicker'
 import './AdminEvents.css'
 import './AdminDashboard.css'
 import CreateEventButton from './CreateEventButton'
@@ -85,7 +86,6 @@ const AdminDashboard = ({
         .format(visibleMonth)
         .replace(/^./, character => character.toLocaleUpperCase('pt-BR'))
     const monthLabel = `${monthName} ${visibleMonth.getFullYear()}`
-    const availableYears = getCalendarYears(visibleMonth.getFullYear())
 
     const selectMonth = (month: Date | null) => {
         setSelectedMonth(month)
@@ -152,19 +152,11 @@ const AdminDashboard = ({
                         <header className="admin-events-calendar-header">
                             <h2 id="dashboard-calendar-title" className="admin-dashboard-period">
                                 <span className="admin-dashboard-period-month">{monthName}</span>
-                                <span className="admin-dashboard-period-year">
-                                <select
-                                    className="admin-events-calendar-year"
-                                    aria-label="Selecionar ano do calendário administrativo"
-                                    value={visibleMonth.getFullYear()}
-                                    onChange={event => selectMonth(new Date(Number(event.target.value), visibleMonth.getMonth(), 1))}
-                                >
-                                    {availableYears.map(availableYear => (
-                                        <option key={availableYear} value={availableYear}>{availableYear}</option>
-                                    ))}
-                                </select>
-                                    <Icon name="chevronRight" />
-                                </span>
+                                <CalendarYearPicker
+                                    label="Selecionar ano do calendário administrativo"
+                                    year={visibleMonth.getFullYear()}
+                                    onChange={year => selectMonth(new Date(year, visibleMonth.getMonth(), 1))}
+                                />
                             </h2>
                             <div className="admin-events-month-navigation">
                                 <button
@@ -237,8 +229,9 @@ const AdminDashboard = ({
                             </h2>
                             {(selectedCalendarDate || selectedMonth) && (
                                 <div className="admin-dashboard-agenda-actions">
-                                    <button type="button" className="admin-event-action is-view" onClick={() => selectMonth(null)}>
-                                        Ver toda a agenda
+                                    <button type="button" className="admin-primary-action" aria-label="Ver toda a agenda" title="Ver toda a agenda" onClick={() => selectMonth(null)}>
+                                        <Icon name="calendar" />
+                                        <span className="admin-primary-action-label">Ver toda a agenda</span>
                                     </button>
                                     {selectedCalendarDate && (
                                         <CreateEventButton

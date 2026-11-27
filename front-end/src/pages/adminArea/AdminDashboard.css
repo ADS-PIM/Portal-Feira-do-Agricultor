@@ -159,44 +159,6 @@
     letter-spacing: -0.03em;
 }
 
-.admin-dashboard-period-year {
-    position: relative;
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-}
-
-.admin-dashboard-period-year .admin-events-calendar-year {
-    box-sizing: border-box;
-    width: 90px;
-    min-width: 90px;
-    height: 36px;
-    padding: 0 30px 0 12px;
-    appearance: none;
-    border: 1px solid var(--theme-border, #d8e5d2);
-    border-radius: 9px;
-    background: var(--theme-surface-muted, #f3f8ef);
-    color: var(--theme-accent, #3f6544);
-    font-size: 13px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-}
-
-.admin-dashboard-period-year .admin-events-calendar-year:hover {
-    border-color: var(--theme-border, #9bb792);
-    background: var(--theme-surface-muted, #eaf3e5);
-}
-
-.admin-dashboard-period-year > svg {
-    position: absolute;
-    right: 11px;
-    width: 10px;
-    height: 10px;
-    color: var(--theme-text-muted, #63815b);
-    pointer-events: none;
-    transform: rotate(90deg);
-}
-
 .admin-dashboard-agenda .admin-events-month-navigation {
     flex-shrink: 0;
 }

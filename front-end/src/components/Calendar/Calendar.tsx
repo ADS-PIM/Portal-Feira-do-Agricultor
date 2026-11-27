@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getEventAgenda, type AgendaEvent } from '../../services/eventService'
 import { getUserFacingError } from '../../services/errors'
-import { getCalendarYears, MIN_FILTER_YEAR } from '../../utils/calendarYears'
+import { MIN_FILTER_YEAR } from '../../utils/calendarYears'
+import CalendarYearPicker from './CalendarYearPicker'
 import Icon from '../Icon'
 import CalendarEventsPanel from './CalendarEventsPanel'
 import { CALENDAR_EVENT_STATES } from './calendarEvents'
@@ -86,9 +87,7 @@ function Calendar() {
                         >
                             <Icon name="chevronLeft" />
                         </button>
-                        <select id="calendar-year-select" aria-label="Selecionar ano" value={year} onChange={event => setYear(Number(event.target.value))}>
-                            {getCalendarYears(year).map(option => <option key={option} value={option}>{option}</option>)}
-                        </select>
+                        <CalendarYearPicker id="calendar-year-select" label="Selecionar ano" year={year} onChange={setYear} />
                         <button type="button" aria-label="Próximo ano" onClick={() => setYear(current => current + 1)}>
                             <Icon name="chevronRight" />
                         </button>

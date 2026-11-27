@@ -2,13 +2,14 @@ import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import Icon from '../../components/Icon'
 import AboutPhotoFrame from './AboutPhotoFrame'
+import { revealOnScroll } from '../../utils/revealOnScroll'
 import { aboutJourney, aboutPhotos, aboutValues } from './aboutContent'
 import './AboutPage.css'
 
 const AboutPage = () => (
     <>
         <Header initialActiveLink="/sobre" />
-        <main className="about-page" aria-labelledby="about-page-title">
+        <main className="about-page scroll-reveal-page" aria-labelledby="about-page-title">
             <div className="about-intro about-shell">
                 <div className="about-intro-copy">
                     <header className="about-page-header">
@@ -28,8 +29,8 @@ const AboutPage = () => (
                 </header>
                 <ol className="about-journey">
                     {aboutJourney.map((step, index) => (
-                        <li key={step.title}>
-                            <span className="about-step" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                        <li key={step.title} data-home-reveal-card>
+                            <span className="about-step" aria-hidden="true" ref={revealOnScroll}>{String(index + 1).padStart(2, '0')}</span>
                             <div><h3>{step.title}</h3><p>{step.text}</p></div>
                         </li>
                     ))}
@@ -44,8 +45,8 @@ const AboutPage = () => (
                     </header>
                     <div className="about-values">
                         {aboutValues.map(value => (
-                            <article key={value.title} className={`about-value about-value--${value.color}`}>
-                                <span className="about-value-icon"><Icon name={value.icon} /></span>
+                            <article key={value.title} className={`about-value about-value--${value.color}`} data-home-reveal-card>
+                                <span className="about-value-icon" ref={revealOnScroll}><Icon name={value.icon} /></span>
                                 <div><h3>{value.title}</h3><p>{value.text}</p></div>
                             </article>
                         ))}
@@ -65,17 +66,17 @@ const AboutPage = () => (
                 </div>
             </section>
 
-            <section className="about-visit about-shell" aria-labelledby="about-visit-title">
+            <section className="about-visit about-shell" aria-labelledby="about-visit-title" data-home-reveal-card>
                 <div>
-                    <h2 id="about-visit-title">Venha conhecer de perto.</h2>
+                    <h2 id="about-visit-title" ref={revealOnScroll}>Venha conhecer de perto.</h2>
                     <p>Confira as próximas datas e venha conversar com quem produz.</p>
                 </div>
                 <a className="about-calendar-button pricing-calculator-button" href="/calendario">Ver calendário de eventos <Icon name="arrowRight" /></a>
             </section>
 
-            <section className="about-portal about-shell" aria-labelledby="about-portal-title">
+            <section className="about-portal about-shell" aria-labelledby="about-portal-title" data-home-reveal-card>
                 <div>
-                    <h2 id="about-portal-title">Essa história também chegou às portas do IFCE</h2>
+                    <h2 id="about-portal-title" ref={revealOnScroll}>Essa história também chegou às portas do IFCE</h2>
                     <p>Conheça a equipe e a caminhada de criação deste portal.</p>
                 </div>
                 <a className="about-portal-link event-agenda-calendar-button" href="/sobre/equipe">Quem fez o portal <Icon name="arrowRight" /></a>

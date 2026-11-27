@@ -1,11 +1,11 @@
-button.admin-create-event {
+button.admin-primary-action {
     display: inline-flex;
-    flex-shrink: 0;
+    box-sizing: border-box;
+    max-width: 100%;
     align-items: center;
     justify-content: center;
     gap: 9px;
     min-height: 42px;
-    margin-left: auto;
     padding: 0 16px;
     border: 1px solid var(--brand-green-dark);
     border-radius: 10px;
@@ -14,28 +14,31 @@ button.admin-create-event {
     font-family: var(--font-family-base);
     font-size: 12px;
     font-weight: 700;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
     cursor: pointer;
 }
 
-button.admin-create-event:hover {
+.admin-create-event {
+    margin-left: auto;
+}
+
+button.admin-primary-action:hover {
     background: var(--brand-green-hover);
 }
 
-button.admin-create-event:focus-visible {
+button.admin-primary-action:focus-visible {
     outline: 3px solid var(--brand-orange);
     outline-offset: 4px;
 }
 
-.admin-create-event svg {
+.admin-primary-action svg {
     width: 16px;
     height: 16px;
     flex-shrink: 0;
 }
 
 @media (max-width: 760px) {
-    button.admin-create-event {
-        box-sizing: border-box;
+    button.admin-primary-action {
         width: 40px;
         min-height: 40px;
         gap: 0;
@@ -43,5 +46,5 @@ button.admin-create-event:focus-visible {
         padding: 0;
     }
 
-    .admin-create-event-label { display: none; }
+    .admin-primary-action-label { display: none; }
 }
