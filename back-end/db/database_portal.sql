@@ -1,3 +1,10 @@
+-- Esquema consolidado do portal, incluindo as migrations ate
+-- 20261124120000-monthly-fair-deletions.js.
+-- Referencia para criacao das tabelas em um banco vazio previamente selecionado.
+-- Nao atualiza tabelas existentes nem registra o historico do SequelizeMeta.
+-- Para instalar/atualizar pelo Sequelize CLI, use npm run db:migrate em back-end
+-- em vez de importar este arquivo. Dados sao gerados/gerenciados pela aplicacao.
+
 create table `administrators` (
     `id` char(36) not null,
     `name` varchar(255) not null,
@@ -7,8 +14,15 @@ create table `administrators` (
     `active` boolean not null,
     `createdAt` date not null,
     `profile_picture` varchar(2048) default null,
+    `deactivatedAt` datetime(3) default null,
+    `reactivatedAt` datetime(3) default null,
+    `reactivatedBy` char(36) default null,
+    `mustResetPassword` boolean not null default false,
+    `anonymizedAt` datetime(3) default null,
     primary key (`id`),
-    unique key `administrators_unique` (`email`)
+    unique key `administrators_unique` (`email`),
+    key `administrators_reactivated_by_fk` (`reactivatedBy`),
+    constraint `administrators_reactivated_by_fk` foreign key (`reactivatedBy`) references `administrators` (`id`) on delete restrict on update cascade
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
 
 create table `events` (
@@ -34,6 +48,18 @@ create table `events` (
 create table `monthly_fair_dates` (
     `scheduledDate` date not null primary key,
     `manuallyDeleted` boolean not null default false
+)engine = InnoDB;
+
+-- Historico compartilhado: preservado mesmo quando o evento e excluido.
+create table `event_locations` (
+    `id` int unsigned not null auto_increment,
+    `address` varchar(255) not null,
+    `latitude` decimal(9,6) not null,
+    `longitude` decimal(10,6) not null,
+    `lastUsedAt` datetime(6) not null,
+    primary key (`id`),
+    unique key `event_locations_coordinates` (`latitude`, `longitude`),
+    key `event_locations_recent` (`lastUsedAt`)
 )engine = InnoDB;
 
 create table `images` (
@@ -97,3 +123,13 @@ create table `password_reset_tokens` (
     unique key `password_reset_token_hash` (`tokenHash`),
     constraint `passwordReset_administrators_FK` foreign key (`adminId`) references `administrators` (`id`) on delete cascade
 )engine = InnoDB default CHARSET = utf8mb4 collate = utf8mb4_general_ci;
+
+-- Estado dos limites de requisicoes compartilhado entre instancias da API.
+create table `rate_limit_buckets` (
+    `bucket_key` varchar(64) not null,
+    `tokens` double not null,
+    `updated_at_ms` bigint unsigned not null,
+    `expires_at_ms` bigint unsigned not null,
+    primary key (`bucket_key`),
+    key `rate_limit_buckets_expiry` (`expires_at_ms`)
+)engine = InnoDB;
